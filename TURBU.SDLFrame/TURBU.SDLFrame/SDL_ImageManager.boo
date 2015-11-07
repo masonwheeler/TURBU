@@ -142,9 +142,9 @@ class TSdlImage(TObject):
 
 	public def constructor(imagename as string, container as TSdlImages, spriteSize as TSgPoint, count as int):
 		super()
-		spriteSize.y = (spriteSize.y * count)
+		spriteSize.y = spriteSize.y * count
 		Setup('', imagename, container, spriteSize, IntPtr.Zero)
-		spriteSize.y = (spriteSize.y / count)
+		spriteSize.y = spriteSize.y / count
 		self.TextureSize = spriteSize
 
 	private def Destroy():

@@ -640,7 +640,7 @@ class T2kSpriteEngine(TSpriteEngine):
 	public override def Draw():
 		caseOf self.State:
 			case TGameState.Map, TGameState.Message:
-				DrawNormal
+				DrawNormal()
 			case TGameState.Fading:
 				if FErasing:
 					self.Canvas.Clear(SDL_BLACK, 255)
@@ -650,11 +650,10 @@ class T2kSpriteEngine(TSpriteEngine):
 				raise Exception('Unsupported game State')
 
 	public def CanExit(x as int, y as int, direction as TDirections, Character as TMapSprite) as bool:
-		opposite as TDirections
 		result = false
 		if Passable(sgPoint(x, y), direction, Character):
 			if EdgeCheck(x, y, direction):
-				opposite = opposite_facing(direction)
+				opposite as TDirections = opposite_facing(direction)
 				result = Passable(Character.InFront, opposite, Character)
 		return result
 

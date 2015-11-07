@@ -59,14 +59,12 @@ class TTransition(TObject, ITransition):
 class TMaskTransition(TTransition):
 
 	private def DrawMask(before as TSdlRenderTarget, after as TSdlRenderTarget, tran as TSdlRenderTarget):
-		shaders as TdmShaders
-		shaderProgram as int
+		shaders as TdmShaders = GSpriteEngine.value.ShaderEngine
+		shaderProgram as int = shaders.ShaderProgram('default', 'MaskF')
+		shaders.UseShaderProgram(shaderProgram)
 		GPU_SetShaderImage(before.Image, 0, 0)
 		GPU_SetShaderImage(after.Image, 1, 1)
 		GPU_SetShaderImage(tran.Image, 2, 2)
-		shaders = GSpriteEngine.value.ShaderEngine
-		shaderProgram = shaders.ShaderProgram('default', 'MaskF')
-		shaders.UseShaderProgram(shaderProgram)
 		shaders.SetUniformValue(shaderProgram, 'before', 0)
 		shaders.SetUniformValue(shaderProgram, 'after', 1)
 		shaders.SetUniformValue(shaderProgram, 'mask', 2)
@@ -101,7 +99,7 @@ class TFadeTransition(TMaskTransition):
 	protected override def DoDraw() as bool:
 		workload as int
 		fadeColor as SDL.SDL_Color
-		workload = Math.Max((255 / (FADETIME[0] / TRpgTimestamp.FrameLength)), 1)
+		workload = Math.Max((255 / Math.Max((FADETIME[0] / TRpgTimestamp.FrameLength), 1)), 1)
 		FProgress += workload * 2
 		FProgress = Math.Min(FProgress, 255)
 		fadeColor.r = FProgress
@@ -212,7 +210,7 @@ class TStripeTransition(TMaskTransition):
 
 	private FStripeArray as (int)
 
-	private def setupStripeArray(vertical as bool):
+	private def SetupStripeArray(vertical as bool):
 		dimension as int = (GSpriteEngine.value.Canvas.Height if vertical else GSpriteEngine.value.Canvas.Width)
 		Array.Resize[of int](FStripeArray, dimension / STRIPESIZE)
 		i as int = 0
@@ -220,7 +218,7 @@ class TStripeTransition(TMaskTransition):
 		--j if (j % 2) == 0
 		repeat :
 			FStripeArray[i] = i
-			FStripeArray[(i + 1)] = j if j >= 0
+			FStripeArray[i + 1] = j if j >= 0
 			i += 2
 			j -= 2
 			until i >= FStripeArray.Length or j < 0
@@ -247,7 +245,7 @@ class TStripeTransition(TMaskTransition):
 	public def constructor(vertical as bool):
 		super()
 		FVertical = vertical
-		setupStripeArray(vertical)
+		SetupStripeArray(vertical)
 
 class TRectIrisTransition(TMaskTransition):
 

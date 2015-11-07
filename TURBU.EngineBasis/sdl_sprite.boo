@@ -764,7 +764,7 @@ class TSpriteEngine(TParentSprite):
 		for list in FSpriteList.FSprites:
 			if assigned(list):
 				FRenderer.Reset()
-				for item in List:
+				for item in list:
 					item.Draw()
 				FRenderer.Render(FCanvas.RenderTarget)
 
