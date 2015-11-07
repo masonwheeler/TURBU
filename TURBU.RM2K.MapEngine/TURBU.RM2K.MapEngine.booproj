@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{DC05E2F6-6214-4ED1-84BB-07EC636C386B}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TURBU.RM2K.MapEngine</RootNamespace>
+    <AssemblyName>TURBU.RM2K.MapEngine</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <NoStdLib>False</NoStdLib>
+    <Ducky>False</Ducky>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Strict>False</Strict>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Adt">
+      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\..\boo\build\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
+    <Reference Include="SDL2-CS">
+      <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="MoveMapObject.boo" />
+    <Compile Include="map_default_plugin.boo" />
+    <Compile Include="rs.maps.Meta.boo" />
+    <Compile Include="rs_battle.boo" />
+    <Compile Include="rs_characters.boo" />
+    <Compile Include="rs_maps.boo" />
+    <Compile Include="rs_message.boo" />
+    <Compile Include="tiles.boo" />
+    <Compile Include="turbu.2k.animations.Meta.boo" />
+    <Compile Include="turbu.2k.char.sprites.Meta.boo" />
+    <Compile Include="turbu.2k.equipment.menu.Meta.boo" />
+    <Compile Include="turbu.2k.frames.Meta.boo" />
+    <Compile Include="turbu.2k.images.Meta.boo" />
+    <Compile Include="turbu.2k.inventory.menu.Meta.boo" />
+    <Compile Include="turbu.2k.item.types.Meta.boo" />
+    <Compile Include="turbu.2k.items.Meta.boo" />
+    <Compile Include="turbu.2k.main.menu.Meta.boo" />
+    <Compile Include="turbu.2k.map.engine.Meta.boo" />
+    <Compile Include="turbu.2k.map.tiles.Meta.boo" />
+    <Compile Include="turbu.2k.map.timer.Meta.boo" />
+    <Compile Include="turbu.2k.menu.basis.Meta.boo" />
+    <Compile Include="turbu.2k.menu.components.Meta.boo" />
+    <Compile Include="turbu.2k.message.boxes.Meta.boo" />
+    <Compile Include="turbu.2k.party.target.menu.Meta.boo" />
+    <Compile Include="turbu.2k.save.menu.Meta.boo" />
+    <Compile Include="turbu.2k.shop.menu.Meta.boo" />
+    <Compile Include="turbu.2k.skill.menu.Meta.boo" />
+    <Compile Include="turbu.2k.sprite.engine.Meta.boo" />
+    <Compile Include="turbu.2k.title.menu.Meta.boo" />
+    <Compile Include="turbu.2k.transitions.graphics.Meta.boo" />
+    <Compile Include="turbu.2k.weather.Meta.boo" />
+    <Compile Include="turbu.map.sprites.Meta.boo" />
+    <Compile Include="turbu.mapchars.Meta.boo" />
+    <Compile Include="turbu_2k_animations.boo" />
+    <Compile Include="turbu_2k_char_sprites.boo" />
+    <Compile Include="turbu_2k_distortions.boo" />
+    <Compile Include="turbu_2k_environment.boo" />
+    <Compile Include="turbu_2k_equipment_menu.boo" />
+    <Compile Include="turbu_2k_frames.boo" />
+    <Compile Include="turbu_2k_images.boo" />
+    <Compile Include="turbu_2k_image_engine.boo" />
+    <Compile Include="turbu_2k_inventory_menu.boo" />
+    <Compile Include="turbu_2k_items.boo" />
+    <Compile Include="turbu_2k_item_types.boo" />
+    <Compile Include="turbu_2k_main_menu.boo" />
+    <Compile Include="turbu_2k_map_engine.boo" />
+    <Compile Include="turbu_2k_map_locks.boo" />
+    <Compile Include="turbu_2k_map_tiles.boo" />
+    <Compile Include="turbu_2k_map_timer.boo" />
+    <Compile Include="turbu_2k_menu_basis.boo" />
+    <Compile Include="turbu_2k_menu_components.boo" />
+    <Compile Include="turbu_2k_message_boxes.boo" />
+    <Compile Include="turbu_2k_party_target_menu.boo" />
+    <Compile Include="turbu_2k_savegames.boo" />
+    <Compile Include="turbu_2k_save_menu.boo" />
+    <Compile Include="turbu_2k_shop_menu.boo" />
+    <Compile Include="turbu_2k_skills.boo" />
+    <Compile Include="turbu_2k_skill_menu.boo" />
+    <Compile Include="turbu_2k_sprite_engine.boo" />
+    <Compile Include="turbu_2k_sprite_list.boo" />
+    <Compile Include="turbu_2k_title_menu.boo" />
+    <Compile Include="turbu_2k_transitions.boo" />
+    <Compile Include="turbu_2k_transitions_graphics.boo" />
+    <Compile Include="turbu_2k_weather.boo" />
+    <Compile Include="turbu_heroes.boo" />
+    <Compile Include="turbu_mapchars.boo" />
+    <Compile Include="turbu_map_sprites.boo" />
+    <Compile Include="turbu_script_algorithms.boo" />
+    <Compile Include="turbu_transition_interface.boo" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pythia.Runtime\Pythia.Runtime.booproj">
+      <Project>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</Project>
+      <Name>Pythia.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.EngineBasis\TURBU.EngineBasis.booproj">
+      <Project>{2A439116-A1C1-49C7-96E2-4A8D71296307}</Project>
+      <Name>TURBU.EngineBasis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.Meta\TURBU.Meta.booproj">
+      <Project>{D9D645BC-F085-40C9-8E7A-F64A029F9A42}</Project>
+      <Name>TURBU.Meta</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K\TURBU.RM2K.booproj">
+      <Project>{38D2D905-9F6B-4845-B72C-A2C95B4ABCF7}</Project>
+      <Name>TURBU.RM2K</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.SDLFrame\TURBU.SDLFrame\TURBU.SDL.booproj">
+      <Project>{F861C008-3A91-4947-80CE-C6C58683E581}</Project>
+      <Name>TURBU.SDL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>

@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{38D2D905-9F6B-4845-B72C-A2C95B4ABCF7}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TURBU.RM2K</RootNamespace>
+    <AssemblyName>TURBU.RM2K</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <NoStdLib>False</NoStdLib>
+    <Ducky>False</Ducky>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Strict>False</Strict>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Adt">
+      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Interpreter">
+      <HintPath>..\..\boo\build\Boo.Lang.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
+    <Reference Include="HighEnergy.Tree">
+      <HintPath>..\..\HighEnergy.Tree\bin\Debug\HighEnergy.Tree.dll</HintPath>
+    </Reference>
+    <Reference Include="SDL2-CS">
+      <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="TURBU.SDL">
+      <HintPath>..\TURBU.EngineBasis\bin\Debug\TURBU.SDL.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="Attributes.boo" />
+    <Compile Include="charset_data.boo" />
+    <Compile Include="db_create.boo" />
+    <Compile Include="dm_database.boo" />
+    <Compile Include="EB_ObjectHelper.boo" />
+    <Compile Include="JsonMacros.boo" />
+    <Compile Include="logs.boo" />
+    <Compile Include="rs_media.boo" />
+    <Compile Include="timing.boo" />
+    <Compile Include="turbu_database.boo" />
+    <Compile Include="turbu_animations.boo" />
+    <Compile Include="turbu_battles.boo" />
+    <Compile Include="turbu_characters.boo" />
+    <Compile Include="turbu_classes.boo" />
+    <Compile Include="turbu_constants.boo" />
+    <Compile Include="turbu_decl_utils.boo" />
+    <Compile Include="turbu_defs.boo" />
+    <Compile Include="turbu_game_data.boo" />
+    <Compile Include="turbu_items.boo" />
+    <Compile Include="turbu_maps.boo" />
+    <Compile Include="turbu_map_metadata.boo" />
+    <Compile Include="turbu_map_objects.boo" />
+    <Compile Include="turbu_monsters.boo" />
+    <Compile Include="turbu_pathing.boo" />
+    <Compile Include="turbu_resists.boo" />
+    <Compile Include="turbu_script_engine.boo" />
+    <Compile Include="turbu_shops.boo" />
+    <Compile Include="turbu_skills.boo" />
+    <Compile Include="turbu_sounds.boo" />
+    <Compile Include="turbu_sprites.boo" />
+    <Compile Include="turbu_terrain.boo" />
+    <Compile Include="turbu_tilesets.boo" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pythia.Runtime\Pythia.Runtime.booproj">
+      <Project>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</Project>
+      <Name>Pythia.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.EngineBasis\TURBU.EngineBasis.booproj">
+      <Project>{2A439116-A1C1-49C7-96E2-4A8D71296307}</Project>
+      <Name>TURBU.EngineBasis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.Meta\TURBU.Meta.booproj">
+      <Project>{D9D645BC-F085-40C9-8E7A-F64A029F9A42}</Project>
+      <Name>TURBU.Meta</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>

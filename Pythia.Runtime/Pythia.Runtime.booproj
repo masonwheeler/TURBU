@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Pythia.Runtime</RootNamespace>
+    <AssemblyName>Pythia.Runtime</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <NoStdLib>False</NoStdLib>
+    <Ducky>False</Ducky>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Strict>False</Strict>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Adt">
+      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Abort.boo" />
+    <Compile Include="ArrayToSet.boo" />
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="assigned.boo" />
+    <Compile Include="classDestructor.boo" />
+    <Compile Include="DBCtrls.boo" />
+    <Compile Include="DisposableAttribute.boo" />
+    <Compile Include="EnumSet.boo" />
+    <Compile Include="finalization.boo" />
+    <Compile Include="MetaclassAttribute.boo" />
+    <Compile Include="ord.boo" />
+    <Compile Include="PredSucc.boo" />
+    <Compile Include="RadioListBox.boo" />
+    <Compile Include="String Formatting.boo" />
+    <Compile Include="TDataModule.boo" />
+    <Compile Include="TObject.boo" />
+    <Compile Include="TStrings.boo" />
+    <Compile Include="TThread.boo" />
+    <Compile Include="UpdateMacro.boo" />
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>

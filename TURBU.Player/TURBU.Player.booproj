@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{A675776F-EE3D-4749-9D0F-CC299BC95492}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>TURBU.Player</RootNamespace>
+    <AssemblyName>TURBU.Player</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <NoStdLib>False</NoStdLib>
+    <Ducky>False</Ducky>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Strict>False</Strict>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>True</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+    <StartArguments>"C:\Users\Mason\Documents\TURBU Projects\TheTiamatSacrament"</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\..\boo\build\Boo.Lang.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="Boot.boo" />
+    <Compile Include="MainForm.boo" />
+    <Compile Include="MainForm.Designer.boo">
+      <DependentUpon>MainForm.boo</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TURBU.EngineBasis\TURBU.EngineBasis.booproj">
+      <Project>{2A439116-A1C1-49C7-96E2-4A8D71296307}</Project>
+      <Name>TURBU.EngineBasis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K.BattleEngine\TURBU.RM2K.BattleEngine.booproj">
+      <Project>{3BC74C47-9247-4CEB-B505-A86C42E45116}</Project>
+      <Name>TURBU.RM2K.BattleEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K.MapEngine\TURBU.RM2K.MapEngine.booproj">
+      <Project>{DC05E2F6-6214-4ED1-84BB-07EC636C386B}</Project>
+      <Name>TURBU.RM2K.MapEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K.TextDataReader\TURBU.RM2K.TextDataReader.booproj">
+      <Project>{0B907BBD-7CAE-49CB-8221-FF96B4A25FBC}</Project>
+      <Name>TURBU.RM2K.TextDataReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.SDLFrame\TURBU.SDLFrame\TURBU.SDL.booproj">
+      <Project>{F861C008-3A91-4947-80CE-C6C58683E581}</Project>
+      <Name>TURBU.SDL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>

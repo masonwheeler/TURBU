@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{0B907BBD-7CAE-49CB-8221-FF96B4A25FBC}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TURBU.RM2K.TextDataReader</RootNamespace>
+    <AssemblyName>TURBU.RM2K.TextDataReader</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <NoStdLib>False</NoStdLib>
+    <Ducky>False</Ducky>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Strict>False</Strict>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Adt">
+      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Interpreter">
+      <HintPath>..\..\boo\build\Boo.Lang.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Parser">
+      <HintPath>..\..\boo\build\Boo.Lang.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>..\..\boo\build\Boo.Lang.PatternMatching.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="BooReader.boo" />
+    <Compile Include="BooReaderEnvironmentStep.boo" />
+    <Compile Include="FixNegativeNumbers.boo" />
+    <Compile Include="Readers\AnimReader.boo" />
+    <Compile Include="Readers\HeroReader.boo" />
+    <Compile Include="Readers\ItemReader.boo" />
+    <Compile Include="Readers\MapDataReader.boo" />
+    <Compile Include="Readers\MapScriptReader.boo" />
+    <Compile Include="Readers\MapTreeReader.boo" />
+    <Compile Include="Readers\ReaderUtils.boo" />
+    <Compile Include="Readers\SoundReader.boo" />
+    <Compile Include="Readers\SystemDataReader.boo" />
+    <Compile Include="Readers\TileGroupReader.boo" />
+    <Compile Include="Readers\TilesetReader.boo" />
+    <Compile Include="Readers\VocabReader.boo" />
+    <Compile Include="TextDataReader.boo" />
+    <Compile Include="BooReader.Meta.Boo" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pythia.Runtime\Pythia.Runtime.booproj">
+      <Project>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</Project>
+      <Name>Pythia.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.EngineBasis\TURBU.EngineBasis.booproj">
+      <Project>{2A439116-A1C1-49C7-96E2-4A8D71296307}</Project>
+      <Name>TURBU.EngineBasis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.Meta\TURBU.Meta.booproj">
+      <Project>{D9D645BC-F085-40C9-8E7A-F64A029F9A42}</Project>
+      <Name>TURBU.Meta</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K.MapEngine\TURBU.RM2K.MapEngine.booproj">
+      <Project>{DC05E2F6-6214-4ED1-84BB-07EC636C386B}</Project>
+      <Name>TURBU.RM2K.MapEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K\TURBU.RM2K.booproj">
+      <Project>{38D2D905-9F6B-4845-B72C-A2C95B4ABCF7}</Project>
+      <Name>TURBU.RM2K</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.SDLFrame\TURBU.SDLFrame\TURBU.SDL.booproj">
+      <Project>{F861C008-3A91-4947-80CE-C6C58683E581}</Project>
+      <Name>TURBU.SDL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Readers" />
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>

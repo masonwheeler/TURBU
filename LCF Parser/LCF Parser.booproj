@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectGuid>{BD1FC551-B5BD-496B-8348-1A31FCA03751}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>LCF_Parser</RootNamespace>
+    <AssemblyName>LCF Parser</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <NoWin32Manifest>False</NoWin32Manifest>
+    <NoStdLib>False</NoStdLib>
+    <Ducky>False</Ducky>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Strict>False</Strict>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>True</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>Full</DebugType>
+    <Optimize>False</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>True</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Adt">
+      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
+    </Reference>
+    <Reference Include="SDL2-CS">
+      <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="MainForm.boo" />
+    <Compile Include="MainForm.Designer.boo">
+      <DependentUpon>MainForm.boo</DependentUpon>
+    </Compile>
+    <Compile Include="RMProjectConverter.boo" />
+    <Compile Include="RMProjectConverterForm.boo" />
+    <Compile Include="RMProjectConverterForm.Designer.boo">
+      <DependentUpon>RMProjectConverterForm.boo</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pythia.Runtime\Pythia.Runtime.booproj">
+      <Project>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</Project>
+      <Name>Pythia.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.Design.Optimizations\TURBU.Design.Optimizations.booproj">
+      <Project>{838BF35A-21D1-4C4E-9746-5F2B6151D9BB}</Project>
+      <Name>TURBU.Design.Optimizations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.EngineBasis\TURBU.EngineBasis.booproj">
+      <Project>{2A439116-A1C1-49C7-96E2-4A8D71296307}</Project>
+      <Name>TURBU.EngineBasis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.Meta\TURBU.Meta.booproj">
+      <Project>{D9D645BC-F085-40C9-8E7A-F64A029F9A42}</Project>
+      <Name>TURBU.Meta</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K.Import\TURBU.RM2K.Import.booproj">
+      <Project>{BC1569F6-A2CE-474E-88F9-B1673FE1AC9D}</Project>
+      <Name>TURBU.RM2K.Import</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K\TURBU.RM2K.booproj">
+      <Project>{38D2D905-9F6B-4845-B72C-A2C95B4ABCF7}</Project>
+      <Name>TURBU.RM2K</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+</Project>
