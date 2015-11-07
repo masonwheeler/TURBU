@@ -331,9 +331,9 @@ Implements the IDisposable pattern for a type.
 					_codeBuilder.CreateSelfReference(_disposableType.Entity),
 					_disposableType.Members[_unmanagedDisposeMethod.Name].Entity as IMethod)
 
-			ifDisposing.FalseBlock.Add(unmanagedDisposeMethodInvocation)
 			if _alwaysFullDispose:
-				ifDisposing.TrueBlock.Insert(0, ExpressionStatement(unmanagedDisposeMethodInvocation.Clone() as Expression))
+				ifDisposing.TrueBlock.Insert(0, ExpressionStatement(unmanagedDisposeMethodInvocation))
+			else: ifDisposing.FalseBlock.Add(unmanagedDisposeMethodInvocation)
 
 		if _overrideBase:
 			superDisposeReference = cast(

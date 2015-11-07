@@ -229,7 +229,7 @@ class T2kMapEngine(TMapEngine):
 			FFrame = 0
 		FTimer.Process()
 
-	private def standardRender():
+	private def StandardRender():
 		return if FSwitchState == TSwitchState.Switching
 		caseOf GMenuEngine.Value.State:
 			case TMenuState.None, TMenuState.Shared, TMenuState.ExclusiveShared: FCurrentMap.Draw()
@@ -319,21 +319,8 @@ class T2kMapEngine(TMapEngine):
 		GPU_SetColor(target.Image, color)
 		GPU_DeactivateShaderProgram()
 
-/*	private def SetupScriptImports():
-		script as string
-		turbu.RM2K.environment.RegisterEnvironment(FObjectManager.ScriptEngine)
-		rs.maps.RegisterScriptUnit(FObjectManager.ScriptEngine)
-		rs_message.RegisterScriptUnit(FObjectManager.ScriptEngine)
-		rs_characters.RegisterScriptUnit(FObjectManager.ScriptEngine)
-		RegisterScriptUnit(FObjectManager.ScriptEngine)
-		rs_battle.RegisterScriptUnit(FObjectManager.ScriptEngine)
-		script = dmDatabase.ScriptLookup(0)
-		if script == BAD_LOOKUP:
-			script = GDatabase.value.scriptBlock.GetScript(0)
-		FObjectManager.ScriptEngine.LoadLibrary('globalevents', script)
-*/
 	private def RenderFrame():
-		GRenderTargets.RenderOn(RENDERER_MAP, standardRender, 0, true, false)
+		GRenderTargets.RenderOn(RENDERER_MAP, StandardRender, 0, true, false)
 		DrawRenderTarget(GRenderTargets[RENDERER_MAP], true)
 		FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
 		RenderImages(self)
@@ -345,7 +332,7 @@ class T2kMapEngine(TMapEngine):
 	private def SetTransition(Value as ITransition):
 		FTransition = Value
 		FTransitionFirstFrameDrawn = false
-		RenderUnpause
+		RenderUnpause()
 
 	private def DrawWeather():
 		FWeatherEngine.Draw()
@@ -377,8 +364,9 @@ class T2kMapEngine(TMapEngine):
 					FTransitionFirstFrameDrawn = false
 					FTransition = null
 			else:
-				renderer = (null if FCurrentMap.Blank else RenderFrame)
-				GRenderTargets.RenderOn(RENDERER_MAIN, renderer, 0, true, false)
+				if FCurrentMap.Blank :
+					GRenderTargets.RenderOn(RENDERER_MAIN, null, 0, true, false)
+				else: GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)
 				DrawRenderTarget(GRenderTargets[RENDERER_MAIN], false)
 			FCanvas.Flip()
 
@@ -563,7 +551,7 @@ class T2kMapEngine(TMapEngine):
 		TitleScreen()
 		FTimer.Enabled = true
 
-	public def changeMaps(newmap as ushort, newLocation as TSgPoint):
+	public def ChangeMaps(newmap as ushort, newLocation as TSgPoint):
 		hero as TCharSprite
 		oldEngine as T2kSpriteEngine
 		metadata as TMapMetadata
@@ -574,31 +562,31 @@ class T2kMapEngine(TMapEngine):
 		FObjectManager.ScriptEngine.KillAll({ currentMap = null })
 		while not FCurrentMap.Blank:
 			Thread.Sleep(10)
-			FTeleportThread = TThread.CurrentThread
-			try:
-				runThreadsafe(true) def ():
-					FImageEngine = null
-					oldEngine = FCurrentMap
-					hero = FCurrentMap.CurrentParty
-					if assigned(hero):
-						(hero cast THeroSprite).PackUp()
-					metadata = FDatabase.MapTree[newmap]
-					GScriptEngine.value.TeleportThread = FTeleportThread cast TScriptThread
-					GC.Collect()
-					self.LoadMap(metadata)
-					unless GEnvironment.value.PreserveSpriteOnTeleport:
-						GEnvironment.value.Party.ResetSprite()
-					FCurrentMap.CurrentParty = hero
-					FCurrentMap.CopyState(oldEngine)
-					if assigned(hero):
-						hero.Location = newLocation
-						(hero cast THeroSprite).settleDown(FCurrentMap)
-					FCurrentMap.CenterOn(newLocation.x, newLocation.y)
-			ensure:
-				FTeleportThread = null
-			PlayMapMusic(metadata, false)
-			FSwitchState = TSwitchState.NoSwitch
-			FTimer.Enabled = true
+		FTeleportThread = TThread.CurrentThread
+		try:
+			runThreadsafe(true) def ():
+				FImageEngine = null
+				oldEngine = FCurrentMap
+				hero = FCurrentMap.CurrentParty
+				if assigned(hero):
+					(hero cast THeroSprite).PackUp()
+				metadata = FDatabase.MapTree[newmap]
+				GScriptEngine.value.TeleportThread = FTeleportThread cast TScriptThread
+				GC.Collect()
+				self.LoadMap(metadata)
+				unless GEnvironment.value.PreserveSpriteOnTeleport:
+					GEnvironment.value.Party.ResetSprite()
+				FCurrentMap.CurrentParty = hero
+				FCurrentMap.CopyState(oldEngine)
+				if assigned(hero):
+					hero.Location = newLocation
+					(hero cast THeroSprite).settleDown(FCurrentMap)
+				FCurrentMap.CenterOn(newLocation.x, newLocation.y)
+		ensure:
+			FTeleportThread = null
+		PlayMapMusic(metadata, false)
+		FSwitchState = TSwitchState.NoSwitch
+		FTimer.Enabled = true
 
 	public def LoadRpgImage(filename as string, mask as bool):
 		oName as string = filename

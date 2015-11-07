@@ -35,18 +35,17 @@ def Teleport(MapID as int, x as int, y as int, facing as int):
 		EraseScreen(TTransitions.Default)
 		while GSpriteEngine.value.State == TGameState.Fading:
 			Thread.Sleep(TRpgTimestamp.FrameLength)
-			if MapID == GSpriteEngine.value.MapID:
-				newpoint = sgPoint(x, y)
-				if GSpriteEngine.value.OnMap(newpoint):
-					runThreadsafe(true) def ():
-						if not GEnvironment.value.PreserveSpriteOnTeleport:
-							GEnvironment.value.Party.ResetSprite()
-						GEnvironment.value.Party.Sprite.LeaveTile()
-						GEnvironment.value.Party.Sprite.Location = newpoint
-						GSpriteEngine.value.CenterOn(x, y)
-			else:
-				GGameEngine.value.changeMaps(MapID, sgPoint(x, y))
-			ShowScreen(TTransitions.Default)
+		if MapID == GSpriteEngine.value.MapID:
+			newpoint = sgPoint(x, y)
+			if GSpriteEngine.value.OnMap(newpoint):
+				runThreadsafe(true) def ():
+					unless GEnvironment.value.PreserveSpriteOnTeleport:
+						GEnvironment.value.Party.ResetSprite()
+					GEnvironment.value.Party.Sprite.LeaveTile()
+					GEnvironment.value.Party.Sprite.Location = newpoint
+					GSpriteEngine.value.CenterOn(x, y)
+		else: GGameEngine.value.ChangeMaps(MapID, sgPoint(x, y))
+		ShowScreen(TTransitions.Default)
 	ensure:
 		System.Threading.Monitor.Exit(LTeleportLock)
 
