@@ -50,6 +50,7 @@ def ConvertGlobalEvent(value as GlobalEvent, ScanScript as Action[of EventComman
 	return result
 
 private def SanitizeScriptName(name as string) as string:
+	return name if name == ''
 	chars = name.Where({c | char.IsLetterOrDigit(c) or c == '_'}).ToList()
 	if char.IsDigit(chars[0]):
 		chars.Insert(0, char('G'))

@@ -51,6 +51,9 @@
     <Reference Include="Boo.Lang.Useful">
       <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
     </Reference>
+    <Reference Include="SDL2-CS">
+      <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>

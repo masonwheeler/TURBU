@@ -29,6 +29,7 @@ class TBooReader(TRpgPlugBase, IDataReader):
 		_loader.References.Add(typeof(turbu.defs.Turbu_defsModule).Assembly)
 		_loader.References.Add(typeof(SG.defs.SG_DefsModule).Assembly)
 		_loader.References.Add(typeof(IDataReader).Assembly)
+		_loader.References.Add(typeof(SDL2.SDL).Assembly)
 		_loader.Eval("""
 import TURBU.RM2K.TextDataReader.Readers
 import Pythia.Runtime

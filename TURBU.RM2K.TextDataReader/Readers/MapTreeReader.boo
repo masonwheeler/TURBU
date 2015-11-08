@@ -45,6 +45,15 @@ macro MapTree.map(index as IntegerLiteralExpression, body as ExpressionStatement
 		arr.Items.AddRange(script.Arguments)
 		map.Body.Add([|EncounterParams($arr)|])
 	
+	macro Regions(body as ExpressionStatement*):
+		macro Region(index as IntegerLiteralExpression, body as ExpressionStatement*):
+			macro Bounds(x as int, y as int, w as int, h as int):
+				return ExpressionStatement([| Bounds(SDL2.SDL.SDL_Rect($x, $y, $w, $h)) |])
+			
+			return ExpressionStatement(PropertyList('TMapRegion', index, body))
+		
+		return MakeDataListValue('Regions', 'TMapRegion', body)
+	
 	element = PropertyList('TMapMetadata', index, body)
 	return ExpressionStatement([|result.Add($element)|])
 

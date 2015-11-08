@@ -41,16 +41,20 @@ static class TMapTreeConverter:
 	private def AddRegion(map as MacroStatement, area as MapTreeData, id as int):
 		areaData as (int) = area.AreaData
 		result = [|
-			Area $id:
-				name $(area.Name)
-				bounds $(areaData[0]), $(areaData[1]), $(areaData[2]), $(areaData[3])
+			Region $id:
+				Name $(area.Name)
+				Bounds $(areaData[0]), $(areaData[1]), $(areaData[2]), $(areaData[3])
 		|]
 		if assigned(area.Battles) and area.Battles.Count > 0:
 			battles = MacroStatement('Battles')
 			for party in area.Battles:
 				battles.Arguments.Add(Expression.Lift(party.MonsterParty))
 			result.Body.Add(battles)
-		map.Body.Add(result)
+		areas = map.SubMacro('Regions')
+		if areas is null:
+			areas = MacroStatement('Regions')
+			map.Body.Add(areas)
+		areas.Body.Add(result)
 	
 	private def ConvertRoot(current as MapTreeData, id as int) as MacroStatement:
 		assert id == 0

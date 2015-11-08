@@ -8,7 +8,6 @@ import TURBU.Meta
 import SDL.ImageManager
 import sdl.canvas
 import SG.defs
-import dm.shaders
 import SDL2
 import SDL2.SDL2_GPU
 import System.Drawing

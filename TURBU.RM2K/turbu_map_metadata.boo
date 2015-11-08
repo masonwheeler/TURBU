@@ -93,7 +93,7 @@ class TMapMetadata(TMapRegion, IMapMetadata):
 		FParent = Value
 		FOwner.NotifyMoved(self)
 
-	[Getter(Regions)]
+	[Property(Regions)]
 	protected FRegions = TRpgDataList[of TMapRegion]()
 
 	public def constructor():

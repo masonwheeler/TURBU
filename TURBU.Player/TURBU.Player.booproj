@@ -28,7 +28,7 @@
     <Optimize>False</Optimize>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>"C:\Users\Mason\Documents\TURBU Projects\TheTiamatSacrament"</StartArguments>
+    <StartArguments>"C:\Users\Mason\Documents\TURBU Projects\Testing 2k3"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>

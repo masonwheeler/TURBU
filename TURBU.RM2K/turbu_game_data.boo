@@ -75,10 +75,10 @@ class TGameLayout(TRpgDatafile):
 	[Property(BattleCommands)]
 	private FCommands as (int)
 
-	[Getter(UsesFrame)]
+	[Property(UsesFrame)]
 	private FUsesFrame as bool
 
-	[Getter(Frame)]
+	[Property(Frame)]
 	private FFrame as string
 
 	[Property(ReverseGraphics)]

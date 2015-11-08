@@ -53,7 +53,7 @@ partial class frmTURBUPlayer:
 		OpenArchive(MAP_DB, MAP_ARCHIVE, true)
 		OpenArchive(IMAGE_DB, IMAGE_ARCHIVE, true)
 		OpenArchive(SCRIPT_DB, SCRIPT_ARCHIVE, true)
-		OpenArchive(MUSIC_DB, MUSIC_ARCHIVE, true)
+		OpenArchive(MUSIC_DB, MUSIC_ARCHIVE, false)
 		OpenArchive(SFX_DB, SFX_ARCHIVE, true)
 		OpenArchive(VIDEO_DB, VIDEO_ARCHIVE, false)
 
