@@ -28,8 +28,12 @@ partial class frmTURBUPlayer:
 	public def constructor():
 		// The InitializeComponent() call is required for Windows Forms designer support.
 		InitializeComponent()
-		// TODO: Add constructor code after the InitializeComponent() call.
-		
+		self.Disposed += self.Destroy
+	
+	private def Destroy(sender as object, e as EventArgs):
+		FMapEngine.Dispose()
+		//_pluginManager.Dispose()
+	
 	private def FrmTURBUPlayerLoad(sender as object, e as System.EventArgs):
 		self.ClientSize = System.Drawing.Size(960, 720)
 		self.imgGame.OnAvailable = self.GameAvailable
@@ -115,3 +119,5 @@ public def Main(argv as (string)) as void:
 		Application.Run(player)
 	except e as Exception:
 		MessageBox.Show(e.Message)
+	ensure:
+		player.Dispose()

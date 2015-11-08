@@ -44,6 +44,7 @@ abstract class TSdlRenderSurface(ISdlRenderSurface):
 	public Height as int:
 		get: return FSize.y
 
+[Disposable(Destroy, true)]
 class TSdlRenderTarget(TSdlRenderSurface):
 	
 	//GPU_Image that holds the target
@@ -59,7 +60,7 @@ class TSdlRenderTarget(TSdlRenderSurface):
 		GPU_SetBlendMode(FImage, GPU_BlendPresetEnum.GPU_BLEND_NORMAL)
 		FSize = size
 
-	def destructor():
+	private def Destroy():
 		GPU_FreeTarget(FRenderTarget)
 		GPU_FreeImage(FImage)
 

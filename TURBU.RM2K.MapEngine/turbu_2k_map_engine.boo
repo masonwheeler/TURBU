@@ -329,11 +329,6 @@ class T2kMapEngine(TMapEngine):
 			GMenuEngine.Value.Draw()
 		GPU_DeactivateShaderProgram()
 
-	private def SetTransition(Value as ITransition):
-		FTransition = Value
-		FTransitionFirstFrameDrawn = false
-		RenderUnpause()
-
 	private def DrawWeather():
 		FWeatherEngine.Draw()
 
@@ -403,6 +398,7 @@ class T2kMapEngine(TMapEngine):
 			FObjectManager = null
 			GMapObjectManager.value = null
 			GScriptEngine.value = null
+			GFontEngine.Dispose()
 		super.Cleanup()
 		GC.Collect()
 
@@ -648,8 +644,8 @@ class T2kMapEngine(TMapEngine):
 			FRenderPause = null
 
 	public def Load(savefile as string) as bool:
-		if not File.Exists(savefile):
-			return false
+		return false unless File.Exists(savefile)
+		
 		FTimer.Enabled = false
 		GScriptEngine.value.KillAll(null)
 		GEnvironment.value = null
@@ -671,11 +667,12 @@ class T2kMapEngine(TMapEngine):
 		return true
 
 	public Transition as ITransition:
-		get:
-			return FTransition
+		get: return FTransition
 		set:
-			SetTransition(value)
-	
+			FTransition = value
+			FTransitionFirstFrameDrawn = false
+			RenderUnpause()
+
 	private static def ALoader(filename as string) as string:
 		return Path.Combine(GArchives[IMAGE_ARCHIVE].Root, filename)
 	

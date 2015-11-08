@@ -13,7 +13,7 @@ import SDL2
 import SDL2.SDL2_GPU
 import commons
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TRpgFont(TObject):
 
 	[Getter(Font)]
@@ -22,17 +22,16 @@ class TRpgFont(TObject):
 	private FSize as uint
 
 	public def constructor(name as string, size as uint):
-		lName as string
-		lName = TFontEngine.Instance.FFontPath + name
+		lName as string = TFontEngine.FontPath + name
 		FFont = NFont(lName, size)
 		if FFont == IntPtr.Zero:
 			raise EFontError("Unable to load font \"$name\".")
 		FSize = size
 
 	private def Destroy():
-		FFont.free()
+		FFont.Dispose()
 
-[Singleton]
+[Disposable(Destroy, true)]
 class TFontEngine(TObject):
 
 	private FCurrent as TRpgFont
@@ -60,11 +59,16 @@ class TFontEngine(TObject):
 
 	private FTextBlock = GPU_LoadMultitextureBlock(2, ('texAlpha', 'texRGB'), ('RPG_TexCoord', 'RPG_TexCoord2'))
 
-	internal FFontPath as string
+	[Getter(FontPath)]
+	private static FFontPath as string
 
 	def constructor():
 		aPath = Environment.GetFolderPath(Environment.SpecialFolder.Fonts)
 		FFontPath = IncludeTrailingPathDelimiter(aPath)
+	
+	private def Destroy():
+		for font in FFonts:
+			font.Dispose()
 	
 	def Initialize(shader as TdmShaders):
 		assert FShaderEngine is null
@@ -95,11 +99,6 @@ class TFontEngine(TObject):
 			(FTarget.Image, FOnGetColor()),
 			(GPU_MakeRect(0, 0, FTarget.Width, FTarget.Height), rect),
 			target, x + FTarget.Width / 2.0, y + FTarget.Height / 2.0)
-
-	private def SetCurrent(value as TRpgFont):
-		FCurrent = value
-		if not FFonts.Contains(value):
-			FFonts.Add(value)
 
 	private def RenderGlyph(index as int):
 		let GLYPH_SIZE = 12
@@ -155,14 +154,14 @@ class TFontEngine(TObject):
 		DrawText(target, text, midpoint - (textWidth / 2), y, colorIndex)
 
 	public Current as TRpgFont:
-		get:
-			return FCurrent
+		get: return FCurrent
 		set:
-			SetCurrent(value)
+			FCurrent = value
+			FFonts.Add(value) unless FFonts.Contains(value)
 
 class EFontError(Exception):
 	def constructor(Message as string):
 		super(Message)
 
 let TEXT_WIDTH = 6
-let GFontEngine = TFontEngine.Instance
+let GFontEngine = TFontEngine()

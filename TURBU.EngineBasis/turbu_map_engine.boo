@@ -169,7 +169,8 @@ interface IDesignMapEngine(IMapEngine):
 abstract class TMapEngine(TRpgPlugBase, IMapEngine):
 
 	def Dispose():
-		pass
+		self.Cleanup() if FInitialized
+		GC.SuppressFinalize(self)
 
 	private FData as TMapEngineData
 
@@ -188,8 +189,7 @@ abstract class TMapEngine(TRpgPlugBase, IMapEngine):
 		FBattleEngines.Clear()
 
 	def destructor():
-		if FInitialized:
-			self.Cleanup()
+		assert false
 
 	public override def AfterConstruction():
 		super()
