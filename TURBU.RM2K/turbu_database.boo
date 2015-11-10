@@ -85,10 +85,10 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 	private FVehicles as TRpgDataDict[of TVehicleTemplate]
 	
 	[Getter(Switch)]
-	private FSwitches = TStringList()
+	private FSwitches = List[of string]()
 	
 	[Getter(Variable)]
-	private FVariables = TStringList()
+	private FVariables = List[of string]()
 	
 	[Getter(Items)]
 	private FItems as TRpgDataDict[of TItemTemplate]

@@ -35,16 +35,6 @@ abstract class TRpgObject(TObject):
 abstract class TRpgDatafile(TObject, IRpgObject):
 	private static currentloader = ThreadLocal[of BinaryReader]()
 
-	private def getSignature(methodname as string) as TRpgDecl:
-		name as string
-		typename as EventTypeAttribute
-		prop = self.GetType().GetProperty(methodname)
-		if not assigned(prop):
-			raise TargetException("Event $methodname does not exist in class $(self.GetType().Name).")
-		typename = prop.GetCustomAttributes(EventTypeAttribute, true).Single() cast EventTypeAttribute
-		name = (typename.name if assigned(typename) else prop.PropertyType.Name)
-		return turbu.decl.utils.GetSignature(name)
-
 	[Property(Name)]
 	protected FName as string = ''
 
@@ -71,17 +61,6 @@ abstract class TRpgDatafile(TObject, IRpgObject):
 
 	public def CopyToClipboard():
 		System.Windows.Forms.Clipboard.SetData('CF_' + self.ClassName, self)
-
-	public def GetAllEvents() as TStringList:
-		events = self.GetType().FindMembers(MemberTypes.Event, 0, {m, o | true}, null)
-		result = TStringList()
-		for Event as MemberInfo in events:
-			result.Add(Event.Name)
-		return result
-
-	public signature[methodname as string] as TRpgDecl:
-		get:
-			return getSignature(methodname)
 
 struct TColorShift:
 

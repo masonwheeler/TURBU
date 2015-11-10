@@ -202,7 +202,7 @@ class TMapTree(TRpgDatafile, IMapTree):
 	protected FTranslationTable = Dictionary[of short, TMapNode]()
 
 	[Getter(MapEngines)]
-	private FMapEngines = TStringList()
+	private FMapEngines = List[of string]()
 
 	public def constructor():
 		super()

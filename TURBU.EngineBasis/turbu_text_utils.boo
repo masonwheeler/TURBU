@@ -1,7 +1,6 @@
 namespace TURBU.TextUtils
 
 import Boo.Adt
-import Boo.Lang.Useful.Attributes
 import Pythia.Runtime
 import System
 import System.Collections.Generic

@@ -334,7 +334,6 @@ class TMapObjectManager(TObject):
 		GMapObjectManager.value = self
 
 	public def LoadGlobalScripts(list as TRpgObjectList[of TRpgMapObject]):
-		i as int
 		page as TRpgEventPage
 		assert FGlobalScripts.Count == 0
 		for i in range(0, list.Count):
@@ -343,14 +342,11 @@ class TMapObjectManager(TObject):
 				FGlobalScripts.Add(page)
 
 	public def LoadMap(map as IRpgMap, context as TThread):
-		list as TStringList
-		i as int
 		FMapObjects.Clear()
-		using list = map.GetMapObjects():
-			FMapObjects.Capacity = list.Count
-			for i in range(0, list.Count):
-				FMapObjects.Add(list.Objects[i] cast TRpgMapObject)
-		//FScriptEngine.LoadScript(map.GetScript(), context)
+		list as TStringList = map.GetMapObjects()
+		FMapObjects.Capacity = list.Count
+		for i in range(list.Count):
+			FMapObjects.Add(list.Objects[i] cast TRpgMapObject)
 
 	public def Tick():
 		obj as TRpgMapObject

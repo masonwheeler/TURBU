@@ -610,9 +610,9 @@ abstract class TCustomMessageBox(TSysFrame):
 	protected FTextDrawn as TTextDrawState
 
 	[Getter(Signal)]
-	protected FSignal as EventWaitHandle
+	protected FSignal = EventWaitHandle(false, EventResetMode.ManualReset)
 
-	protected FParsedText as TStringList
+	protected FParsedText = TStringList()
 
 	protected FOptionEnabled = array(bool, 5)
 
@@ -850,9 +850,6 @@ abstract class TCustomMessageBox(TSysFrame):
 		let BORDER_THICKNESS = 16
 		super(parent, commons.ORIGIN, 1, coords)
 		FColumns = 1
-		FParsedText = TStringList()
-		FParsedText.Duplicates = TDuplicates.Accept
-		FSignal = EventWaitHandle(false, EventResetMode.ManualReset)
 		FBoxVisible = true
 		FTextTarget = TSdlRenderTarget(sgPoint(self.Width - BORDER_THICKNESS, self.Height - BORDER_THICKNESS))
 		ClearTarget(FTextTarget)

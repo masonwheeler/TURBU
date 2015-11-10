@@ -4,6 +4,7 @@ import Jv.StringHolder
 import Pythia.Runtime
 import System
 import System.Collections.Generic
+import System.Linq.Enumerable
 import System.Text
 import SDL2.SDL2_GPU
 import TURBU.Meta
@@ -127,21 +128,15 @@ partial class TdmShaders(TDataModule):
 		return ShaderProgram(vert, frag, '')
 
 	public def ShaderProgram(vert as string, frag as string, libs as string) as int:
-		units as (int)
-		i as int
 		result as int
 		glCheckError()
 		vertMain as int = GetShader(vert, Vertex)
 		fragMain as int = GetShader(frag, Fragment)
-		units = (vertMain, fragMain)
+		units as (int) = (vertMain, fragMain)
 		if libs != '':
-			using parser = TStringList():
-				parser.CommaText = libs
-				Array.Resize[of int](units, (2 + parser.Count))
-				for i in range(0, parser.Count):
-					units[(2 + i)] = GetShader(parser[i], FragLibs)
+			units = units.Concat(libs.Split(*(char(','),)).Select({name | GetShader(name, FragLibs)})).ToArray()
 		Array.Sort[of int](units)
-		if not FPrograms.TryGetValue(units, result):
+		unless FPrograms.TryGetValue(units, result):
 			result = BuildProgram(units)
 		return result
 

@@ -160,7 +160,6 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		return Rectangle(point.x, point.y, point2.x - point.x, point2.y - point.y)
 
 	def GetMapObjects() as TStringList:
-		obj as TRpgMapObject
 		result = TStringList()
 		for obj in FMapObjects:
 			result.AddObject(obj.Name, obj)
