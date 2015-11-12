@@ -405,9 +405,6 @@ class T2kMapEngine(TMapEngine):
 	protected virtual def AfterPaint():
 		pass
 
-/*	protected virtual def GetValidateProc() as Action[of TSqlQuery]:
-		return self.Validate
-*/
 	protected def Quicksave():
 		savefile as string
 		savefile = Path.Combine(GProjectFolder.value, 'quicksave.tsg')
@@ -440,7 +437,7 @@ class T2kMapEngine(TMapEngine):
 				dmDatabase.value.Load(_reader)
 				FDatabase = TRpgDatabase(dmDatabase.value)
 				GDatabase.value = FDatabase
-				if not assigned(FDatabase):
+				unless assigned(FDatabase):
 					raise ERpgPlugin('Incompatible project database')
 				FObjectManager = TMapObjectManager()
 				GScriptEngine.value.OnEnterCutscene = self.EnterCutscene
@@ -448,7 +445,6 @@ class T2kMapEngine(TMapEngine):
 				GScriptEngine.value.OnRenderUnpause = self.RenderUnpause
 				GEnvironment.value = T2kEnvironment(FDatabase)
 				dmDatabase.value.RegisterEnvironment(GEnvironment.value)
-				//SetupScriptImports()
 				FObjectManager.LoadGlobalScripts(GDatabase.value.GlobalEvents)
 				FObjectManager.OnUpdate = GEnvironment.value.UpdateEvents
 			else:
@@ -465,7 +461,7 @@ class T2kMapEngine(TMapEngine):
 			FRenderer = GPU_GetWindowTarget(winID)
 			if FRenderer.Pointer == IntPtr.Zero:
 				GPU_SetInitWindow(winID)
-				FRenderer = GPU_Init(0, 0, 0)				
+				FRenderer = GPU_Init(0, 0, 0)
 				if FRenderer == IntPtr.Zero:
 					raise ERpgPlugin("Unable to initialize SDL_GPU renderer")
 			FCanvas = TSdlCanvas.CreateFrom(window)

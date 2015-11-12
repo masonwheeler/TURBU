@@ -1,12 +1,13 @@
 namespace turbu.script.engine
 
+import System
+import System.Collections.Generic
+import System.Linq.Enumerable
+import System.Threading
 import Boo.Adt
 import Boo.Lang.Interpreter
 import Boo.Lang.Useful.Attributes
 import Pythia.Runtime
-import System
-import System.Collections.Generic
-import System.Threading
 import timing
 import TURBU.MapInterface
 import TURBU.MapObjects
@@ -21,8 +22,6 @@ class TScriptThread(TThread):
 	internal FPage as TRpgEventPage
 
 	private FParent as TScriptEngine
-
-	internal FOwnedExec as InteractiveInterpreter
 
 	internal FDelay as TRpgTimestamp
 
@@ -79,13 +78,9 @@ class TScriptThread(TThread):
 				FPage.Parent.Playing = false
 				if FPage.Trigger != TStartCondition.Parallel:
 					TScriptEngine.Instance.OnLeaveCutscene()
-			unless Terminated:
-				if assigned(FOwnedExec):
-					Terminate()
-				else:
-					FSignal.Reset()
-					FParent.SaveToPool(self)
-					FSignal.WaitOne()
+				FSignal.Reset()
+				FParent.SaveToPool(self)
+				FSignal.WaitOne()
 
 	public def constructor(page as TRpgEventPage, parent as TScriptEngine):
 		super(true)
@@ -147,17 +142,9 @@ class TScriptEngine(TObject):
 	private def CreateExec():
 		FExec = InteractiveInterpreter(RememberLastValue: true)
 		/*
-		FExec = TrsExec.Create
-		FExec.RegisterStandardUnit('media', RegisterMediaE)
-		FExec.OnLine = self.OnRunLine
 		FExec.OnDivideByZero = self.OnDivideByZero
 		*/
 
-/*	private def InternalLoadEnvironment(compiler as TRsCompiler):
-		importer as TrsTypeImporter
-		using importer = TrsTypeImporter.Create(compiler, compiler.GetUnit('SYSTEM')):
-			FEnvProc(compiler, importer, FExec)
-*/
 /*
 	private def OnRunLine(Sender as AbstractInterpreter, line as TrsDebugLineInfo):
 		st as TScriptThread
@@ -193,37 +180,6 @@ class TScriptEngine(TObject):
 		FThreadLock = object()
 		FThreadPool = Queue[of TScriptThread]()
 
-	public def LoadScript(script as string, context as TThread):
-//		pair as KeyValuePair[of string, TrsExecImportProc]
-//		tempCompiler as TrsCompiler
-		ctx = context as TScriptThread
-		if assigned(ctx):
-			ctx.FOwnedExec = FExec
-			ctx.Priority = ThreadPriority.Highest
-/*			CreateExec
-			for pair in FImports:
-				FExec.RegisterStandardUnit(pair.Key, pair.Value)
-			using tempCompiler = TrsCompiler.Create:
-				InternalLoadEnvironment(tempCompiler)
-*/				
-		else:
-			FCurrentProgram = null
-		FCurrentProgram = FExec.Parse(Boo.Lang.Compiler.IO.StringInput("input${++_inputId}", script))
-
-/*
-	public def LoadLibrary(script as string):
-		FCompiler.CompileUnit(script)
-*/
-/*	public def LoadEnvironment(proc as TRegisterEnvironmentProc):
-		FEnvProc = proc
-		InternalLoadEnvironment(FCompiler)
-
-	public def RegisterUnit(name as string, comp as TrsCompilerRegisterProc, exec as TrsExecImportProc):
-		FCompiler.RegisterStandardUnit(name, comp)
-		FExec.RegisterStandardUnit(name, exec)
-		SetLength(FImports, (length(FImports) + 1))
-		FImports[high(FImports)] = TPair[of string, TrsExecImportProc].Create(name, exec)
-*/
 	public def RunScript(script as Action):
 		script()
 
@@ -304,7 +260,7 @@ class TScriptEngine(TObject):
 
 	public def ThreadWait():
 		FRenderUnpause()
-		st = (TThread.CurrentThread cast TScriptThread)
+		st = TThread.CurrentThread cast TScriptThread
 		st.ScriptOnLine(null)
 
 	public def Reset():
@@ -343,10 +299,7 @@ class TMapObjectManager(TObject):
 
 	public def LoadMap(map as IRpgMap, context as TThread):
 		FMapObjects.Clear()
-		list as TStringList = map.GetMapObjects()
-		FMapObjects.Capacity = list.Count
-		for i in range(list.Count):
-			FMapObjects.Add(list.Objects[i] cast TRpgMapObject)
+		FMapObjects.AddRange(map.GetMapObjects().Cast[of TRpgMapObject]())
 
 	public def Tick():
 		obj as TRpgMapObject

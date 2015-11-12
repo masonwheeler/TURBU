@@ -6,7 +6,6 @@ import Pythia.Runtime
 import System
 import System.Collections.Generic
 import System.Linq.Enumerable
-import System.Reflection
 import System.Threading
 import turbu.defs
 import turbu.constants

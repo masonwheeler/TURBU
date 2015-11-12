@@ -845,9 +845,9 @@ class TScriptConverter:
 		count = 0 unless _tally.TryGetValue(opcode, count)
 		_tally[opcode] = count + 1
 	
-	public UnknownOpcodeList as TStringList:
+	public UnknownOpcodeList as List[of string]:
 		get:
-			result = TStringList()
+			result = List[of string]()
 			for pair in _tally.OrderBy({kv | kv.Value}):
 				result.Add("Opcode $(pair.Key) used $(pair.Value) times.")
 			return result

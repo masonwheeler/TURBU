@@ -1,12 +1,14 @@
 namespace turbu.maps
 
+import System
+import System.Drawing
+import System.Linq.Enumerable
 import turbu.containers
 import SG.defs
 //import archiveInterface
 //import dm_database
 import Boo.Adt
 import Pythia.Runtime
-import System
 import turbu.classes
 import TURBU.MapInterface
 import TURBU.Meta
@@ -15,7 +17,6 @@ import turbu.tilesets
 import turbu.map.metadata
 import TURBU.MapObjects
 import turbu.constants
-import System.Drawing
 
 enum TMapScrollType:
 	None
@@ -159,11 +160,8 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		point2 = CalcPoints(FSize.x, size.x, (position / 3))
 		return Rectangle(point.x, point.y, point2.x - point.x, point2.y - point.y)
 
-	def GetMapObjects() as TStringList:
-		result = TStringList()
-		for obj in FMapObjects:
-			result.AddObject(obj.Name, obj)
-		return result
+	def GetMapObjects() as IRpgMapObject*:
+		return FMapObjects.Cast[of IRpgMapObject]()
 
 	def GetScript() as string:
 		result = dmDatabase.value.ScriptLookup(self.ID)
@@ -249,18 +247,18 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 					if first > second:
 						result = CalcBounds(first, second, 0)
 					else:
-						midpoint = (second / 2)
-						result.x = (midpoint - (first / 2))
-						result.y = (result.x + first)
+						midpoint = second / 2
+						result.x = midpoint - (first / 2)
+						result.y = result.x + first
 				case 2:
-					result.x = Math.Max(0, (second - first))
-					result.y = (result.x + minsize)
+					result.x = Math.Max(0, second - first)
+					result.y = result.x + minsize
 				default :
 					assert false
 					
 		let nullTile = TTileRef(Group: 0, Tile: 255)
-		halfBounds = CalcBounds(size.x, FSize.x, (position % 3))
-		halfBoundsBR = CalcBounds(size.y, FSize.y, (position / 3))
+		halfBounds = CalcBounds(size.x, FSize.x, position % 3)
+		halfBoundsBR = CalcBounds(size.y, FSize.y, position / 3)
 		result = Rectangle(halfBounds.x, halfBounds.y, halfBoundsBR.x - halfBounds.x, halfBoundsBR.y - halfBounds.y)
 		assert result.Left >= 0
 		assert result.Top >= 0

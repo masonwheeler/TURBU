@@ -4,7 +4,6 @@ import Pythia.Runtime
 import System
 import TURBU.Meta
 
-callable TStringEqualProc(value as string, data1 as TObject, data2 as TObject)
 def StringListCompare(List1 as TStringList, List2 as TStringList, matchProc as Action[of string, TObject, TObject],
 		list1Proc as Action[of string, TObject], list2Proc as Action[of string, TObject], presorted as bool):
 	if not presorted:
@@ -47,7 +46,7 @@ def StringListMismatch(list1 as TStringList, list2 as TStringList, presorted as 
 		StringListCompare(list1, list2, null, functor.AddSingle, functor.AddSingle, presorted)
 		return functor.OutputList
 
-private class TSlFunctor(TObject):
+private class TSlFunctor:
 
 	[Getter(OutputList)]
 	private FOutputList as TStringList

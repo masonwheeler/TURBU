@@ -76,7 +76,6 @@
     <Compile Include="sdlstreams.boo" />
     <Compile Include="sdl_sprite.boo" />
     <Compile Include="sg_utils.boo" />
-    <Compile Include="StringListComp.boo" />
     <Compile Include="TURBU.BattleEngine.Meta.boo" />
     <Compile Include="TURBU.MapEngine.Meta.boo" />
     <Compile Include="TURBU.ObjectInterface.boo" />

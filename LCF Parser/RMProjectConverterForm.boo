@@ -13,7 +13,7 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 	private _taskRunning as bool
 	private _paused as bool
 	private _finished as bool
-	private _conversionReport = Pythia.Runtime.TStringList()
+	private _conversionReport = List[of string]()
 	private _thread as TThread
 	
 	public def constructor():
@@ -77,7 +77,7 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 			lblStatusLabel.Font = System.Drawing.Font(lblStatusLabel.Font, System.Drawing.FontStyle.Bold)
 			if _conversionReport.Count > 0 and not string.IsNullOrEmpty(filename):
 				filename = Path.Combine(_outputPath, filename)
-				_conversionReport.SaveToFile(filename)
+				File.WriteAllLines(filename, _conversionReport)
 				System.Diagnostics.Process.Start(filename)
 			lblStatus.Text = 'Complete'
 			btnDone.DialogResult = DialogResult.OK
