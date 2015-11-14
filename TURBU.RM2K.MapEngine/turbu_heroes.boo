@@ -880,7 +880,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 				++result if self[i] != GEnvironment.value.Heroes[0]
 			return result
 
-	public def indexOf(who as TRpgHero) as int:
+	public def IndexOf(who as TRpgHero) as int:
 		result = -1
 		for i in range(1, MAXPARTYSIZE + 1):
 			result = i if self[i] == who
@@ -888,7 +888,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 
 	public self[x as int] as TRpgHero:
 		get:
-			result = (GEnvironment.value.Heroes[0] if ((x == 0) or (x > MAXPARTYSIZE)) or (FParty[x] == null) else FParty[x])
+			result = (GEnvironment.value.Heroes[0] if ((x == 0) or (x >= MAXPARTYSIZE)) or (FParty[x - 1] == null) else FParty[x - 1])
 			return result
 		set:
 			return if (x == 0) or (x > MAXPARTYSIZE)
@@ -927,15 +927,37 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 		get: return GetMap()
 	
 	def System.Collections.IEnumerable.GetEnumerator():
-		return FParty.GetEnumerator()
+		return TPartyEnumerator(FParty)
 	
 	def GetEnumerator():
-		return (FParty cast IEnumerable of TRpgHero).GetEnumerator()
+		return TPartyEnumerator(FParty)
+	
+	private class TPartyEnumerator(IEnumerator of TRpgHero):
+		private FHeroes as (TRpgHero)
+		
+		private FIndex = -1
+		
+		def constructor(value as (TRpgHero)):
+			FHeroes = value
+		
+		def MoveNext() as bool:
+			repeat:
+				++FIndex
+				until FIndex >= FHeroes.Length or FHeroes[FIndex] is not null
+			return FIndex < FHeroes.Length
+		
+		def Reset():
+			FIndex = -1
+		
+		def IDisposable.Dispose():
+			pass
+		
+		Current as TRpgHero:
+			get: return FHeroes[FIndex]
+		
+		System.Collections.IEnumerator.Current as object:
+			get: return FHeroes[FIndex]
 
-callable TPartyEvent(hero as TRpgHero, party as TRpgParty)
-callable TSkillBoolFunc(Character as TRpgHero, Level as int, unused2 as int, unused3 as int, unused4 as int) as bool
-callable TSkillNumFunc(Character as TRpgHero, int1 as int, int2 as int, int3 as int, int4 as int) as int
-callable TSkillDualNumFunc(Character as TRpgHero, int1 as int, int2 as int, int3 as int, int4 as int) as Point
 let CTN_DEAD = 1
 let WEAPON_SLOT = 0;
 let SHIELD_SLOT = 1;

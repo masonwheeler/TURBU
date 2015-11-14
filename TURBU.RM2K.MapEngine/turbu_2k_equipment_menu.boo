@@ -153,11 +153,6 @@ class TGameEquipmentMenu(TGameMenuBox):
 
 	private FPlacingCursor as bool
 
-	private def setChar(Value as TRpgHero):
-		FChar = Value
-		(FOwner.Menu('Stat') cast TCharStatBox).Char = Value
-		(FOwner.Menu('Inventory') cast TEqInventoryMenu).Char = Value
-
 	protected override def DrawText():
 		i as int
 		lOrigin as TSgPoint
@@ -217,21 +212,15 @@ class TGameEquipmentMenu(TGameMenuBox):
 			FPlacingCursor = false
 
 	public override def DoButton(input as TButtonCode):
-		def nextChar() as TRpgHero:
-			dummy as int
-			dummy = GEnvironment.value.Party.indexOf(FChar)
-			if dummy == GEnvironment.value.Party.Size:
-				result = GEnvironment.value.Party[1]
-			else:
-				result = GEnvironment.value.Party[(dummy + 1)]
+		def NextChar() as TRpgHero:
+			charIndex as int = GEnvironment.value.Party.IndexOf(FChar)
+			index = (1 if charIndex == GEnvironment.value.Party.Size else charIndex + 1)
+			return GEnvironment.value.Party[index]
 		
-		def prevChar() as TRpgHero:
-			dummy as int
-			dummy = GEnvironment.value.Party.indexOf(FChar)
-			if dummy == 1:
-				result = GEnvironment.value.Party[GEnvironment.value.Party.Size]
-			else:
-				result = GEnvironment.value.Party[dummy - 1]
+		def PrevChar() as TRpgHero:
+			charIndex as int = GEnvironment.value.Party.IndexOf(FChar)
+			index = (GEnvironment.value.Party.Size if charIndex == 1 else charIndex - 1)
+			return GEnvironment.value.Party[index]
 		
 		dummy as GPU_Rect
 		newChar as TRpgHero
@@ -246,18 +235,17 @@ class TGameEquipmentMenu(TGameMenuBox):
 			FPassiveCursor.Layout(dummy)
 			self.FocusMenu('Inventory', 0)
 		elif (input in (TButtonCode.Left, TButtonCode.Right)) and (GEnvironment.value.Party.Size > 1):
-			if input == TButtonCode.Left:
-				newChar = prevChar()
-			else:
-				newChar = nextChar()
+			newChar = (PrevChar() if input == TButtonCode.Left else NextChar())
 			self.DoSetup(newChar.Template.ID)
 			FButtonLock = TRpgTimestamp(180)
 
 	public Char as TRpgHero:
-		get:
-			return FChar
-		set:
-			setChar(value)
+		get: return FChar
+		set: 
+			FChar = value
+			(FOwner.Menu('Stat') cast TCharStatBox).Char = value
+			(FOwner.Menu('Inventory') cast TEqInventoryMenu).Char = value
+
 
 initialization :
 	TMenuEngine.RegisterMenuPage('Equipment', """[

@@ -383,9 +383,9 @@ class T2kSpriteEngine(TSpriteEngine):
 			FCenter = sgPoint(round(WorldX - FDisplacementX) + halfWidth, round(WorldY - FDisplacementY) + halfHeight)
 
 	private def DrawNormal():
+		//FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
 		try:
-			FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
-			if assigned(FCurrentParty) and (not FScreenLocked):
+			if assigned(FCurrentParty) and not FScreenLocked:
 				centerTile as TTile = FCurrentParty.Tiles[1]
 				CenterOnWorldCoords(centerTile.X + ((centerTile.Width + TILE_SIZE.x) / 2), centerTile.Y + TILE_SIZE.y)
 			elif FScreenLocked:
@@ -486,6 +486,7 @@ class T2kSpriteEngine(TSpriteEngine):
 	public def Process():
 		sprite as TMapSprite
 		self.Dead()
+		/*
 		lock FMapObjects:
 			for sprite in FMapObjects:
 				sprite.Place()
@@ -493,22 +494,17 @@ class T2kSpriteEngine(TSpriteEngine):
 		if assigned(FCurrentParty):
 			FCurrentParty.Place()
 			FCurrentParty.MoveTick(GMenuEngine.Value.State == TMenuState.ExclusiveShared)
+		*/
 		CheckDisplacement()
 
 	public def IsHeroIn(location as TMboxLocation) as bool:
-		yPos as int
-		third as int
-		third = Canvas.Height / 3
-		yPos = (FCurrentParty.Location.y * TILE_SIZE.y) - Math.Truncate(WorldY)
+		third as int = Canvas.Height / 3
+		yPos as int = (FCurrentParty.Location.y * TILE_SIZE.y) - Math.Truncate(WorldY)
 		caseOf location:
-			case TMboxLocation.Top:
-				result = yPos <= (third + TILE_SIZE.y)
-			case TMboxLocation.Middle:
-				result = (yPos <= ((third * 2) + TILE_SIZE.y)) and (yPos > third)
-			case TMboxLocation.Bottom:
-				result = yPos > (third * 2)
-			default :
-				raise Exception('Invalid mbox location.')
+			case TMboxLocation.Top: result = yPos <= third + TILE_SIZE.y
+			case TMboxLocation.Middle: result = (yPos <= (third * 2) + TILE_SIZE.y) and (yPos > third)
+			case TMboxLocation.Bottom: result = yPos > third * 2
+			default: raise Exception("Invalid mbox location: $location")
 		return result
 
 	public def AdvanceFrame():

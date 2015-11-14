@@ -8,7 +8,6 @@ import System.Collections.Generic
 import System.Linq.Enumerable
 import System.Threading
 import turbu.defs
-import turbu.constants
 import TURBU.DataReader
 import TURBU.EngineBasis
 import TURBU.RM2K
@@ -63,48 +62,34 @@ abstract class TRpgDatafile(TObject, IRpgObject):
 
 struct TColorShift:
 
-	private FColorset as (single)
+	private FColorSet as (single)
 
-	[Property(hue)]
+	[Property(Hue)]
 	private FHue as byte
 
-	private def getColor(x as TColorSet) as single:
-		return FColorset[x]
-
-	private def setColor(x as TColorSet, value as single):
+	private def SetColor(x as TColorSet, value as single):
 		clamp(value, 0, 2)
-		FColorset[x] = value
+		FColorSet[x] = value
 
-	private def isClear() as bool:
-		return (FColorset[TColorSet.cs_red] == 0) and (FColorset[TColorSet.cs_green] == 0) and (FColorset[TColorSet.cs_blue] == 0) and (FColorset[TColorSet.cs_sat] == 0) and (FHue == 0)
+	public Red as single:
+		get: return FColorSet[TColorSet.cs_red]
+		set: SetColor(TColorSet.cs_red, value)
 
-	public red as single:
-		get:
-			return getColor(TColorSet.cs_red)
-		set:
-			setColor(TColorSet.cs_red, value)
+	public Green as single:
+		get: return FColorSet[TColorSet.cs_green]
+		set: SetColor(TColorSet.cs_green, value)
 
-	public green as single:
-		get:
-			return getColor(TColorSet.cs_green)
-		set:
-			setColor(TColorSet.cs_green, value)
+	public Blue as single:
+		get: return FColorSet[TColorSet.cs_blue]
+		set: SetColor(TColorSet.cs_blue, value)
 
-	public blue as single:
-		get:
-			return getColor(TColorSet.cs_blue)
-		set:
-			setColor(TColorSet.cs_blue, value)
+	public Sat as single:
+		get: return FColorSet[TColorSet.cs_sat]
+		set: SetColor(TColorSet.cs_sat, value)
 
-	public sat as single:
-		get:
-			return getColor(TColorSet.cs_sat)
-		set:
-			setColor(TColorSet.cs_sat, value)
-
-	public clear as bool:
-		get:
-			return isClear()
+	public Clear as bool:
+		get: return (FColorSet[TColorSet.cs_red]  == 0) and (FColorSet[TColorSet.cs_green] == 0) and \
+					(FColorSet[TColorSet.cs_blue] == 0) and (FColorSet[TColorSet.cs_sat]   == 0) and (FHue == 0)
 
 class TRpgDataList[of T(TRpgDatafile, constructor)](TRpgObjectList[of T]):
 
@@ -193,81 +178,6 @@ class TRpgDataDict[of T(TRpgDatafile, constructor)](Dictionary[of int, TRpgDataf
 			result = FDataset.GetData(Key)
 			self.Add(result)
 			return result
-
-class TRpgDecl(IEnumerable[of TNameType]):
-
-	[Property(name)]
-	private FName as string
-
-	[Property(designName)]
-	private FDesignName as string
-
-	[Property(retval)]
-	private FRetval as int
-
-	[Property(params)]
-	private FParams as List[of TNameType]
-
-	def System.Collections.IEnumerable.GetEnumerator():
-		return FParams.GetEnumerator()
-	
-	def GetEnumerator() as IEnumerator[of TNameType]:
-		return FParams.GetEnumerator()
-
-	public def constructor(aName as string, aDesignName as string):
-		FName = aName
-		FDesignName = aDesignName
-		FParams = List[of TNameType]()
-
-	public def equals(other as TRpgDecl) as bool:
-		i as int
-		result = ((FParams.Count == other.params.Count) and (self.retval == other.retval))
-		if result:
-			for i in range(0, FParams.Count):
-				result = ((result and (FParams[i].typeVar == other.params[i].typeVar)) and (FParams[i].flags == other.params[i].flags))
-		return result
-
-	public def fourInts() as bool:
-		i as int
-		result = (FParams.Count >= 5)
-		if result:
-			for I in range(1, 5):
-				result = (result and (FParams[i].typeVar == vt_integer))
-		return result
-
-	public def Clone() as TRpgDecl:
-		param as TNameType
-		result = TRpgDecl(FName, FDesignName)
-		result.FParams = List[of TNameType]()
-		for param in self.FParams:
-			result.FParams.Add(param)
-		return result
-
-class TDeclList(TRpgObjectList[of TRpgDecl]):
-
-	private def getLookup(value as string) as TRpgDecl:
-		return self[IndexOf(value)]
-
-	private FComparer = Comparer[of TRpgDecl].Create(declComp)
-
-	public def IndexOf(value as string) as int:
-		result as int
-		using dummy = TRpgDecl(value, ''):
-			result = self.BinarySearch(dummy, FComparer)
-			if result < 0:
-				result = -1
-		return result
-
-	public new def Sort():
-		super.Sort(FComparer)
-		i as int = 1
-		while i < self.Count:
-			if self[i].name == self[(i - 1)].name:
-				self.RemoveAt(i)
-			else: ++i
-
-	public decl[value as string] as TRpgDecl:
-		get: return getLookup(value)
 
 class EventTypeAttribute(System.Attribute):
 
@@ -386,6 +296,3 @@ public def ReadArray(obj as JObject, name as string, ref value as (bool)):
 public def CheckEmpty(obj as JObject):
 	if obj.Count > 0:
 		logs.logText('Unknown savefile data: ' + obj.ToString())
-
-internal def declComp(Left as TRpgDecl, Right as TRpgDecl) as int:
-	return string.Compare(Left.name, Right.name)

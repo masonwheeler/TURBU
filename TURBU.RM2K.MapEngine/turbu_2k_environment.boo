@@ -337,7 +337,7 @@ class T2kEnvironment(TObject):
 			pass //TODO: implement this
 
 	public def HeroPresent(id as int) as bool:
-		return FParty.indexOf(self.Heroes[id]) > 0
+		return FParty.IndexOf(self.Heroes[id]) > 0
 
 	public def CallScript(objectID as int, pageID as int):
 		GScriptEngine.value.RunObjectScript(self.MapObject[objectID].MapObj, pageID)

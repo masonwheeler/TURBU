@@ -314,7 +314,8 @@ class T2kMapEngine(TMapEngine):
 		color = GPU_GetColor(target.Image)
 		GPU_SetRGBA(target.Image, 255, 255, 255, 255)
 		unless (canTint and FCurrentMap.Fade):
-			FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
+			//FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
+			GPU_DeactivateShaderProgram()
 		target.DrawFull()
 		GPU_SetColor(target.Image, color)
 		GPU_DeactivateShaderProgram()
@@ -322,7 +323,8 @@ class T2kMapEngine(TMapEngine):
 	private def RenderFrame():
 		GRenderTargets.RenderOn(RENDERER_MAP, StandardRender, 0, true, false)
 		DrawRenderTarget(GRenderTargets[RENDERER_MAP], true)
-		FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
+		//FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
+		GPU_DeactivateShaderProgram()
 		RenderImages(self)
 		FCurrentMap.DrawFlash()
 		if GMenuEngine.Value.State != TMenuState.None:
@@ -361,8 +363,8 @@ class T2kMapEngine(TMapEngine):
 			else:
 				if FCurrentMap.Blank :
 					GRenderTargets.RenderOn(RENDERER_MAIN, null, 0, true, false)
-				else: GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)
-				DrawRenderTarget(GRenderTargets[RENDERER_MAIN], false)
+				else: StandardRender() //GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)
+				//DrawRenderTarget(GRenderTargets[RENDERER_MAIN], false)
 			FCanvas.Flip()
 
 	private def RenderTitle():

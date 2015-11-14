@@ -83,7 +83,6 @@
     <Compile Include="turbu_characters.boo" />
     <Compile Include="turbu_classes.boo" />
     <Compile Include="turbu_constants.boo" />
-    <Compile Include="turbu_decl_utils.boo" />
     <Compile Include="turbu_defs.boo" />
     <Compile Include="turbu_game_data.boo" />
     <Compile Include="turbu_items.boo" />
