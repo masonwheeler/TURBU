@@ -66,7 +66,10 @@ class TSdlImage(TObject):
 	private FImageSize as TSgPoint
 	
 	[Property(Alpha)]
-	private FAlpha as byte;
+	private FAlpha as byte
+
+	override def ToString():
+		return "$(GetType().Name)('$(Name)', Image: ($(ImageSize.x), $(ImageSize.y)), Texture: ($(TextureSize.x), $(TextureSize.y)))"
 
 	private def GetSurface(surface as IntPtr) as SDL.SDL_Surface:
 		sur as SDL.SDL_Surface = Marshal.PtrToStructure(surface, SDL.SDL_Surface);
@@ -92,27 +95,13 @@ class TSdlImage(TObject):
 		ProcessImage(lSurface)
 		if FSurface.Pointer == IntPtr.Zero:
 			FSurface = GPU_CopyImageFromSurface(lSurface)
+		img = FSurface.Value
+		FImageSize = TSgPoint(img.w, img.h)
 		if (spriteSize.x == EMPTY.x) and (spriteSize.y == EMPTY.y):
 			self.TextureSize = sgPoint(sur.w, sur.h)
 		else: self.TextureSize = spriteSize
 		SDL.SDL_FreeSurface(lSurface)
-		if assigned(container):
-			container.Add(self)
-		img = FSurface.Value
-		FImageSize = TSgPoint(img.w, img.h)
-
-	protected def SetTextureSize(size as TSgPoint):
-		lSize = FImageSize
-		if ((lSize.x % size.x) > 0) or ((lSize.y % size.y) > 0):
-			raise ESdlImageException('Texture size is not evenly divisible into base image size.')
-		FTextureSize = size
-		FTexturesPerRow = lSize.x / size.x
-		FTextureRows = lSize.y / size.y
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	protected def GetCount() as int:
-		result = (FTexturesPerRow * FTextureRows)
-		return result
+		container.Add(self) if assigned(container)
 
 	protected virtual def ProcessImage(image as IntPtr):
 		pass
@@ -160,9 +149,8 @@ class TSdlImage(TObject):
 		currentRenderTarget().Parent.DrawRect(self, dest, source, flip)
 
 	public def DrawSprite(dest as TSgPoint, index as int, flip as SDL.SDL_RendererFlip):
-		if index >= Count:
-			return
-		currentRenderTarget().Parent.DrawRect(self, dest, self.SpriteRect[index], flip)
+		if index < Count:
+			currentRenderTarget().Parent.DrawRect(self, dest, self.SpriteRect[index], flip)
 
 	public def DrawTo(dest as GPU_Rect):
 		currentRenderTarget().Parent.DrawTo(self, dest)
@@ -171,27 +159,28 @@ class TSdlImage(TObject):
 		currentRenderTarget().Parent.DrawRectTo(self, dest, source)
 
 	public def DrawSpriteTo(dest as GPU_Rect, index as int):
-		if index >= Count:
-			return
+		return if index >= Count:
 		currentRenderTarget().Parent.DrawRectTo(self, dest, self.SpriteRect[index])
 
 	public TextureSize as TSgPoint:
-		get:
-			return FTextureSize
-		set:
-			SetTextureSize(value)
+		get: return FTextureSize
+		set: 
+			var lSize = FImageSize
+			if (lSize.x % value.x > 0) or (lSize.y % value.y > 0):
+				raise ESdlImageException('Texture size is not evenly divisible into base image size.')
+			FTextureSize = size
+			FTexturesPerRow = lSize.x / size.x
+			FTextureRows = lSize.y / size.y
+
 
 	public Count as int:
-		get:
-			return GetCount()
+		get: return FTexturesPerRow * FTextureRows
 
 	public SpriteRect[index as int] as GPU_Rect:
 		get:
-			x as int
-			y as int
-			x = (index % FTexturesPerRow)
-			y = (index / FTexturesPerRow)
-			result = GPU_Rect(x: x * FTextureSize.x, y: y * FTextureSize.y, w: FTextureSize.x, h: FTextureSize.y)
+			x as int = index % FTexturesPerRow
+			y as int = index / FTexturesPerRow
+			result = GPU_MakeRect(x * FTextureSize.x, y * FTextureSize.y, FTextureSize.x, FTextureSize.y)
 			return result
 
 	static def CreateSprite(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
@@ -250,10 +239,6 @@ class TSdlImages(object):
 
 	[Property(SpriteClass)]
 	private FSpriteClass as TSdlImageClass
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	private def GetCount() as int:
-		return FData.Length
 
 	private def GetItem(Num as int) as TSdlImage:
 		if (Num >= 0) and (Num < FData.Length):
@@ -437,16 +422,13 @@ class TSdlImages(object):
 			FHash.Add(FData[i].Name, i)
 
 	public Count as int:
-		get:
-			return GetCount()
+		get: return FData.Length
 
 	public self[Num as int] as TSdlImage:
-		get:
-			return GetItem(Num)
+		get: return GetItem(Num)
 
 	public Image[Name as string] as TSdlImage:
-		get:
-			return GetImage(Name)
+		get: return GetImage(Name)
 
 class TSdlBackgroundImageClass(TSdlImageClass):
 	override def CreateSprite(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):

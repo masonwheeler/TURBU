@@ -161,5 +161,8 @@ private def CreateNewGroup(filename as string, i as int) as MacroStatement:
 		case 0, 1, 2: tt = [|TileType Bordered, Animated|]
 		case 3: tt = [|TileType Animated|]
 		default: tt = ([|TileType Bordered|] if i <= 15 else null)
+	isMini = (i < 16) and (i != 3)
+	dimSize = (8 if isMini else 16)
+	result.Body.Add([|Dimensions $dimSize, $dimSize|])
 	result.Body.Add(tt) if tt is not null
 	return result

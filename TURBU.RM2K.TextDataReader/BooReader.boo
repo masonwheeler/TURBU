@@ -109,7 +109,7 @@ private class TDataFileReader[of T(IRpgObject)](IDataTypeReader[of T]):
 	def GetData(index as int) as T:
 		lock _store:
 			result as T
-			return if _cache.TryGetValue(index, result)
+			return result if _cache.TryGetValue(index, result)
 			loader as Func[of T]
 			if _store.TryGetValue(index, loader):
 				result = loader()

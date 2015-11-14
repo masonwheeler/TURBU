@@ -29,6 +29,9 @@ macro TileGroups.TileGroup(name as StringLiteralExpression, body as ExpressionSt
 			result = [| $result | TTileType.$(items[i]) |]
 			++i
 		return ExpressionStatement([| TileType($result) |])
+		
+	macro Dimensions(x as int, y as int):
+		return ExpressionStatement([| Dimensions(sgPoint($x, $y)) |])
 	
 	result = PropertyList('TTileGroup', [|0|], body)
 	result.NamedArguments.Add(ExpressionPair([|Name|], name))

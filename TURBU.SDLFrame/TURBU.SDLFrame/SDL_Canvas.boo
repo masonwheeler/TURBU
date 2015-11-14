@@ -76,16 +76,16 @@ class TSdlRenderTarget(TSdlRenderSurface):
 
 class TSdlRenderTargets(List[of TSdlRenderTarget]):
 
-	public def RenderOn(Index as int, Event as Action, Bkgrnd as uint, FillBk as bool, composite as bool) as bool:
-		return false  unless (Index >= 0) and (Index < Count)
-		Target as TSdlRenderTarget = self[Index]
+	public def RenderOn(index as int, Event as Action, Bkgrnd as uint, FillBk as bool, composite as bool) as bool:
+		return false  unless (index >= 0) and (index < Count)
+		target as TSdlRenderTarget = self[index]
 		currentRenderTarget().Parent.PushRenderTarget()
 		try:
-			Target.SetRenderer()
+			target.SetRenderer()
 			if FillBk:
 				color as TSgColor = Bkgrnd cast TSgColor
 				color.Rgba[4] = (0 if composite else 255)
-				Target.Parent.Clear(color, 0xFF)
+				target.Parent.Clear(color, 0xFF)
 			Event() unless Event is null
 			return true
 		ensure:
@@ -172,46 +172,46 @@ class TSdlCanvas(TSdlRenderSurface, ISdlCanvas):
 
 	public def Draw(image as TSdlImage, dest as TSgPoint, flip as SDL.SDL_RendererFlip):
 		if flip == SDL.SDL_RendererFlip.SDL_FLIP_NONE:
-			GPU_Blit(image.Surface, IntPtr.Zero, FRenderTarget, dest.x + image.TextureSize.x / 2.0, dest.y + image.TextureSize.y / 2.0)
+			GPU_Blit(image.Surface, IntPtr.Zero, lCurrentRenderTarget.RenderTarget, dest.x + image.TextureSize.x / 2.0, dest.y + image.TextureSize.y / 2.0)
 		else: raise "Flips are not implemented"
 //			assert SDL_RenderCopyEx(FRenderer, image.Surface, IntPtr.Zero, dummy, 0, IntPtr.Zero, flip) == 0
 
 	public def Draw(target as TSdlRenderTarget, dest as TSgPoint):
-		GPU_Blit(target.Image, IntPtr.Zero, FRenderTarget, dest.x + target.Width / 2.0, dest.y + target.Height / 2.0)
+		GPU_Blit(target.Image, IntPtr.Zero, lCurrentRenderTarget.RenderTarget, dest.x + target.Width / 2.0, dest.y + target.Height / 2.0)
 
 	public def DrawTo(image as TSdlImage, dest as GPU_Rect):
-		GPU_BlitScale(image.Surface, IntPtr.Zero, FRenderTarget, dest.x, dest.y, dest.w / image.ImageSize.x , dest.h / image.ImageSize.y)
+		GPU_BlitScale(image.Surface, IntPtr.Zero, lCurrentRenderTarget.RenderTarget, dest.x, dest.y, dest.w / image.ImageSize.x , dest.h / image.ImageSize.y)
 
 	public def DrawRect(image as TSdlImage, dest as TSgPoint, source as GPU_Rect, flip as SDL.SDL_RendererFlip):
 		if flip == SDL.SDL_RendererFlip.SDL_FLIP_NONE:
-			GPU_Blit(image.Surface, source, FRenderTarget, dest.x + (source.w / 2), dest.y + (source.h / 2))
+			GPU_Blit(image.Surface, source, lCurrentRenderTarget.RenderTarget, dest.x + (source.w / 2), dest.y + (source.h / 2))
 		else: raise "Flips are not implemented"
 
 	public def DrawRect(target as TSdlRenderTarget, dest as TSgPoint, source as GPU_Rect):
-		GPU_Blit(target.Image, source, FRenderTarget, dest.x, dest.y)
+		GPU_Blit(target.Image, source, lCurrentRenderTarget.RenderTarget, dest.x, dest.y)
 
 	public def DrawRectTo(image as TSdlImage, dest as GPU_Rect, source as GPU_Rect):
-		GPU_BlitScale(image.Surface, source, FRenderTarget, dest.x, dest.y, dest.w / image.ImageSize.x , dest.h / image.ImageSize.y)
+		GPU_BlitScale(image.Surface, source, lCurrentRenderTarget.RenderTarget, dest.x, dest.y, dest.w / image.ImageSize.x , dest.h / image.ImageSize.y)
 
 	public def DrawRectTo(target as TSdlRenderTarget, dest as GPU_Rect, source as GPU_Rect):
-		GPU_BlitScale(target.Image, source, FRenderTarget, dest.x, dest.y, dest.w / target.Size.x , dest.h / target.Size.y)
+		GPU_BlitScale(target.Image, source, lCurrentRenderTarget.RenderTarget, dest.x, dest.y, dest.w / target.Size.x , dest.h / target.Size.y)
 
 	public def DrawBox(region as GPU_Rect, color as SDL.SDL_Color, alpha as byte):
-		GPU_Rectangle(FRenderTarget, region.x, region.y, region.x + region.w, region.y + region.h, color)
+		GPU_Rectangle(lCurrentRenderTarget.RenderTarget, region.x, region.y, region.x + region.w, region.y + region.h, color)
 
 	public def DrawDashedBox(region as GPU_Rect, color as SDL.SDL_Color, alpha as byte):
 		def DrawHorizLine(x1 as int, x2 as int, y as int):
 			x as int
 			x = x1
 			while x < (x2 - 2):
-				GPU_Line(FRenderTarget, x, y, x + 2, y, color)
+				GPU_Line(lCurrentRenderTarget.RenderTarget, x, y, x + 2, y, color)
 				x += 4
 		
 		def DrawVertLine(y1 as int, y2 as int, x as int):
 			y as int
 			y = y1
 			while y < (y2 - 2):
-				GPU_Line(FRenderTarget, x, y, x, y + 2, color)
+				GPU_Line(lCurrentRenderTarget.RenderTarget, x, y, x, y + 2, color)
 				y += 4
 		
 		DrawHorizLine(region.x, region.x + region.w, region.y)
@@ -222,7 +222,7 @@ class TSdlCanvas(TSdlRenderSurface, ISdlCanvas):
 	public def FillRect(region as GPU_Rect, color as SDL.SDL_Color, alpha as byte):
 		lColor as SDL.SDL_Color = color
 		lColor.a = alpha
-		GPU_RectangleFilled(FRenderTarget, region.x, region.y, region.x + region.w, region.y + region.h, lColor)
+		GPU_RectangleFilled(lCurrentRenderTarget.RenderTarget, region.x, region.y, region.x + region.w, region.y + region.h, lColor)
 
 	public def FillRect(region as GPU_Rect, color as SDL.SDL_Color):
 		FillRect(region, color, 255)
@@ -230,7 +230,7 @@ class TSdlCanvas(TSdlRenderSurface, ISdlCanvas):
 	public def Clear(color as SDL.SDL_Color, alpha as byte):
 		lColor as SDL.SDL_Color = color
 		lColor.a = alpha
-		GPU_ClearColor(FRenderTarget, lColor)
+		GPU_ClearColor(lCurrentRenderTarget.RenderTarget, lColor)
 
 	public def Clear(color as SDL.SDL_Color):
 		Clear(color, 255)
