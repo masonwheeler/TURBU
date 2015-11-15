@@ -379,6 +379,7 @@ class TMenuSpriteEngine(TSpriteEngine):
 				super.Draw()
 			case TMenuState.Full:
 				FMenuEngine.Draw()
+			default: raise "Unknown menu state: $FMenuState"
 
 	public def ShowMessage(msg as string, modal as bool):
 		box as TCustomMessageBox

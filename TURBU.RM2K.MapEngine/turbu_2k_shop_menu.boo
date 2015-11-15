@@ -497,37 +497,29 @@ class TShopMenuPage(TMenuPage):
 		FState = Value
 		SetVisible(true)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def TopRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x, input.y, input.w, 32)
+		return GPU_MakeRect(input.x, input.y, input.x + input.w, input.y + 32)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def MidRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x, input.y + 32, input.w, 128)
+		return GPU_MakeRect(input.x, input.y + 32, input.x + input.w, input.y + 160)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def BottomRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x, input.y + 160, input.w, 80)
+		return GPU_MakeRect(input.x, input.y + 160, input.x + input.w, input.y + 240)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def BottomOverlapRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x + 4, input.y + 164, input.w - 8, 32)
+		return GPU_MakeRect(input.x + 4, input.y + 164, input.x + input.w - 4, input.y + 196)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def MidLeftRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x, input.y + 32, 184, 128)
+		return GPU_MakeRect(input.x, input.y + 32, input.x + 184, input.y + 160)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def MidRightTRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x + 184, input.y + 32, 136, 48)
+		return GPU_MakeRect(input.x + 184, input.y + 32, input.x + 320, input.y + 80)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def MidRightMRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x + 184, input.y + 80, 136, 48)
+		return GPU_MakeRect(input.x + 184, input.y + 80, input.x + 320, input.y + 128)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def MidRightBRect(input as GPU_Rect) as GPU_Rect:
-		return GPU_MakeRect(input.x + 184, input.y + 128, 136, 32)
+		return GPU_MakeRect(input.x + 184, input.y + 128, input.x + 320, input.y + 160)
 
 	protected override def SetVisible(value as bool):
 		super.SetVisible(false)

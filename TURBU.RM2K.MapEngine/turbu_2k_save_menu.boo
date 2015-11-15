@@ -66,15 +66,12 @@ class TSaveBox(TGameMenuBox):
 		for portrait in FPortraits:
 			portrait.Dead()
 		data = (FOwner cast TSaveMenuPage).SaveData(FIndex)
-		if assigned(data):
-			color = 1
-		else:
-			color = 4
+		color = (1 if assigned(data) else 4)
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, "File $FIndex", 4, 4, color)
+		GFontEngine.DrawText(target, "File $FIndex", 8, 4, color)
 		if assigned(data):
-			GFontEngine.DrawText(target, data.Name, 4, 22, 1)
-			GFontEngine.DrawText(target, 'L', 4, 40, 2)
+			GFontEngine.DrawText(target, data.Name, 8, 22, 1)
+			GFontEngine.DrawText(target, 'L', 8, 40, 2)
 			GFontEngine.DrawTextRightAligned(target, data.Level.ToString(), 22, 40, 1)
 			GFontEngine.DrawText(target, 'HP', 40, 40, 2)
 			GFontEngine.DrawTextRightAligned(target, data.Hp.ToString(), 70, 40, 1)
@@ -96,7 +93,7 @@ class TSaveBox(TGameMenuBox):
 	protected override def DoButton(input as TButtonCode):
 		filename as string
 		super.DoButton(input)
-		if input == TButtonCode.Enter:
+		if input == TButtonCode.Enter and FOptionEnabled[FCursorPosition]:
 			filename = Path.Combine(GProjectFolder.value, "save$(FIndex.ToString('D2')).tsg")
 			if FSetupValue == 0:
 				SaveTo(filename, GSpriteEngine.value.MapObj.ID, true)
@@ -203,12 +200,13 @@ class TSaveMenuPage(TMenuPage):
 		let SIZE = sgPoint(320, 68)
 		boxCoords as GPU_Rect
 		super(parent, coords, main, layout)
-		boxCoords.w = SIZE.x; boxCoords.h = SIZE.y
+		boxCoords.w = SIZE.x
 		boxCoords.x = 0
 		for i in range(FSlots.Length):
 			boxCoords.y = 32 + (68 * i)
+			boxCoords.h = SIZE.y + boxCoords.y
 			FSlots[i] = TSaveBox(parent, boxCoords, main, self)
-			FSlots[i].FIndex = (i + 1)
+			FSlots[i].FIndex = i + 1
 			RegisterComponent("Slot$i", FSlots[i])
 		FTitle = TOnelineLabelBox(parent, GPU_MakeRect(0, 0, 320, 32), main, self)
 		RegisterComponent('Title', FTitle)
@@ -227,7 +225,7 @@ class TSaveMenuPage(TMenuPage):
 				MoveSlot(input)
 			case TButtonCode.Enter, TButtonCode.Cancel:
 				super.Button(input)
-		if oldSlot != (FTop + FCursorPosition):
+		if oldSlot != FTop + FCursorPosition:
 			PlaySystemSound(TSfxTypes.Cursor)
 			FButtonLock = TRpgTimestamp(180)
 

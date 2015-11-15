@@ -54,7 +54,6 @@ abstract class TGameMenuBox(TCustomMessageBox):
 
 	protected FBlank as bool
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	protected def Return():
 		dummy as TGameMenuBox
 		if FReferrer == null:
@@ -65,7 +64,6 @@ abstract class TGameMenuBox(TCustomMessageBox):
 			FOwner.BackTo(dummy)
 
 	protected Focused as bool:
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		get: return (FMenuEngine.CurrentMenu == FOwner) and (FOwner.CurrentMenu == self)
 
 	protected virtual def DoButton(input as TButtonCode):
@@ -75,14 +73,12 @@ abstract class TGameMenuBox(TCustomMessageBox):
 			self.Return()
 
 	protected virtual def DoCursor(position as short):
-		if self.Focused:
-			super.PlaceCursor(position)
+		super.PlaceCursor(position) if self.Focused:
 
 	protected virtual def DoSetup(value as int):
 		if value != CURSOR_UNCHANGED:
 			FSetupValue = value
-		else:
-			FDontChangeCursor = true
+		else: FDontChangeCursor = true
 
 	protected abstract def DrawText():
 		pass
@@ -454,18 +450,16 @@ class TMenuEngine(TObject, IMenuEngine):
 	public def PlaceCursor(value as short):
 		if FCurrentPage == null:
 			raise EFatalError('Tried to Place a system Menu cursor when the Menu was not active!')
-		else:
-			FCurrentPage.PlaceCursor(value)
+		else: FCurrentPage.PlaceCursor(value)
 
 	public def Leave(PlaySound as bool):
-		while FStack.Count > 0:
-			Return()
+		Return() while FStack.Count > 0
 		GGameEngine.value.EnterLock = true
-		if PlaySound:
-			PlaySystemSound(TSfxTypes.Cancel)
+		PlaySystemSound(TSfxTypes.Cancel) if PlaySound
 		FState = TMenuShowState.Fading
 		self.Visible = false
-		GGameEngine.value.CurrentMap.Wake()
+		var cMap = GGameEngine.value.CurrentMap
+		cMap.Wake() if assigned(cMap)
 		FCloseMenu()
 
 	public def Activate():

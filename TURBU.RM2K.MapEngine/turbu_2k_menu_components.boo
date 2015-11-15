@@ -155,7 +155,7 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 	protected override def DoSetup(value as int):
 		template as TClassTemplate
 		super.DoSetup(value)
-		i as byte = 1
+		var i = 1
 		FParsedText.Clear()
 		Array.Resize[of bool](FOptionEnabled, GEnvironment.value.Party.Size)
 		while GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
@@ -170,11 +170,12 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 			++i
 			InvalidateText()
 		FCount = i - 1
-		for i in range(i, 4):
-			if assigned(FPortrait[i]):
-				FPortrait[i].Dead()
-				FPortrait[i] = null
-			FOptionEnabled[i - 1] = false if i < FOptionEnabled.Length
+		if i < 4:
+			for i in range(i, 4):
+				if assigned(FPortrait[i]):
+					FPortrait[i].Dead()
+					FPortrait[i] = null
+				FOptionEnabled[i - 1] = false if i < FOptionEnabled.Length
 
 	protected override def DoCursor(position as short):
 		coords as GPU_Rect

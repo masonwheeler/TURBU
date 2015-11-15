@@ -79,11 +79,15 @@ class TSprite(TObject):
 	
 	public virtual Width as int:
 		get: return FWidth
-		set: FWidth = value
+		set: 
+			System.Diagnostics.Debugger.Break() unless value >= 0
+			FWidth = value
 
 	public virtual Height as int:
 		get: return FHeight
-		set: FHeight = value
+		set:
+			System.Diagnostics.Debugger.Break() unless value >= 0
+			FHeight = value
 
 	protected FOrigin as TSgPoint
 
@@ -175,10 +179,10 @@ class TSprite(TObject):
 	protected virtual def GetDrawRect() as GPU_Rect:
 		return GPU_MakeRect(FOrigin.x, FOrigin.y, FWidth, FHeight)
 
-	protected virtual def SetDrawRect(Value as GPU_Rect):
-		FOrigin = sgPoint(Value.x, Value.y)
-		FWidth = Value.w
-		FHeight = Value.h
+	protected virtual def SetDrawRect(value as GPU_Rect):
+		FOrigin = sgPoint(value.x, value.y)
+		FWidth = value.w
+		FHeight = value.h
 		FImageType = TImageType.itRectSet
 
 	internal def Render():
@@ -212,9 +216,9 @@ class TSprite(TObject):
 	protected virtual def DoMove(MoveCount as single):
 		pass
 
-	protected virtual def SetImageName(Value as string):
-		if FImageName != Value:
-			FImageName = Value
+	protected virtual def SetImageName(value as string):
+		if FImageName != value:
+			FImageName = value
 			if assigned(FEngine):
 				self.Image = FEngine.Images.Image[FImageName] 
 			if assigned(FImage):
@@ -228,10 +232,10 @@ class TSprite(TObject):
 				System.Diagnostics.Debugger.Break()
 
 	protected virtual def InVisibleRect() as bool:
-		return X > (FEngine.WorldX - (Width * 2)) and \
-		       Y > (FEngine.WorldY - (Height * 2)) and \
-		       X < (FEngine.WorldX + FEngine.VisibleWidth) and \
-		       Y < (FEngine.WorldY + FEngine.VisibleHeight)
+		return X > FEngine.WorldX - (Width * 2) and \
+		       Y > FEngine.WorldY - (Height * 2) and \
+		       X < FEngine.WorldX + FEngine.VisibleWidth and \
+		       Y < FEngine.WorldY + FEngine.VisibleHeight
 
 	public def constructor(AParent as TParentSprite):
 		if assigned(AParent):
@@ -247,15 +251,15 @@ class TSprite(TObject):
 			FParent.Remove(self)
 			FEngine.FDeadList.Remove(self)
 
-	public virtual def Assign(Value as TSprite):
-		FName = Value.Name
-		FImageName = Value.ImageName
-		FX = Value.X
-		FY = Value.Y
-		FZ = Value.Z
-		FPatternIndex = Value.FPatternIndex
-		FVisible = Value.Visible
-		FTag = Value.Tag
+	public virtual def Assign(value as TSprite):
+		FName = value.Name
+		FImageName = value.ImageName
+		FX = value.X
+		FY = value.Y
+		FZ = value.Z
+		FPatternIndex = value.FPatternIndex
+		FVisible = value.Visible
+		FTag = value.Tag
 
 	public virtual def Move(MoveCount as single):
 		if FMoves:
@@ -552,10 +556,10 @@ class TAnimatedRectSprite(TParentSprite):
 
 	private FAnimPos as int
 
-	protected override def SetDrawRect(Value as GPU_Rect):
-		FStartingPoint = sgPoint(Value.x, Value.y)
+	protected override def SetDrawRect(value as GPU_Rect):
+		FStartingPoint = sgPoint(value.x, value.y)
 		FAnimPos = 0
-		super.SetDrawRect(Value)
+		super.SetDrawRect(value)
 
 	public def constructor(parent as TParentSprite, region as GPU_Rect, displacement as TSgPoint, length as int):
 		super(parent)
