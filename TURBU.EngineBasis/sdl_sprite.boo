@@ -164,40 +164,6 @@ class TSprite(TObject):
 	[Property(VisibleArea)]
 	protected FVisibleArea as Rectangle
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	protected def GetPatternWidth() as int:
-		return (FImage.TextureSize.x if assigned(FImage) else 0)
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	protected def GetPatternHeight() as int:
-		return (FImage.TextureSize.y if assigned(FImage) else 0)
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	protected def GetPatternCount() as int:
-		return FImage.Count
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	protected def GetBoundsRect() as GPU_Rect:
-		return GPU_MakeRect(Math.Round(FX), Math.Round(FY), Width, Height)
-
-	protected def SetParent(value as TParentSprite):
-		return if FParent == value
-		
-		if assigned(FParent):
-			FParent.UnDraw(self)
-			FParent.List.Remove(self)
-		FParent = value
-		value.Add(self)
-
-	protected def SetImage(value as TSdlImage):
-		return if value is null
-		
-		FImage = value
-		FImageName = FImage.Name
-		if FImageType in (TImageType.itSingleImage, TImageType.itSpriteSheet):
-			FWidth = FImage.TextureSize.x
-			FHeight = FImage.TextureSize.y
-
 	[Property(Engine), DisposeParent]
 	protected FEngine as TSpriteEngine
 
@@ -250,7 +216,7 @@ class TSprite(TObject):
 		if FImageName != Value:
 			FImageName = Value
 			if assigned(FEngine):
-				SetImage(FEngine.Images.Image[FImageName])
+				self.Image = FEngine.Images.Image[FImageName] 
 			if assigned(FImage):
 				if FImageType != TImageType.itRectSet:
 					if FImage.Count > 1:
@@ -260,17 +226,6 @@ class TSprite(TObject):
 				FImageIndex = FEngine.Images.IndexOf(FImageName)
 			else:
 				System.Diagnostics.Debugger.Break()
-
-	protected def SetZ(Value as uint):
-		if (FZ != Value) or (not FZset):
-			if assigned(FParent):
-				if FZset:
-					FParent.UnDraw(self)
-				FZ = Value
-				FParent.AddDrawList(self)
-			else:
-				FZ = Value
-			FZset = true
 
 	protected virtual def InVisibleRect() as bool:
 		return X > (FEngine.WorldX - (Width * 2)) and \
@@ -337,50 +292,57 @@ class TSprite(TObject):
 		FRenderSpecial = true
 
 	public Z as uint:
-		get:
-			return FZ
+		get: return FZ
 		set:
-			SetZ(value)
+			if (FZ != value) or not FZset:
+				if assigned(FParent):
+					FParent.UnDraw(self) if FZset
+					FZ = value
+					FParent.AddDrawList(self)
+				else: FZ = value
+				FZset = true
 
 	public ImageName as string:
-		get:
-			return FImageName
-		set:
-			SetImageName(value)
+		get: return FImageName
+		set: SetImageName(value)
 
 	public Image as TSdlImage:
-		get:
-			return FImage
+		get: return FImage
 		set:
-			SetImage(value)
+			return if value is null
+			
+			FImage = value
+			FImageName = FImage.Name
+			if FImageType in (TImageType.itSingleImage, TImageType.itSpriteSheet):
+				FWidth = FImage.TextureSize.x
+				FHeight = FImage.TextureSize.y
 
 	public PatternWidth as int:
-		get:
-			return GetPatternWidth()
+		get: return (FImage.TextureSize.x if assigned(FImage) else 0)
 
 	public PatternHeight as int:
-		get:
-			return GetPatternHeight()
+		get: return (FImage.TextureSize.y if assigned(FImage) else 0)
 
 	public PatternCount as int:
-		get:
-			return GetPatternCount()
+		get: return FImage.Count
 
 	public Parent as TParentSprite:
-		get:
-			return FParent
+		get: return FParent
 		set:
-			SetParent(value)
+			return if FParent == value
+			
+			if assigned(FParent):
+				FParent.UnDraw(self)
+				FParent.List.Remove(self)
+			FParent = value
+			value.Add(self)
 
 	public BoundsRect as GPU_Rect:
-		get:
-			return GetBoundsRect()
+		get: return GPU_MakeRect(Math.Round(FX), Math.Round(FY), Width, Height)
 
 	public DrawRect as GPU_Rect:
-		get:
-			return GetDrawRect()
-		set:
-			SetDrawRect(value)
+		get: return GetDrawRect()
+		set: SetDrawRect(value)
 
 [Disposable(Destroy, true)]
 class TParentSprite(TSprite):
@@ -395,46 +357,27 @@ class TParentSprite(TSprite):
 	[Getter(SpriteList)]
 	protected FSpriteList as TFastSpriteList
 
-	protected def GetCount() as int:
-		if assigned(FList):
-			result = FList.Count
-		else:
-			result = 0
-		return result
-
-	protected def GetItem(Index as int) as TSprite:
-		if assigned(FList):
-			result = FList[Index]
-		else:
-			raise ESpriteError("Index of the list exceeds the range. ($Index)")
-		return result
-
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	internal def AddDrawList(Sprite as TSprite):
-		if not assigned(FSpriteList):
-			FSpriteList = TFastSpriteList()
+		FSpriteList = TFastSpriteList() unless assigned(FSpriteList)
 		FSpriteList.Add(Sprite)
 
 	protected def ClearSpriteList():
 		if assigned(FSpriteList):
 			FSpriteList.Clear()
-		else:
-			FSpriteList = TFastSpriteList()
+		else: FSpriteList = TFastSpriteList()
 
 	private new def Destroy():
 		self.Clear()
 
 	public override def Move(movecount as single):
-		i as int
 		super.Move(movecount)
 		for i in range(0, Count):
 			self[i].Move(movecount)
 
 	public def Clear():
-		if assigned(FSpriteList):
-			FSpriteList.Clear()
-		if assigned(FList):
-			FList.Clear()
+		FSpriteList.Clear() if assigned(FSpriteList)
+		FList.Clear() if assigned(FList)
 
 	public override def Draw():
 		super.Draw()
@@ -461,11 +404,13 @@ class TParentSprite(TSprite):
 
 	public self[Index as int] as TSprite:
 		get:
-			return GetItem(Index)
+			if assigned(FList):
+				return FList[Index]
+			else: raise ESpriteError("Index of the list exceeds the range. ($Index)")
+
 
 	public Count as int:
-		get:
-			return GetCount()
+		get: return ( FList.Count if assigned(FList) else 0 )
 
 	def constructor(AParent as TParentSprite):
 		super(AParent)
@@ -499,43 +444,38 @@ class TAnimatedSprite(TParentSprite):
 	[Property(AnimPlayMode)]
 	private FAnimPlayMode as TAnimPlayMode
 
-	private def SetAnimStart(Value as int):
-		if FAnimStart != Value:
-			FAnimStart = Value
-			FAnimPos = Value
-
 	protected override def DoMove(MoveCount as Single):
-		if not FDoAnimate:
-			return
+		return unless FDoAnimate
+		
 		caseOf FAnimPlayMode:
 			case TAnimPlayMode.Forward:
-				FAnimPos = (FAnimPos + (FAnimSpeed * MoveCount))
-				if FAnimPos >= (FAnimStart + FAnimCount):
+				FAnimPos = FAnimPos + (FAnimSpeed * MoveCount)
+				if FAnimPos >= FAnimStart + FAnimCount:
 					if Math.Truncate(FAnimPos) == FAnimStart:
-						OnAnimStart
-					if Math.Truncate(FAnimPos) == (FAnimStart + FAnimCount):
+						OnAnimStart()
+					if Math.Truncate(FAnimPos) == FAnimStart + FAnimCount:
 						FAnimEnded = true
-						OnAnimEnd
+						OnAnimEnd()
 					if FAnimLooped:
 						FAnimPos = FAnimStart
 					else:
-						FAnimPos = ((FAnimStart + FAnimCount) - 1)
+						FAnimPos = (FAnimStart + FAnimCount) - 1
 						FDoAnimate = false
 			case TAnimPlayMode.Backward:
-				FAnimPos = (FAnimPos - (FAnimSpeed * MoveCount))
+				FAnimPos = FAnimPos - (FAnimSpeed * MoveCount)
 				if FAnimPos < FAnimStart:
 					if FAnimLooped:
-						FAnimPos = (FAnimStart + FAnimCount)
+						FAnimPos = FAnimStart + FAnimCount
 					else:
 						FDoAnimate = false
 			case TAnimPlayMode.PingPong:
 				FAnimPos += FAnimSpeed * MoveCount
 				if FAnimLooped:
-					if (FAnimPos > ((FAnimStart + FAnimCount) - 1)) or (FAnimPos < FAnimStart):
+					if (FAnimPos > (FAnimStart + FAnimCount) - 1) or (FAnimPos < FAnimStart):
 						FAnimSpeed = (-FAnimSpeed)
 				else:
-					if (FAnimPos > (FAnimStart + FAnimCount)) or (FAnimPos < FAnimStart):
-						FAnimSpeed = (-FAnimSpeed)
+					if (FAnimPos > FAnimStart + FAnimCount) or (FAnimPos < FAnimStart):
+						FAnimSpeed = -FAnimSpeed
 					if Math.Truncate(FAnimPos) == (FAnimStart + FAnimCount):
 						FDoFlag1 = true
 					if (Math.Truncate(FAnimPos) == FAnimStart) and FDoFlag1:
@@ -550,16 +490,18 @@ class TAnimatedSprite(TParentSprite):
 		super(AParent)
 		FAnimLooped = true
 
-	public override def Assign(Value as TSprite):
-		if Value isa TAnimatedSprite:
-			DoAnimate = TAnimatedSprite(Value).DoAnimate
-			AnimStart = TAnimatedSprite(Value).AnimStart
-			AnimCount = TAnimatedSprite(Value).AnimCount
-			AnimSpeed = TAnimatedSprite(Value).AnimSpeed
-			AnimLooped = TAnimatedSprite(Value).AnimLooped
-		super.Assign(Value)
+	public override def Assign(value as TSprite):
+		var anim = value as TAnimatedSprite
+		if assigned(anim):
+			DoAnimate = anim.DoAnimate
+			AnimStart = anim.AnimStart
+			AnimCount = anim.AnimCount
+			AnimSpeed = anim.AnimSpeed
+			AnimLooped = anim.AnimLooped
+		super.Assign(value)
 
-	public virtual def SetAnim(AniImageName as string, AniStart as int, AniCount as int, AniSpeed as Single, AniLooped as bool, DoMirror as bool, DoAnimate as bool, PlayMode as TAnimPlayMode):
+	public virtual def SetAnim(AniImageName as string, AniStart as int, AniCount as int, 
+			AniSpeed as Single, AniLooped as bool, DoMirror as bool, DoAnimate as bool, PlayMode as TAnimPlayMode):
 		ImageName = AniImageName
 		FAnimStart = AniStart
 		FAnimCount = AniCount
@@ -568,19 +510,20 @@ class TAnimatedSprite(TParentSprite):
 		MirrorX = DoMirror
 		FDoAnimate = DoAnimate
 		FAnimPlayMode = PlayMode
-		if (FPatternIndex < FAnimStart) or (FPatternIndex >= (FAnimCount + FAnimStart)):
-			FPatternIndex = (FAnimStart % FAnimCount)
+		if (FPatternIndex < FAnimStart) or (FPatternIndex >= FAnimCount + FAnimStart):
+			FPatternIndex = FAnimStart % FAnimCount
 			FAnimPos = FAnimStart
 
-	public virtual def SetAnim(AniImageName as string, AniStart as int, AniCount as int, AniSpeed as Single, AniLooped as bool, PlayMode as TAnimPlayMode):
+	public virtual def SetAnim(AniImageName as string, AniStart as int, AniCount as int,
+			AniSpeed as Single, AniLooped as bool, PlayMode as TAnimPlayMode):
 		ImageName = AniImageName
 		FAnimStart = AniStart
 		FAnimCount = AniCount
 		FAnimSpeed = AniSpeed
 		FAnimLooped = AniLooped
 		FAnimPlayMode = PlayMode
-		if (FPatternIndex < FAnimStart) or (FPatternIndex >= (FAnimCount + FAnimStart)):
-			FPatternIndex = (FAnimStart % FAnimCount)
+		if (FPatternIndex < FAnimStart) or (FPatternIndex >= FAnimCount + FAnimStart):
+			FPatternIndex = FAnimStart % FAnimCount
 			FAnimPos = FAnimStart
 
 	public virtual def OnAnimStart():
@@ -590,10 +533,11 @@ class TAnimatedSprite(TParentSprite):
 		pass
 
 	public AnimStart as int:
-		get:
-			return FAnimStart
+		get: return FAnimStart
 		set:
-			SetAnimStart(value)
+			if FAnimStart != value:
+				FAnimStart = value
+				FAnimPos = value
 
 class TAnimatedRectSprite(TParentSprite):
 
@@ -621,13 +565,13 @@ class TAnimatedRectSprite(TParentSprite):
 		FStartingPoint = sgPoint(region.x, region.y)
 
 	public override def Assign(value as TSprite):
-		super.Assign(value)
-		if value isa TAnimatedRectSprite:
-			ar = value as TAnimatedRectSprite
+		ar = value as TAnimatedRectSprite
+		if assigned(ar):
 			FStartingPoint = ar.FStartingPoint
 			FDisplacement = ar.FDisplacement
 			FSeriesLength = ar.FSeriesLength
 			FAnimPos = ar.FAnimPos
+		super.Assign(value)
 
 class TTiledAreaSprite(TAnimatedRectSprite):
 
@@ -652,9 +596,9 @@ class TTiledAreaSprite(TAnimatedRectSprite):
 		else:
 			drawpoint = sgPoint(FFillArea.x, FFillArea.y)
 			endpoint = drawpoint + sgPoint(FFillArea.w, FFillArea.h)
-			repeat :
+			repeat:
 				drawpoint.x = FFillArea.x
-				repeat :
+				repeat:
 					self.X = drawpoint.x
 					self.Y = drawpoint.y
 					super.DoDraw()
@@ -705,11 +649,11 @@ class TParticleSprite(TAnimatedSprite):
 
 	public override def DoMove(MoveCount as Single):
 		super.DoMove(MoveCount)
-		X = (X + (FVelocityX * UpdateSpeed))
-		Y = (Y + (FVelocityY * UpdateSpeed))
-		FVelocityX = (FVelocityX + (FAccelX * UpdateSpeed))
-		FVelocityY = (FVelocityY + (FAccelY * UpdateSpeed))
-		FLifeTime = (FLifeTime - FDecay)
+		X = X + (FVelocityX * UpdateSpeed)
+		Y = Y + (FVelocityY * UpdateSpeed)
+		FVelocityX = FVelocityX + (FAccelX * UpdateSpeed)
+		FVelocityY = FVelocityY + (FAccelY * UpdateSpeed)
+		FLifeTime = FLifeTime - FDecay
 		if FLifeTime <= 0:
 			self.Dead()
 
@@ -718,7 +662,7 @@ class TSpriteEngine(TParentSprite):
 	[Getter(AllCount)]
 	internal FAllCount as int
 
-	internal FDeadList as TSpriteList
+	internal FDeadList = TSpriteList()
 
 	[Property(WorldX)]
 	private FWorldX as Single
@@ -738,7 +682,7 @@ class TSpriteEngine(TParentSprite):
 	[Getter(Canvas)]
 	private FCanvas as TSdlCanvas
 
-	protected FRenderer as TSpriteRenderer
+	protected FRenderer = TSpriteRenderer(self)
 
 	internal Renderer:
 		get: return FRenderer
@@ -749,14 +693,12 @@ class TSpriteEngine(TParentSprite):
 	protected virtual def GetWidth() as int:
 		return super.Width
 
-	public def constructor(AParent as TSpriteEngine, ACanvas as TSdlCanvas):
-		super(AParent)
-		FDeadList = TSpriteList()
+	public def constructor(parent as TSpriteEngine, canvas as TSdlCanvas):
+		super(parent)
 		FVisibleWidth = 800
 		FVisibleHeight = 600
-		FCanvas = ACanvas
+		FCanvas = canvas
 		FEngine = self
-		FRenderer = TSpriteRenderer(self)
 
 	public override def Draw():
 		return if FSpriteList == null
@@ -776,23 +718,12 @@ class TSpriteEngine(TParentSprite):
 	public override Height as int:
 		get: return GetHeight()
 
-class TSpriteRenderer(TObject):
-	private static nullInt = 0
-	private static nullUInt as uint = 0
-
-	private class TDrawMap(TMultimap[of TSdlImage, TSprite]):
-		pass
-
-	private FDrawMap as TDrawMap
+class TSpriteRenderer:
+	private FDrawMap = TMultimap[of TSdlImage, TSprite]()
 
 	private FEngine as TSpriteEngine
 
-	private FVertexBuffer as uint
-
-	private FTextureCoords as uint
-
 	public def constructor(engine as TSpriteEngine):
-		FDrawMap = TDrawMap()
 		FEngine = engine
 
 	public def Draw(sprite as TSprite):
@@ -805,12 +736,3 @@ class TSpriteRenderer(TObject):
 		for image in FDrawMap.Keys:
 			for sprite in FDrawMap[image]:
 				sprite.Render()
-	
-private class TSpriteComparer(TObject, IComparer[of TSprite]):
-
-	public def Compare(Left as TSprite, Right as TSprite) as int:
-		result = (Left.Z - Right.Z)
-		if result == 0:
-			result = Left.GetHashCode() - Right.GetHashCode()
-		return result
-

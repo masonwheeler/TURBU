@@ -120,9 +120,6 @@ class TAnimTemplate(TRpgDatafile):
 	[Property(YTarget)]
 	private FYTarget as TAnimYTarget
 
-	protected static def getDatasetName() as string:
-		return 'animations'
-
 	public def constructor():
 		super()
 
@@ -138,18 +135,16 @@ class TBattleCharData(TRpgDatafile):
 
 	protected FUnk05 as int
 
-class TBattleCharDataList(TRpgObjectList[of TBattleCharData]):
-	pass
+	public def constructor():
+		super()
 
 class TBattleCharAnim(TRpgDatafile):
 
 	protected FSpeed as int
 
-	protected FPoses as TBattleCharDataList
+	protected FPoses = TRpgObjectList[of TBattleCharData]()
 
-	protected FWeapons as TBattleCharDataList
+	protected FWeapons = TRpgObjectList[of TBattleCharData]()
 
 	public def constructor():
 		super()
-		FPoses = TBattleCharDataList()
-		FWeapons = TBattleCharDataList()
