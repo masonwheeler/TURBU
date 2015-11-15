@@ -341,7 +341,7 @@ class TShoreTile(TWaterTile):
 			elif (TDirs8.n | TDirs8.w) in Neighbors:
 				minis[1] += 24
 				minis[2] += 12
-				for i in range(4):
+				for i in range(3):
 					changed[i] = false
 				if TDirs8.se in Neighbors:
 					minis[3] += 36

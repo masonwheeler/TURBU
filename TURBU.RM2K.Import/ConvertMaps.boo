@@ -5,6 +5,7 @@ import Boo.Lang.Compiler.Ast
 import System
 import System.Collections.Generic
 import turbu.maps
+import turbu.tilesets
 import TURBU.MapObjects
 import TURBU.RM2K.Import.LCF
 
@@ -140,7 +141,7 @@ static class TMapConverter:
 			elif baseGroup == 2:
 				--group
 			group += 4
-			return (group << 8) + AutotileNeighbors(tile % 50)
+			return group << 8
 		elif tile >= 3000:
 			tile -= 3000
 			group = 3
@@ -152,85 +153,65 @@ static class TMapConverter:
 			elif refined < 40:
 				group = 2
 			else: group = 1
-			return (group << 8) + AutotileNeighbors(tile % 50)
-	
-	def AutotileNeighbors(value as int) as TDirs8:
-		assert value <= 46
-		return AUTOTILE_TABLE[value]
-	
-	private final AUTOTILE_TABLE = (
-		TDirs8.None,
-		TDirs8.nw,
-		TDirs8.ne, //2
-		TDirs8.nw | TDirs8.ne,
-		TDirs8.se, //4
-		TDirs8.se | TDirs8.nw,
-		TDirs8.se | TDirs8.ne,
-		TDirs8.se | TDirs8.nw | TDirs8.ne,
-		TDirs8.sw, //8
-		TDirs8.sw | TDirs8.nw,
-		TDirs8.sw | TDirs8.ne,
-		TDirs8.sw | TDirs8.nw | TDirs8.ne,
-		TDirs8.sw | TDirs8.se,
-		TDirs8.sw | TDirs8.se | TDirs8.nw,
-		TDirs8.sw | TDirs8.se | TDirs8.ne,
-		TDirs8.sw | TDirs8.se | TDirs8.nw | TDirs8.ne,
-		
-		TDirs8.w, //16
-		TDirs8.w | TDirs8.ne,
-		TDirs8.w | TDirs8.se,
-		TDirs8.w | TDirs8.ne | TDirs8.se,
-		TDirs8.n, //20
-		TDirs8.n | TDirs8.se,
-		TDirs8.n | TDirs8.sw,
-		TDirs8.n | TDirs8.se | TDirs8.sw,
-		TDirs8.e, //24
-		TDirs8.e | TDirs8.sw,
-		TDirs8.e | TDirs8.nw,
-		TDirs8.e | TDirs8.sw | TDirs8.nw,
-		TDirs8.s, //28
-		TDirs8.s | TDirs8.nw,
-		TDirs8.s | TDirs8.ne,
-		TDirs8.s | TDirs8.ne | TDirs8.nw,
-		TDirs8.e | TDirs8.w, // 32
-		TDirs8.n | TDirs8.s,
-		TDirs8.w | TDirs8.nw | TDirs8.n, //34
-		TDirs8.w | TDirs8.nw | TDirs8.n | TDirs8.se,
-		TDirs8.n | TDirs8.ne | TDirs8.e,
-		TDirs8.n | TDirs8.ne | TDirs8.e | TDirs8.sw,
-		TDirs8.e | TDirs8.se | TDirs8.s, //38
-		TDirs8.e | TDirs8.se | TDirs8.s | TDirs8.nw,
-		TDirs8.s | TDirs8.sw | TDirs8.w,
-		TDirs8.s | TDirs8.sw | TDirs8.w | TDirs8.ne,
-		TDirs8.w | TDirs8.nw | TDirs8.n | TDirs8.ne | TDirs8.e, // 42
-		TDirs8.s | TDirs8.sw | TDirs8.w | TDirs8.nw | TDirs8.n,
-		TDirs8.w | TDirs8.sw | TDirs8.s | TDirs8.se | TDirs8.e,
-		TDirs8.s | TDirs8.se | TDirs8.e | TDirs8.ne | TDirs8.n,
-		TDirs8.All) // 46
+			return group << 8
 	
 	private def TileDataArray(map as LMU) as Block:
 		lowTiles as (int) = map.LowChip
 		highTiles as (int) = map.HighChip
 		assert lowTiles.Length == highTiles.Length
 		assert lowTiles.Length == map.Width * map.Height
+		lowRefs = matrix(TTileRef, map.Width, map.Height)
 		idx = 0
 		result = Block()
 		lowLayer = MacroStatement('Layer')
 		highLayer = MacroStatement('Layer')
 		result.Statements.AddRange((lowLayer, highLayer))
-		for i in range(map.Height):
-			lowRow = ArrayLiteralExpression()
+		for y in range(map.Height):
+			x = 0
 			highRow = ArrayLiteralExpression()
-			for tile in lowTiles[idx:idx + map.Width]:
-				lowRow.Items.Add(Expression.Lift(ConvertLowTileValue(tile)))
-			assert lowRow.Items.Count == map.Width
-			for tile in highTiles[idx:idx + map.Width]:
-				highRow.Items.Add(Expression.Lift(ConvertHighTileValue(tile)))
+			for lTile in lowTiles[idx:idx + map.Width]:
+				lowRefs[x, y] = TTileRef(ConvertLowTileValue(lTile))
+				++x
+			for hTile in highTiles[idx:idx + map.Width]:
+				highRow.Items.Add(Expression.Lift(ConvertHighTileValue(hTile)))
 			assert highRow.Items.Count == map.Width
 			idx += map.Width
-			lowLayer.Body.Add(lowRow)
 			highLayer.Body.Add(highRow)
 		assert idx == lowTiles.Length
+		BuildLowLayer(lowLayer, lowRefs)
+		return result
+	
+	private def BuildLowLayer(layer as MacroStatement, refs as (TTileRef, 2)):
+		for y in range(refs.GetLength(1)):
+			row = ArrayLiteralExpression()
+			for x in range(refs.GetLength(0)):
+				var tref = refs[x, y]
+				if tref.Group < 16 and tref.Group != 3:
+					tref.Tile = BorderScan(refs, x, y)
+				row.Items.Add(Expression.Lift(tref.Value))
+			layer.Body.Add(row)
+
+	private def BorderScan(refs as (TTileRef, 2), x as int, y as int) as TDirs8:
+		var result = TDirs8.None
+		var group = refs[x, y].Group
+		
+		def CheckNeighbor(x as int, y as int, value as TDirs8):
+			return if x < 0 or y < 0
+			return if x >= refs.GetLength(0) or y >= refs.GetLength(1)
+			isSame as bool
+			if group in (0, 1, 2):
+				isSame = refs[x, y].Group in (0, 1, 2)
+			else: isSame = refs[x, y].Group == group
+			result |= value unless isSame
+		
+		CheckNeighbor(x - 1, y - 1, TDirs8.nw)
+		CheckNeighbor(x,     y - 1, TDirs8.n)
+		CheckNeighbor(x + 1, y - 1, TDirs8.ne)
+		CheckNeighbor(x - 1, y,     TDirs8.w)
+		CheckNeighbor(x + 1, y,     TDirs8.e)
+		CheckNeighbor(x - 1, y + 1, TDirs8.sw)
+		CheckNeighbor(x,     y + 1, TDirs8.s)
+		CheckNeighbor(x + 1, y + 1, TDirs8.se)
 		return result
 
 public def ConvertMoveOrders(orders as List[of MoveOpcode], body as Block):

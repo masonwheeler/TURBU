@@ -14,7 +14,7 @@ class EnumSetAttribute(AbstractAstAttribute):
 		inOperator = [|
 			[Boo.Lang.Compiler.Extension]
 			static def op_Member(left as $(SimpleTypeReference(eNode.Name)), right as $(SimpleTypeReference(eNode.Name))) as bool:
-				return left & right != $(ReferenceExpression(eNode.Name)).None
+				return left & right == left
 		|]
 		inOperator.LexicalInfo = node.LexicalInfo
 		mod.Members.Add(inOperator)
@@ -23,7 +23,7 @@ class EnumSetAttribute(AbstractAstAttribute):
 			[Boo.Lang.Compiler.Extension]
 			static def Values(base as $(SimpleTypeReference(eNode.Name))) as $(SimpleTypeReference(eNode.Name))*:
 				for value as $(SimpleTypeReference(eNode.Name)) in Enum.GetValues($(ReferenceExpression(eNode.Name))):
-					if value in base:
+					if value != 0 and value in base:
 						yield value
 		|]
 		mod.Members.Add(values)
