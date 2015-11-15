@@ -225,7 +225,6 @@ class TRpgEvent(TRpgCharacter):
 			FChangeSprite = true
 			FChangeSpriteName = Name
 			FChangeSpriteTranslucent = translucent
-			FSpriteIndex = spriteIndex
 
 	[NoImport]
 	public def SwitchType():

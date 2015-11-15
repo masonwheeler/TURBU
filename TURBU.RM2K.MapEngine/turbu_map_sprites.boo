@@ -439,6 +439,17 @@ class TMapSprite(TObject):
 		tile.OnMustFlash = self.MustFlash
 		tile.OnFlashColor = self.GetFlashColor
 
+	protected def MakeSingleStepPath(dir as TDirections) as Path:
+		step as Func of bool
+		caseOf dir:
+			case TDirections.Up: step = self.Up
+			case TDirections.Down: step = self.Down
+			case TDirections.Left: step = self.Left
+			case TDirections.Right: step = self.Right
+			default: raise "Unknown path direction: $dir"
+		return Path() do(p as Path):
+			yield step
+
 	protected def MakeLoopingPath(step as Func of bool):
 		def steps(p as Path):
 			while true:

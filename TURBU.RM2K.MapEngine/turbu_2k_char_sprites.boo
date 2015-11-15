@@ -297,7 +297,7 @@ class THeroSprite(TCharSprite):
 
 	private def SetMovement(direction as TDirections):
 		if not assigned(MoveQueue):
-			MoveQueue = Path(direction)
+			MoveQueue = MakeSingleStepPath(direction)
 		else:
 			MoveQueue.SetDirection(direction)
 

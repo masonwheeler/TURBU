@@ -106,7 +106,7 @@ class TOnelineLabelBox(TCustomOnelineBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
 	
-	private FText as string
+	private FText = ''
 
 	public override def DrawText():
 		assert FOrigin.x >= 0

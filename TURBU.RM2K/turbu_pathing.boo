@@ -70,10 +70,6 @@ class Path(TObject):
 		except e as Exception:
 			System.Diagnostics.Debugger.Break()
 
-	public def constructor(direction as TDirections):
-		step = TMoveStep(ord(direction))
-		FOpcodes.Add(step)
-
 	public def constructor(copy as Path):
 		FBase = copy.Base
 		FOpcodes = TMoveList(copy.Opcodes)

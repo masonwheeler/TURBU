@@ -482,10 +482,10 @@ class T2kSpriteEngine(TSpriteEngine):
 		lock FMapObjects:
 			for sprite in FMapObjects:
 				sprite.Place()
-//				sprite.MoveTick(GMenuEngine.Value.State == TMenuState.ExclusiveShared)
+				sprite.MoveTick(GMenuEngine.Value.State == TMenuState.ExclusiveShared)
 		if assigned(FCurrentParty):
 			FCurrentParty.Place()
-//			FCurrentParty.MoveTick(GMenuEngine.Value.State == TMenuState.ExclusiveShared)
+			FCurrentParty.MoveTick(GMenuEngine.Value.State == TMenuState.ExclusiveShared)
 		CheckDisplacement()
 
 	public def IsHeroIn(location as TMboxLocation) as bool:
@@ -585,9 +585,7 @@ class T2kSpriteEngine(TSpriteEngine):
 		return result
 
 	public def Passable(location as TSgPoint, direction as TDirections, Character as TMapSprite) as bool:
-		sprites as (TMapSprite)
-		sprite as TMapSprite
-		sprites = self.SpritesAt(location, Character)
+		sprites as (TMapSprite) = self.SpritesAt(location, Character).ToArray()
 		if sprites.Length > 0:
 			result = true
 			for sprite in sprites:
@@ -595,12 +593,11 @@ class T2kSpriteEngine(TSpriteEngine):
 					result = true
 				elif assigned(sprite.Event?.CurrentPage):
 					result = result and ((sprite.BaseTile.Z != Character.BaseTile.Z) \
-												or ((Character isa TCharSprite) and (sprite isa TEventSprite) \
-													and (sprite.Event.CurrentPage.ZOrder != 1)))
+											or ((Character isa TCharSprite) and (sprite isa TEventSprite) \
+												and (sprite.Event.CurrentPage.ZOrder != 1)))
 				elif sprite.Event == null:
 					result = result and (sprite.BaseTile.Z != Character.BaseTile.Z)
-		else:
-			result = Passable(location, direction)
+		else: result = Passable(location, direction)
 		return result
 
 	public def Passable(location as TSgPoint, direction as TDirections) as bool:

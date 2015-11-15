@@ -242,11 +242,10 @@ class T2kMapEngine(TMapEngine):
 		FImageEngine.Draw() if assigned(FImageEngine)
 
 	private def OnProcess():
-		Button as TButtonCode
 		return if FSwitchState != TSwitchState.NoSwitch
 		FButtonState = ReadKeyboardState()
-		for Button in FButtonState.Values():
-			PressButton(Button)
+		for button in FButtonState.Values():
+			PressButton(button)
 		if FSaveLock:
 			FSaveLock = KeyIsPressed(Keys.F2) or KeyIsPressed(Keys.F6)
 		else:
@@ -260,23 +259,23 @@ class T2kMapEngine(TMapEngine):
 			GMapObjectManager.value.Tick()
 			FCurrentMap.Process()
 
-	private def PressButton(Button as TButtonCode):
-		return if FEnterLock and (Button in (TButtonCode.Enter, TButtonCode.Cancel))
+	private def PressButton(button as TButtonCode):
+		return if FEnterLock and (button in (TButtonCode.Enter, TButtonCode.Cancel))
 		if FGameState == T2kMapEngine.TGameState.GameOver:
-			TitleScreen() if Button == TButtonCode.Enter
+			TitleScreen() if button == TButtonCode.Enter
 			return
 		caseOf GMenuEngine.Value.State:
 			case TMenuState.None:
 				if FCutscene > 0:
 					return
-				elif (Button == TButtonCode.Cancel) and GEnvironment.value.MenuEnabled:
+				elif (button == TButtonCode.Cancel) and GEnvironment.value.MenuEnabled:
 					FEnterLock = true
 					PlaySystemSound(TSfxTypes.Accept)
 					OpenMenu()
 				elif assigned(FPartySprite):
-					PartyButton(Button)
+					PartyButton(button)
 			case TMenuState.Shared, TMenuState.ExclusiveShared, TMenuState.Full:
-				GMenuEngine.Value.Button(Button)
+				GMenuEngine.Value.Button(button)
 				FEnterLock = true
 
 	private def PartyButton(Button as TButtonCode):
@@ -287,10 +286,10 @@ class T2kMapEngine(TMapEngine):
 					FEnterLock = true
 					lock GEventLock:
 						FPartySprite.Action(TButtonCode.Enter)
-				case TButtonCode.Up: FPartySprite.Move(TFacing.Up)
-				case TButtonCode.Down: FPartySprite.Move(TFacing.Down)
-				case TButtonCode.Left: FPartySprite.Move(TFacing.Left)
-				case TButtonCode.Right: FPartySprite.Move(TFacing.Right)
+				case TButtonCode.Up: FPartySprite.Move(TDirections.Up)
+				case TButtonCode.Down: FPartySprite.Move(TDirections.Down)
+				case TButtonCode.Left: FPartySprite.Move(TDirections.Left)
+				case TButtonCode.Right: FPartySprite.Move(TDirections.Right)
 		ensure:
 			System.Threading.Monitor.Exit(GMoveLock) if Button in (TButtonCode.Up, TButtonCode.Right, TButtonCode.Down, TButtonCode.Left)
 
@@ -337,13 +336,10 @@ class T2kMapEngine(TMapEngine):
 	private def RenderGameOver():
 		imagename as string
 		image as TSdlImage
-		cls as TSdlImageClass = FImages.SpriteClass
-		FImages.SpriteClass = classOf(TSdlOpaqueImage)
-		try:
+		preserving FImages.SpriteClass:
+			FImages.SpriteClass = classOf(TSdlOpaqueImage)
 			imagename = "Special Images\\$(GDatabase.value.Layout.GameOverScreen).png"
 			image = FImages.EnsureImage(imagename, '*GameOver', sgPoint(GDatabase.value.Layout.Width, GDatabase.value.Layout.Height))
-		ensure:
-			FImages.SpriteClass = cls
 		GPU_SetBlending(image.Surface, 0)
 		image.Draw()
 		FCanvas.Flip()
