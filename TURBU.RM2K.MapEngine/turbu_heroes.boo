@@ -171,6 +171,9 @@ class TRpgHero(TRpgBattleCharacter):
 	[Getter(Sprite)]
 	private FSprite as string = ''
 
+	[Getter(SpriteIndex)]
+	private FSpriteIndex as int
+
 	private FTransparent as bool
 
 	private FLevel as int
@@ -270,42 +273,37 @@ class TRpgHero(TRpgBattleCharacter):
 				UpdateLevel(false)
 
 	private def SetLevel(value as int):
-		increasing as bool
-		oldlevel as int
-		if FLevel == value:
-			return
-		increasing = (FLevel < value)
-		oldlevel = FLevel
+		return if FLevel == value
+		increasing as bool = FLevel < value
+		oldlevel as int = FLevel
 		FLevel = clamp(value, 0, MAXLEVEL)
 		FExpTotal = FExpTable[FLevel]
 		if increasing:
 			LevelAdjustUp(oldlevel)
-		else:
-			LevelAdjustDown(oldlevel)
+		else: LevelAdjustDown(oldlevel)
 
 	private def SetSkill(id as int, value as bool):
 		if (id > 0) and (id < FSkill.Length):
 			FSkill[id] = value
 
 	private def SetTransparent(value as bool):
-		party as TCharSprite
 		FTransparent = value
 		if FParty[1] == self:
-			party = GSpriteEngine.value.CurrentParty
+			party as TCharSprite = GSpriteEngine.value.CurrentParty
 			party.Translucency = (3 if value else 0)
-			party.Update(FSprite, value)
+			party.Update(FSprite, value, FSpriteIndex)
 
 	private def UpdateLevel(gain as bool):
 		FLevelUpdated = true
 		caseOf gain:
 			case true:
 				assert FExpTotal >= FExpTable[FLevel + 1]
-				repeat :
+				repeat:
 					GainLevel()
 					until FExpTotal < FExpTable[FLevel + 1]
 			case false:
 				assert FExpTotal <= FExpTable[FLevel]
-				repeat :
+				repeat:
 					LoseLevel()
 					until FExpTotal >= FExpTable[FLevel]
 
@@ -365,6 +363,7 @@ class TRpgHero(TRpgBattleCharacter):
 		FName = template.Name
 		FClass = GDatabase.value.Classes[template.CharClass].Name
 		FSprite = template.MapSprite
+		FSpriteIndex = template.SpriteIndex
 		FTransparent = template.Translucent
 		Array.Resize[of int](FExpTable, Math.Max(template.MaxLevel, 1) + 1)
 		if FLevelScripts.TryGetValue(template.ExpMethod, calc):
@@ -400,6 +399,7 @@ class TRpgHero(TRpgBattleCharacter):
 			writer.CheckWrite('Name', FName, base.Name)
 			writer.CheckWrite('Class', FClass, base.ClsName)
 			writer.CheckWrite('Sprite', FSprite, base.MapSprite)
+			writer.CheckWrite('SpriteIndex', FSpriteIndex, base.SpriteIndex)
 			writer.CheckWrite('Transparent', FTransparent, base.Translucent)
 			writer.CheckWrite('Level', FLevel, base.MinLevel)
 			writer.CheckWrite('FaceName', FFaceName, base.Portrait)
@@ -432,6 +432,7 @@ class TRpgHero(TRpgBattleCharacter):
 		obj.CheckRead('Name', FName)
 		obj.CheckRead('Class', FClass)
 		obj.CheckRead('Sprite', FSprite)
+		obj.CheckRead('SpriteIndex', FSpriteIndex)
 		obj.CheckRead('Transparent', FTransparent)
 		obj.CheckRead('Level', FLevel)
 		obj.CheckRead('FaceName', FFaceName)
@@ -552,12 +553,13 @@ class TRpgHero(TRpgBattleCharacter):
 			until assigned(result) and (result.HP > 0)
 		return result
 
-	public def SetSprite(filename as string, translucent as bool):
+	public def SetSprite(filename as string, translucent as bool, spriteIndex as int):
 		return unless ArchiveUtils.GraphicExists(filename, 'Sprites')
 		FSprite = filename
+		FSpriteIndex = spriteIndex
 		FTransparent = translucent
 		if FParty[1] == self:
-			FParty.ChangeSprite(System.IO.Path.GetFileNameWithoutExtension(filename), translucent)
+			FParty.ChangeSprite(System.IO.Path.GetFileNameWithoutExtension(filename), translucent, FSpriteIndex)
 
 	public def SetPortrait(filename as string, index as int):
 		return unless index in range(1, 17)
@@ -846,9 +848,9 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 					FParty[j + 1] = null
 
 	[NoImport]
-	public override def ChangeSprite(Name as string, translucent as bool):
+	public override def ChangeSprite(Name as string, translucent as bool, spriteIndex as int):
 		if assigned(FSprite):
-			FSprite.Update(Name, translucent)
+			FSprite.Update(Name, translucent, spriteIndex)
 
 	[NoImport]
 	public def SetSprite(value as TMapSprite):
@@ -856,7 +858,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 
 	public def ResetSprite():
 		h1 as TRpgHero = self.First()
-		commons.runThreadsafe(true, { self.ChangeSprite(h1.Sprite, h1.Transparent) })
+		commons.runThreadsafe(true, { self.ChangeSprite(h1.Sprite, h1.Transparent, h1.SpriteIndex) })
 
 	public def TakeDamage(power as int, Defense as int, mDefense as int, Variance as int) as int:
 		result = 0

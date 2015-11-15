@@ -57,7 +57,7 @@ class TRpgCharacter(TObject):
 			self.Base.MoveChange(lPath, clamp(frequency, 1, 8), skip)
 
 	[NoImport]
-	public abstract def ChangeSprite(Name as string, translucent as bool):
+	public abstract def ChangeSprite(Name as string, translucent as bool, spriteIndex as int):
 		pass
 
 	public ScreenX as int:
@@ -220,11 +220,12 @@ class TRpgEvent(TRpgCharacter):
 			FBase.CheckMoveChange()
 
 	[NoImport]
-	public override def ChangeSprite(Name as string, translucent as bool):
+	public override def ChangeSprite(Name as string, translucent as bool, spriteIndex as int):
 		lock self:
 			FChangeSprite = true
 			FChangeSpriteName = Name
 			FChangeSpriteTranslucent = translucent
+			FSpriteIndex = spriteIndex
 
 	[NoImport]
 	public def SwitchType():
@@ -337,10 +338,10 @@ class TRpgVehicle(TRpgCharacter):
 	private def CreateSprite():
 		assert FMap == GSpriteEngine.value.MapID
 		FGameSprite = TVehicleSprite(GSpriteEngine.value, self, { FGameSprite = null })
-		SetSprite(Template.MapSprite, FTranslucent)
+		SetSprite(Template.MapSprite, FTranslucent, FSpriteIndex)
 		FGameSprite.Location = sgPoint(FX, FY)
 		FGameSprite.Facing = TFacing.Left
-		(FGameSprite cast TVehicleSprite).Update(FSprite, false)
+		(FGameSprite cast TVehicleSprite).Update(FSprite, false, FSpriteIndex)
 
 	protected override def GetX() as int:
 		if assigned(FGameSprite):
@@ -381,17 +382,18 @@ class TRpgVehicle(TRpgCharacter):
 	private def Destroy():
 		FGameSprite.Dispose()
 
-	public def SetSprite(filename as string, translucent as bool):
+	public def SetSprite(filename as string, translucent as bool, spriteIndex as int):
 		return unless GraphicExists(filename, 'Sprites')
 		FSprite = System.IO.Path.ChangeExtension(filename, '')
 		FTranslucent = translucent
+		FSpriteIndex = spriteIndex
 		if assigned(FGameSprite):
-			FGameSprite.Update(FSprite, translucent)
+			FGameSprite.Update(FSprite, translucent, FSpriteIndex)
 
 	[NoImport]
-	public override def ChangeSprite(Name as string, translucent as bool):
+	public override def ChangeSprite(Name as string, translucent as bool, spriteIndex as int):
 		lock self:
-			self.SetSprite(Name, translucent)
+			self.SetSprite(Name, translucent, spriteIndex)
 
 	public def SetMusic(Name as string, fadeIn as int, volume as int, tempo as int, balance as int):
 		pass

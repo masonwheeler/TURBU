@@ -28,6 +28,10 @@ macro SystemData.WindowSize(x as int, y as int):
 macro SystemData.SpriteSize(x as int, y as int):
 	return ExpressionStatement([|SpriteSize(sgPoint($x, $y))|])
 
+macro SystemData.SpriteSheetSize(spritesX as int, spritesY as int, framesX as int, framesY as int):
+	SystemData.Body.Add([|SpriteSheet(sgPoint($spritesX, $spritesY))|])
+	SystemData.Body.Add([|SpriteSheetFrames(sgPoint($framesX, $framesY))|])
+
 macro SystemData.TileSize(x as int, y as int):
 	return ExpressionStatement([|TileSize(sgPoint($x, $y))|])
 

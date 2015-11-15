@@ -14,6 +14,7 @@ static class TSysDataConverter:
 				LogicalSize $(LOGICAL_SIZE.x), $(LOGICAL_SIZE.y)
 				WindowSize $(PHYSICAL_SIZE.x), $(PHYSICAL_SIZE.y)
 				SpriteSize $(SPRITE_SIZE.x), $(SPRITE_SIZE.y)
+				SpriteSheetSize 4, 2, 3, 4
 				PortraitSize $(PORTRAIT_SIZE.x), $(PORTRAIT_SIZE.y)
 				TileSize $(TILE_SIZE.x), $(TILE_SIZE.y)
 				TitleScreen $(sysData.TitleScreen)

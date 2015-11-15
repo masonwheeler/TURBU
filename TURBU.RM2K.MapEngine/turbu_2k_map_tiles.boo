@@ -1,5 +1,6 @@
 namespace turbu.RM2K.map.tiles
 
+import System.Linq.Enumerable
 import turbu.tilesets
 import sdl.sprite
 import turbu.constants
@@ -48,9 +49,9 @@ class TMapTile(TTile):
 					GMapObjectManager.value.RunPageScript(bumper.Event.CurrentPage)
 
 	public Occupied as bool:
-		get: return Event.Length > 0
+		get: return Event.Any()
 
-	public Event as (TMapSprite):
+	public Event as TMapSprite*:
 		get: return GSpriteEngine.value.SpritesAt(self.Location, null)
 
 	public Countertop as bool:

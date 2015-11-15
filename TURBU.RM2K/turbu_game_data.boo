@@ -24,6 +24,28 @@ class TGameLayout(TRpgDatafile):
 	[Property(SpriteSize)]
 	private FSpriteSize as TSgPoint
 
+	[Property(SpriteSheet)]
+	private FSpriteSheet as TSgPoint
+
+	[Property(SpriteSheetFrames)]
+	private FSpriteSheetFrames as TSgPoint
+
+	private FSpriteRow as int
+
+	public SpriteRow as int:
+		get:
+			if FSpriteRow == 0:
+				FSpriteRow = FSpriteSheetFrames.x * FSpriteSheet.x
+			return FSpriteRow
+
+	private FSpriteSheetRow  as int
+
+	public SpriteSheetRow as int:
+		get: 
+			if FSpriteSheetRow  == 0:
+				FSpriteSheetRow = self.SpriteRow * FSpriteSheetFrames.y * 2
+			return FSpriteSheetRow 
+
 	[Property(PortraitSize)]
 	private FPortraitSize as TSgPoint
 
@@ -88,8 +110,7 @@ class TGameLayout(TRpgDatafile):
 	private FTranslucentMessages as bool
 
 	public Transition[which as TTransitionTypes] as byte:
-		get:
-			return FTransition[which]
+		get: return FTransition[which]
 
 	public StartingHero[which as ushort] as int:
 		get:

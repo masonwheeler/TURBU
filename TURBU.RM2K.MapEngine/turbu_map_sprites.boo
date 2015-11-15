@@ -257,7 +257,7 @@ class TMapSprite(TObject):
 		set: FDirLocked = value
 
 	[Property(OnChangeSprite)]
-	protected FChangeSprite as Action[of string, bool]
+	protected FChangeSprite as Action[of string, bool, int]
 
 	protected FLocation as TSgPoint
 
@@ -411,7 +411,7 @@ class TMapSprite(TObject):
 			case 31: FMoveFreq = Math.Min(0, (FMoveFreq - 1))
 			case 32: GEnvironment.value.Switch[FOrder.Data[1]] = true
 			case 33: GEnvironment.value.Switch[FOrder.Data[1]] = false
-			case 34: FChangeSprite(FOrder.Name, FOrder.Data[1] == 1)
+			case 34: FChangeSprite(FOrder.Name, FOrder.Data[1] == 1, 0)
 			case 35: PlaySound(FOrder.Name, FOrder.Data[1], FOrder.Data[2], FOrder.Data[3])
 			case 36: FSlipThrough = true
 			case 37: FSlipThrough = false
@@ -621,7 +621,7 @@ class TMapSprite(TObject):
 			FMoveReversed = not FMoveReversed
 			(self.InFrontTile cast TMapTile).Bump(self) if self.InFrontTile is not null
 
-	public abstract def Update(filename as string, transparent as bool):
+	public abstract def Update(filename as string, transparent as bool, spriteIndex as int):
 		pass
 
 	public def Stop():
@@ -708,7 +708,7 @@ class TEventSprite(TMapSprite):
 		SetLocation(sgPoint(base.Location.x, base.Location.y))
 		self.SetFlashEvents(FTiles[0])
 
-	public override def Update(filename as string, transparent as bool):
+	public override def Update(filename as string, transparent as bool, spriteIndex as int):
 		self.Translucency = (3 if transparent else 0)
 		assert false
 
@@ -757,15 +757,22 @@ class TCharSprite(TMapSprite):
 
 	protected FMoveFrame as int
 
+	[Property(SpriteIndes)]
+	private FSpriteIndex as int
+
 	protected override def SetFacing(Data as TDirections):
 		super.SetFacing(Data)
 		FAction = ord(Facing)
 		UpdateTiles()
 
 	protected def UpdateTiles():
-		frame as int = FActionMatrix[FAction][FMoveFrame] * 2
+		var l = GDatabase.value.Layout
+		var start = (l.SpriteSheetFrames.x * (FSpriteIndex % l.SpriteSheet.x)) + (l.SpriteSheetRow * (FSpriteIndex / l.SpriteSheet.x))
+		frame as int = FActionMatrix[FAction][FMoveFrame]
+		frame = (l.SpriteRow * 2 * (frame / l.SpriteSheetFrames.x)) + (frame % l.SpriteSheetFrames.x)
+		frame += start
+		FTiles[0].ImageIndex = frame + l.SpriteRow
 		FTiles[1].ImageIndex = frame
-		FTiles[0].ImageIndex = frame + 1
 
 	protected override def SetLocation(Data as TSgPoint):
 		super.SetLocation(Data)
@@ -778,15 +785,11 @@ class TCharSprite(TMapSprite):
 		super.SetTranslucency(value)
 		FTiles[1].Alpha = FTiles[0].Alpha
 
-	protected def ActivateEvents(where as TTile):
-		eventList as (TMapSprite)
-		mapObj as TRpgMapObject
-		sprite as TMapSprite
-		eventList = (where cast TMapTile).Event
+	protected def ActivateEvents(where as TMapTile):
+		eventList as TMapSprite* = where.Event
 		for sprite in eventList:
-			if sprite == self:
-				continue
-			mapObj = sprite.Event
+			continue if sprite == self
+			mapObj as TRpgMapObject = sprite.Event
 			if mapObj == null:
 				sprite.Bump(self)
 			elif (mapObj.CurrentPage?.HasScript) and (mapObj.CurrentPage.Trigger == TStartCondition.Key):
@@ -801,7 +804,7 @@ class TCharSprite(TMapSprite):
 			FMoveFrame = Data.Frame
 			UpdateMove(Data)
 			FUnderConstruction = false
-			Update(Data.Name, (Translucency >= 3))
+			Update(Data.Name, Translucency >= 3, Data.SpriteIndex)
 		self.Visible = assigned(Data)
 
 	public def constructor(base as TRpgMapObject, parent as TSpriteEngine):
@@ -813,6 +816,7 @@ class TCharSprite(TMapSprite):
 		if assigned(base?.CurrentPage):
 			Translucency = 3 if base.CurrentPage.Transparent
 			FActionMatrix = GDatabase.value.MoveMatrix[FMapObj.CurrentPage.ActionMatrix]
+			FSpriteIndex = base.CurrentPage.SpriteIndex
 			self.Facing = base.CurrentPage.Direction
 			UpdatePage(base.CurrentPage)
 			SetLocation(sgPoint(base.Location.x, base.Location.y))
@@ -841,11 +845,12 @@ class TCharSprite(TMapSprite):
 		FTiles[1].X = FTiles[0].X
 		FTiles[1].UpdateGridLoc()
 
-	public override def Update(filename as string, transparent as bool):
+	public override def Update(filename as string, transparent as bool, spriteIndex as int):
 		LoadCharset(filename) if filename != ''
 		FTiles[1].ImageName = filename
 		FTiles[0].ImageName = filename
 		self.Translucency = (3 if transparent else 0)
+		FSpriteIndex = spriteIndex
 		UpdateTiles()
 
 	public virtual def Action(Button as TButtonCode):

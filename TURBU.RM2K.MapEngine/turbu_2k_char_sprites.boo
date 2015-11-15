@@ -318,7 +318,7 @@ class THeroSprite(TCharSprite):
 		self.OnChangeSprite = party.ChangeSprite
 		FTemplate = whichHero
 		if assigned(FTemplate) and (FTemplate.Sprite != ''):
-			Update(FTemplate.Sprite, FTemplate.Transparent)
+			Update(FTemplate.Sprite, FTemplate.Transparent, FTemplate.SpriteIndex)
 		SetLocation(sgPoint(1, 1))
 		FParty = party
 		FMoveFreq = 8
