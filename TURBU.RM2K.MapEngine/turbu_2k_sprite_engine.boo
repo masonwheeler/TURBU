@@ -168,42 +168,35 @@ class T2kSpriteEngine(TSpriteEngine):
 	private def LoadTileMatrix(value as (TTileRef), index as int, viewport as GPU_Rect):
 		size as TSgPoint
 		def EquivalizeCoords(x as int, y as int, ref equivX as int, ref equivY as int):
-			adjustedCoords as TSgPoint
-			adjustedCoords = sgPoint(x, y)
+			adjustedCoords as TSgPoint = sgPoint(x, y)
 			while (adjustedCoords.x < 0) or (adjustedCoords.y < 0):
-				adjustedCoords = (adjustedCoords + size)
-				adjustedCoords = (adjustedCoords % size)
-				equivX = adjustedCoords.x
-				equivY = adjustedCoords.y
+				adjustedCoords = adjustedCoords + size
+			adjustedCoords = adjustedCoords % size
+			equivX = adjustedCoords.x
+			equivY = adjustedCoords.y
 		
 		def GetIndex(x as int, y as int) as int:
 			return (y * size.x) + x
 		
 		equivX as int
 		equivY as int
-		newTile as TMapTile
-		tileRef as TTileRef
 		matrix as TMatrix[of TMapTile] = FTiles[index]
 		size = FMap.Size
-		for y in range(viewport.y - 1, (viewport.y + viewport.h) - 1):
+		for y in range(viewport.y - 1, viewport.y + viewport.h - 1):
 			for x in range(viewport.x - 1, viewport.x + viewport.w):
 				EquivalizeCoords(x, y, equivX, equivY)
 				continue if assigned(matrix[equivX, equivY])
-				tileRef = value[GetIndex(equivX, equivY)]
-				newTile = CreateNewTile(tileRef)
+				tileRef as TTileRef = value[GetIndex(equivX, equivY)]
+				newTile as TMapTile = CreateNewTile(tileRef)
 				matrix[equivX, equivY] = newTile
 				if assigned(newTile):
 					newTile.Place(equivX, equivY, index, tileRef, FTileset)
 
 	private def CreateNewTile(value as TTileRef) as TMapTile:
-		tileType as TTileType
 		tileClass as TMapTileClass
-		filename as string
-		tileGroup as TTileGroup
 		return null if (value.Value cast short) == -1
-		tileGroup = FTileset.Records[value.Group + 1].Group
-		tileType = tileGroup.TileType
-		filename = tileGroup.Filename
+		tileGroup as TTileGroup = FTileset.Records[value.Group].Group
+		tileType as TTileType = tileGroup.TileType
 		if tileType == TTileType.None:
 			tileClass = classOf(TMapTile)
 		elif tileType == TTileType.Bordered:
@@ -214,7 +207,7 @@ class T2kSpriteEngine(TSpriteEngine):
 			tileClass = (classOf(TOceanTile) if tileGroup.Ocean else classOf(TShoreTile))
 		else:
 			raise ESpriteError('Unknown tile type.')
-		return tileClass.Create(self, filename)
+		return tileClass.Create(self, tileGroup.Filename)
 
 	private def FullCreateNewTile(x as int, y as int, layer as int) as TMapTile:
 		tile as TTileRef = FMap.GetTile(x, y, layer)
@@ -406,7 +399,7 @@ class T2kSpriteEngine(TSpriteEngine):
 		return MapObj.Size.x
 
 	public def constructor(map as TRpgMap, viewport as GPU_Rect, shaderEngine as TdmShaders, Canvas as TSdlCanvas, \
-	tileset as TTileSet, images as TSdlImages):
+			tileset as TTileSet, images as TSdlImages):
 		i as int
 		size as TSgPoint
 		mapObj as TRpgMapObject
@@ -620,12 +613,12 @@ class T2kSpriteEngine(TSpriteEngine):
 			case TDirections.Up:
 				result = (y > 0) or (TWraparound.Vertical in FMap.Wraparound)
 			case TDirections.Right:
-				result = (x < (FMap.Width - 1)) or (TWraparound.Horizontal in FMap.Wraparound)
+				result = (x < FMap.Width - 1) or (TWraparound.Horizontal in FMap.Wraparound)
 			case TDirections.Down:
-				result = (y < (FMap.Height - 1)) or (TWraparound.Vertical in FMap.Wraparound)
+				result = (y < FMap.Height - 1) or (TWraparound.Vertical in FMap.Wraparound)
 			case TDirections.Left:
 				result = (x > 0) or (TWraparound.Horizontal in FMap.Wraparound)
-			default :
+			default:
 				raise ESpriteError("Bad Direction value: $(ord(direction)) is out of bounds for TDirections")
 		return result
 
@@ -640,10 +633,9 @@ class T2kSpriteEngine(TSpriteEngine):
 			case TGameState.Fading:
 				if FErasing:
 					self.Canvas.Clear(SDL_BLACK, 255)
-				else:
-					DrawNormal()
+				else: DrawNormal()
 			case TGameState.Menu, TGameState.Battle, TGameState.Minigame, TGameState.Sleeping:
-				raise Exception('Unsupported game State')
+				raise 'Unsupported game State'
 
 	public def CanExit(x as int, y as int, direction as TDirections, Character as TMapSprite) as bool:
 		result = false
@@ -653,13 +645,13 @@ class T2kSpriteEngine(TSpriteEngine):
 				result = Passable(Character.InFront, opposite, Character)
 		return result
 
-	public def SpritesAt(location as TSgPoint, exceptFor as TMapSprite) as (TMapSprite):
-		result as (TMapSprite)
+	public def SpritesAt(location as TSgPoint, exceptFor as TMapSprite) as TMapSprite*:
+		result as TMapSprite*
 		if FSpriteLocations.ContainsKey(location):
-			result = FSpriteLocations[location].ToArray()
+			result = FSpriteLocations[location]
 		if assigned(exceptFor) and assigned(result):
-			result = result.Where({s | s != exceptFor}).ToArray()
-		return ( result if result is not null else (,) )
+			result = result.Where({s | s != exceptFor})
+		return ( result if result is not null else System.Linq.Enumerable.Empty[of TMapSprite]() )
 
 	public def AddLocation(position as TSgPoint, Character as TMapSprite):
 		FSpriteLocations.Add(position, Character)

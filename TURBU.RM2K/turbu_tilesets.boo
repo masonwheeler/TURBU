@@ -3,6 +3,7 @@ namespace turbu.tilesets
 import System
 import System.Collections.Generic
 import System.Linq.Enumerable
+import System.Runtime.InteropServices
 import Pythia.Runtime
 import sdl.sprite
 import SG.defs
@@ -28,25 +29,29 @@ enum TTileAttribute:
 	Overhang = 0x20
 	Countertop = 0x40
 
+[StructLayoutAttribute(LayoutKind.Explicit)]
 struct TTileRef:
 
-	[System.Runtime.InteropServices.FieldOffset(0)]
+	[FieldOffset(0)]
 	Value as short
 
-	[System.Runtime.InteropServices.FieldOffset(0)]
+	[FieldOffset(1)]
 	Group as byte
 
-	[System.Runtime.InteropServices.FieldOffset(1)]
+	[FieldOffset(0)]
 	Tile as byte
 
 	def constructor(value as short):
 		Value = value
+	
+	override def ToString():
+		return "TTileRef(Value: $Value, Group: $Group, Tile: $Tile)"
 
 [TableName('TileGroups')]
 class TTileGroup(TRpgDatafile):
 
 	[Property(LinkedFilename)]
-	private FLinkedFileName as string
+	private FLinkedFileName = ''
 
 	[Property(Ocean)]
 	private FOcean as bool
@@ -93,7 +98,7 @@ class TTileGroupRecord(TRpgDatafile):
 class TTileSet(TRpgDatafile):
 
 	[Property(Records)]
-	private FRecords = TRpgObjectList[of TTileGroupRecord]()
+	private FRecords = TRpgObjectList[of TTileGroupRecord](Capacity: 32)
 
 	[Property(HighSpeed)]
 	private FHighSpeed as bool
@@ -118,7 +123,6 @@ class TTileSet(TRpgDatafile):
 		for i in range(8):
 			FGroupMap[i] = List[of byte]()
 			FGroupMap[i].Capacity = 256
-		FRecords.Capacity = 32
 
 	public def Tile(index as int, layer as byte) as TTileRef:
 		result as TTileRef

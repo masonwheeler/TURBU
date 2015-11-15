@@ -269,13 +269,12 @@ abstract class TWaterTile(TBorderTile):
 		if (FHeartbeat % ANIM_RATE) == 0:
 			FDisplacement = (FDisplacement + 1) % ANIM_LCM
 
-	protected FLinkedFilename as string
+	protected FLinkedFilename = ''
 
 	protected FMiniIndices = matrix(int, 4, 4)
 
 	protected def DisplaceMinis():
-		displacement as int
-		displacement = (FDisplacement % 4)
+		displacement as int = FDisplacement % 4
 		for i in range(4):
 			minitiles[i].ImageIndex = FMiniIndices[displacement, i]
 
