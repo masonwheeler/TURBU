@@ -68,11 +68,7 @@ class TSdlRenderTarget(TSdlRenderSurface):
 		FParent.SetRenderTarget(self)
 
 	public def DrawFull():
-		GPU_Blit(self.FImage, IntPtr.Zero, currentRenderTarget().RenderTarget, 0, 0)
-
-	public def DrawFull(TopLeft as Point):
-		GPU_Blit(self.FImage, IntPtr.Zero, currentRenderTarget().RenderTarget, TopLeft.X, TopLeft.Y)
-		
+		FParent.Draw(self, sgPoint(0, 0))
 
 class TSdlRenderTargets(List[of TSdlRenderTarget]):
 

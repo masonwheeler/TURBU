@@ -298,7 +298,7 @@ class T2kMapEngine(TMapEngine):
 		id as short = metadata.ID
 		caseOf metadata.BgmState:
 			case TInheritedDecision.Parent:
-				repeat :
+				repeat:
 					id = FDatabase.MapTree[id].Parent
 					until id == 0 or (FDatabase.MapTree[id] cast TMapMetadata).BgmState != TInheritedDecision.Parent
 				if id == 0:
@@ -353,6 +353,7 @@ class T2kMapEngine(TMapEngine):
 		if assigned(FRenderPause) and (FRenderPause.TimeRemaining == 0):
 			FRenderPause = null
 		if FRenderPause == null:
+			FCanvas.Clear()
 			if assigned(FTransition):
 				unless FTransitionFirstFrameDrawn:
 					GRenderTargets.RenderOn(RENDERER_ALT, RenderFrame, 0, true, false)
@@ -361,10 +362,10 @@ class T2kMapEngine(TMapEngine):
 					FTransitionFirstFrameDrawn = false
 					FTransition = null
 			else:
-				if FCurrentMap.Blank :
+				if FCurrentMap.Blank:
 					GRenderTargets.RenderOn(RENDERER_MAIN, null, 0, true, false)
-				else: StandardRender() //GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)
-				//DrawRenderTarget(GRenderTargets[RENDERER_MAIN], false)
+				else: GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)
+				DrawRenderTarget(GRenderTargets[RENDERER_MAIN], false)
 			FCanvas.Flip()
 
 	private def RenderTitle():
@@ -494,15 +495,15 @@ class T2kMapEngine(TMapEngine):
 		return window
 
 	public override def LoadMap(map as IMapMetadata):
-		viewport as GPU_Rect
 		FCurrentMap = null
 		PrepareMap(map)
-		viewport = CreateViewport(FWaitingMap, FScrollPosition)
+		viewport as GPU_Rect = CreateViewport(FWaitingMap, FScrollPosition)
 		if assigned(FWaitingMapEngine):
 			FWaitingMapEngine.ReloadMapObjects()
 		else:
 			EnsureTileset(FWaitingMap.Tileset)
-			FWaitingMapEngine = T2kSpriteEngine(FWaitingMap, viewport, FShaderEngine, FCanvas, FDatabase.Tileset[FWaitingMap.Tileset], FImages)
+			FWaitingMapEngine = T2kSpriteEngine(FWaitingMap, viewport, FShaderEngine, FCanvas, 
+				FDatabase.Tileset[FWaitingMap.Tileset], FImages)
 		unless DoneLoadingMap():
 			raise Exception('Error loading map')
 
