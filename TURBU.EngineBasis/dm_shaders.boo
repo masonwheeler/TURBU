@@ -134,7 +134,9 @@ partial class TdmShaders(TDataModule):
 		fragMain as int = GetShader(frag, Fragment)
 		units as (int) = (vertMain, fragMain)
 		if libs != '':
-			units = units.Concat(libs.Split(*(char(','),)).Select({name | GetShader(name, FragLibs)})).ToArray()
+			units = units.Concat(libs.Split(*(char(','),)) \
+						 .Select({name | GetShader(name, FragLibs)})) \
+						 .ToArray()
 		Array.Sort[of int](units)
 		unless FPrograms.TryGetValue(units, result):
 			result = BuildProgram(units)

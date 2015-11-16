@@ -413,7 +413,6 @@ class TRpgVehicle(TRpgCharacter):
 			if assigned(FGameSprite):
 				FGameSprite.Visible = (map == GSpriteEngine.value.MapID)
 
-
 	public X as int:
 		get: return GetX()
 		set: SetX(value)

@@ -13,7 +13,7 @@ static class TTerrainConverter:
 				Damage $(base.Damage)
 				EncounterMultiplier $(base.EncounterMultiplier)
 				BattleBG $(base.BattleBG)
-				Concealment $(base.Concealment)
+				Concealment $(ReferenceExpression(Enum.GetName(turbu.defs.TConcealmentFactor, base.Concealment)))
 				Vehicles $(base.BoatPass), $(base.ShipPass), $(base.AirshipPass)
 				AirshipLanding $(base.AirshipLanding)
 		|]

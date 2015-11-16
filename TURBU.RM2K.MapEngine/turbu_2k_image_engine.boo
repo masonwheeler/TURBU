@@ -9,9 +9,9 @@ class TImageEngine(TSpriteEngine):
 	[Property(ParentEngine)]
 	private FParentEngine as TSpriteEngine
 
-	public def constructor(AParent as TSpriteEngine, ACanvas as TSdlCanvas, images as TSdlImages):
-		super(null, ACanvas)
-		FParentEngine = AParent
+	public def constructor(parent as TSpriteEngine, canvas as TSdlCanvas, images as TSdlImages):
+		super(null, canvas)
+		FParentEngine = parent
 		self.Images = images
 
 	public override def Draw():

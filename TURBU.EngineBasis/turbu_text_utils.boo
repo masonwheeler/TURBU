@@ -118,8 +118,7 @@ class TFontEngine(TObject):
 		FFonts = List[of TRpgFont]()
 
 	public def DrawText(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as TSgFloatPoint:
-		aChar as char
-		result = sgPointF(x, y)
+		var result = sgPointF(x, y)
 		for aChar in text:
 			result = DrawChar(target, aChar, result.x, result.y, colorIndex)
 		return result

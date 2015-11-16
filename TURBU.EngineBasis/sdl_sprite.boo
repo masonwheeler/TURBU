@@ -26,21 +26,18 @@ class ESpriteError(Exception):
 	def constructor(message as string):
 		super(message)
 
-class TSpriteList(List[of TSprite]):
-	pass
-
 class TFastSpriteList(List[of TSprite]):
 
-	internal FSprites as (TSpriteList)
+	internal FSprites as (List[of TSprite])
 
 	private FSorted as bool
 
 	public def constructor():
 		i as int
 		super()
-		Array.Resize[of TSpriteList](FSprites, 11)
+		Array.Resize[of List[of TSprite]](FSprites, 11)
 		for I in range(0, 11):
-			FSprites[i] = TSpriteList()
+			FSprites[i] = List[of TSprite]()
 
 	public new def Add(ASprite as TSprite) as int:
 		z as int
@@ -48,9 +45,9 @@ class TFastSpriteList(List[of TSprite]):
 		super.Add(ASprite)
 		z = ASprite.Z
 		if z >= FSprites.Length:
-			Array.Resize[of TSpriteList](FSprites, (z + 1))
+			Array.Resize[of List[of TSprite]](FSprites, z + 1)
 		if FSprites[z] == null:
-			FSprites[z] = TSpriteList()
+			FSprites[z] = List[of TSprite]()
 		FSprites[z].Add(ASprite)
 		FSorted = false
 		return result
@@ -356,12 +353,11 @@ class TParentSprite(TSprite):
 			FSpriteList.Remove(sprite)
 
 	[Getter(List)]
-	protected FList as TSpriteList
+	protected FList as List[of TSprite]
 
 	[Getter(SpriteList)]
 	protected FSpriteList as TFastSpriteList
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	internal def AddDrawList(Sprite as TSprite):
 		FSpriteList = TFastSpriteList() unless assigned(FSpriteList)
 		FSpriteList.Add(Sprite)
@@ -391,7 +387,7 @@ class TParentSprite(TSprite):
 
 	public def Add(Sprite as TSprite):
 		if FList == null:
-			FList = TSpriteList()
+			FList = List[of TSprite]()
 		FList.Add(Sprite)
 		if Sprite.Z != 0:
 			if FSpriteList == null:
@@ -666,7 +662,7 @@ class TSpriteEngine(TParentSprite):
 	[Getter(AllCount)]
 	internal FAllCount as int
 
-	internal FDeadList = TSpriteList()
+	internal FDeadList = List[of TSprite]()
 
 	[Property(WorldX)]
 	private FWorldX as Single

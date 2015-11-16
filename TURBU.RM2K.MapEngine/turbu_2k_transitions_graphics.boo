@@ -74,9 +74,8 @@ class TMaskTransition(TTransition):
 		pass
 
 	protected override def InternalDraw() as bool:
-		tranTarget as TSdlRenderTarget
 		GSpriteEngine.value.Canvas.PushRenderTarget()
-		tranTarget = GRenderTargets[RENDERER_TRAN]
+		tranTarget as TSdlRenderTarget = GRenderTargets[RENDERER_TRAN]
 		tranTarget.SetRenderer()
 		result = DoDraw()
 		tranTarget.Parent.PopRenderTarget()
@@ -85,11 +84,10 @@ class TMaskTransition(TTransition):
 		return result
 
 	public override def Setup(showing as bool, OnFinished as Action):
-		tranTarget as TSdlRenderTarget
 		super.Setup(showing, OnFinished)
 		runThreadsafe(true) def ():
 			GSpriteEngine.value.Canvas.PushRenderTarget()
-			tranTarget = GRenderTargets[RENDERER_TRAN]
+			tranTarget as TSdlRenderTarget = GRenderTargets[RENDERER_TRAN]
 			tranTarget.SetRenderer()
 			tranTarget.Parent.Clear(SDL_BLACK)
 			tranTarget.Parent.PopRenderTarget()
@@ -97,16 +95,15 @@ class TMaskTransition(TTransition):
 class TFadeTransition(TMaskTransition):
 
 	protected override def DoDraw() as bool:
-		workload as int
 		fadeColor as SDL.SDL_Color
-		workload = Math.Max((255 / Math.Max((FADETIME[0] / TRpgTimestamp.FrameLength), 1)), 1)
+		workload as int = Math.Max(255 / Math.Max(FADETIME[0] / TRpgTimestamp.FrameLength, 1), 1)
 		FProgress += workload * 2
 		FProgress = Math.Min(FProgress, 255)
 		fadeColor.r = FProgress
 		fadeColor.g = FProgress
 		fadeColor.b = FProgress
 		GSpriteEngine.value.Canvas.Clear(fadeColor)
-		return (FProgress < 255)
+		return FProgress < 255
 
 class TBlockTransition(TMaskTransition):
 
@@ -124,7 +121,7 @@ class TBlockTransition(TMaskTransition):
 	private def ShuffleBlocksRandomly():
 		for i in range(FBlockArray.Length):
 			swap(FBlockArray[i], FBlockArray[FRng.Next(FBlockArray.Length)])
-		
+	
 	let BLOCKSIZE = 4
 	
 	private def ShuffleBlocksDownward():
@@ -148,13 +145,10 @@ class TBlockTransition(TMaskTransition):
 			swap(FBlockArray[i], FBlockArray[FBlockArray.Length - i])
 
 	protected override def DoDraw() as bool:
-		workload as int
-		width as int
-		corner as TSgPoint
-		workload = Math.Max((FBlockArray.Length - 1) / (FADETIME[1] / TRpgTimestamp.FrameLength), 1)
-		width = GSpriteEngine.value.Canvas.Width / BLOCKSIZE
+		workload as int = Math.Max((FBlockArray.Length - 1) / (FADETIME[1] / TRpgTimestamp.FrameLength), 1)
+		width as int = GSpriteEngine.value.Canvas.Width / BLOCKSIZE
 		for i in range(FProgress, Math.Min(FProgress + workload, FBlockArray.Length)):
-			corner = sgPoint((FBlockArray[i] % width) * BLOCKSIZE, (FBlockArray[i] / width) * BLOCKSIZE)
+			corner as TSgPoint = sgPoint((FBlockArray[i] % width) * BLOCKSIZE, (FBlockArray[i] / width) * BLOCKSIZE)
 			GSpriteEngine.value.Canvas.FillRect(GPU_MakeRect(corner.x, corner.y, BLOCKSIZE, BLOCKSIZE), SDL_WHITE)
 			++FProgress
 		return FProgress < FBlockArray.Length - 1

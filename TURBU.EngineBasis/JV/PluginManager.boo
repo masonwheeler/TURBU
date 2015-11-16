@@ -13,5 +13,5 @@ class TJvPluginManager[of T(class)]:
 	
 	def LoadPlugin(plugClass as Type):
 		unless T in plugClass.GetInterfaces():
-			raise '$(plugClass.FullName) does not implement $(typeof(T).FullName)'
+			raise "$(plugClass.FullName) does not implement $(typeof(T).FullName)"
 		_plugins.Add(Activator.CreateInstance(plugClass) cast T)

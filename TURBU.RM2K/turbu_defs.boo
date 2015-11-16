@@ -6,12 +6,7 @@ import Pythia.Runtime
 import System
 import TURBU.Meta
 
-callable TCharEvent(character as TObject, party as TObject)
-callable TDamageCalcEvent(character as TObject, target as TObject, var1 as int, var2 as int, var3 as int, var4 as int, offensive as bool) as int
-callable TToHitEvent(character as TObject, target as TObject, effectiveness as int, offensive as bool) as bool
-callable TCondOnTurnEvent(character as TObject, condition as TObject, var1 as int, var2 as int, var3 as int, var4 as int)
 callable TExpCalcEvent(level as int, var1 as int, var2 as int, var3 as int, var4 as int) as int
-callable TStringSetProc(header as string)
 
 struct TLocation:
 	map as int
@@ -47,14 +42,10 @@ enum TUsableWhere:
 	Both
 
 enum TColorSet:
-	cs_red
-	cs_green
-	cs_blue
-	cs_sat
-
-enum TScriptStyle:
-	sc_exp
-	sc_skill
+	Red
+	Green
+	Blue
+	Sat
 
 enum TSfxTypes:
 	Cursor
@@ -120,6 +111,9 @@ enum TDirections:
 	Right
 	Down
 	Left
+	Random
+	TowardsHero
+	FleeHero
 
 [EnumSet]
 enum TFacing:
@@ -190,10 +184,10 @@ enum TBattleStyle:
 	Gauge
 
 enum TConcealmentFactor:
-	cf_none
-	cf_low
-	cf_med
-	cf_high
+	None
+	Low
+	Medium
+	High
 
 enum TMboxLocation:
 	Top

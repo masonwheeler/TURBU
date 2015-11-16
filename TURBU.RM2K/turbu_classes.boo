@@ -72,24 +72,24 @@ struct TColorShift:
 		FColorSet[x] = value
 
 	public Red as single:
-		get: return FColorSet[TColorSet.cs_red]
-		set: SetColor(TColorSet.cs_red, value)
+		get: return FColorSet[TColorSet.Red]
+		set: SetColor(TColorSet.Red, value)
 
 	public Green as single:
-		get: return FColorSet[TColorSet.cs_green]
-		set: SetColor(TColorSet.cs_green, value)
+		get: return FColorSet[TColorSet.Green]
+		set: SetColor(TColorSet.Green, value)
 
 	public Blue as single:
-		get: return FColorSet[TColorSet.cs_blue]
-		set: SetColor(TColorSet.cs_blue, value)
+		get: return FColorSet[TColorSet.Blue]
+		set: SetColor(TColorSet.Blue, value)
 
 	public Sat as single:
-		get: return FColorSet[TColorSet.cs_sat]
-		set: SetColor(TColorSet.cs_sat, value)
+		get: return FColorSet[TColorSet.Sat]
+		set: SetColor(TColorSet.Sat, value)
 
 	public Clear as bool:
-		get: return (FColorSet[TColorSet.cs_red]  == 0) and (FColorSet[TColorSet.cs_green] == 0) and \
-					(FColorSet[TColorSet.cs_blue] == 0) and (FColorSet[TColorSet.cs_sat]   == 0) and (FHue == 0)
+		get: return (FColorSet[TColorSet.Red]  == 0) and (FColorSet[TColorSet.Green] == 0) and \
+					(FColorSet[TColorSet.Blue] == 0) and (FColorSet[TColorSet.Sat]   == 0) and (FHue == 0)
 
 class TRpgDataList[of T(TRpgDatafile, constructor)](TRpgObjectList[of T]):
 

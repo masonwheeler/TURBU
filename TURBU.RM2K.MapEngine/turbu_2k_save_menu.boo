@@ -59,19 +59,15 @@ class TSaveBox(TGameMenuBox):
 	internal FIndex as int
 
 	protected override def DrawText():
-		data as TSaveData
-		color as int
-		portrait as TSprite
-		i as int
 		for portrait in FPortraits:
 			portrait.Dead()
-		data = (FOwner cast TSaveMenuPage).SaveData(FIndex)
-		color = (1 if assigned(data) else 4)
-		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, "File $FIndex", 8, 4, color)
+		data as TSaveData = (FOwner cast TSaveMenuPage).SaveData(FIndex)
+		var color = (1 if assigned(data) else 4)
+		var target = FTextTarget.RenderTarget
+		GFontEngine.DrawText(target, "File $FIndex", 6, 4, color)
 		if assigned(data):
-			GFontEngine.DrawText(target, data.Name, 8, 22, 1)
-			GFontEngine.DrawText(target, 'L', 8, 40, 2)
+			GFontEngine.DrawText(target, data.Name, 6, 22, 1)
+			GFontEngine.DrawText(target, 'L', 6, 40, 2)
 			GFontEngine.DrawTextRightAligned(target, data.Level.ToString(), 22, 40, 1)
 			GFontEngine.DrawText(target, 'HP', 40, 40, 2)
 			GFontEngine.DrawTextRightAligned(target, data.Hp.ToString(), 70, 40, 1)
