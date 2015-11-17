@@ -14,26 +14,27 @@ import TURBU.Meta
 import TURBU.RM2K.Import.LCF
 
 def ConvertMapScripts(id as int, events as MapEvent*, ScanScript as Action[of EventCommand*], \
-		saveScript as Action[of Node]):
+		saveScript as Action[of Node], makeWarning as Action [of string, int, int]):
 	ms as MacroStatement = [|
 		MapCode $id:
 			pass
 	|]
 	for e as MapEvent in events:
 		for p in e.Pages.Where({p | p.Script.Count > 1}):
-			ms.Body.Add(ConvertPageScript(e.ID, p.ID, p.Script, ScanScript))
+			ms.Body.Add(ConvertPageScript(e.ID, p.ID, p.Script, ScanScript, makeWarning))
 	saveScript(ms)
 
 def ConvertBattleScripts(id as int, events as BattleEventPage, ScanScript as Action[of EventCommand*], \
-		saveScript as Action[of Node]):
+		saveScript as Action[of Node], makeWarning as Action [of string, int, int]):
 	if events.Commands.Count > 1:
-		script = ConvertPageScript(id, events.ID, events.Commands, ScanScript)
+		script = ConvertPageScript(id, events.ID, events.Commands, ScanScript, makeWarning)
 		script.Name = 'BattleScript'
 		saveScript(script)
 
-def ConvertGlobalEvent(value as GlobalEvent, ScanScript as Action[of EventCommand*], saveScript as Action[of Node]):
+def ConvertGlobalEvent(value as GlobalEvent, ScanScript as Action[of EventCommand*], saveScript as Action[of Node],
+		makeWarning as Action [of string, int, int]):
 	name = SanitizeScriptName(value.Name)
-	script = ConvertPageScript(value.ID, 1, value.Script, ScanScript)
+	script = ConvertPageScript(value.ID, 1, value.Script, ScanScript, makeWarning)
 	script.Name = 'GlobalScript'
 	saveScript(script)
 	result = [|
@@ -57,20 +58,20 @@ private def SanitizeScriptName(name as string) as string:
 	return string(chars.ToArray())
 
 private def ConvertPageScript(id as int, page as int, script as EventCommand*, \
-		ScanScript as Action[of EventCommand*]) as MacroStatement:
+		ScanScript as Action[of EventCommand*], makeWarning as Action [of string, int, int]) as MacroStatement:
 	let REMFUDGE = (20141, 20151, 20713, 20722, 20732)
 	ScanScript(script)
 	result as MacroStatement = [|
 		PageScript $id, $page:
-			$(PageScriptBlock(script))
+			$(PageScriptBlock(script, {m | makeWarning(m, id, page)}))
 	|]
 	return result
 
-def PageScriptBlock(script as EventCommand*) as Block:
+def PageScriptBlock(script as EventCommand*, makeWarning as Action of string) as Block:
 	fudgeFactor = 0
 	stack = Stack[of Block]()
 	result = Block()
-	converter = TScriptConverter()
+	converter = TScriptConverter(makeWarning)
 	try:
 		last as Block = result
 		for command in script:
@@ -115,6 +116,12 @@ class TScriptConverter:
 	
 	[Getter(LabelGotoCount)]
 	private _labelGotoCount as int
+	
+	[Getter(MakeWarning)]
+	private _makeWarning as Action of string
+	
+	def constructor(makeWarning as Action of string):
+		_makeWarning = makeWarning
 	
 	private static final _opcodeDictionary = Dictionary[of int, TConvertRoutine](){
 		0: Cleanup, 10: {return null}, 20713: {return null}, 20720: {return null}, 20730: {return null}, 
@@ -291,7 +298,7 @@ class TScriptConverter:
 		while ms.Position < ms.Length:
 			orders.Add(MoveOpcode(ms))
 		blk = Block()
-		ConvertMoveOrders(orders, blk)
+		ConvertMoveOrders(orders, blk, converter.MakeWarning)
 		moveScript = ArrayLiteralExpression()
 		moveScript.Items.AddRange(blk.Statements.Cast[of ExpressionStatement]().Select({es | es.Expression}))
 		result = [|MoveMapObject($(EventDeref(values[0])), $(values[1]), $(values[2] != 0), $(values[3] != 0), $moveScript)|]

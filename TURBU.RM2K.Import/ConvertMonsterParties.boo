@@ -23,7 +23,7 @@ private enum RMBattlePageConditions:
 static class TMonsterPartyConverter:
 	
 	def Convert(base as RMMonsterParty, saveData as Action[of Node], \
-			ScanScript as Action[of EventCommand*]) as MacroStatement:
+			ScanScript as Action[of EventCommand*], progress as IConversionReport) as MacroStatement:
 		baseID = base.ID
 		result = [|
 			MonsterParty $baseID:
@@ -38,12 +38,12 @@ static class TMonsterPartyConverter:
 		pages = base.Events.Where({e | e.Commands.Count > 0}).ToArray()
 		if pages.Length > 0:
 			eventPages = MacroStatement('Pages')
-			eventPages.Body.Statements.AddRange(pages.Select({p, i | ConvertEventPage(p, baseID, i, saveData, ScanScript)}))
+			eventPages.Body.Statements.AddRange(pages.Select({p, i | ConvertEventPage(p, baseID, i, saveData, ScanScript, progress)}))
 			result.Body.Add(eventPages)
 		return result
 	
 	private def ConvertEventPage(base as BattleEventPage, baseID as int, id as int, \
-			saveScript as Action[of Node], ScanScript as Action[of EventCommand*]) as MacroStatement:
+			saveScript as Action[of Node], ScanScript as Action[of EventCommand*], progress as IConversionReport) as MacroStatement:
 		pageName = "mparty$(baseID.ToString('D4'))_$id"
 		result = [|
 			Page $(base.ID):
@@ -51,7 +51,8 @@ static class TMonsterPartyConverter:
 				Conditions:
 					$(ConvertConditions(base.Conditions))
 		|]
-		ConvertBattleScripts(baseID, base, ScanScript, saveScript)
+		ConvertBattleScripts(baseID, base, ScanScript, saveScript,
+			{msg, id, page | progress.MakeNotice("$msg at monster party #$baseID, script #$page.", 3)})
 		return result
 	
 	private def ConvertConditions(value as BattleEventConditions) as Block:

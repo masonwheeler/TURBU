@@ -7,11 +7,12 @@ import System.Collections.Generic
 import turbu.maps
 import turbu.tilesets
 import TURBU.MapObjects
+import TURBU.Meta
 import TURBU.RM2K.Import.LCF
 
 static class TMapConverter:
 	
-	public def ConvertMap(map as LMU, mapTree as LMT, id as int, progress as IConversionReport,\
+	public def ConvertMap(map as LMU, mapTree as LMT, id as int, progress as IConversionReport,
 			ScanScript as Action[of EventCommand*], saveData as Action[of string, Node, Node]):
 		let WRAPAROUNDS = ([|None|], [|Vertical|], [|Horizontal|], [|Both|])
 		let PANNING = ([|None|], [|Scroll|], [|Autoscroll|])
@@ -31,13 +32,14 @@ static class TMapConverter:
 				Tiles:
 					$(TileDataArray(map))
 		|]
-		events = EventData(map.Events)
+		events = EventData(map.Events, mapName, progress)
 		ms.Body.Add(events) unless events is null
 		//legacy data is related to RM2k3 random generation. Ignore.
-		ConvertMapScripts(id, map.Events, ScanScript) do(script as Node):
-			saveData("$(mapName)_$id", ms, script)
+		ConvertMapScripts(id, map.Events, ScanScript,
+			{script as Node | saveData("$(mapName)_$id", ms, script)},
+			{msg, id, page | progress.MakeNotice("$msg at Map $id ($mapName), event #$id, page #$page.", 3)})
 	
-	private def EventData(events as List[of MapEvent]) as MacroStatement:
+	private def EventData(events as List[of MapEvent], mapName as string, progress as IConversionReport) as MacroStatement:
 		return null if events is null or events.Count == 0
 		result = MacroStatement('MapObjects')
 		for ev in events:
@@ -46,12 +48,12 @@ static class TMapConverter:
 					Name $(ev.Name)
 					Position $(ev.X), $(ev.Y)
 			|]
-			pages = EventPages(ev.Name, ev.Pages)
+			pages = EventPages(ev.Name, ev.Pages, mapName, progress)
 			sub.Body.Add(pages) unless pages is null
 			result.Body.Add(sub)
 		return result
 	
-	private def EventPages(eventName as string, pages as List[of EventPage]) as MacroStatement:
+	private def EventPages(eventName as string, pages as List[of EventPage], mapName as string, progress as IConversionReport) as MacroStatement:
 		let EventPageFacing = ('Up', 'Right', 'Down', 'Left')
 		return null if pages is null or pages.Count == 0
 		result = MacroStatement('Pages')
@@ -77,15 +79,15 @@ static class TMapConverter:
 					Height $(page.EventHeight), $(page.NoOverlap)
 			|]
 			if page.MoveType == TMoveType.ByRoute:
-				sub.Body.Add(ConvertMoveBlock(page.MoveScript))
+				sub.Body.Add(ConvertMoveBlock(page.MoveScript, {m | progress.MakeNotice("$m while converting custom route in map $mapName, event $eventName, page $(page.ID).", 3)}))
 			result.Body.Add(sub)
 		return result
 	
-	private def ConvertMoveBlock(script as EventMoveBlock) as MacroStatement:
+	private def ConvertMoveBlock(script as EventMoveBlock, makeWarning as Action of string) as MacroStatement:
 		result = [|MoveScript $(script.Loop), $(script.Ignore)|]
 		result.Body.Add(MacroStatement('Option Loop')) if script.Loop
 		result.Body.Add(MacroStatement('Option IgnoreObstacles')) if script.Ignore
-		ConvertMoveOrders(script.MoveOrder, result.Body)
+		ConvertMoveOrders(script.MoveOrder, result.Body, makeWarning)
 		return result
 	
 	private def PageConditions(value as EventConditions) as Block:
@@ -214,12 +216,53 @@ static class TMapConverter:
 		CheckNeighbor(x + 1, y + 1, TDirs8.se)
 		return result
 
-public def ConvertMoveOrders(orders as List[of MoveOpcode], body as Block):
+private def ConvertJump(orders as List[of MoveOpcode], body as Block, makeWarning as Action of string, ref i as int):
+	var x = 0
+	var y = 0
+	var rand = 0
+	var chase = 0
+	var forward = 0
+	var lastStep = -1
+	++i
+	var start = i
+	while (i < orders.Count) and (orders[i].Code != MOVECODE_END_JUMP):
+		var opcode = orders[i].Code
+		opcode = lastStep if (opcode == MOVECODE_FORWARD) and (lastStep != -1)
+		caseOf opcode:
+			case 0: --y
+			case 1: ++x
+			case 2: ++y
+			case 3: --x
+			case 4: ++x; --y
+			case 5: ++x; ++y
+			case 6: --x; ++y
+			case 7: --x; --y
+			case 8: ++rand
+			case 9: ++chase
+			case 10: --chase
+			case 11: ++forward
+			default: makeWarning("Non-movement instruction '$(MOVE_CODES[opcode])' found inside jump; ignored")
+		lastStep = opcode if opcode < 11
+		++i
+	if i == orders.Count:
+		makeWarning('Start Jump with no End Jump')
+		i = start
+	else:
+		++i
+		if (rand == 0) and (chase == 0) and (forward == 0):
+			body.Add([|Jump($x, $y)|])
+		else: body.Add([|Jump($x, $y, $rand, $chase, $forward)|])
+
+public def ConvertMoveOrders(orders as List[of MoveOpcode], body as Block, makeWarning as Action of string):
 	i = 0
 	while i < orders.Count:
 		opcode = orders[i]
-		if opcode.Data is not null:
-			mie = MethodInvocationExpression(ReferenceExpression(turbu.pathing.MOVE_CODES[opcode.Code]))
+		if opcode.Code == MOVECODE_END_JUMP:
+			makeWarning('End of jump without begin jump')
+		elif opcode.Code == MOVECODE_START_JUMP:
+			ConvertJump(orders, body, makeWarning, i)
+		elif opcode.Data is not null:
+			mie = MethodInvocationExpression(ReferenceExpression(MOVE_CODES[opcode.Code]))
 			mie.Arguments.Add(Expression.Lift(opcode.Name)) if opcode.Name is not null
 			for value in opcode.Data:
 				mie.Arguments.Add(Expression.Lift(value))
@@ -230,6 +273,29 @@ public def ConvertMoveOrders(orders as List[of MoveOpcode], body as Block):
 				++i
 				++runCount
 			if runCount == 0:
-				body.Add(ReferenceExpression(turbu.pathing.MOVE_CODES[opcode.Code]))
-			else: body.Add([| $(ReferenceExpression(turbu.pathing.MOVE_CODES[opcode.Code])) * $runCount |])
+				body.Add(ReferenceExpression(MOVE_CODES[opcode.Code]))
+			else: body.Add([| $(ReferenceExpression(MOVE_CODES[opcode.Code])) * $runCount |])
 		++i
+
+let MOVE_CODES = (
+	'Up', 				'Right', 			'Down', 			'Left',
+	'UpRight',			'DownRight',		'DownLeft',			'UpLeft',
+	'RandomStep',		'TowardsHero',		'AwayFromHero',		'MoveForward',
+	'FaceUp',			'FaceRight',		'FaceDown',			'FaceLeft',
+	'TurnRight',		'TurnLeft',			'Turn180',			'Turn90',
+	'FaceRandom',		'FaceHero',			'FaceAwayFromHero',	'Pause',
+	'StartJump',		'EndJump',			'FacingFixed',		'FacingFree',
+	'SpeedUp',			'SpeedDown',	 	'FreqUp', 			'FreqDown',
+	'SwitchOn', 		'SwitchOff',	 	'ChangeSprite', 	'PlaySfx',
+	'ClipOff',	 		'ClipOn', 			'AnimStop', 		'AnimResume',
+	'TransparencyUp',	 'TransparencyDown')
+let CODES_WITH_PARAMS = (0x20, 0x21, 0x22, 0x23)
+let MOVECODE_RANDOM = 8
+let MOVECODE_CHASE = 9
+let MOVECODE_FLEE = 10
+let MOVECODE_FORWARD = 11
+let MOVECODE_START_JUMP = 0x18
+let MOVECODE_END_JUMP = 0x19
+let MOVECODE_CHANGE_SPRITE = 0x22
+let MOVECODE_PLAY_SFX = 0x23
+let OP_CLEAR = 0xC0; //arbitrary value

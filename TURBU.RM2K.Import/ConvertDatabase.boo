@@ -131,12 +131,12 @@ class TDatabaseConverter:
 				battleScripts.Body.Add(value)
 			parties = MacroStatement('MonsterParties')
 			for party in _ldb.MParties:
-				parties.Body.Add(TMonsterPartyConverter.Convert(party, saveScript, _scanner))
+				parties.Body.Add(TMonsterPartyConverter.Convert(party, saveScript, _scanner, _report))
 			for id as int, global as LCF.EventCommand* in enumerate(battleGlobals):
 				scriptName = "battleGlobal$((id + 1).ToString('D4'))"
 				gScript = [|
 					BattleScript $(ReferenceExpression(scriptName)):
-						$(PageScriptBlock(global))
+						$(PageScriptBlock(global, {m | _report.MakeNotice("$m while converting repeated battle script $scriptName", 3)}))
 				|]
 				battleScripts.Body.Add(gScript)
 			File.WriteAllText(Path.Combine(self._database, 'MonsterParties.tdb'), parties.ToCodeString())
@@ -180,7 +180,7 @@ class TDatabaseConverter:
 			def SaveScript(value as Node):
 				globalScripts.Body.Add(value cast MacroStatement)
 			for global in _ldb.GlobalEvents.Where({g | not (g.Name == '' and g.Script.Count == 1)}):
-				globals.Body.Add(ConvertGlobalEvent(global, _scanner, SaveScript))
+				globals.Body.Add(ConvertGlobalEvent(global, _scanner, SaveScript, {msg, id, page | _report.MakeNotice("$msg at global script #$id.", 3)}))
 			File.WriteAllText(Path.Combine(self._database, 'GlobalEvents.tdb'), globals.ToCodeString())
 			File.WriteAllText(Path.Combine(self._scripts, 'GlobalScripts.boo'), globalScripts.ToScriptString())
 	
