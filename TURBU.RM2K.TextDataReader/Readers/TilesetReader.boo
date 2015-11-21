@@ -40,7 +40,7 @@ macro Tilesets.Tileset.TileGroups(body as ExpressionStatement*):
 				else:
 					value = [|TTileAttribute.$(attr.Items[0])|]
 					if attr.Items.Count > 1:
-						for i in range(1, attr.Items.Count - 1):
+						for i in range(1, attr.Items.Count):
 							value = [|$value | TTileAttribute.$(attr.Items[i])|]
 				arr.Items.Add(value)
 			return ExpressionStatement([| Attributes(System.Collections.Generic.List[of TTileAttribute]($arr)) |])

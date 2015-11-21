@@ -26,6 +26,7 @@ static class TMapConverter:
 		ms as MacroStatement = [|
 			MapData $id:
 				Size $(map.Width), $(map.Height)
+				Tileset $(map.Terrain)
 				Wraparound $(WRAPAROUNDS[map.Wraparound])
 				Background $(map.UsesPano), $(map.PanoName)
 				Panning $(PANNING[hPan]), $(map.HPanSpeed), $(PANNING[vPan]), $(map.VPanSpeed)
@@ -132,7 +133,7 @@ static class TMapConverter:
 			tile -= 5000
 			group = tile / 48
 			assert group <= 2
-			group += 15
+			group += 16
 			return (group << 8) + (tile % 48)
 		elif tile >= 4000:
 			tile -= 4000
