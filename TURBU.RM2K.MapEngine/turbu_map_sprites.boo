@@ -47,12 +47,12 @@ class TMapSprite(TObject):
 
 	private FMoveQueue as Path
 
+	private FMoveStep as Func of bool
+
 	[Getter(MoveAssign, Protected: true)]
 	private FMoveAssignment as Path
 
 	private FMoveChange as TMoveChange
-
-	private FOrder as TMoveStep
 
 	private FDirLocked as bool
 
@@ -82,78 +82,23 @@ class TMapSprite(TObject):
 
 	private FFlashLength as int
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def TryMove(where as TDirections) as bool:
 		FMoveOpen = self.Move(where)
 		return FMoveOpen or CanSkip
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def TryMoveDiagonal(one as TDirections, two as TDirections) as bool:
 		return self.MoveDiag(one, two) or CanSkip
 
 	private def DirTowardsHero() as TDirections:
-		heroLoc as TSgPoint
-		if assigned(GSpriteEngine.value.CurrentParty):
-			heroLoc = GSpriteEngine.value.CurrentParty.Location
-		else:
-			heroLoc = sgPoint(0, 1000)
+		var heroLoc = (GSpriteEngine.value.CurrentParty.Location if assigned(GSpriteEngine.value.CurrentParty) else sgPoint(0, 1000)))
 		return towards(self.Location, heroLoc)
 
-	private def CanJump(which as Path) as bool:
-		def ProcessJumpMove(Opcode as TMoveStep, ref location as TSgPoint):
-			UP_LEFT = sgPoint(-1, -1)
-			UP_RIGHT = sgPoint(1, -1)
-			DOWN_LEFT = sgPoint(-1, 1)
-			DOWN_RIGHT = sgPoint(1, 1)
-			dummy as byte
-			op as int = Opcode.Opcode
-			magnitude as ushort = Math.Max(Opcode.Data[1], 1)
-			if op == 8:
-				FLastJumpOp = op 
-			elif op in range(8, 11):
-				FLastJumpOp = -1
-			caseOf op:
-				case 0: location.y -= magnitude
-				case 1: location.x += magnitude
-				case 2: location.y += magnitude
-				case 3: location.x -= magnitude
-				case 4: location += UP_RIGHT * magnitude
-				case 5: location += DOWN_RIGHT * magnitude
-				case 6: location += DOWN_LEFT * magnitude
-				case 7: location += UP_LEFT * magnitude
-				case 8:
-					dummy = 0
-					for i in range(1, (magnitude + 1)):
-						dummy = _random.Next(4)
-						ProcessJumpMove(TMoveStep(dummy), location)
-					FMoveDir = dummy cast TDirections
-				case 9:
-					dummy = ord(DirTowardsHero())
-					ProcessJumpMove(TMoveStep(dummy, magnitude), location)
-					FMoveDir = dummy cast TDirections
-				case 10:
-					dummy = ord(opposite_facing(DirTowardsHero()))
-					ProcessJumpMove(TMoveStep(dummy, magnitude), location)
-					FMoveDir = dummy cast TDirections
-				case 11:
-					if FLastJumpOp == -1:
-						ProcessJumpMove(TMoveStep(ord(FMoveDir)), location)
-					else: ProcessJumpMove(TMoveStep(FLastJumpOp), location)
-		i as ushort = which.Cursor
-		target as TSgPoint = FLocation
-		FLastJumpOp = -1
-		FJumpTime = commons.round((MOVE_DELAY[FMoveRate] cast double) / 1.5)
-		while (i <= which.Last) and (which.Opcodes[i].Opcode != 25):
-			if which.Opcodes[i].Opcode == 12:
-				ProcessJumpMove(which.Opcodes[i], target)
-			++i
-			if (i <= which.Last) and PointInRect(target, SDL.SDL_Rect(0, 0, FEngine.Width, FEngine.Height)) \
-					and (FSlipThrough or (FEngine cast T2kSpriteEngine).Passable(target.x, target.y)):
-				result = true
-				FJumpTarget = target
-			else: result = false
-			++i if which.Opcodes[i].Opcode == 25
-			which.Cursor = i
+	private def CanJump(target as TSgPoint) as bool:
+		if PointInRect(target, SDL.SDL_Rect(0, 0, FEngine.Width, FEngine.Height)) \
+				and (FSlipThrough or (FEngine cast T2kSpriteEngine).Passable(target.x, target.y)):
+			result = true
+			FJumpTarget = target
+		else: result = false
 		return result
 
 	private def StartMoveTo(target as TSgPoint):
@@ -175,7 +120,6 @@ class TMapSprite(TObject):
 
 	private def SetMoveOrder(value as Path):
 		FMoveAssignment = value
-		FOrder.Opcode = OP_CLEAR
 
 	private def BeginJump():
 		self.LeaveTile()
@@ -251,6 +195,7 @@ class TMapSprite(TObject):
 	private def OpChangeFacing(dir as TDirections):
 		self.Facing = dir
 		FMoveTime = TRpgTimestamp(100)
+		FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate] / 3)
 
 	private DirLocked as bool:
 		get: return (self.HasPage and (FMapObj.CurrentPage.AnimType in range(TAnimType.FixedDir, TAnimType.SpinRight + 1))) or FDirLocked
@@ -381,9 +326,15 @@ class TMapSprite(TObject):
 		return true
 
 	protected virtual def DoMove(which as Path) as bool:
+		unless assigned(FMoveStep):
+			FMoveStep = which.NextCommand()
+		FMoveOpen = true
+		result = (FMoveStep() if assigned(FMoveStep) else false)
+		if result:
+			FMoveStep = null
+/*
 		result = true
 		unchanged as bool = false
-		FMoveOpen = true
 		if FOrder.Opcode == OP_CLEAR:
 			FOrder = which.NextCommand()
 		caseOf FOrder.Opcode:
@@ -426,6 +377,7 @@ class TMapSprite(TObject):
 		FOrder.Opcode = OP_CLEAR unless unchanged
 		if (not FMoveOpen) and (FOrder.Opcode != 23) and (self.InFrontTile != null):
 			(self.InFrontTile cast TMapTile).Bump(self)
+*/
 		return result
 
 	protected virtual def GetCanSkip() as bool:
@@ -505,7 +457,6 @@ class TMapSprite(TObject):
 		FMapObj = base
 		FEngine = parent cast T2kSpriteEngine
 		FMoveRate = 4
-		FOrder.Opcode = OP_CLEAR
 		UpdateMove(FMapObj.CurrentPage) if self.HasPage
 
 	private def Destroy():
@@ -532,6 +483,9 @@ class TMapSprite(TObject):
 				return false unless GSpriteEngine.value.NormalizePoint(target.x, target.y)
 			StartMoveTo(target)
 			result = true
+		unless result:
+			if self.InFrontTile is not null:
+				(self.InFrontTile cast TMapTile).Bump(self)
 		return result
 
 	public def MoveDiag(one as TDirections, two as TDirections) as bool:

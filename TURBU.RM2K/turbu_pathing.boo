@@ -47,7 +47,7 @@ class Path(TObject):
 	[Property(Cursor)]
 	private FCursor as int
 
-	private FIterationCursor as int
+	private FLoopLength as int
 
 	[Getter(Loop)]
 	private FLoop as bool
@@ -55,10 +55,7 @@ class Path(TObject):
 	[Property(Looped)]
 	private FLooped as bool
 
-	private def GetLast() as int:
-		return FOpcodes.Count - 1
-	
-	private FSteps as Func[of bool]*
+	private FSteps as IEnumerator of Func of bool
 
 	public def constructor():
 		super()
@@ -66,7 +63,7 @@ class Path(TObject):
 	public def constructor(Data as Func[of Path, Func[of bool]*]):
 		super()
 		try:
-			FSteps = Data(self)
+			FSteps = Data(self).GetEnumerator()
 		except e as Exception:
 			System.Diagnostics.Debugger.Break()
 
@@ -78,7 +75,6 @@ class Path(TObject):
 	public def Clone() as Path:
 		result = Path(self)
 		result.FCursor = self.FCursor
-		result.FIterationCursor = self.FIterationCursor
 		result.FLooped = self.FLooped
 		return result
 
@@ -94,20 +90,16 @@ class Path(TObject):
 		obj.CheckRead('Looped', FLooped)
 		obj.CheckEmpty()
 
-	public def NextCommand() as TMoveStep:
-		result as TMoveStep
-		if FCursor >= FOpcodes.Count:
-			if Loop:
+	public def NextCommand() as Func of bool:
+		var wasLooped = self.FLooped
+		result as Func of bool = (FSteps.Current if FSteps.MoveNext() else null)
+		if assigned(result):
+			if FLooped and not wasLooped:
+				FLoopLength = FCursor
 				FCursor = 0
-				FLooped = true
-			else:
-				result.Opcode = 48
-				return result
-		result = FOpcodes[FCursor]
-		++FIterationCursor
-		if (result.Opcode in CODES_WITH_PARAMS) or (FIterationCursor >= result.Data[1]):
-			++FCursor
-			FIterationCursor = 0
+			elif FLooped and (FCursor > FLoopLength):
+				FCursor = 0
+			else: ++FCursor
 		return result
 
 	public def SetDirection(direction as TDirections):
@@ -116,24 +108,3 @@ class Path(TObject):
 		newStep = TMoveStep(ord(direction))
 		FOpcodes.Add(newStep)
 		FCursor = 0
-
-	public Last as int:
-		get:
-			return GetLast()
-
-def LookupMoveCode(Opcode as string) as int:
-	result as int
-	return (result if moveDic.TryGetValue(Opcode.ToUpperInvariant(), result) else -1)
-
-let MOVE_CODES = ('Up', 'Right', 'Down', 'Left', 'UpRight', 'DownRight', 'DownLeft', 'UpLeft', 'RandomStep', 'TowardsHero', 'AwayFromHero', 'MoveForward', 'FaceUp', 'FaceRight', 'FaceDown', 'FaceLeft', 'TurnRight', 'TurnLeft', 'Turn180', 'Turn90', 'FaceRandom', 'FaceHero', 'FaceAwayFromHero', 'Pause', 'StartJump', 'EndJump', 'FacingFixed', 'FacingFree', 'SpeedUp', 'SpeedDown', 'FreqUp', 'FreqDown', 'SwitchOn', 'SwitchOff', 'ChangeSprite', 'PlaySfx', 'ClipOff', 'ClipOn', 'AnimStop', 'AnimResume', 'TransparencyUp', 'TransparencyDown')
-let CODES_WITH_PARAMS = (0x20, 0x21, 0x22, 0x23)
-let MOVECODE_RANDOM = 8
-let MOVECODE_CHASE = 9
-let MOVECODE_FLEE = 10
-let MOVECODE_CHANGE_SPRITE = 0x22
-let MOVECODE_PLAY_SFX = 0x23
-let moveDic = Dictionary[of string, int](pred(MOVE_CODES.Length) * 2)
-let OP_CLEAR = 0xC0; //arbitrary value
-initialization :
-	for i in range(MOVE_CODES.Length):
-		moveDic.Add(MOVE_CODES[i].ToUpperInvariant(), i)
