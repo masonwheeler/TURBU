@@ -353,10 +353,8 @@ class TRpgHero(TRpgBattleCharacter):
 
 	[NoImport]
 	public def constructor(base as TClassTemplate, party as TRpgParty):
-		slot as TSlot
 		calc as TExpCalcEvent
-		template = base cast THeroTemplate
-		cond as Point
+		var template = base cast THeroTemplate
 		super(base)
 		return if base is null
 		FParty = party
@@ -385,7 +383,7 @@ class TRpgHero(TRpgBattleCharacter):
 		Array.Resize[of int](FConditionModifier, i)
 		Array.Resize[of bool](FCondition, i)
 		for i in range(0, template.Condition.Length):
-			cond = template.Condition[i]
+			cond as Point = template.Condition[i]
 			FConditionModifier[cond.X] = cond.Y
 		FHitPoints = MaxHp
 		FManaPoints = MaxMp
@@ -848,9 +846,9 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 					FParty[j + 1] = null
 
 	[NoImport]
-	public override def ChangeSprite(Name as string, translucent as bool, spriteIndex as int):
+	public override def ChangeSprite(name as string, translucent as bool, spriteIndex as int):
 		if assigned(FSprite):
-			FSprite.Update(Name, translucent, spriteIndex)
+			FSprite.Update(name, translucent, spriteIndex)
 
 	[NoImport]
 	public def SetSprite(value as TMapSprite):
@@ -883,7 +881,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 			return result
 
 	public def IndexOf(who as TRpgHero) as int:
-		result = -1
+		var result = -1
 		for i in range(1, MAXPARTYSIZE + 1):
 			result = i if self[i] == who
 		return result
@@ -894,8 +892,8 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 			return result
 		set:
 			return if (x == 0) or (x > MAXPARTYSIZE)
-			FParty[x] = value
-			FParty[x].FParty = self if assigned(value)
+			FParty[x - 1] = value
+			value.FParty = self if assigned(value)
 			ResetSprite()
 
 	public FacingValue as int:

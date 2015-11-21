@@ -199,10 +199,9 @@ class T2kMapEngine(TMapEngine):
 		FScrollPosition = map.ScrollPosition
 
 	protected def InitializeParty():
-		party as TRpgParty
-		party = GEnvironment.value.Party
+		party as TRpgParty = GEnvironment.value.Party
 		for i in range(FDatabase.Layout.StartingHeroes.Length):
-			party[i] = GEnvironment.value.Heroes[FDatabase.Layout.StartingHero[i + 1]]
+			party[i + 1] = GEnvironment.value.Heroes[FDatabase.Layout.StartingHero[i + 1]]
 		FPartySprite = THeroSprite(FCurrentMap, party[1], party)
 
 	private FFrame as int
