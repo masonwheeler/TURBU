@@ -28,7 +28,7 @@ class TCharStatBox(TGameMenuBox):
 
 	private FPotentialItem as TRpgItem
 
-	private FPotential as (int)
+	private FPotential = array(int, 4)
 
 	internal FCurrentSlot as TSlot
 
@@ -54,25 +54,23 @@ class TCharStatBox(TGameMenuBox):
 			GFontEngine.DrawText(target, '->', FBoxOrigin.x + 76, FBoxOrigin.y + (i * 16), 2)
 		if FActive:
 			for i in range(1, 5):
-				if FPotential[i] > FChar.Stat[i]:
+				if FPotential[i - 1] > FChar.Stat[i]:
 					color = 3
-				elif FPotential[i] < FChar.Stat[i]:
+				elif FPotential[i - 1] < FChar.Stat[i]:
 					color = 4
-				else:
-					color = 1
-				GFontEngine.DrawTextRightAligned(target, FPotential[i].ToString(), FBoxOrigin.x + 108, FBoxOrigin.y + (i * 16), color)
+				else: color = 1
+				GFontEngine.DrawTextRightAligned(target, FPotential[i - 1].ToString(), FBoxOrigin.x + 108, FBoxOrigin.y + (i * 16), color)
 
 	public PotentialItem as TRpgItem:
 		set:
-			i as int
 			FPotentialItem = value
 			InvalidateText()
 			if assigned(value):
 				for i in range(1, 5):
-					FPotential[i] = FChar.PotentialStat(value.Template.ID, i, FCurrentSlot)
+					FPotential[i - 1] = FChar.PotentialStat(value.Template.ID, i, FCurrentSlot)
 			else:
 				for i in range(1, 5):
-					FPotential[i] = FChar.PotentialStat(0, i, FCurrentSlot)
+					FPotential[i - 1] = FChar.PotentialStat(0, i, FCurrentSlot)
 
 class TEqInventoryMenu(TCustomScrollBox):
 
@@ -159,15 +157,15 @@ class TGameEquipmentMenu(TGameMenuBox):
 		lOrigin = ORIGIN
 		FPassiveCursor.Draw() unless self.Focused
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x, lOrigin.y, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 4, lOrigin.y, 2)
 		caseOf FChar.DualWield:
 			case TWeaponStyle.Single, TWeaponStyle.Shield:
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_SHIELD], lOrigin.x, lOrigin.y + 16, 2)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_SHIELD], lOrigin.x + 4, lOrigin.y + 16, 2)
 			default :
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x, lOrigin.y + 16, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ARMOR], lOrigin.x, lOrigin.y + 32, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_HELMET], lOrigin.x, lOrigin.y + 48, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ACCESSORY], lOrigin.x, lOrigin.y + 64, 2)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 4, lOrigin.y + 16, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ARMOR], lOrigin.x + 4, lOrigin.y + 32, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_HELMET], lOrigin.x + 4, lOrigin.y + 48, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ACCESSORY], lOrigin.x + 4, lOrigin.y + 64, 2)
 		for i in range(0, 5):
 			GFontEngine.DrawText(target, FParsedText[i], lOrigin.x + 52, lOrigin.y + (i * 16), 1)
 

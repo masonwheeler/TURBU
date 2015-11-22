@@ -29,16 +29,12 @@ class TGamePartyPanel(TCustomPartyPanel):
 	private FState as TMainPanelState
 
 	public override def DrawText():
-		i as byte
-		origin2 as TSgPoint
-		hero as TRpgHero
-		cond as TConditionTemplate
-		i = 1
-		target = FTextTarget.RenderTarget
+		var i = 1
+		var target = FTextTarget.RenderTarget
 		while GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
-			FPortrait[i].Draw()
-			origin2 = sgPoint(round(FPortrait[i].X - Engine.WorldX) + 54, round(FPortrait[i].Y - Engine.WorldY) + 2)
-			hero = GEnvironment.value.Party[i]
+			FPortrait[i - 1].Draw()
+			var origin2 = sgPoint(round(FPortrait[i - 1].X - Engine.WorldX) + 54, round(FPortrait[i - 1].Y - Engine.WorldY) + 2)
+			hero as TRpgHero = GEnvironment.value.Party[i]
 			GFontEngine.DrawText(target, hero.Name, origin2.x, origin2.y, 1)
 			GFontEngine.DrawText(target, hero.Title, origin2.x + 92, origin2.y, 1)
 			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_LV], origin2.x, (origin2.y + 16), 2)
@@ -46,7 +42,7 @@ class TGamePartyPanel(TCustomPartyPanel):
 			if hero.HighCondition == 0:
 				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_NORMAL_STATUS], (origin2.x + 38), (origin2.y + 16), 1)
 			else:
-				cond = GDatabase.value.Conditions[hero.HighCondition]
+				cond as TConditionTemplate = GDatabase.value.Conditions[hero.HighCondition]
 				GFontEngine.DrawText(target, cond.Name, origin2.x + 38, origin2.y + 16, cond.Color)
 			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_HP], origin2.x + 102, origin2.y + 16, 2)
 			GFontEngine.DrawTextRightAligned(target, hero.HP.ToString(), origin2.x + 138, origin2.y + 16, 1)
@@ -64,16 +60,17 @@ class TGamePartyPanel(TCustomPartyPanel):
 
 	public override def DoSetup(value as int):
 		super.DoSetup(value)
-		if FSetupValue == 3:
+		if FSetupValue in (0, 1, 2):
 			FState = FSetupValue cast TMainPanelState
 
 	public override def DoButton(input as TButtonCode):
 		super.DoButton(input)
 		caseOf input:
 			case TButtonCode.Enter:
+				var cursorValue = GEnvironment.value.Party[FCursorPosition + 1].Template.ID
 				caseOf FState:
-					case TMainPanelState.PartySkill: self.FocusPage('Skills', GEnvironment.value.Party[(FCursorPosition + 1)].Template.ID)
-					case TMainPanelState.PartyEq: self.FocusPage('Equipment', GEnvironment.value.Party[(FCursorPosition + 1)].Template.ID)
+					case TMainPanelState.PartySkill: self.FocusPage('Skills', cursorValue)
+					case TMainPanelState.PartyEq: self.FocusPage('Equipment', cursorValue)
 					default: assert false
 			case TButtonCode.Cancel: FState = TMainPanelState.Choosing
 			default:

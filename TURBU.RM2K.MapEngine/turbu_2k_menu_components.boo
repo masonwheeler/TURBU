@@ -160,15 +160,16 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 		Array.Resize[of bool](FOptionEnabled, GEnvironment.value.Party.Size)
 		while GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
 			template = GEnvironment.value.Party[i].Template
-			FPortrait[i].Dead()
-			FPortrait[i] = LoadPortrait(template.Portrait, template.PortraitIndex)
-			FPortrait[i].X = 0
-			FPortrait[i].Y = (i - 1) * 56
-			FPortrait[i].SetSpecialRender()
+			FPortrait[i - 1].Dead() if assigned(FPortrait[i - 1])
+			var newPortrait = LoadPortrait(template.Portrait, template.PortraitIndex)
+			FPortrait[i - 1] = newPortrait
+			newPortrait.X = 4
+			newPortrait.Y = (i - 1) * 56
+			newPortrait.SetSpecialRender()
 			FParsedText.Add(GEnvironment.value.Party[i].Name)
 			FOptionEnabled[i - 1] = true
 			++i
-			InvalidateText()
+		InvalidateText()
 		FCount = i - 1
 		if i < 4:
 			for i in range(i, 4):
@@ -200,7 +201,7 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 		FDontChangeCursor = false
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
-		FPortrait = array(TSprite, 4)
+		FPortrait = array(TSprite, 4) //this needs to be initialized before the super call, not in the declaration.
 		super(parent, coords, main, owner)
 		Array.Resize[of bool](FOptionEnabled, MAXPARTYSIZE)
 
@@ -208,7 +209,7 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 		super.MoveTo(coords)
 		for i in range(FPortrait.Length):
 			if assigned(FPortrait[i]):
-				FPortrait[i].X = 0
+				FPortrait[i].X = 4
 				FPortrait[i].Y = i * 56
 
 class TCustomGameItemMenu(TCustomScrollBox):
@@ -258,7 +259,7 @@ def LoadPortrait(filename as string, index as byte) as TSprite:
 	return null unless ArchiveUtils.GraphicExists(filename, 'portrait')
 	
 	engine as TSpriteEngine = GMenuEngine.Value
-	engine.Images.EnsureImage("portrait\\$filename", filename)
+	engine.Images.EnsureImage("portrait\\$filename", filename, GDatabase.value.Layout.PortraitSize)
 	result = TSprite(engine)
 	result.Visible = true
 	result.ImageName = filename

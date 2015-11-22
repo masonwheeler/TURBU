@@ -21,13 +21,6 @@ enum TMenuShowState:
 	Main
 	Fading
 
-enum TMenuScripts:
-	msc_button
-	msc_cursor
-
-class TMenuPageStack(Stack[of TMenuPage]):
-	pass
-
 abstract class TGameMenuBox(TCustomMessageBox):
 
 	[Property(OnButton)]
@@ -354,7 +347,7 @@ class TMenuEngine(TObject, IMenuEngine):
 
 	private FVisible as bool
 
-	private FStack = TMenuPageStack()
+	private FStack = Stack[of TMenuPage]()
 
 	[Getter(CurrentMenu)]
 	private FCurrentPage as TMenuPage

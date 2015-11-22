@@ -84,11 +84,11 @@ class TRpgBattleCharacter(TRpgObject):
 	protected def GetStat(which as int) as int:
 		result = 0
 		for i in range(TStatComponents.EqMod + 1):
-			result += FStat[which, i]
+			result += FStat[which - 1, i]
 		return Math.Max(result, 0)
 
 	protected def SetStat(which as int, value as int):
-		FStat[which, TStatComponents.Bonus] += self.Stat[which] - value
+		FStat[which - 1, TStatComponents.Bonus] += self.Stat[which - 1] - value
 
 	protected virtual def GetMHp() as int:
 		return FMaxHitPoints
@@ -575,12 +575,12 @@ class TRpgHero(TRpgBattleCharacter):
 		assert item == 0 or theItem.ItemType in (TItemType.Weapon, TItemType.Armor)
 		result = self.Stat[whichStat]
 		if self.FEquipment[slot] != null:
-			result -= (FEquipment[slot].Template cast TUsableItemTemplate).Stat[whichStat + 2]
+			result -= (FEquipment[slot].Template cast TUsableItemTemplate).Stat[whichStat + 1]
 		if item != 0:
-			result += (theItem cast TUsableItemTemplate).Stat[whichStat + 2]
+			result += (theItem cast TUsableItemTemplate).Stat[whichStat + 1]
 			if assigned(theItem) and (theItem.ItemType == TItemType.Weapon) and \
 					(theItem cast TWeaponTemplate).TwoHanded and (FEquipment[2 - ord(slot)] != null):
-				result -= (FEquipment[2 - ord(slot)].Template cast TUsableItemTemplate).Stat[whichStat + 2]
+				result -= (FEquipment[2 - ord(slot)].Template cast TUsableItemTemplate).Stat[whichStat + 1]
 		return result
 
 	public def ChangeHP(quantity as int, deathPossible as bool):
