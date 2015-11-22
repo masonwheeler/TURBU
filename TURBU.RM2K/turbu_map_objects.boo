@@ -321,6 +321,7 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 	internal def Initialize():
 		for page in FPages:
 			page.SetParent(self)
+		UpdateCurrentPage()
 
 	public def AddPage(value as TRpgEventPage):
 		FPages.Add(value)
