@@ -81,13 +81,6 @@ class T2kEnvironment(TObject):
 		if clamp(i, 0, FSwitches.Length - 1) == i:
 			FSwitches[i] = value
 
-	private def GetHero(i as int) as TRpgHero:
-		result = ( FHeroes[i] if clamp(i, 0, FHeroes.Length - 1) == i else FHeroes[0] )
-		return result
-
-	private def GetHeroCount() as int:
-		return FHeroes.Length - 1
-
 	private def GetVehicle(i as int) as TRpgVehicle:
 		if clamp(i, 0, FVehicles.Length) == i:
 			result = FVehicles[i]
@@ -430,11 +423,12 @@ class T2kEnvironment(TObject):
 	[Lookup('Hero')]
 	public Heroes[i as int] as TRpgHero:
 		get:
-			return GetHero(i)
+			result = ( FHeroes[i] if clamp(i, 0, FHeroes.Length - 1) == i else FHeroes[0] )
+			return result
+
 
 	public HeroCount as int:
-		get:
-			return GetHeroCount()
+		get: return FHeroes.Length - 1
 
 	public Switch[i as int] as bool:
 		get:

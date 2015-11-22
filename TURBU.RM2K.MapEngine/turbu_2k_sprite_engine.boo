@@ -587,7 +587,7 @@ class T2kSpriteEngine(TSpriteEngine):
 	public def Passable(location as TSgPoint, direction as TDirections, Character as TMapSprite) as bool:
 		sprites as (TMapSprite) = self.SpritesAt(location, Character).ToArray()
 		if sprites.Length > 0:
-			result = true
+			var result = true
 			for sprite in sprites:
 				if Character isa TCharSprite and sprite isa TCharSprite and Character.Location == sprite.Location:
 					result = true

@@ -310,8 +310,8 @@ class THeroSprite(TCharSprite):
 	protected override def GetCanSkip() as bool:
 		return true
 
-	public def constructor(AParent as TSpriteEngine, whichHero as TRpgHero, party as TRpgParty):
-		super(null, AParent)
+	public def constructor(parent as TSpriteEngine, whichHero as TRpgHero, party as TRpgParty):
+		super(null, parent)
 		FTiles[1].Z = 5
 		FTiles[0].Z = 4
 		party.SetSprite(self)
@@ -329,24 +329,20 @@ class THeroSprite(TCharSprite):
 		if FParty.Sprite == self:
 			FParty.SetSprite(null)
 
-	public override def Action(Button as TButtonCode):
-		currentTile as TMapTile
+	public override def Action(button as TButtonCode):
 		location as TSgPoint
-		caseOf Button:
-			case TButtonCode.Enter:
-				ActivateEvents(((FEngine cast T2kSpriteEngine).Tiles[0, FLocation.x, FLocation.y]) cast TMapTile)
-				currentTile = self.InFrontTile cast TMapTile
-				if assigned(currentTile):
-					ActivateEvents(currentTile)
-					location = FLocation
-					while currentTile.Countertop:
-						currentTile = GSpriteEngine.value.TileInFrontOf(location, self.Facing)
-						if assigned(currentTile):
-							ActivateEvents(currentTile)
-						else:
-							break
-			case TButtonCode.Cancel:
-				pass
+		if button == TButtonCode.Enter:
+			ActivateEvents(((FEngine cast T2kSpriteEngine).Tiles[0, FLocation.x, FLocation.y]) cast TMapTile)
+			var currentTile = self.InFrontTile
+			if assigned(currentTile):
+				ActivateEvents(currentTile)
+				location = FLocation
+				while currentTile.Countertop:
+					currentTile = GSpriteEngine.value.TileInFrontOf(location, self.Facing)
+					if assigned(currentTile):
+						ActivateEvents(currentTile)
+					else:
+						break
 
 	public override def Place():
 		super.Place()

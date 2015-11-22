@@ -342,8 +342,7 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 		FCurrentPage = current
 
 	public self[x as int] as TRpgEventPage:
-		get:
-			return FPages[x]
+		get: return FPages[x]
 
 	public Playing as bool:
 		get: return FCurrentlyPlaying > 0
@@ -351,11 +350,7 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 			if value:
 				++FCurrentlyPlaying
 			else:
-				FCurrentlyPlaying = Math.Max((FCurrentlyPlaying - 1), 0)
+				FCurrentlyPlaying = Math.Max(FCurrentlyPlaying - 1, 0)
 	
 	public PageCount as int:
 		get: return FPages.Count
-
-[Meta]
-public static def MoveScript(path as Boo.Lang.Compiler.Ast.ListLiteralExpression):
-	return [|''|]

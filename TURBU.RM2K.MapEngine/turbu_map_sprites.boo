@@ -133,7 +133,7 @@ class TMapSprite(TObject):
 			self.Facing = towards(FLocation, FJumpTarget)
 		FLocation = FJumpTarget
 		assert not assigned(FMoveTime)
-		GSpriteEngine.value.AddLocation(CurrentTile().Location, self)
+		GSpriteEngine.value.AddLocation(self.Location, self)
 		FMoveTime = TRpgTimestamp(FJumpTime)
 
 	private def EndJump():
@@ -239,7 +239,7 @@ class TMapSprite(TObject):
 
 	protected def EnterTile():
 		lock GEventLock:
-			GSpriteEngine.value.AddLocation(CurrentTile().Location, self)
+			GSpriteEngine.value.AddLocation(self.Location, self)
 
 	protected virtual def SetFacing(Data as TDirections):
 		if FUnderConstruction or not (self.HasPage and (FMapObj.CurrentPage.AnimType in range(TAnimType.FixedDir, TAnimType.Statue + 1))):
@@ -255,9 +255,9 @@ class TMapSprite(TObject):
 	protected def GetBaseTile() as TSprite:
 		return FTiles[0]
 
-	protected virtual def SetLocation(Data as TSgPoint):
-		FLocation = Data
-		SetTarget(Data * TILE_SIZE)
+	protected virtual def SetLocation(value as TSgPoint):
+		FLocation = value
+		SetTarget(value * TILE_SIZE)
 		FTarget.x -= WIDTH_BIAS
 
 	protected virtual def CanMoveForward() as bool:
@@ -376,7 +376,7 @@ class TMapSprite(TObject):
 			FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate] / 3)
 		FOrder.Opcode = OP_CLEAR unless unchanged
 		if (not FMoveOpen) and (FOrder.Opcode != 23) and (self.InFrontTile != null):
-			(self.InFrontTile cast TMapTile).Bump(self)
+			(self.InFrontTile).Bump(self)
 */
 		return result
 
@@ -485,7 +485,7 @@ class TMapSprite(TObject):
 			result = true
 		unless result:
 			if self.InFrontTile is not null:
-				(self.InFrontTile cast TMapTile).Bump(self)
+				(self.InFrontTile).Bump(self)
 		return result
 
 	public def MoveDiag(one as TDirections, two as TDirections) as bool:
@@ -502,7 +502,7 @@ class TMapSprite(TObject):
 
 	public def LeaveTile():
 		lock GEventLock:
-			GSpriteEngine.value.LeaveLocation(CurrentTile().Location, self)
+			GSpriteEngine.value.LeaveLocation(self.Location, self)
 
 	public virtual def Place():
 		if (FInitialized and not assigned(FMoveTime)) or \
@@ -510,15 +510,15 @@ class TMapSprite(TObject):
 				assigned(FMapObj) and (FMapObj.CurrentPage.MoveType == TMoveType.Still)):
 			return
 		if assigned(FMoveTime):
-			TimeRemaining as int = FMoveTime.TimeRemaining
-			dummy as single = FTiles[0].X
-			MoveTowards(TimeRemaining, dummy, FTarget.x)
-			FTiles[0].X = dummy
-			dummy = FTiles[0].Y
-			MoveTowards(TimeRemaining, dummy, FTarget.y)
-			FTiles[0].Y = dummy
+			timeRemaining as int = FMoveTime.TimeRemaining
+			lX as single = FTiles[0].X
+			MoveTowards(timeRemaining, lX, FTarget.x)
+			FTiles[0].X = lX
+			lY = FTiles[0].Y
+			MoveTowards(timeRemaining, lY, FTarget.y)
+			FTiles[0].Y = lY
 			FTiles[0].UpdateGridLoc()
-			if TimeRemaining <= TRpgTimestamp.FrameLength:
+			if timeRemaining <= TRpgTimestamp.FrameLength:
 				FMoveTime = null
 				if FJumping:
 					EndJump()
@@ -536,20 +536,18 @@ class TMapSprite(TObject):
 	public InFront as TSgPoint:
 		get:
 			caseOf FFacing:
-				case TDirections.Up: result = sgPoint(FLocation.x, (FLocation.y - 1))
-				case TDirections.Right: result = sgPoint((FLocation.x + 1), FLocation.y)
-				case TDirections.Down: result = sgPoint(FLocation.x, (FLocation.y + 1))
-				case TDirections.Left: result = sgPoint((FLocation.x - 1), FLocation.y)
+				case TDirections.Up: result = sgPoint(FLocation.x, FLocation.y - 1)
+				case TDirections.Right: result = sgPoint(FLocation.x + 1, FLocation.y)
+				case TDirections.Down: result = sgPoint(FLocation.x, FLocation.y + 1)
+				case TDirections.Left: result = sgPoint(FLocation.x - 1, FLocation.y)
 			return result
 
-	public InFrontTile as TTile:
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+	public InFrontTile as TMapTile:
 		get:
 			inFront as TSgPoint = self.InFront
 			return (FEngine cast T2kSpriteEngine).GetTile(inFront.x, inFront.y, 0)
 
 	public HasPage as bool:
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		get: return assigned(FMapObj) and assigned(FMapObj.CurrentPage)
 
 	public def Flash(r as byte, g as byte, b as byte, power as byte, time as uint):
@@ -584,7 +582,7 @@ class TMapSprite(TObject):
 					pass
 		if self.HasPage and (FMapObj.CurrentPage.MoveType in (TMoveType.CycleUD, TMoveType.CycleLR)) and not FMoveOpen:
 			FMoveReversed = not FMoveReversed
-			(self.InFrontTile cast TMapTile).Bump(self) if self.InFrontTile is not null
+			(self.InFrontTile).Bump(self) if self.InFrontTile is not null
 
 	public abstract def Update(filename as string, transparent as bool, spriteIndex as int):
 		pass
@@ -656,8 +654,8 @@ class TMapSprite(TObject):
 
 class TEventSprite(TMapSprite):
 
-	protected override def SetLocation(Data as TSgPoint):
-		super.SetLocation(Data)
+	protected override def SetLocation(value as TSgPoint):
+		super.SetLocation(value)
 		FTiles[0].X = Location.x * TILE_SIZE.x
 		FTiles[0].Y = Location.y * TILE_SIZE.y
 

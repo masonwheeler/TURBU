@@ -189,11 +189,10 @@ class T2kMapEngine(TMapEngine):
 		return FSignal.WaitOne(Timeout.Infinite)
 
 	protected def PrepareMap(data as IMapMetadata):
-		map as TMapMetadata
 		FTimer.Enabled = false
-		raise ERpgPlugin('Can\'t load a map on an uninitialized map engine.') unless FInitialized
+		raise ERpgPlugin("Can't load a map on an uninitialized map engine.") unless FInitialized
 		GEnvironment.value.ClearEvents()
-		map = data as TMapMetadata
+		var map = data as TMapMetadata
 		raise ERpgPlugin('Incompatible metadata object.') unless assigned(map)
 		FWaitingMap = dmDatabase.value.LoadMap(map.InternalFilename)
 		FScrollPosition = map.ScrollPosition
@@ -522,12 +521,10 @@ class T2kMapEngine(TMapEngine):
 		return FDatabase.MapTree
 
 	public override def NewGame():
-		loc as TLocation
-		metadata as TMapMetadata
 		assert FPlaying == false
 		FGameState = T2kMapEngine.TGameState.Playing
-		loc = (FDatabase.MapTree cast TMapTree).Location[0]
-		metadata = FDatabase.MapTree[loc.map]
+		loc as TLocation = (FDatabase.MapTree cast TMapTree).Location[0]
+		metadata as TMapMetadata = FDatabase.MapTree[loc.map]
 		self.LoadMap(metadata)
 		InitializeParty()
 		FPartySprite.LeaveTile()

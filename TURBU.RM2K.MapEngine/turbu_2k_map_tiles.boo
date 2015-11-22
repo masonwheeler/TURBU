@@ -29,23 +29,17 @@ class TMapTile(TTile):
 			result = result and lEvent[i] == exceptFor
 		return result
 
-	public def Bump(Character as TObject):
-		bumper as TMapSprite
-		dummy as TMapSprite
-		lEvent as (TMapSprite)
-		if GMapObjectManager.value.InCutscene:
-			return
-		bumper = Character cast TMapSprite
-		lEvent = self.Event
-		if bumper.Event?.Playing:
-			return
+	public def Bump(bumper as TMapSprite):
+		return if GMapObjectManager.value.InCutscene
+		lEvent as TMapSprite* = self.Event
+		return if bumper.Event?.Playing
 		if bumper == GEnvironment.value.Party.Sprite:
-			for dummy in lEvent:
-				if dummy.HasPage and (dummy.Event.CurrentPage.Trigger in (TStartCondition.Touch, TStartCondition.Collision)):
-					GMapObjectManager.value.RunPageScript(dummy.Event.CurrentPage)
+			for mapObj in lEvent:
+				if mapObj.HasPage and (mapObj.Event.CurrentPage.Trigger in (TStartCondition.Touch, TStartCondition.Collision)):
+					GMapObjectManager.value.RunPageScript(mapObj.Event.CurrentPage)
 		elif bumper.HasPage and (bumper.Event.CurrentPage.Trigger == TStartCondition.Collision):
-			for i in range(lEvent.Length):
-				if lEvent[i] == GEnvironment.value.Party.Sprite:
+			for mapObj in lEvent:
+				if mapObj == GEnvironment.value.Party.Sprite:
 					GMapObjectManager.value.RunPageScript(bumper.Event.CurrentPage)
 
 	public Occupied as bool:
