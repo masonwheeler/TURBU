@@ -205,7 +205,6 @@ class TEventTile(TTile, IDisposable):
 		y as int
 		z as int
 		engine as T2kSpriteEngine
-		Name as string
 		engine = FEngine cast T2kSpriteEngine
 		if assigned(newPage):
 			self.Visible = true
@@ -218,14 +217,15 @@ class TEventTile(TTile, IDisposable):
 		else:
 			self.Z = 10
 			self.Visible = false
+		name as string
 		if assigned(FEvent) and assigned(FEvent.CurrentPage):
-			self.ImageIndex = FEvent.CurrentPage.Frame
+			self.ImageIndex = FEvent.CurrentPage.SpriteIndex
 			if FEvent.CurrentPage.Tilegroup != -1:
-				Name = engine.Tileset.Records[FEvent.CurrentPage.Tilegroup].Group.Name
-			else: Name = FEvent.CurrentPage.Name
-			engine.EnsureImage(Name)
-		else: Name = ''
-		self.ImageName = Name
+				name = engine.Tileset.Records[FEvent.CurrentPage.Tilegroup + 1].Group.Name
+			else: name = FEvent.CurrentPage.Name
+			engine.EnsureImage(name)
+		else: name = ''
+		self.ImageName = name
 
 	public override def Draw():
 		if self.MustFlash:
