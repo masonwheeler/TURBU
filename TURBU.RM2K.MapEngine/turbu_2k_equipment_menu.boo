@@ -152,22 +152,20 @@ class TGameEquipmentMenu(TGameMenuBox):
 	private FPlacingCursor as bool
 
 	protected override def DrawText():
-		i as int
-		lOrigin as TSgPoint
-		lOrigin = ORIGIN
+		lOrigin as TSgPoint = ORIGIN
 		FPassiveCursor.Draw() unless self.Focused
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 4, lOrigin.y, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 6, lOrigin.y + 2, 2)
 		caseOf FChar.DualWield:
 			case TWeaponStyle.Single, TWeaponStyle.Shield:
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_SHIELD], lOrigin.x + 4, lOrigin.y + 16, 2)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_SHIELD], lOrigin.x + 6, lOrigin.y + 18, 2)
 			default :
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 4, lOrigin.y + 16, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ARMOR], lOrigin.x + 4, lOrigin.y + 32, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_HELMET], lOrigin.x + 4, lOrigin.y + 48, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ACCESSORY], lOrigin.x + 4, lOrigin.y + 64, 2)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 6, lOrigin.y + 18, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ARMOR], lOrigin.x + 6, lOrigin.y + 34, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_HELMET], lOrigin.x + 6, lOrigin.y + 50, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ACCESSORY], lOrigin.x + 6, lOrigin.y + 66, 2)
 		for i in range(0, 5):
-			GFontEngine.DrawText(target, FParsedText[i], lOrigin.x + 52, lOrigin.y + (i * 16), 1)
+			GFontEngine.DrawText(target, FParsedText[i], lOrigin.x + 68, lOrigin.y + (i * 16) + 2, 1)
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)

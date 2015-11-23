@@ -21,6 +21,9 @@ enum TMenuShowState:
 	Main
 	Fading
 
+//TODO: Way too much menu functionality is hard-coded everywhere.
+//Rework the menu engine as a component-based system that can be defined with declarative macros
+
 abstract class TGameMenuBox(TCustomMessageBox):
 
 	[Property(OnButton)]
