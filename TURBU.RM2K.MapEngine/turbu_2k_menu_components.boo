@@ -43,15 +43,15 @@ abstract class TCustomScrollBox(TGameMenuBox):
 		if FParsedText.Count == 0:
 			position = 0
 		elif position >= FParsedText.Count:
-			position = (FParsedText.Count - 1)
+			position = FParsedText.Count - 1
 		if position < FTopPosition:
-			FTopPosition = (position - (position % FColumns))
-		elif position >= (FTopPosition + FDisplayCapacity):
-			FTopPosition = (((position - (position % FColumns)) + FColumns) - FDisplayCapacity)
-		super.DoCursor((position - FTopPosition))
+			FTopPosition = position - (position % FColumns)
+		elif position >= FTopPosition + FDisplayCapacity:
+			FTopPosition = ((position - (position % FColumns)) + FColumns) - FDisplayCapacity
+		super.DoCursor(position - FTopPosition)
 		FCursorPosition = position
-		FPrevArrow.Visible = (FTopPosition > 0)
-		FNextArrow.Visible = ((FTopPosition + FDisplayCapacity) < FParsedText.Count)
+		FPrevArrow.Visible = FTopPosition > 0
+		FNextArrow.Visible = (FTopPosition + FDisplayCapacity) < FParsedText.Count
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		FNextArrow = TSystemTile(parent, parent.SystemGraphic.Rects[TSystemRects.ArrowD], commons.ORIGIN, 0)
@@ -63,11 +63,9 @@ abstract class TCustomScrollBox(TGameMenuBox):
 		super(parent, coords, main, owner)
 
 	public override def DrawText():
-		i as int
 		j as int
 		color as int
-		max as int
-		max = (FParsedText.Count - (FLastLineColumns + 1))
+		max as int = (ParsedText.Count - (FLastLineColumns + 1)
 		for i in range(FTopPosition, Math.Min(max, (FTopPosition + FDisplayCapacity) - 1) + 1):
 			j = i - FTopPosition
 			color = (1 if FOptionEnabled[i] else 4)
@@ -92,7 +90,7 @@ abstract class TCustomScrollBox(TGameMenuBox):
 	public override def MoveTo(coords as GPU_Rect):
 		super.MoveTo(coords)
 		FPrevArrow.Y = FBounds.x
-		FPrevArrow.X = (FBounds.x + Math.Truncate((FBounds.w cast double) / 2.0)) - Math.Truncate((FPrevArrow.PatternWidth cast double) / 2.0)
+		FPrevArrow.X = (FBounds.x + Math.Truncate(FBounds.w / 2.0)) - Math.Truncate(FPrevArrow.PatternWidth / 2.0)
 		FNextArrow.Y = (FBounds.x + FBounds.h) - 8
 		FNextArrow.X = FPrevArrow.X
 
@@ -219,7 +217,7 @@ class TCustomGameItemMenu(TCustomScrollBox):
 		target = FTextTarget.RenderTarget
 		GFontEngine.DrawText(target, FParsedText[id], x, y, color)
 		GFontEngine.DrawText(target, ':', x + 120, y, color)
-		GFontEngine.DrawTextRightAligned(target, (FInventory[id] cast TRpgItem).Quantity.ToString(), x + 136, y, color)
+		GFontEngine.DrawTextRightAligned(target, FInventory[id].Quantity.ToString(), x + 136, y, color)
 
 	protected override def DoSetup(value as int):
 		i as int
@@ -244,7 +242,7 @@ class TCustomGameItemMenu(TCustomScrollBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		assert coords.h % 16 == 0
 		super(parent, coords, main, owner)
-		FDisplayCapacity = Math.Truncate(((coords.y - 16) cast double) / 8.0)
+		FDisplayCapacity = Math.Truncate((coords.y - 16) / 8.0)
 		FColumns = 2
 
 	public Inventory as TRpgInventory:
