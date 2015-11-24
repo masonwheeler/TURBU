@@ -92,10 +92,10 @@ class TSprite(TObject):
 	protected FName as string
 
 	[Property(X)]
-	protected FX as Single
+	protected FX as single
 
 	[Property(Y)]
-	protected FY as Single
+	protected FY as single
 
 	protected FZ as uint
 
@@ -139,22 +139,22 @@ class TSprite(TObject):
 	protected FAlpha as Byte
 
 	[Property(Angle)]
-	protected FAngle as Single
+	protected FAngle as single
 
 	[Property(DrawFx)]
 	protected FDrawFX as int
 
 	[Property(ScaleX)]
-	protected FScaleX as Single
+	protected FScaleX as single
 
 	[Property(ScaleY)]
-	protected FScaleY as Single
+	protected FScaleY as single
 
 	[Property(OffsetX)]
-	protected FOffsetX as Single
+	protected FOffsetX as single
 
 	[Property(OffsetY)]
-	protected FOffsetY as Single
+	protected FOffsetY as single
 
 	[Property(ImageType)]
 	protected FImageType as TImageType
@@ -262,11 +262,11 @@ class TSprite(TObject):
 		if FMoves:
 			DoMove(MoveCount)
 
-	public def SetPos(X as Single, Y as Single):
+	public def SetPos(X as single, Y as single):
 		FX = X
 		FY = Y
 
-	public def SetPos(X as Single, Y as Single, Z as int):
+	public def SetPos(X as single, Y as single, Z as int):
 		FX = X
 		FY = Y
 		FZ = Z
@@ -429,10 +429,10 @@ class TAnimatedSprite(TParentSprite):
 	private FAnimCount as int
 
 	[Property(AnimSpeed)]
-	private FAnimSpeed as Single
+	private FAnimSpeed as single
 
 	[Property(AnimPos)]
-	private FAnimPos as Single
+	private FAnimPos as single
 
 	[Getter(AnimEnded)]
 	private FAnimEnded as bool
@@ -444,7 +444,7 @@ class TAnimatedSprite(TParentSprite):
 	[Property(AnimPlayMode)]
 	private FAnimPlayMode as TAnimPlayMode
 
-	protected override def DoMove(MoveCount as Single):
+	protected override def DoMove(MoveCount as single):
 		return unless FDoAnimate
 		
 		caseOf FAnimPlayMode:
@@ -501,7 +501,7 @@ class TAnimatedSprite(TParentSprite):
 		super.Assign(value)
 
 	public virtual def SetAnim(AniImageName as string, AniStart as int, AniCount as int, 
-			AniSpeed as Single, AniLooped as bool, DoMirror as bool, DoAnimate as bool, PlayMode as TAnimPlayMode):
+			AniSpeed as single, AniLooped as bool, DoMirror as bool, DoAnimate as bool, PlayMode as TAnimPlayMode):
 		ImageName = AniImageName
 		FAnimStart = AniStart
 		FAnimCount = AniCount
@@ -515,7 +515,7 @@ class TAnimatedSprite(TParentSprite):
 			FAnimPos = FAnimStart
 
 	public virtual def SetAnim(AniImageName as string, AniStart as int, AniCount as int,
-			AniSpeed as Single, AniLooped as bool, PlayMode as TAnimPlayMode):
+			AniSpeed as single, AniLooped as bool, PlayMode as TAnimPlayMode):
 		ImageName = AniImageName
 		FAnimStart = AniStart
 		FAnimCount = AniCount
@@ -635,7 +635,7 @@ class TParticleSprite(TAnimatedSprite):
 	private FVelocityY as single
 
 	[Property(UpdateSpeed)]
-	private FUpdateSpeed as Single
+	private FUpdateSpeed as single
 
 	[Property(Decay)]
 	private FDecay as single
@@ -647,13 +647,13 @@ class TParticleSprite(TAnimatedSprite):
 		super(AParent)
 		FLifeTime = 1
 
-	public override def DoMove(MoveCount as Single):
+	public override def DoMove(MoveCount as single):
 		super.DoMove(MoveCount)
-		X = X + (FVelocityX * UpdateSpeed)
-		Y = Y + (FVelocityY * UpdateSpeed)
-		FVelocityX = FVelocityX + (FAccelX * UpdateSpeed)
-		FVelocityY = FVelocityY + (FAccelY * UpdateSpeed)
-		FLifeTime = FLifeTime - FDecay
+		X += FVelocityX * UpdateSpeed
+		Y += FVelocityY * UpdateSpeed
+		FVelocityX += FAccelX * UpdateSpeed
+		FVelocityY += FAccelY * UpdateSpeed
+		FLifeTime -= FDecay
 		if FLifeTime <= 0:
 			self.Dead()
 
@@ -665,10 +665,10 @@ class TSpriteEngine(TParentSprite):
 	internal FDeadList = List[of TSprite]()
 
 	[Property(WorldX)]
-	private FWorldX as Single
+	private FWorldX as single
 
 	[Property(WorldY)]
-	private FWorldY as Single
+	private FWorldY as single
 
 	[Property(VisibleWidth)]
 	private FVisibleWidth as int
@@ -710,6 +710,8 @@ class TSpriteEngine(TParentSprite):
 				FRenderer.Render(FCanvas.RenderTarget)
 
 	public def Dead():
+		for sprite in FDeadList.ToArray():
+			sprite.Dispose()
 		FDeadList.Clear()
 
 	public override Width as int:

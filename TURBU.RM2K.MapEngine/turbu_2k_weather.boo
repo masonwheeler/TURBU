@@ -25,27 +25,23 @@ class TWeatherSprite(TParticleSprite):
 	private static random = System.Random()
 
 	protected override def DoDraw():
-		topleft as TSgPoint
 		flip as SDL.SDL_RendererFlip
-		color as SDL.SDL_Color
-		if FImage == null:
-			return
 		if FEngine.Images[FImageIndex].Name != FImageName:
 			SetImageName(FImageName)
-			if FImage == null:
-				return
-		topleft = sgPoint(Math.Round(FX), Math.Round(FY))
-		color = GPU_GetColor(FImage.Surface)
+		return if FImage == null
+		
+		var topleft = sgPoint(Math.Round(FX), Math.Round(FY))
+		color as SDL.SDL_Color = GPU_GetColor(FImage.Surface)
 		GPU_SetColor(FImage.Surface, SDL.SDL_Color(r: color.r, g: color.g, b: color.b, a: self.Alpha))
 		FImage.Draw(topleft, flip)
 		GPU_SetColor(FImage.Surface, color)
 
-	public override def Move(MoveCount as Single):
-		super.Move(MoveCount)
-		Alpha = Math.Min(Math.Max(round((255 * LifeTime)), 0), 255)
+	public override def Move(moveCount as single):
+		super.Move(moveCount)
+		self.Alpha = Math.Min(Math.Max(round(255 * LifeTime), 0), 255)
 		if FErratic:
 			self.X += random.NextDouble() + random.NextDouble() - 1
-		if (X < 0) or (Y > Engine.Canvas.Height):
+		unless self.InVisibleRect():
 			self.Dead()
 
 class TWeatherSystem(TSpriteEngine):
@@ -184,12 +180,12 @@ class TWeatherSystem(TSpriteEngine):
 		++fogH if (self.Canvas.Height % FOGSIZE.y) != 0
 		if FFogSprite.Count != (fogW + 2) * (fogH + 2) * FIntensity:
 			FFogSprite.Clear()
-			vx as single = (random.NextDouble() + random.NextDouble()) - 1
-			vy as single = (random.NextDouble() + random.NextDouble()) - 1
+			vx as single = random.NextDouble() - 0.5
+			vy as single = random.NextDouble() - 0.5
 			weatherName as string = ('fog' if FType == TWeatherEffects.Fog else 'sand')
-			for i in range(1, FIntensity + 1, 1):
-				for y in range(-1, fogH + 1, 1):
-					for x in range(-1, fogW + 1, 1):
+			for i in range(FIntensity):
+				for y in range(-1, fogH):
+					for x in range(-1, fogW):
 						newFog = TWeatherSprite(FFogSprite)
 						newFog.VelocityX = vx
 						newFog.VelocityY = vy
@@ -197,6 +193,8 @@ class TWeatherSystem(TSpriteEngine):
 						newFog.X = x * FOGSIZE.x
 						newFog.Y = y * FOGSIZE.y
 						newFog.ImageName = weatherName + (random.Next(6) + 1).ToString()
+						newFog.Moves = true
+						newFog.UpdateSpeed = 1
 		else: WrapFog()
 
 	private def WrapFog():
@@ -204,13 +202,13 @@ class TWeatherSystem(TSpriteEngine):
 		ch as int = self.Canvas.Height
 		for fog in FFogSprite.SpriteList:
 			if fog.X + fog.Width <= 0:
-				fog.X += cw
+				fog.X += cw + fog.Width
 			elif fog.X >= cw:
-				fog.X -= cw
+				fog.X -= cw + fog.Width
 			if fog.Y + fog.Height <= 0:
-				fog.Y += ch
+				fog.Y += ch + fog.Height
 			elif fog.Y >= ch:
-				fog.Y -= ch
+				fog.Y -= ch + fog.Height
 
 	private def EnsureFogSprite():
 		if FFogSprite == null:
@@ -227,9 +225,8 @@ class TWeatherSystem(TSpriteEngine):
 			GPU_SetBlendMode(img.Surface, GPU_BlendPresetEnum.GPU_BLEND_NORMAL)
 			//SDL.SDL_SetTextureBlendMode(img.Surface, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND)
 
-	public def constructor(parent as TSpriteEngine, images as TSdlImages, Canvas as TSdlCanvas):
-		i as int
-		super(parent, Canvas)
+	public def constructor(parent as TSpriteEngine, images as TSdlImages, canvas as TSdlCanvas):
+		super(parent, canvas)
 		self.Z = 21
 		self.Images = images
 		for i in range(1, 7):
@@ -244,8 +241,8 @@ class TWeatherSystem(TSpriteEngine):
 		CreateWeatherImage(CreateSnow(255, 255, 255), 'snow', true)
 
 	public override def Draw():
-		if FType == TWeatherEffects.None:
-			return
+		return if FType == TWeatherEffects.None
+		
 		self.Dead()
 		count as int = (0 if FSpriteList == null else FSpriteList.Count)
 		goal as int = Math.Min(FSize - 1, count + (SPAWN_RATE[FType] * FIntensity)) + 1
