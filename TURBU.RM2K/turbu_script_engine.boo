@@ -15,6 +15,7 @@ import turbu.containers
 import TURBU.Meta
 //import SDL2.SDL
 
+[Disposable(Destroy, true)]
 class TScriptThread(TThread):
 
 	private FPages as Stack[of TRpgEventPage]
@@ -67,20 +68,23 @@ class TScriptThread(TThread):
 		FPage = FPages.Pop()
 
 	protected override def Execute():
-		while not Terminated:
-			if FPage.Trigger != TStartCondition.Parallel:
-				TScriptEngine.Instance.OnEnterCutscene()
-			try:
-				if FPage.Script is not null:
-					FParent.RunScript(FPage.Script)
-			ensure:
-				Thread.Sleep(TRpgTimestamp.FrameLength)
-				FPage.Parent.Playing = false
+		try:
+			while not Terminated:
 				if FPage.Trigger != TStartCondition.Parallel:
-					TScriptEngine.Instance.OnLeaveCutscene()
-				FSignal.Reset()
-				FParent.SaveToPool(self)
-				FSignal.WaitOne()
+					TScriptEngine.Instance.OnEnterCutscene()
+				try:
+					if FPage.Script is not null:
+						FParent.RunScript(FPage.Script)
+				ensure:
+					Thread.Sleep(TRpgTimestamp.FrameLength)
+					FPage.Parent.Playing = false
+					if FPage.Trigger != TStartCondition.Parallel:
+						TScriptEngine.Instance.OnLeaveCutscene()
+					FSignal.Reset()
+					FParent.SaveToPool(self)
+					FSignal.WaitOne()
+		ensure:
+			self.Dispose()
 
 	public def constructor(page as TRpgEventPage, parent as TScriptEngine):
 		super(true)
@@ -88,7 +92,7 @@ class TScriptThread(TThread):
 		FParent = parent
 		parent.AddScriptThread(self)
 
-	def destructor():
+	private def Destroy():
 		FParent.ClearScriptThread(self)
 		FSignal.Dispose()
 		FOnCleanup.Invoke() if assigned(FOnCleanup)
