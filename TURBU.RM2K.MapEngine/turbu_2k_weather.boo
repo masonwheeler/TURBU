@@ -22,7 +22,7 @@ class TWeatherSprite(TParticleSprite):
 	[Property(Erratic)]
 	private FErratic as bool
 	
-	private random = System.Random()
+	private static random = System.Random()
 
 	protected override def DoDraw():
 		topleft as TSgPoint
@@ -50,7 +50,7 @@ class TWeatherSprite(TParticleSprite):
 
 class TWeatherSystem(TSpriteEngine):
 
-	private FSize as ushort
+	private FSize as int
 
 	private FType as TWeatherEffects
 
@@ -78,8 +78,7 @@ class TWeatherSystem(TSpriteEngine):
 		FFogSprite = null
 
 	private def AddSprite():
-		sprite as TWeatherSprite
-		sprite = TWeatherSprite(self)
+		sprite as TWeatherSprite = TWeatherSprite(self)
 		sprite.Z = 2
 		sprite.UpdateSpeed = 1
 		sprite.X = random.Next(Canvas.Width) + random.Next(60)
@@ -188,9 +187,9 @@ class TWeatherSystem(TSpriteEngine):
 			vx as single = (random.NextDouble() + random.NextDouble()) - 1
 			vy as single = (random.NextDouble() + random.NextDouble()) - 1
 			weatherName as string = ('fog' if FType == TWeatherEffects.Fog else 'sand')
-			for i in range(1, FIntensity + 1):
-				for y in range(-1, fogH + 1):
-					for x in range(-1, fogW + 1):
+			for i in range(1, FIntensity + 1, 1):
+				for y in range(-1, fogH + 1, 1):
+					for x in range(-1, fogW + 1, 1):
 						newFog = TWeatherSprite(FFogSprite)
 						newFog.VelocityX = vx
 						newFog.VelocityY = vy
@@ -201,11 +200,8 @@ class TWeatherSystem(TSpriteEngine):
 		else: WrapFog()
 
 	private def WrapFog():
-		fog as TSprite
-		cw as int
-		ch as int
-		cw = self.Canvas.Width
-		ch = self.Canvas.Height
+		cw as int = self.Canvas.Width
+		ch as int = self.Canvas.Height
 		for fog in FFogSprite.SpriteList:
 			if fog.X + fog.Width <= 0:
 				fog.X += cw
@@ -252,8 +248,10 @@ class TWeatherSystem(TSpriteEngine):
 			return
 		self.Dead()
 		count as int = (0 if FSpriteList == null else FSpriteList.Count)
-		for i in range(count, Math.Min(FSize - 1, (Count + (SPAWN_RATE[FType] * FIntensity))) + 1):
-			self.AddSprite()
+		goal as int = Math.Min(FSize - 1, count + (SPAWN_RATE[FType] * FIntensity)) + 1
+		if count < goal:
+			for i in range(count, goal):
+				self.AddSprite()
 		if FType in (TWeatherEffects.Fog, TWeatherEffects.Sand):
 			LoadFog()
 		for i in range(0, FSpriteList.Count):
