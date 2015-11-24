@@ -198,7 +198,6 @@ class RMProjectConverter(TThread):
 			case 10630, 10650: _everything.Add([|Sprite $(opcode.Name)|])
 			case 10660, 11510: 
 				_everything.Add([|Music $(opcode.Name)|])
-				System.Diagnostics.Debugger.Break() if opcode.Name == 'se-torrent'
 			case 10670, 11550: _everything.Add([|Sound $(opcode.Name)|])
 			case 10680: _everything.Add([|SysTile $(opcode.Name)|])
 			case 10710: _everything.Add([|BattleBG $(opcode.Name)|])

@@ -188,8 +188,8 @@ class TEventTile(TTile, IDisposable):
 	private MustFlash as bool:
 		get: return (assigned(FOnMustFlash) and assigned(FOnGetFlashColor)) and FOnMustFlash()
 
-	public def constructor(baseEvent as TRpgMapObject, AParent as TSpriteEngine):
-		super(AParent, '')
+	public def constructor(baseEvent as TRpgMapObject, aParent as TSpriteEngine):
+		super(aParent, '')
 		if assigned(baseEvent):
 			self.X = baseEvent.Location.x * TILE_SIZE.x
 			self.Y = baseEvent.Location.y * TILE_SIZE.y
@@ -200,18 +200,13 @@ class TEventTile(TTile, IDisposable):
 		super.Assign(data)
 
 	public def Update(newPage as TRpgEventPage):
-		let Z_TABLE = (3, 4, 8)
-		x as int
-		y as int
-		z as int
-		engine as T2kSpriteEngine
-		engine = FEngine cast T2kSpriteEngine
+		engine as T2kSpriteEngine = FEngine cast T2kSpriteEngine
 		if assigned(newPage):
 			self.Visible = true
-			z = Z_TABLE[newPage.ZOrder]
-			x = Math.Truncate((self.X cast double) / (TILE_SIZE.x cast double))
-			y = Math.Truncate((self.Y cast double) / (TILE_SIZE.y cast double))
-			self.Z = z
+			var x = Math.Truncate(self.X / TILE_SIZE.x)
+			var y = Math.Truncate(self.Y / TILE_SIZE.y)
+			var Z_TABLE = (3, 4, 8)
+			self.Z = Z_TABLE[newPage.ZOrder]
 			FGridLoc = sgPoint(x, y)
 			self.Visible = true
 		else:

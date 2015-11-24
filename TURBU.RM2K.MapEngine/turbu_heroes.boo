@@ -570,8 +570,7 @@ class TRpgHero(TRpgBattleCharacter):
 		return FParty.Any({h | h == self})
 
 	public def PotentialStat(item as int, whichStat as int, slot as TSlot) as int:
-		theItem as TItemTemplate
-		theItem = GDatabase.value.Items[item]
+		theItem as TItemTemplate = GDatabase.value.Items[item]
 		assert item == 0 or theItem.ItemType in (TItemType.Weapon, TItemType.Armor)
 		result = self.Stat[whichStat]
 		if self.FEquipment[slot] != null:
