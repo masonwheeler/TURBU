@@ -180,10 +180,10 @@ class TWeatherSystem(TSpriteEngine):
 		++fogH if (self.Canvas.Height % FOGSIZE.y) != 0
 		if FFogSprite.Count != (fogW + 2) * (fogH + 2) * FIntensity:
 			FFogSprite.Clear()
-			vx as single = random.NextDouble() - 0.5
-			vy as single = random.NextDouble() - 0.5
 			weatherName as string = ('fog' if FType == TWeatherEffects.Fog else 'sand')
 			for i in range(FIntensity):
+				vx as single = random.NextDouble() - 0.5
+				vy as single = random.NextDouble() - 0.5
 				for y in range(-1, fogH):
 					for x in range(-1, fogW):
 						newFog = TWeatherSprite(FFogSprite)
