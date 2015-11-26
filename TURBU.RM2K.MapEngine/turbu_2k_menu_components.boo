@@ -65,7 +65,7 @@ abstract class TCustomScrollBox(TGameMenuBox):
 	public override def DrawText():
 		j as int
 		color as int
-		max as int = (ParsedText.Count - (FLastLineColumns + 1)
+		max as int = ParsedText.Count - (FLastLineColumns + 1)
 		for i in range(FTopPosition, Math.Min(max, (FTopPosition + FDisplayCapacity) - 1) + 1):
 			j = i - FTopPosition
 			color = (1 if FOptionEnabled[i] else 4)
