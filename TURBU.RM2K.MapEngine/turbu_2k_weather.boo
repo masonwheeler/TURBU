@@ -41,7 +41,7 @@ class TWeatherSprite(TParticleSprite):
 		self.Alpha = Math.Min(Math.Max(round(255 * LifeTime), 0), 255)
 		if FErratic:
 			self.X += random.NextDouble() + random.NextDouble() - 1
-		unless self.InVisibleRect():
+		if self.Alpha == 0 or not self.InVisibleRect():
 			self.Dead()
 
 class TWeatherSystem(TSpriteEngine):
@@ -54,31 +54,16 @@ class TWeatherSystem(TSpriteEngine):
 
 	private FFogSprite as TParentSprite
 
+	private FFilling as bool
+
 	private random = System.Random()
-
-	private def SetIntensity(Value as byte):
-		FIntensity = Value
-		FSize = FIntensity * WEATHER_POWER[FType]
-
-	private def SetType(value as TWeatherEffects):
-		i as int
-		if value == FType:
-			return
-		FType = value
-		if assigned(FSpriteList):
-			for i in range(0, FSpriteList.Count):
-				FSpriteList[i].Dead()
-		FSize = FIntensity * WEATHER_POWER[FType]
-		if value == TWeatherEffects.None:
-			self.Dead()
-		FFogSprite = null
 
 	private def AddSprite():
 		sprite as TWeatherSprite = TWeatherSprite(self)
 		sprite.Z = 2
 		sprite.UpdateSpeed = 1
-		sprite.X = random.Next(Canvas.Width) + random.Next(60)
-		sprite.Y = random.Next(Canvas.Height) - 30
+		sprite.X = random.Next(Canvas.Width)
+		sprite.Y = random.Next(Canvas.Height / 3)
 		sprite.Pinned = true
 		sprite.Moves = true
 		caseOf FType:
@@ -88,7 +73,8 @@ class TWeatherSystem(TSpriteEngine):
 				sprite.VelocityX = RAINFALLX
 				sprite.VelocityY = RAINFALLY
 				sprite.Decay = RAIN_DECAYRATE
-				sprite.LifeTime = 2.5
+				sprite.Alpha = (random.Next(256) if FFilling else 255)
+				sprite.LifeTime = sprite.Alpha / 100.0
 				sprite.ImageName = 'rain'
 			case TWeatherEffects.Snow:
 				sprite.VelocityX = (random.NextDouble() + random.NextDouble() / 2.0) - 1
@@ -100,10 +86,11 @@ class TWeatherSystem(TSpriteEngine):
 				sprite.VelocityX = (random.NextDouble() - 0.5) * RAINFALLY * 2.0
 				sprite.VelocityY = RAINFALLY
 				sprite.Decay = SANDRAIN_DECAYRATE
-				sprite.LifeTime = 3.5
+				sprite.Alpha = (random.Next(256) if FFilling else 255)
+				sprite.LifeTime = sprite.Alpha / 73.143 // at 256, this comes out to 3.5
 				sprite.ImageName = 'sandrain' + random.Next(4).ToString()
 				sprite.X = (Canvas.Width / 2) + (sprite.VelocityX * 50)
-				sprite.Y = -10
+				sprite.Y = 0
 			default : pass
 
 	private def CreateFog(r as byte, g as byte, b as byte) as IntPtr:
@@ -158,13 +145,12 @@ class TWeatherSystem(TSpriteEngine):
 		return result
 
 	private def CreateSand(r as byte, g as byte, b as byte) as IntPtr:
-		pixel as int
-		result = SDL.SDL_CreateRGBSurface(0, 1, 2, 32, 0, 0, 0, 0)
+		var result = SDL.SDL_CreateRGBSurface(0, 1, 2, 32, 0, 0, 0, 0)
 		try:
 			if SDL.SDL_MUSTLOCK(result):
 				SDL.SDL_LockSurface(result)
-			sur = Marshal.PtrToStructure[of SDL.SDL_Surface](result)
-			pixel = SDL.SDL_MapRGBA(sur.format, r, g, b, 185)
+			var sur = Marshal.PtrToStructure[of SDL.SDL_Surface](result)
+			pixel as int = SDL.SDL_MapRGBA(sur.format, r, g, b, 185)
 			PutPixels(result, (PixelData(0, 0, pixel), PixelData(0, 1, pixel)))
 			if SDL.SDL_MUSTLOCK(result):
 				SDL.SDL_UnlockSurface(result)
@@ -249,26 +235,39 @@ class TWeatherSystem(TSpriteEngine):
 		if count < goal:
 			for i in range(count, goal):
 				self.AddSprite()
+		else: FFilling = false
 		if FType in (TWeatherEffects.Fog, TWeatherEffects.Sand):
 			LoadFog()
-		for i in range(0, FSpriteList.Count):
-			FSpriteList[i].Move(0)
+		if assigned(FSpriteList):
+			for sprite in FSpriteList:
+				sprite.Move(0)
 		super.Draw()
 
 	public WeatherType as TWeatherEffects:
 		get: return FType
-		set: SetType(value)
+		set:
+			return if value == FType
+			FType = value
+			if assigned(FSpriteList):
+				for i in range(0, FSpriteList.Count):
+					FSpriteList[i].Dead()
+			FSize = FIntensity * WEATHER_POWER[FType]
+			if value == TWeatherEffects.None:
+				self.Dead()
+			FFogSprite = null
+			FFilling = true
 
 	public Intensity as byte:
 		get: return FIntensity
-		set: SetIntensity(value)
+		set: 
+			FIntensity = value
+			FSize = FIntensity * WEATHER_POWER[FType]
+
 
 	private static def PutPixels(surface as IntPtr, pixels as PixelData*):
-		bpp as int
 		sur = Marshal.PtrToStructure[of SDL.SDL_Surface](surface)
 	
-		//p as PByte
-		bpp = sur.Format.BytesPerPixel
+		bpp as int = sur.Format.BytesPerPixel
 		assert bpp == 4
 		count = sur.h * sur.pitch / bpp
 		pixelData = array(int, count)
@@ -288,7 +287,7 @@ struct PixelData:
 		Y = y
 		Pixel = pixel
 
-let WEATHER_POWER = (0, 20, 45, 0, 20)
+let WEATHER_POWER = (0, 30, 45, 0, 20)
 let RAINFALLX = -0.9
 let RAINFALLY = 3.6
 let SNOWFALL = 1.1
@@ -296,4 +295,4 @@ let RAIN_DECAYRATE = 0.05;
 let SNOW_DECAYRATE = 0.002
 let SANDRAIN_DECAYRATE = 0.06
 let FOGSIZE = TSgPoint(x: 64, y: 64)
-let SPAWN_RATE = (0, 3, 2, 0, 1)
+let SPAWN_RATE = (0, 1, 2, 0, 1)
