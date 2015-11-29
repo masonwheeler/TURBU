@@ -79,7 +79,7 @@ class TSdlRenderTargets(List[of TSdlRenderTarget]):
 		try:
 			target.SetRenderer()
 			if FillBk:
-				color as TSgColor = Bkgrnd cast TSgColor
+				var color = Bkgrnd cast TSgColor
 				color.Rgba[4] = (0 if composite else 255)
 				target.Parent.Clear(color, 0xFF)
 			Event() unless Event is null

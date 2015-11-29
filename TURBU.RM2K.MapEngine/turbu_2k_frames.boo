@@ -125,12 +125,11 @@ class TSystemImages(TObject):
 		return FBetterArrow.Image.Surface
 
 	public def constructor(images as TSdlImages, filename as string, stretch as bool, translucent as bool):
-		cls as TSdlImageClass
 		super()
 		FFilename = filename
 		FStretch = stretch
 		FTranslucent = translucent
-		cls = images.SpriteClass
+		cls as TSdlImageClass = images.SpriteClass
 		images.SpriteClass = classOf(TSdlImage)
 		try:
 			images.EnsureImage("SysTiles\\$filename.png", filename)
@@ -304,18 +303,15 @@ class TMenuSpriteEngine(TSpriteEngine):
 			FCursor.Visible = false
 		FCurrentBox = null
 
-	protected def InnVocab(style as int, Name as string, value as int) as string:
-		key as string
-		key = "Inn$style-$Name"
-		result = GDatabase.value.Vocab[key]
+	protected def InnVocab(style as int, name as string, value as int) as string:
+		var key = "Inn$style-$name"
+		var result = GDatabase.value.Vocab[key]
 		if result == '':
-			key = "Inn1-$Name"
-			result = GDatabase.value.InterpolateVocab(key, Name)
+			key = "Inn1-$name"
+			result = GDatabase.value.InterpolateVocab(key, name)
 		return StringReplace(result, '?$', value.ToString(), [rfReplaceAll])
 
 	public def constructor(graphic as TSystemImages, Canvas as TSdlCanvas, images as TSdlImages):
-		size as GPU_Rect
-		menuEngine as TMenuEngine
 		assert GMenuEngine.Value == null
 		GMenuEngine.Value = self
 		super(null, Canvas)
@@ -327,9 +323,9 @@ class TMenuSpriteEngine(TSpriteEngine):
 		graphic.Setup(self)
 		FWallpapers.Add(graphic.Filename, graphic)
 		FCursor = TMenuCursor(self, FRAME_DISPLACEMENT, 2, NULLRECT)
-		size = GPU_MakeRect(0, 0, 320, 80)
+		var size = GPU_MakeRect(0, 0, 320, 80)
 		FPosition = TMboxLocation.Bottom
-		menuEngine = TMenuEngine(self, self.EndMessage)
+		var menuEngine = TMenuEngine(self, self.EndMessage)
 		FBoxes[TMessageBoxTypes.Message] = TMessageBox(self, size, menuEngine, null)
 		FBoxes[TMessageBoxTypes.Choice] = TChoiceBox(self, size)
 		FBoxes[TMessageBoxTypes.Prompt] = TPromptBox(self, size)
@@ -346,8 +342,7 @@ class TMenuSpriteEngine(TSpriteEngine):
 
 	public def SerializePortrait(writer as JsonWriter):
 		portrait as TSprite = self.Portrait
-		if (not portrait.Visible) or (portrait.ImageName == ''):
-			return
+		return if (not portrait.Visible) or (portrait.ImageName == '')
 		writer.CheckWrite('Name', portrait.ImageName, '')
 		writer.CheckWrite('Index', portrait.ImageIndex, -1)
 		writer.WritePropertyName('Flipped')
@@ -382,9 +377,8 @@ class TMenuSpriteEngine(TSpriteEngine):
 			default: raise "Unknown menu state: $FMenuState"
 
 	public def ShowMessage(msg as string, modal as bool):
-		box as TCustomMessageBox
 		Thread.Sleep(TRpgTimestamp.FrameLength) while GSpriteEngine.value.State == TGameState.Fading
-		box = FBoxes[TMessageBoxTypes.Message]
+		box as TCustomMessageBox = FBoxes[TMessageBoxTypes.Message]
 		box.Text = msg
 		box.Visible = true
 		FCurrentBox = box
@@ -445,11 +439,11 @@ class TMenuSpriteEngine(TSpriteEngine):
 		(FBoxes[TMessageBoxTypes.Message] cast TMessageBox).Rightside = value
 
 	public def SetSkin(Name as string, stretch as bool):
-		if Name == FSystemGraphic.Filename:
-			return
+		return if Name == FSystemGraphic.Filename
+		
 		runThreadsafe(true) def ():
 			newPaper as TSystemImages
-			if not FWallpapers.TryGetValue(Name, newPaper):
+			unless FWallpapers.TryGetValue(Name, newPaper):
 				newPaper = TSystemImages(self.Images, Name, stretch, FSystemGraphic.Translucent)
 				FWallpapers.Add(Name, newPaper)
 			FSystemGraphic = newPaper
@@ -486,12 +480,6 @@ class TMenuSpriteEngine(TSpriteEngine):
 	public Portrait as TSprite:
 		get: return (FBoxes[TMessageBoxTypes.Message] cast TMessageBox).Portrait
 
-enum TCorners:
-	TopLeft
-	TopRight
-	BottomLeft
-	BottomRight
-
 [Disposable(Destroy)]
 class TSysFrame(TSystemTile):
 
@@ -523,14 +511,13 @@ class TSysFrame(TSystemTile):
 	protected static def GetCursor(w as int, h as int, engine as TSpriteEngine) as TSdlImage:
 		return null if w <= 0 or h <= 0
 		result as TSdlImage
-		key = FrameDesc(w, h)
+		var key = FrameDesc(w, h)
 		unless Cursors.TryGetValue(key, result):
-			img = GPU_CreateImage(w, h * 2, GPU_FormatEnum.GPU_FORMAT_RGBA)
-			target = GPU_LoadTarget(img)
+			var img = GPU_CreateImage(w, h * 2, GPU_FormatEnum.GPU_FORMAT_RGBA)
+			var target = GPU_LoadTarget(img)
 			FGraphic.DrawCursor(target, w, h)
 			GPU_FreeTarget(target)
-			result = TSdlImage(img, "Cursor($w,$h)", engine.Images)
-			result.TextureSize = TSgPoint(w, h)
+			result = TSdlImage(img, "Cursor($w,$h)", engine.Images, TextureSize: TSgPoint(w, h))
 			Cursors.Add(key, result)
 		return result
 
@@ -540,7 +527,6 @@ class TSysFrame(TSystemTile):
 	private static FGraphic as TSystemImages
 
 	protected virtual def SkinChanged(Name as string):
-		sprite as TSprite
 		for sprite in self.FList:
 			sprite.ImageName = Name
 		self.ImageName = Name
@@ -857,10 +843,6 @@ abstract class TCustomMessageBox(TSysFrame):
 		FTextColor = 1
 
 	public virtual def Button(input as TButtonCode):
-		max as short
-		absMax as short
-		lPosition as short
-		ratio as byte
 		if (FCursorPosition == -1) and (input in (TButtonCode.Up, TButtonCode.Down, TButtonCode.Left, TButtonCode.Right)):
 			return
 		if FOptionEnabled.Length == 0:
@@ -870,9 +852,10 @@ abstract class TCustomMessageBox(TSysFrame):
 				FButtonLock = null
 			else:
 				return
-		lPosition = FCursorPosition
-		max = pred(FOptionEnabled.Length) - FLastLineColumns
-		absMax = max + FLastLineColumns
+		var lPosition = FCursorPosition
+		var max = pred(FOptionEnabled.Length) - FLastLineColumns
+		var absMax = max + FLastLineColumns
+		ratio as byte
 		caseOf input:
 			case TButtonCode.Enter:
 				if FOptionEnabled[FCursorPosition]:
@@ -921,15 +904,12 @@ abstract class TCustomMessageBox(TSysFrame):
 		self.Height = coords.h
 
 	public virtual def PlaceCursor(position as short):
-		column as byte
-		columns as byte
-		width as ushort
-		max as short
-		cursor as TMenuCursor
 		if self.FDontChangeCursor:
 			position = self.FCursorPosition
 		FCursorPosition = position
-		max = FOptionEnabled.Length - (FPromptLines + FLastLineColumns)
+		var max = FOptionEnabled.Length - (FPromptLines + FLastLineColumns)
+		columns as byte
+		width as ushort
 		if (position > max) and (FLastLineColumns > 0):
 			columns = FLastLineColumns
 			width = LastColumnWidth
@@ -938,7 +918,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			width = ColumnWidth
 		position = (0 if FOptionEnabled.Length == 0 else Math.Min(position, FOptionEnabled.Length - 1))
 		position -= max + 1 if position > max
-		column = position % columns
+		var column = position % columns
 		position += FPromptLines * columns
 		coords = GPU_MakeRect(
 			4 + (column * (width + SEPARATOR)) + FBounds.x,
@@ -947,7 +927,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			18)
 		if FCursorPosition > max:
 			coords.y += (FCursorPosition / FColumns) * 15
-		cursor = (FEngine cast TMenuSpriteEngine).Cursor
+		cursor as TMenuCursor = (FEngine cast TMenuSpriteEngine).Cursor
 		cursor.Visible = true
 		cursor.Layout(coords)
 		FDontChangeCursor = false
@@ -983,14 +963,9 @@ class TSystemTimer(TParentSprite):
 		tile.DrawRect = GPU_MakeRect(32 + (8 * index), 32, 8, 16)
 
 	private def UpdateTime():
-		min as int
-		sec as int
-		min = FTime / 60
-		sec = FTime % 60
-		if min > 10:
-			AssignDrawRect(FTiles[1], min / 10)
-		else:
-			AssignDrawRect(FTiles[1], 11)
+		min as int = FTime / 60
+		sec as int = FTime % 60
+		AssignDrawRect(FTiles[1], (min / 10 if min > 10 else 11))
 		AssignDrawRect(FTiles[2], min % 10)
 		AssignDrawRect(FTiles[4], sec / 10)
 		AssignDrawRect(FTiles[5], sec % 10)
