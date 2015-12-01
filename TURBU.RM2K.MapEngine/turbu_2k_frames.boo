@@ -504,6 +504,7 @@ class TSysFrame(TSystemTile):
 			result = GPU_CreateImage(w, h, GPU_FormatEnum.GPU_FORMAT_RGBA)
 			target = GPU_LoadTarget(result)
 			FGraphic.DrawFrame(target, w, h)
+			GPU_FlushBlitBuffer()
 			GPU_FreeTarget(target)
 			Frames.Add(key, result)
 		return result
