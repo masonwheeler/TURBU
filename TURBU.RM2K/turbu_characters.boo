@@ -1,8 +1,7 @@
 namespace turbu.characters
 
-//import turbu_serialization
-//import TURBU.RM2K
 import System
+import System.Drawing
 import System.Linq.Enumerable
 import Pythia.Runtime
 import SG.defs
@@ -10,17 +9,16 @@ import turbu.defs
 import turbu.classes
 import turbu.skills
 import turbu.sounds
-import System.Drawing
 
 enum TCommandStyle:
-	cs_weapon
-	cs_skill
-	cs_defend
-	cs_item
-	cs_flee
-	cs_skillgroup
-	cs_special
-	cs_script
+	Weapon
+	Skill
+	Defend
+	Item
+	Flee
+	Skillgroup
+	Special
+	Script
 
 [TableName('Commands')]
 class TBattleCommand(TRpgDatafile):
@@ -36,7 +34,7 @@ class TBattleCommand(TRpgDatafile):
 
 interface IStatBlock:
 
-	def compare(other as IStatBlock) as bool
+	def Compare(other as IStatBlock) as bool
 
 	Size as ushort:
 		get
@@ -56,7 +54,7 @@ class TStatBlock(TObject, IStatBlock):
 	[Property(Index)]
 	private FIndex as int
 
-	public def compare(other as IStatBlock) as bool:
+	public def Compare(other as IStatBlock) as bool:
 		i as int
 		lOther as TStatBlock
 		if not ((other isa TStatBlock) and (self.Size != other.Size)):
