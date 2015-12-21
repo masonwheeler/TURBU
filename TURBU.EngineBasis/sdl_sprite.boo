@@ -13,9 +13,9 @@ import SDL2.SDL2_GPU
 import System.Drawing
 
 enum TImageType:
-	itSingleImage
-	itSpriteSheet
-	itRectSet
+	SingleImage
+	SpriteSheet
+	RectSet
 
 enum TAnimPlayMode:
 	Forward
@@ -180,7 +180,7 @@ class TSprite(TObject):
 		FOrigin = sgPoint(value.x, value.y)
 		FWidth = value.w
 		FHeight = value.h
-		FImageType = TImageType.itRectSet
+		FImageType = TImageType.RectSet
 
 	internal def Render():
 		followX as single
@@ -196,9 +196,9 @@ class TSprite(TObject):
 		flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL if MirrorX
 		flip |= SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL if MirrorY
 		caseOf FImageType:
-			case TImageType.itSingleImage: FImage.Draw(topleft, flip)
-			case TImageType.itSpriteSheet: FImage.DrawSprite(topleft, FPatternIndex, flip)
-			case TImageType.itRectSet: FImage.DrawRect(topleft, self.DrawRect, flip)
+			case TImageType.SingleImage: FImage.Draw(topleft, flip)
+			case TImageType.SpriteSheet: FImage.DrawSprite(topleft, FPatternIndex, flip)
+			case TImageType.RectSet: FImage.DrawRect(topleft, self.DrawRect, flip)
 
 	protected virtual def DoDraw():
 		return if (not FVisible) or (FImage == null)
@@ -219,11 +219,8 @@ class TSprite(TObject):
 			if assigned(FEngine):
 				self.Image = FEngine.Images.Image[FImageName] 
 			if assigned(FImage):
-				if FImageType != TImageType.itRectSet:
-					if FImage.Count > 1:
-						FImageType = TImageType.itSpriteSheet
-					else:
-						FImageType = TImageType.itSingleImage
+				if FImageType != TImageType.RectSet:
+					FImageType = (TImageType.SpriteSheet if FImage.Count > 1 else TImageType.SingleImage)
 				FImageIndex = FEngine.Images.IndexOf(FImageName)
 			else:
 				System.Diagnostics.Debugger.Break()
@@ -282,11 +279,11 @@ class TSprite(TObject):
 
 	public def DrawTo(dest as GPU_Rect):
 		caseOf FImageType:
-			case TImageType.itSingleImage:
+			case TImageType.SingleImage:
 				FImage.DrawTo(dest)
-			case TImageType.itSpriteSheet:
+			case TImageType.SpriteSheet:
 				FImage.DrawSpriteTo(dest, FPatternIndex)
-			case TImageType.itRectSet:
+			case TImageType.RectSet:
 				FImage.DrawRectTo(dest, self.DrawRect)
 
 	public def SetSpecialRender():
@@ -314,7 +311,7 @@ class TSprite(TObject):
 			
 			FImage = value
 			FImageName = FImage.Name
-			if FImageType in (TImageType.itSingleImage, TImageType.itSpriteSheet):
+			if FImageType in (TImageType.SingleImage, TImageType.SpriteSheet):
 				FWidth = FImage.TextureSize.x
 				FHeight = FImage.TextureSize.y
 
