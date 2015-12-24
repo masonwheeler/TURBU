@@ -11,7 +11,9 @@ class LCFInt:
 	
 	def constructor(input as Stream):
 		length = input.ReadByte()
-		if length == 1:
+		if length == 0:
+			_value = 0
+		elif length == 1:
 			_value = input.ReadByte()
 		else:
 			_value = BERInt(input)
