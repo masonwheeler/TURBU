@@ -942,10 +942,10 @@ abstract class TCustomMessageBox(TSysFrame):
 		get: return FPosition
 		set:
 			FPosition = value
-			FCoords.x = 0
-			FCoords.w = self.Width
-			FCoords.h = self.Height / 3
-			FCoords.y = FCoords.h * ord(FPosition)
+			var h = self.Height
+			var y = h * ord(FPosition)
+			var coords = GPU_MakeRect(0, y, self.Width, h + y)
+			self.MoveTo(coords)
 			DoSetPosition(value)
 
 class TSystemTimer(TParentSprite):
