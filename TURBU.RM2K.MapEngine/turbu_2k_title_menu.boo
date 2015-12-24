@@ -35,6 +35,7 @@ class TTitleMenu(TGameMenuBox):
 				case 0:
 					GGameEngine.value.NewGame()
 					self.EndMessage()
+					GMenuEngine.Value.Cursor.Visible = false
 				case 1:
 					FocusPage('Save', 1)
 				case 2:
