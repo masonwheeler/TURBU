@@ -228,10 +228,12 @@ class TSystemImages(TObject):
 		DrawPart(image, target, TSystemRects.CursorBL, 0,               yOffset + h - borderHeight, borderWidth, borderHeight, false, xOffset)
 		DrawPart(image, target, TSystemRects.CursorBR, w - borderWidth, yOffset + h - borderHeight, borderWidth, borderHeight, false, xOffset)
 	
+	private final static CURSOR_FRAME_WIDTH = 32
+	
 	def DrawCursor(target as GPU_Target_PTR, w as int, h as int) as void:
 		image = self.GetHandle()
-		InternalDrawCursor(image, target, w, h, 0, 0)
-		InternalDrawCursor(image, target, w, h, w, h)
+		InternalDrawCursor(image, target, w, h, 0,                  0)
+		InternalDrawCursor(image, target, w, h, CURSOR_FRAME_WIDTH, h)
 
 enum TMessageBoxTypes:
 	Message
@@ -504,7 +506,6 @@ class TSysFrame(TSystemTile):
 			result = GPU_CreateImage(w, h, GPU_FormatEnum.GPU_FORMAT_RGBA)
 			target = GPU_LoadTarget(result)
 			FGraphic.DrawFrame(target, w, h)
-			GPU_FlushBlitBuffer()
 			GPU_FreeTarget(target)
 			Frames.Add(key, result)
 		return result
@@ -588,7 +589,7 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	private def DrawFrame():
 		image = GetFrame(self.Width, self.Height)
-		GPU_Blit(image, IntPtr.Zero, FEngine.Canvas.RenderTarget, self.X + self.Width / 2.0, self.Y + self.Height / 2.0)
+		GPU_Blit(image, IntPtr.Zero, currentRenderTarget().RenderTarget, self.X + self.Width / 2.0, self.Y + self.Height / 2.0)
 
 	private enum TTextDrawState:
 		None
