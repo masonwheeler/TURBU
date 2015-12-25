@@ -12,15 +12,13 @@ private class DesignNameAttribute(System.Attribute):
 
 [DesignName('RM2K level algorithm')]
 private def CalcExp2k(currentLevel as int, stdIncrease as int, addIncrease as int, correction as int, dummy as int) as int:
-	standard as double
-	additional as double
-	result = 0
-	standard = stdIncrease
-	additional = 1.5 + (addIncrease * 0.1)
+	var result = 0
+	standard as double = stdIncrease
+	additional as double = 1.5 + (addIncrease * 0.01)
 	for i in range(currentLevel - 1, 0, -1):
 		result += correction + Math.Truncate(standard)
 		standard *= additional
-		additional = (((currentLevel * 0.2) + 0.8) * (additional - 1)) + 1
+		additional = (((currentLevel * 0.002) + 0.8) * (additional - 1)) + 1
 	result = Math.Min(result, MAXEXP2K)
 
 [DesignName('RM2K3 level algorithm')]
