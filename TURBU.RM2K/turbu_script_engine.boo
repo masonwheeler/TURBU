@@ -81,8 +81,11 @@ class TScriptThread(TThread):
 					if FPage.Trigger != TStartCondition.Parallel:
 						TScriptEngine.Instance.OnLeaveCutscene()
 					FSignal.Reset()
-					FParent.SaveToPool(self)
-					FSignal.WaitOne()
+					if self == FParent.TeleportThread:
+						self.Terminate()
+					else: 
+						FParent.SaveToPool(self)
+						FSignal.WaitOne()
 		ensure:
 			self.Dispose()
 
