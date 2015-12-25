@@ -76,6 +76,7 @@ macro LCFObject(name as ReferenceExpression, body as Statement*):
 
 	last = 0
 	skipping = false
+	var initBlock = Block()
 	for decl in Flatten(body):
 		writeUnless as Expression = null
 		match decl.Expression:
@@ -112,8 +113,8 @@ macro LCFObject(name as ReferenceExpression, body as Statement*):
 							default = null
 					if (not isMapping) and type isa ArrayTypeReference:
 						basetype = ReferenceExpression((type cast ArrayTypeReference).ElementType.ToString())
+						initBlock.Add([|$iFldName = System.Collections.Generic.List[of $basetype]()|])
 						extra =[|
-							$iFldName = System.Collections.Generic.List[of $basetype]()
 							check = BERInt(input) + input.Position
 							for i in range(BERInt(input)):
 								$fld.Add($basetype(input))
@@ -127,8 +128,8 @@ macro LCFObject(name as ReferenceExpression, body as Statement*):
 						assert gtr.Name == 'System.Collections.Generic.IEnumerable'
 						type = gtr.GenericArguments[0] cast SimpleTypeReference
 						basetype = ReferenceExpression(type.ToString())
+						initBlock.Add([|$iFldName = System.Collections.Generic.List[of $basetype]()|])
 						extra = [|
-							$iFldName = System.Collections.Generic.List[of $basetype]()
 							check = BERInt(input) + input.Position
 							while input.Position < check:
 								$iFldName.Add($basetype(input))
@@ -179,6 +180,7 @@ macro LCFObject(name as ReferenceExpression, body as Statement*):
 	unless LCFObject.ContainsAnnotation('noZeroEnd'):
 		ctr.Body.Add([|assert current == 0, "Ending 0 not found at offset $(input.Position.ToString('X'))"|])
 		save.Body.Add([|output.WriteByte(0)|])
+	ctr.Body.Insert(0, initBlock)
 	cls.Members.Add(ctr)
 	cls.Members.Add(save)
 	yield cls
