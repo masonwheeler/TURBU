@@ -4,16 +4,16 @@ import System
 
 LCFObject RMHero:
 	hasID
-	1    = Name as string
-	2    = Class as string
-	3    = Sprite as string
+	1    = Name('') as string
+	2    = Class('') as string
+	3    = Sprite('') as string
 	4    = SpriteIndex(0) as int
 	5    = Transparent(false) as bool
 	7    = StartLevel(1) as int
 	8    = MaxLevel(99) as int
 	9    = CanCrit(true) as bool
 	0x0A = CritRate(30) as int
-	0x0F = Portrait as string
+	0x0F = Portrait('') as string
 	0x10 = PortraitIndex(0) as int
 	0x15 = DualWield(false) as bool
 	0x16 = StaticEq(false) as bool
