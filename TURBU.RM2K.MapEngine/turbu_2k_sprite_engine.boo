@@ -420,7 +420,7 @@ class T2kSpriteEngine(TSpriteEngine):
 		self.SetViewport(viewport)
 		unless string.IsNullOrEmpty(map.BgName):
 			FBgImage = TBackgroundSprite(self, map)
-			FBgImage.Image = images.EnsureBGImage("Backgrounds/$(map.BgName).png", map.BgName)
+			FBgImage.Image = images.EnsureBGImage("Backgrounds\\$(map.BgName).png", map.BgName)
 		FMapObjects = TRpgObjectList[of TMapSprite]()
 		for mapObj in map.MapObjects:
 			AddMapObject(mapObj)
