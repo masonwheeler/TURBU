@@ -4,7 +4,7 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 
 [Meta]
-def MoveMapObject(obj as ReferenceExpression, frequency as IntegerLiteralExpression, loop as BoolLiteralExpression,
+def MoveMapObject(obj as Expression, frequency as IntegerLiteralExpression, loop as BoolLiteralExpression,
 		skip as BoolLiteralExpression, path as ArrayLiteralExpression) as MethodInvocationExpression:
 	var result = [|$obj.Move($frequency, $skip)|]
 	var steps = BlockExpression()
