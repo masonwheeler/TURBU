@@ -59,7 +59,7 @@ macro Heroes.Hero.Attributes(body as ExpressionStatement*):
 	return MakeArrayValue('Resist', body.Select({e | e.Expression}))
 
 macro Heroes.Hero.Conditions(body as ExpressionStatement*):
-	macro Attribute(id as IntegerLiteralExpression, percentage as IntegerLiteralExpression):
+	macro Condition(id as IntegerLiteralExpression, percentage as IntegerLiteralExpression):
 		return ExpressionStatement([|sgPoint($id, $percentage)|])
 	
 	return MakeArrayValue('Condition', body.Select({e | e.Expression}))
