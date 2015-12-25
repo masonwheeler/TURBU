@@ -12,8 +12,8 @@ class MapResourceExtractor(FastDepthFirstVisitor):
 	
 	override def OnMacroStatement(node as MacroStatement):
 		caseOf node.Name:
-			case 'tiles': pass //don't recurse into this!
-			case 'pano': _result.Add([|Background $(node.Arguments[1])|])
+			case 'Tiles': pass //don't recurse into this!
+			case 'Background': _result.Add([|Background $(node.Arguments[1])|])
 			case 'Sprite':
 				arg = node.Arguments[0]
 				_result.Add([|Sprite $arg|]) if arg isa StringLiteralExpression
