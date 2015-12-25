@@ -126,7 +126,7 @@ abstract class TTile(TParentSprite):
 		tileGroup = tileset.Records[tileData.Group]
 		ImageName = tileGroup.Group.Filename
 		var result = tileGroup.Attributes[tileData.Tile]
-		FTerrainID = tileGroup.Terrain[tileData.Tile]
+		FTerrainID = tileGroup.Terrain[tileData.Tile] if tileGroup.HasTerrain
 		FAttributes = result
 		Z = DecodeZOrder(result) + layer
 		return result

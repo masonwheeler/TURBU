@@ -83,6 +83,9 @@ class TTileGroupRecord(TRpgDatafile):
 	[Property(Terrain)]
 	private FTerrain = List[of int]()
 
+	public HasTerrain as bool:
+		get: return FTerrain.Count > 0
+
 	public def constructor():
 		super()
 		FAttributes.Capacity = 32
