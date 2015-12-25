@@ -730,26 +730,24 @@ class T2kSpriteEngine(TSpriteEngine):
 		FFadeColor = base.FFadeColor
 
 	public def FadeTo(r as int, g as int, b as int, s as int, time as int):
-		FFadeTarget[1] = ((r cast double) / 255.0)
-		FFadeTarget[2] = ((g cast double) / 255.0)
-		FFadeTarget[3] = ((b cast double) / 255.0)
-		FFadeTarget[4] = ((s cast double) / 255.0)
-		FFadeTime = TRpgTimestamp((time * 100))
+		FFadeTarget[0] = r / 255.0
+		FFadeTarget[1] = g / 255.0
+		FFadeTarget[2] = b / 255.0
+		FFadeTarget[3] = s / 255.0
+		FFadeTime = TRpgTimestamp(time * 100)
 
 	public def Fade() as bool:
-		i as int
-		time as uint
-		result = false
+		var result = false
 		if assigned(FFadeTime):
-			time = FFadeTime.TimeRemaining
-			for i in range(1, 5):
+			time as uint = FFadeTime.TimeRemaining
+			for i in range(FFadeTarget.Length):
 				MoveTowards(time, FFadeColor[i], FFadeTarget[i])
 			if time == 0:
 				FFadeTime = null
 				if FGameState == TGameState.Fading:
 					EndTransition()
 		for i in range(1, 5):
-			result = (result or (FFadeColor[i] != 1))
+			result = result or (FFadeColor[i] != 1)
 		if result:
 			self.Tint()
 		return result
