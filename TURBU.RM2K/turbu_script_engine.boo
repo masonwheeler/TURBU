@@ -53,7 +53,7 @@ class TScriptThread(TThread):
 			System.Threading.Thread.Sleep(sleeptime)
 			until timeleft == sleeptime or self.Terminated
 		if Terminated:
-			abort
+			Abort
 
 	private def ThreadSleep(Sender as InteractiveInterpreter):
 		InternalThreadSleep()
@@ -240,16 +240,14 @@ class TScriptEngine(TObject):
 			until done
 
 	public def AbortThread():
-		curr as TThread
-		curr = TThread.CurrentThread
+		curr as TThread = TThread.CurrentThread
 		if curr isa TScriptThread:
 			curr.Terminate()
-			abort
+			Abort
 
 	public def ThreadSleep(time as int, block as bool):
-		st as TScriptThread
 		FRenderUnpause()
-		st = (TThread.CurrentThread cast TScriptThread)
+		st as TScriptThread = TThread.CurrentThread cast TScriptThread
 		st.FDelay = TRpgTimestamp(time)
 		FEnterCutscene() if block
 		try:
@@ -265,7 +263,10 @@ class TScriptEngine(TObject):
 	public def ThreadWait():
 		FRenderUnpause()
 		st = TThread.CurrentThread cast TScriptThread
-		st.ScriptOnLine(null)
+		try:
+			st.ScriptOnLine(null)
+		except as Pythia.Runtime.EAbort:
+			pass
 
 	public def Reset():
 		FExec = null
@@ -294,10 +295,9 @@ class TMapObjectManager(TObject):
 		GMapObjectManager.value = self
 
 	public def LoadGlobalScripts(list as TRpgObjectList[of TRpgMapObject]):
-		page as TRpgEventPage
 		assert FGlobalScripts.Count == 0
 		for i in range(0, list.Count):
-			page = list[i].Pages[0]
+			page as TRpgEventPage = list[i].Pages[0]
 			if page.Trigger != TStartCondition.Call:
 				FGlobalScripts.Add(page)
 
@@ -306,8 +306,6 @@ class TMapObjectManager(TObject):
 		FMapObjects.AddRange(map.GetMapObjects().Cast[of TRpgMapObject]())
 
 	public def Tick():
-		obj as TRpgMapObject
-		page as TRpgEventPage
 		FPlaylist.Clear()
 		for obj in FMapObjects:
 			obj.UpdateCurrentPage()
@@ -324,10 +322,9 @@ class TMapObjectManager(TObject):
 				RunPageScript(page)
 
 	public def RunPageScript(page as TRpgEventPage):
-		thread as TScriptThread
 		return if page.Parent.Playing
 		page.Parent.Playing = true
-		thread = FScriptEngine.GetThread(page)
+		thread as TScriptThread = FScriptEngine.GetThread(page)
 
 static class GScriptEngine:
 	public value as TScriptEngine

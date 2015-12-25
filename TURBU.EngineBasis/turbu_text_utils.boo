@@ -71,11 +71,11 @@ class TFontEngine(TObject):
 	
 	def Initialize(shader as TdmShaders):
 		assert FShaderEngine is null
-		FCharBlit = shader.ShaderProgram('textV', 'textBlit');
-		FPass1 = shader.ShaderProgram('textV', 'textShadow');
-		FPass2 = shader.ShaderProgram('textV', 'textF');
-		FShaderEngine = shader;
-		FTarget = TSdlRenderTarget(sgPoint(16, 16));
+		FCharBlit = shader.ShaderProgram('textV', 'textBlit')
+		FPass1 = shader.ShaderProgram('textV', 'textShadow')
+		FPass2 = shader.ShaderProgram('textV', 'textF')
+		FShaderEngine = shader
+		FTarget = TSdlRenderTarget(sgPoint(16, 16))
 		FFonts = List[of TRpgFont]()
 
 	private def RenderChar(text as char):
@@ -108,14 +108,6 @@ class TFontEngine(TObject):
 		srcRect = GPU_MakeRect((index % 13) * GLYPH_SIZE, (index / 13) * GLYPH_SIZE, GLYPH_SIZE, GLYPH_SIZE)
 		FTarget.Parent.DrawRect(FGlyphs, sgPoint(0, 0), srcRect, 0)
 		FTarget.Parent.PopRenderTarget()
-
-	public def setShaders(shader as TdmShaders):
-		FCharBlit = shader.ShaderProgram('textV', 'textBlit')
-		FPass1 = shader.ShaderProgram('textV', 'textShadow')
-		FPass2 = shader.ShaderProgram('textV', 'textF')
-		FShaderEngine = shader
-		FTarget = TSdlRenderTarget(sgPoint(16, 16))
-		FFonts = List[of TRpgFont]()
 
 	public def DrawText(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as TSgFloatPoint:
 		var result = sgPointF(x, y)

@@ -27,7 +27,7 @@ def ShowMessage(msg as string):
 		if assigned(L.ShowMessageHandler):
 			L.ShowMessageHandler(msg)
 		else:
-			prepareMbox(oldValue)
+			PrepareMbox(oldValue)
 			GMenuEngine.Value.ShowMessage(msg, L.MboxModal)
 			SetMessageBoxPosition(oldValue)
 
@@ -62,21 +62,21 @@ def SetPortrait(filename as string, index as int, rightside as bool, flipped as 
 
 def ShowChoice(msg as string, choices as (string), allowCancel as bool) as int:
 	oldValue as TMboxLocation
-	prepareMbox(oldValue)
+	PrepareMbox(oldValue)
 	GMenuEngine.Value.ChoiceBox(msg, choices, allowCancel, null)
 	SetMessageBoxPosition(oldValue)
 	return GMenuEngine.Value.MenuInt
 
 def InputNumber(msg as string, digits as int) as int:
 	oldValue as TMboxLocation
-	prepareMbox(oldValue)
+	PrepareMbox(oldValue)
 	GMenuEngine.Value.InputNumber(msg, digits)
 	SetMessageBoxPosition(oldValue)
 	return GMenuEngine.Value.MenuInt
 
 def Inn(messageStyle as int, Cost as int) as bool:
 	oldValue as TMboxLocation
-	prepareMbox(oldValue)
+	PrepareMbox(oldValue)
 	GMenuEngine.Value.Inn(messageStyle, Cost)
 	SetMessageBoxPosition(oldValue)
 	if GMenuEngine.Value.MenuInt == 1:
@@ -142,10 +142,9 @@ def DeserializeMessageState(obj as JObject):
 def SetShowMessageHandler(Event as Action of string):
 	L.ShowMessageHandler = Event
 
-private def prepareMbox(ref oldValue as TMboxLocation):
-	newValue as TMboxLocation
+private def PrepareMbox(ref oldValue as TMboxLocation):
 	oldValue = GMenuEngine.Value.Position
-	newValue = oldValue
+	newValue as TMboxLocation = oldValue
 	if L.MboxCautious and GSpriteEngine.value.IsHeroIn(oldValue):
 		caseOf oldValue:
 			case TMboxLocation.Top:

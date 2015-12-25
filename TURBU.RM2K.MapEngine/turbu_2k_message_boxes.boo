@@ -131,7 +131,7 @@ class TMessageBox(TGameMenuBox):
 
 	public override def MoveTo(coords as GPU_Rect):
 		super.MoveTo(coords)
-		SetX(FNextArrow, (152 + Math.Truncate(coords.x)))
+		SetX(FNextArrow, 152 + Math.Truncate(coords.x))
 		SetY(FNextArrow, Math.Truncate(coords.y - 8))
 		FPortrait.Y = 8
 		SetRightside(FRightPortrait)
