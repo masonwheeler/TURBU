@@ -101,6 +101,9 @@ class TAnimCell(TRpgDatafile):
 
 	[Property(ImageIndex)]
 	private FImageIndex as int
+	
+	[Property(Transparency)]
+	private FTransparency as int
 
 [TableName('Animations')]
 class TAnimTemplate(TRpgDatafile):
