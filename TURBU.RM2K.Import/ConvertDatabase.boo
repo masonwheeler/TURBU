@@ -60,8 +60,9 @@ class TDatabaseConverter:
 				for i in range(4):
 					command.Body.Add(Setup2kCommand(_ldb, i + 1))
 				for hero in self._ldb.Heroes.Where({h | h.SkillRenamed}):
+					++i
 					newCmd = [|
-						Command $i:
+						Command $(i + i):
 							Name $(hero.SkillCategoryName)
 							Style SkillGroup
 							Value $(command.Body.Statements.Count)
