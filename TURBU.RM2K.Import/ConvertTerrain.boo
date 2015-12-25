@@ -35,4 +35,4 @@ static class TTerrainConverter:
 				result.Body.Add([|BackAttack $(base.BackAttack)|]) if SpecialBattleTypes.Back in battleTypes
 				result.Body.Add([|SideAttack $(base.SideAttack)|]) if SpecialBattleTypes.Side in battleTypes
 				result.Body.Add([|PincerAttack $(base.PincerAttack)|]) if SpecialBattleTypes.Pincer in battleTypes
-			return result
+		return result
