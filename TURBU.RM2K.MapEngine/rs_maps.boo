@@ -288,7 +288,7 @@ private def waitForPanEnd() as bool:
 	return not GSpriteEngine.value.Displacing
 
 private def LoadAnim(filename as string):
-	GSpriteEngine.value.Images.EnsureImage("animation\\$filename.png", 'Anim ' + filename)
+	GSpriteEngine.value.Images.EnsureImage("Animations\\$filename.png", 'Anim ' + filename)
 
 private class TCharacterTarget(TObject, IAnimTarget):
 
