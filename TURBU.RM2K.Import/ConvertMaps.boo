@@ -258,24 +258,25 @@ public def ConvertMoveOrders(orders as List[of MoveOpcode], body as Block, makeW
 	i = 0
 	while i < orders.Count:
 		opcode = orders[i]
+		var re = ReferenceExpression(MOVE_CODES[opcode.Code])
 		if opcode.Code == MOVECODE_END_JUMP:
 			makeWarning('End of jump without begin jump')
 		elif opcode.Code == MOVECODE_START_JUMP:
 			ConvertJump(orders, body, makeWarning, i)
 		elif opcode.Data is not null:
-			mie = MethodInvocationExpression(ReferenceExpression(MOVE_CODES[opcode.Code]))
+			mie = MethodInvocationExpression(re)
 			mie.Arguments.Add(Expression.Lift(opcode.Name)) if opcode.Name is not null
 			for value in opcode.Data:
 				mie.Arguments.Add(Expression.Lift(value))
 			body.Add(mie)
 		else:
-			runCount = 0
+			runCount = 1
 			while i + 1 < orders.Count and orders[i + 1].Code == opcode.Code:
 				++i
 				++runCount
-			if runCount == 0:
-				body.Add(ReferenceExpression(MOVE_CODES[opcode.Code]))
-			else: body.Add([| $(ReferenceExpression(MOVE_CODES[opcode.Code])) * $runCount |])
+			if runCount == 1:
+				body.Add(re)
+			else: body.Add([| $re * $runCount |])
 		++i
 
 let MOVE_CODES = (
