@@ -151,12 +151,12 @@ def TintScreen(r as int, g as int, b as int, sat as int, duration as int, wait a
 	s2 = convert(sat)
 	GSpriteEngine.value.FadeTo(r2, g2, b2, s2, duration)
 	if wait:
-		GScriptEngine.value.ThreadSleep((duration * 100), true)
+		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
 
 def FlashScreen(r as int, g as int, b as int, power as int, duration as int, wait as bool, continuous as bool):
 	GSpriteEngine.value.FlashScreen(r, g, b, power, duration)
 	if wait:
-		GScriptEngine.value.ThreadSleep((duration * 100), true)
+		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
 	if continuous:
 		pass //TODO: Implement this
 
@@ -166,7 +166,7 @@ def EndFlashScreen():
 def ShakeScreen(power as int, Speed as int, duration as int, wait as bool, continuous as bool):
 	GSpriteEngine.value.ShakeScreen(power, Speed, (duration * 100))
 	if wait:
-		GScriptEngine.value.ThreadSleep((duration * 100), true)
+		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
 
 def EndShakeScreen():
 	GSpriteEngine.value.ShakeScreen(0, 0, 0)

@@ -255,7 +255,7 @@ class T2kSpriteEngine(TSpriteEngine):
 		Array.Copy(FFadeColor, gla, 4)
 		gla[3] = 1
 		FShaderEngine.SetUniformValue(handle, 'rgbValues', gla)
-		FShaderEngine.SetUniformValue(handle, 'satMult', FFadeColor[4])
+		FShaderEngine.SetUniformValue(handle, 'satMult', FFadeColor[3])
 
 	private def AdjustCoords(ref x as int, ref y as int):
 		halfwidth as int = Math.Min(round((Canvas.Width cast double) / 2.0), (Width + 1) * 8)
@@ -728,6 +728,8 @@ class T2kSpriteEngine(TSpriteEngine):
 
 	public def CopyState(base as T2kSpriteEngine):
 		FFadeColor = base.FFadeColor
+		FFadeTime = base.FFadeTime
+		FFadeTarget = base.FFadeTarget
 
 	public def FadeTo(r as int, g as int, b as int, s as int, time as int):
 		FFadeTarget[0] = r / 255.0
@@ -746,7 +748,7 @@ class T2kSpriteEngine(TSpriteEngine):
 				FFadeTime = null
 				if FGameState == TGameState.Fading:
 					EndTransition()
-		for i in range(1, 5):
+		for i in range(4):
 			result = result or (FFadeColor[i] != 1)
 		if result:
 			self.Tint()

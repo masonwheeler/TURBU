@@ -310,7 +310,7 @@ class T2kMapEngine(TMapEngine):
 		glCheckError()
 		color = GPU_GetColor(target.Image)
 		GPU_SetRGBA(target.Image, 255, 255, 255, 255)
-		unless (canTint and FCurrentMap.Fade):
+		unless (canTint and FCurrentMap.Fade()):
 			//FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
 			GPU_DeactivateShaderProgram()
 		target.DrawFull()
