@@ -31,9 +31,6 @@ import SDL2.SDL2_GPU
 import System.Linq.Enumerable
 import TURBU.Meta
 
-class TTileMatrixList(List[of TMatrix[of TMapTile]]):
-	pass
-
 let BASESPEED = 2.2
 let SHAKE_MAX = 23
 let MOVESPEED = (0, BASESPEED / 8, BASESPEED / 4, BASESPEED / 2, BASESPEED, BASESPEED * 2, BASESPEED * 4)
@@ -51,7 +48,7 @@ class T2kSpriteEngine(TSpriteEngine):
 
 	private FBgImage as TBackgroundSprite
 
-	private FTiles as TTileMatrixList
+	private FTiles as List[of TMatrix[of TMapTile]]
 
 	[Getter(Tileset)]
 	private FTileset as TTileSet
@@ -246,9 +243,8 @@ class T2kSpriteEngine(TSpriteEngine):
 		return (assigned(u) and not (TTileAttribute.Overhang in u.Attributes))
 
 	private def Tint():
-		handle as int
 		gla = array(single, 4)
-		handle = FShaderEngine.ShaderProgram('default', 'tint', 'shift')
+		handle as int = FShaderEngine.ShaderProgram('default', 'tint', 'shift')
 		FShaderEngine.UseShaderProgram(handle)
 		FShaderEngine.SetUniformValue(handle, 'hShift', 0)
 		FShaderEngine.SetUniformValue(handle, 'valMult', 1.0 cast single)
@@ -258,8 +254,8 @@ class T2kSpriteEngine(TSpriteEngine):
 		FShaderEngine.SetUniformValue(handle, 'satMult', FFadeColor[3])
 
 	private def AdjustCoords(ref x as int, ref y as int):
-		halfwidth as int = Math.Min(round((Canvas.Width cast double) / 2.0), (Width + 1) * 8)
-		halfheight as int = Math.Min(round((Canvas.Height cast double) / 2.0), (Height + 1) * 8)
+		halfwidth as int = Math.Min(round(Canvas.Width / 2.0), (Width + 1) * 8)
+		halfheight as int = Math.Min(round(Canvas.Height / 2.0), (Height + 1) * 8)
 		maxwidth as int = ((Width + 1) * TILE_SIZE.x) - halfwidth
 		maxheight as int = ((Height + 1) * TILE_SIZE.y) - halfheight
 		if x < halfwidth:
@@ -299,23 +295,22 @@ class T2kSpriteEngine(TSpriteEngine):
 		FGameState = FSavedState
 
 	private def CheckDisplacement():
-		panned as bool
 		delta as single
-		panned = false
+		panned as bool = false
 		if FDispGoalX != 0:
 			delta = Math.Min(Math.Abs(FDispGoalX), FDisplacementSpeed)
 			if FDispGoalX < 0:
-				delta = (delta * -1)
-			FDispGoalX = (FDispGoalX - delta)
-			FDisplacementX = (FDisplacementX + delta)
+				delta *= -1
+			FDispGoalX -= delta
+			FDisplacementX += delta
 			clamp(FDisplacementX, -FDispBaseX, (Width * TILE_SIZE.x) - Canvas.Width)
 			panned = true
 		if FDispGoalY != 0:
 			delta = Math.Min(Math.Abs(FDispGoalY), FDisplacementSpeed)
 			if FDispGoalY < 0:
-				delta = (delta * -1)
-			FDispGoalY = (FDispGoalY - delta)
-			FDisplacementY = (FDisplacementY + delta)
+				delta *= -1
+			FDispGoalY -= delta
+			FDisplacementY += delta
 			clamp(FDisplacementY, -FDispBaseY, (Height * TILE_SIZE.y) - Canvas.Height)
 			panned = true
 		FDisplacing = panned
@@ -400,16 +395,13 @@ class T2kSpriteEngine(TSpriteEngine):
 
 	public def constructor(map as TRpgMap, viewport as GPU_Rect, shaderEngine as TdmShaders, Canvas as TSdlCanvas, \
 			tileset as TTileSet, images as TSdlImages):
-		i as int
-		size as TSgPoint
-		mapObj as TRpgMapObject
 		super(null, Canvas)
 		FShaderEngine = shaderEngine
 		self.Images = images
-		FTiles = TTileMatrixList()
+		FTiles = List[of TMatrix[of TMapTile]]()
 		FTileset = tileset
 		FMap = map
-		size = FMap.Size
+		size as TSgPoint = FMap.Size
 		self.VisibleWidth = Canvas.Width
 		self.VisibleHeight = Canvas.Height
 		FMapRect = GPU_MakeRect(0, 0, size.x, size.y)
@@ -429,13 +421,12 @@ class T2kSpriteEngine(TSpriteEngine):
 			FFadeColor[i] = 1
 
 	public def AssignTile(x as int, y as int, layer as int, tile as TTileRef):
-		newTile as TMapTile
 		if (x >= FMap.Size.x) or (y >= FMap.Size.y):
 			return
 		FMap.AssignTile(x, y, layer, tile)
 		if assigned(FTiles[layer][x, y]):
 			FTiles[layer][x, y].Dead()
-		newTile = CreateNewTile(tile)
+		newTile as TMapTile = CreateNewTile(tile)
 		FTiles[layer][x, y] = newTile
 		newTile.Place(x, y, layer, tile, FTileset)
 
@@ -477,7 +468,6 @@ class T2kSpriteEngine(TSpriteEngine):
 		return result
 
 	public def Process():
-		sprite as TMapSprite
 		self.Dead()
 		lock FMapObjects:
 			for sprite in FMapObjects:
@@ -526,7 +516,7 @@ class T2kSpriteEngine(TSpriteEngine):
 		return result
 
 	public def RecreateTileMatrix():
-		FTiles = TTileMatrixList()
+		FTiles = List[of TMatrix[of TMapTile]]()
 		for i in range(FMap.TileMap.Length):
 			FTiles.Add(TMatrix[of TMapTile](FMap.Size))
 		self.SetViewport(FViewport)
@@ -690,15 +680,13 @@ class T2kSpriteEngine(TSpriteEngine):
 		self.WorldY = newPosition.y
 
 	public def SetBG(Name as string, x as int, y as int, scrollX as TMapScrollType, scrollY as TMapScrollType):
-		filename as string
-		bgName as string
-		bgName = 'Background ' + Name
+		bgName as string = 'Background ' + Name
 		if assigned(FBgImage) and (FBgImage.ImageName != bgName):
 			FBgImage.Dead()
 			FBgImage = null
 		if Name == '':
 			return
-		filename = Name
+		filename as string = self.Name
 		if not ArchiveUtils.GraphicExists(filename, 'Backgrounds'):
 			raise System.IO.FileNotFoundException("Background image $Name not found!")
 		if not assigned(FBgImage):
@@ -712,17 +700,15 @@ class T2kSpriteEngine(TSpriteEngine):
 		FBgImage.ImageName = bgName
 
 	public def ChangeTileset(value as TTileSet):
-		size as TSgPoint
-		oldViewport as GPU_Rect
 		if value == FTileset:
 			return
 		assert TThread.CurrentThread.IsMainThread
 		FTileset = value
-		FTiles = TTileMatrixList()
-		size = FMap.Size
+		FTiles = List[of TMatrix[of TMapTile]]()
+		size as TSgPoint = FMap.Size
 		for i in range(FMap.TileMap.Length):
 			FTiles.Add(TMatrix[of TMapTile](size))
-		oldViewport = FViewport
+		oldViewport as GPU_Rect = FViewport
 		FViewport.w = -1
 		self.SetViewport(oldViewport)
 
@@ -803,9 +789,9 @@ class T2kSpriteEngine(TSpriteEngine):
 		FDispGoalY = (FDispGoalY + y) - WorldY
 		FDisplacing = true
 
-	public def SetDispSpeed(Speed as byte):
-		if Speed in range(MOVESPEED.Length) and Speed > 0:
-			FDisplacementSpeed = MOVESPEED[Speed]
+	public def SetDispSpeed(speed as byte):
+		if speed in range(MOVESPEED.Length) and speed > 0:
+			FDisplacementSpeed = MOVESPEED[speed]
 
 	public def ShakeScreen(power as int, Speed as int, duration as int):
 		FShakePower = power

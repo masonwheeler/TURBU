@@ -538,23 +538,20 @@ class T2kMapEngine(TMapEngine):
 		TitleScreen()
 		FTimer.Enabled = true
 
-	public def ChangeMaps(newmap as ushort, newLocation as TSgPoint):
-		hero as TCharSprite
-		oldEngine as T2kSpriteEngine
-		metadata as TMapMetadata
-		currentMap as T2kSpriteEngine
+	public def ChangeMaps(newmap as int, newLocation as TSgPoint):
 		assert newmap != FCurrentMap.MapID
-		currentMap = FCurrentMap
+		currentMap as T2kSpriteEngine = FCurrentMap
 		FSwitchState = TSwitchState.Ready
 		FObjectManager.ScriptEngine.KillAll({ currentMap = null })
 		while not FCurrentMap.Blank:
 			Thread.Sleep(10)
 		FTeleportThread = TThread.CurrentThread
+		metadata as TMapMetadata
 		try:
 			runThreadsafe(true) def ():
 				FImageEngine = null
-				oldEngine = FCurrentMap
-				hero = FCurrentMap.CurrentParty
+				oldEngine as T2kSpriteEngine = FCurrentMap
+				hero as TCharSprite = FCurrentMap.CurrentParty
 				if assigned(hero):
 					(hero cast THeroSprite).PackUp()
 				metadata = FDatabase.MapTree[newmap]

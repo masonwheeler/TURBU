@@ -141,10 +141,9 @@ abstract class TTile(TParentSprite):
 		return result
 
 	public def UpdateGridLoc():
-		FGridLoc = sgPoint(round((self.X cast double) / (TILE_SIZE.x cast double)), round((self.Y cast double) / (TILE_SIZE.y cast double)))
+		FGridLoc = sgPoint(round(self.X / TILE_SIZE.x), round(self.Y / TILE_SIZE.y ))
 
 	public static def Heartbeat():
-		proc as Action
 		FHeartbeat = (FHeartbeat + 1) % ANIM_LCM
 		for proc in FBroadcastList:
 			proc()

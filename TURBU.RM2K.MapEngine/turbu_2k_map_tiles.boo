@@ -61,7 +61,7 @@ class TAnimTile(TMapTile):
 	private static FStepFlag as bool
 
 	private static def constructor():
-		EnsureBroadcastList
+		EnsureBroadcastList()
 		FBroadcastList.Add(TAnimTile.OnHeartbeat)
 
 	private static def OnHeartbeat():

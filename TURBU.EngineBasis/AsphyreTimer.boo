@@ -9,7 +9,7 @@ import System.Windows.Forms
 [Disposable(Destroy)]
 class TAsphyreTimer(TObject):
 	let FixedHigh = 0x100000
-	let DeltaLimit = 32 * FixedHigh
+	let DeltaLimit = 3 * FixedHigh
 
 	private FMaxFPS as int
 

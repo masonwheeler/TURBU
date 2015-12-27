@@ -141,14 +141,10 @@ def TintScreen(r as int, g as int, b as int, sat as int, duration as int, wait a
 	def convert(number as int) as int:
 		return round(clamp(number, 0, 200) * 2.55)
 	
-	r2 as int
-	g2 as int
-	b2 as int
-	s2 as int
-	r2 = convert(r)
-	g2 = convert(g)
-	b2 = convert(b)
-	s2 = convert(sat)
+	r2 as int = convert(r)
+	g2 as int = convert(g)
+	b2 as int = convert(b)
+	s2 as int = convert(sat)
 	GSpriteEngine.value.FadeTo(r2, g2, b2, s2, duration)
 	if wait:
 		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
@@ -164,7 +160,7 @@ def EndFlashScreen():
 	GSpriteEngine.value.FlashScreen(0, 0, 0, 0, 0)
 
 def ShakeScreen(power as int, Speed as int, duration as int, wait as bool, continuous as bool):
-	GSpriteEngine.value.ShakeScreen(power, Speed, (duration * 100))
+	GSpriteEngine.value.ShakeScreen(power, Speed, duration * 100)
 	if wait:
 		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
 
@@ -177,15 +173,11 @@ def LockScreen():
 def UnlockScreen():
 	GSpriteEngine.value.ScreenLocked = false
 
-def PanScreen(direction as TFacing, distance as int, Speed as int, wait as bool):
-	x as int
-	y as int
-	halfwidth as int
-	halfheight as int
-	halfwidth = (GSpriteEngine.value.Canvas.Width / 2)
-	halfheight = (GSpriteEngine.value.Canvas.Height / 2)
-	x = Math.Truncate((((GSpriteEngine.value.WorldX + halfwidth) cast double) / (TILE_SIZE.x cast double)))
-	y = commons.round((((GSpriteEngine.value.WorldY + halfheight) cast double) / (TILE_SIZE.y cast double)))
+def PanScreen(direction as TFacing, distance as int, speed as int, wait as bool):
+	halfwidth as int = GSpriteEngine.value.Canvas.Width / 2
+	halfheight as int = GSpriteEngine.value.Canvas.Height / 2
+	x as int = Math.Truncate((GSpriteEngine.value.WorldX + halfwidth) / TILE_SIZE.x)
+	y as int = commons.round((GSpriteEngine.value.WorldY + halfheight) / TILE_SIZE.y)
 	caseOf direction:
 		case TFacing.Up:
 			y -= distance
@@ -195,20 +187,17 @@ def PanScreen(direction as TFacing, distance as int, Speed as int, wait as bool)
 			y += distance
 		case TFacing.Left:
 			x -= distance
-	PanScreenTo(x, y, Speed, wait)
+	PanScreenTo(x, y, speed, wait)
 
-def PanScreenTo(x as int, y as int, Speed as int, wait as bool):
-	GSpriteEngine.value.DisplaceTo((x * TILE_SIZE.x), (y * TILE_SIZE.y))
-	GSpriteEngine.value.SetDispSpeed(Speed)
+def PanScreenTo(x as int, y as int, speed as int, wait as bool):
+	GSpriteEngine.value.DisplaceTo(x * TILE_SIZE.x, y * TILE_SIZE.y)
+	GSpriteEngine.value.SetDispSpeed(speed)
 	if wait:
 		GScriptEngine.value.SetWaiting(waitForPanEnd)
 
-def ReturnScreen(Speed as int, wait as bool):
-	PanScreenTo(GEnvironment.value.Party.XPos, GEnvironment.value.Party.YPos, Speed, wait)
-	GSpriteEngine.value.SetDispSpeed(Speed)
+def ReturnScreen(speed as int, wait as bool):
 	GSpriteEngine.value.Returning = true
-	if wait:
-		GScriptEngine.value.SetWaiting(waitForPanEnd)
+	PanScreenTo(GEnvironment.value.Party.XPos, GEnvironment.value.Party.YPos, speed, wait)
 
 def SetWeather(effect as TWeatherEffects, severity as int):
 	GGameEngine.value.WeatherEngine.WeatherType = effect
