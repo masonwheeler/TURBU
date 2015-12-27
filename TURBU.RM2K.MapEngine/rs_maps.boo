@@ -297,10 +297,7 @@ private class TCharacterTarget(TObject, IAnimTarget):
 		FTarget = target
 
 private def CreateTarget(target as TRpgCharacter) as IAnimTarget:
-	if target == null:
-		result = null
-	else:
-		result = TCharacterTarget(target)
+	return (null if target == null else TCharacterTarget(target))
 
 private def AllMoved() as bool:
 	partyMove as Path = GEnvironment.value.Party.Sprite.MoveOrder
