@@ -269,7 +269,7 @@ class TSprite(TObject):
 		FZ = Z
 
 	public virtual def Draw():
-		if FVisible and (not FDead) and self.InVisibleRect:
+		if FVisible and (not FDead) and self.InVisibleRect():
 			DoDraw()
 
 	public virtual def Dead():
