@@ -170,9 +170,10 @@ class TEventTile(TTile, IDisposable):
 	private FOnGetFlashColor as Func of (single)
 
 	private def DrawFlash():
-		PrepareShader(GSpriteEngine.value.ShaderEngine)
-		Drawself(self.Image.SpriteRect[self.ImageIndex])
-		GPU_DeactivateShaderProgram()
+		if self.Image is not null:
+			PrepareShader(GSpriteEngine.value.ShaderEngine)
+			Drawself(self.Image.SpriteRect[self.ImageIndex])
+			GPU_DeactivateShaderProgram()
 		
 	private def Drawself(SpriteRect as GPU_Rect):
 		left as int = Math.Truncate((self.X + OffsetX) - FEngine.WorldX)
@@ -180,7 +181,7 @@ class TEventTile(TTile, IDisposable):
 		GPU_Blit(self.Image.Surface, SpriteRect, self.Engine.Canvas.RenderTarget, left, top)
 
 	private def PrepareShader(shaders as TdmShaders):
-		handle as int = shaders.ShaderProgram('default', 'Flash')
+		handle as int = shaders.ShaderProgram('default', 'flash')
 		shaders.UseShaderProgram(handle)
 		shaders.SetUniformValue(handle, 'flashColor', FOnGetFlashColor())
 
