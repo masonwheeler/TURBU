@@ -1,5 +1,6 @@
 ﻿namespace TURBU.Meta
 
+import System.Linq.Enumerable
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 
@@ -19,7 +20,11 @@ def MoveMapObject(obj as Expression, frequency as IntegerLiteralExpression, loop
 						yield {return $obj.Base.$expr()}
 				|]
 				steps.Body.Add(value)
-			case MethodInvocationExpression():	steps.Body.Add([| yield {return $obj.Base.$step} |])
+			case MethodInvocationExpression():
+				mieStep = step cast MethodInvocationExpression
+				var mie = MethodInvocationExpression([|$obj.Base.$(mieStep.Target)|])
+				mie.Arguments.AddRange(mieStep.Arguments.Select({a | a.CleanClone()}))
+				steps.Body.Add([| yield {return $mie} |])
 			case ReferenceExpression():			steps.Body.Add([| yield {return $obj.Base.$step()} |])
 	if loop.Value:
 		var body = steps.Body
