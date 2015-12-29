@@ -121,8 +121,9 @@ class TMapSprite(TObject):
 	private def SetMoveOrder(value as Path):
 		FMoveAssignment = value
 
-	private def BeginJump():
+	private def BeginJump(target as TSgPoint):
 		self.LeaveTile()
+		FJumpTarget = target
 		FJumping = true
 		FJumpAnimateOverride = true
 		midpoint as TSgPoint = ((FJumpTarget - FLocation) * TILE_SIZE) / 2.0
@@ -325,6 +326,21 @@ class TMapSprite(TObject):
 		FPause = TRpgTimestamp(300)
 		return true
 
+	public def Jump(x as int, y as int) as bool:
+		var target = self.Location + sgPoint(x, y)
+		if CanJump(target):
+			BeginJump(target)
+			return true
+		else: return false
+
+	public def SpeedUp():
+		FMoveRate = Math.Min(6, FMoveRate + 1)
+		return true
+
+	public def SpeedDown():
+		FMoveRate = Math.Max(1, FMoveRate - 1)
+		return true
+
 	protected virtual def DoMove(which as Path) as bool:
 		unless assigned(FMoveStep):
 			FMoveStep = which.NextCommand()
@@ -356,8 +372,6 @@ class TMapSprite(TObject):
 				assert false, 'Hit an incorrect end of jump!'
 			case 26: self.DirLocked = true
 			case 27: self.DirLocked = false
-			case 28: FMoveRate = Math.Min(6, (FMoveRate + 1))
-			case 29: FMoveRate = Math.Max(1, (FMoveRate - 1))
 			case 30: FMoveFreq = Math.Min(8, (FMoveFreq + 1))
 			case 31: FMoveFreq = Math.Min(0, (FMoveFreq - 1))
 			case 32: GEnvironment.value.Switch[FOrder.Data[1]] = true
