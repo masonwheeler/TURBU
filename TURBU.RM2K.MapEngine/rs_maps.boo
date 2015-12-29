@@ -301,13 +301,14 @@ private def CreateTarget(target as TRpgCharacter) as IAnimTarget:
 
 private def AllMoved() as bool:
 	partyMove as Path = GEnvironment.value.Party.Sprite.MoveOrder
-	result = not (partyMove is null or partyMove.Looped)
+	result = partyMove is null or partyMove.Looped
 	i = 0
 	while result and (i <= GEnvironment.value.MapObjectCount):
 		++i
 		obj as TRpgEvent = GEnvironment.value.MapObject[i]
 		if assigned(obj) and assigned(obj.Base.MoveOrder):
 			result = obj.Base.MoveOrder.Looped
+	return result
 
 let MAX_WEATHER = 10
 let LTeleportLock = object()
