@@ -797,7 +797,7 @@ abstract class TCustomMessageBox(TSysFrame):
 	protected def ParseInt(input as string, ref counter as int) as string:
 		++counter
 		start as int = counter
-		if input[start:3].ToUpper() == '\\V[':
+		if input[start:start + 3].ToUpper() == '\\V[':
 			++counter
 			result = '\\V' + ParseInt(input, counter)
 		else:
