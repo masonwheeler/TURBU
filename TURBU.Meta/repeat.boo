@@ -23,21 +23,23 @@ internal class UntilChecker(DepthFirstVisitor):
 
 macro repeat():
 	macro until(arg as Expression):
-		return UntilStatement(arg)
+		return UntilStatement(arg, LexicalInfo: arg.LexicalInfo)
 		
 	body as Block = repeat.Body
 	last = body.Statements.Last
 	unless last isa UntilStatement:
 		Context.Errors.Add(Compiler.CompilerError(last, 'Repeat statement must end with a Until statement'))
 		return null
-	body.Statements.Remove(last) 
+	body.Statements.Remove(last)
+	var us = last cast UntilStatement
 	last = [|
-		break if $((last as UntilStatement).Cond)
+		break if $(us.Cond)
 	|]
+	last.LexicalInfo = us.LexicalInfo
 	body.Statements.Add(last)
 	unless UntilChecker.Validate(body):
 		Context.Errors.Add(Compiler.CompilerError(last, 'Until statement can only come at the end of a Repeat statement'))
-		return null		
+		return null
 	return [|
 		while true:
 			$body
