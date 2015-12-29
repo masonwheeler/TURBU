@@ -5,7 +5,6 @@ import System.Collections.Generic
 import System.Linq.Enumerable
 import System.Threading
 import Boo.Adt
-import Boo.Lang.Interpreter
 import Boo.Lang.Useful.Attributes
 import Pythia.Runtime
 import timing
@@ -32,7 +31,7 @@ class TScriptThread(TThread):
 
 	internal FOnCleanup as Action
 
-	internal def ScriptOnLine(Sender as InteractiveInterpreter):
+	internal def ScriptOnLine():
 		if (not self.Terminated) and assigned(FWaiting):
 			repeat :
 				Thread.Sleep(TRpgTimestamp.FrameLength)
@@ -40,7 +39,7 @@ class TScriptThread(TThread):
 			FWaiting = null
 		elif assigned(FDelay):
 			if FDelay.TimeRemaining > 0:
-				ThreadSleep(Sender)
+				ThreadSleep()
 			else: FDelay = null
 		if Terminated:
 			Abort
@@ -55,9 +54,9 @@ class TScriptThread(TThread):
 		if Terminated:
 			Abort
 
-	private def ThreadSleep(Sender as InteractiveInterpreter):
+	private def ThreadSleep():
 		InternalThreadSleep()
-		self.ScriptOnLine(Sender)
+		self.ScriptOnLine()
 
 	internal def PushPage(value as TRpgEventPage):
 		FPages = Stack[of TRpgEventPage]() if FPages == null
@@ -108,8 +107,6 @@ class TScriptEngine(TObject):
 
 //	private FCompiler as TrsCompiler
 
-	private FExec as InteractiveInterpreter
-
 	private FCurrentProgram as Boo.Lang.Compiler.CompilerContext
 
 	private FThreads as List[of TScriptThread]
@@ -146,18 +143,11 @@ class TScriptEngine(TObject):
 			if FTeleportThread == thread:
 				FTeleportThread = null
 
-	private def CreateExec():
-		FExec = InteractiveInterpreter(RememberLastValue: true)
-		/*
-		FExec.OnDivideByZero = self.OnDivideByZero
-		*/
-
-/*
-	private def OnRunLine(Sender as AbstractInterpreter, line as TrsDebugLineInfo):
+	public def OnRunLine(line as int):
 		st as TScriptThread
 		st = (TThread.CurrentThread cast TScriptThread)
-		st.scriptOnLine(sender)
-*/
+		st.ScriptOnLine()
+
 	internal def GetThread(page as TRpgEventPage) as TScriptThread:
 		lock FThreadLock:
 			if FThreadPool.Count > 0:
@@ -173,14 +163,6 @@ class TScriptEngine(TObject):
 		lock FThreadLock:
 			FThreadPool.Enqueue(thread)
 
-/*	private def RegisterImports():
-		FCompiler.RegisterStandardUnit('media', RegisterMediaC)
-
-	private def OnDivideByZero(Sender as InteractiveInterpreter, l as int, ref handled as bool) as int:
-		result = l
-		handled = true
-		return result
-*/
 	public def constructor():
 		GScriptEngine.value = self
 		FThreads = List[of TScriptThread]()
@@ -189,12 +171,6 @@ class TScriptEngine(TObject):
 
 	public def RunScript(script as Action):
 		script()
-
-	public def RunScript(name as string, args as (object)):
-		ctx = FExec.Eval(name)
-		if ctx.Errors.Count > 0:
-			raise ctx.Errors.ToString(false)
-		(FExec.LastValue as callable).Call(args)
 
 	public def RunObjectScript(obj as TRpgMapObject, page as int):
 		var context = TThread.CurrentThread cast TScriptThread
@@ -211,13 +187,12 @@ class TScriptEngine(TObject):
 		curr as TScriptThread
 		
 		def WakeAllThreads():
-			thread as TScriptThread
 			lock FThreadLock:
 				FThreadPool.Clear()
 				for thread in FThreads:
 					if thread != curr:
 						thread.Terminate()
-						(thread cast TScriptThread).FSignal.Set()
+						thread.FSignal.Set()
 						
 		done as bool
 		oldCleanup as Action
@@ -267,14 +242,9 @@ class TScriptEngine(TObject):
 		FRenderUnpause()
 		st = TThread.CurrentThread cast TScriptThread
 		try:
-			st.ScriptOnLine(null)
+			st.ScriptOnLine()
 		except as Pythia.Runtime.EAbort:
 			pass
-
-	public def Reset():
-		FExec = null
-		CreateExec()
-		//RegisterImports
 
 class TMapObjectManager(TObject):
 

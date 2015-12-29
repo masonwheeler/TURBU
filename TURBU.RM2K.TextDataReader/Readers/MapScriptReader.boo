@@ -29,6 +29,7 @@ macro MapCode.PageScript(id as int, page as int):
 		scriptList = Dictionary[of int, string]()
 		MapCode['scriptList'] = scriptList
 	scriptList.Add(id << 16 + page, name)
+	result.Accept(ScriptProcessor())
 	return TypeMemberStatement(result)
 
 internal def BuildScriptMap(values as Dictionary[of int, string]) as Method:
@@ -43,3 +44,15 @@ internal def BuildScriptMap(values as Dictionary[of int, string]) as Method:
 		page = k % (2**16)
 		body.Add([|MapObjects.Single({o | return o.ID == $id}).Pages.Single({p | return p.ID == $page}).Script = $(ReferenceExpression(pair.Value))|])
 	return result
+
+class ScriptProcessor(DepthFirstTransformer):
+	
+	override def LeaveExpressionStatement(node as ExpressionStatement):
+		return if node.IsSynthetic
+		
+		var parent = node.ParentNode cast Block
+		var idx = parent.Statements.IndexOf(node)
+		var onLine = ExpressionStatement([|turbu.script.engine.TScriptEngine.Instance.OnRunLine($(node.LexicalInfo.Line))|])
+		onLine.LexicalInfo = node.LexicalInfo
+		onLine.IsSynthetic = true
+		parent.Insert(idx + 1, onLine)
