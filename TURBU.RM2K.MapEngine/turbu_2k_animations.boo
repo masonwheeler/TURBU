@@ -18,7 +18,7 @@ import TURBU.RM2K.RPGScript
 
 interface IAnimTarget:
 
-	def position(sign as int) as TSgPoint
+	def Position(sign as int) as TSgPoint
 
 	def Flash(r as int, g as int, b as int, power as int, time as int)
 
@@ -83,6 +83,7 @@ class TAnimSprite(TParentSprite):
 
 	private FFrameCount as int
 
+	[DisposeParent]
 	private FSignal as EventWaitHandle
 
 	private def Move():
@@ -117,11 +118,11 @@ class TAnimSprite(TParentSprite):
 					sign = 1
 				default :
 					raise ESpriteError('Bad yTarget value')
-			position = FTarget.position(sign)
+			position = FTarget.Position(sign)
 			newSprite.X = (currFrame.Position.x + position.x) - (newSprite.Width / 2)
 			newSprite.Y = (currFrame.Position.y + position.y) - (newSprite.Height / 2)
 		newSprite.Z = 1
-		newSprite.ScaleX = (currFrame.Zoom cast double) / 100.0
+		newSprite.ScaleX = currFrame.Zoom / 100.0
 		newSprite.ScaleY = newSprite.ScaleX
 		newSprite.Red = commons.round(currFrame.Color.Rgba[1] * 1.275)
 		newSprite.Green = commons.round(currFrame.Color.Rgba[2] * 1.275)

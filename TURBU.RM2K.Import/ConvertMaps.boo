@@ -287,8 +287,8 @@ let MOVE_CODES = (
 	'TurnRight',		'TurnLeft',			'Turn180',			'Turn90',
 	'FaceRandom',		'FaceHero',			'FaceAwayFromHero',	'Pause',
 	'StartJump',		'EndJump',			'FacingFixed',		'FacingFree',
-	'SpeedUp',			'SpeedDown',	 	'FreqUp', 			'FreqDown',
-	'SwitchOn', 		'SwitchOff',	 	'ChangeSprite', 	'PlaySfx',
+	'SpeedUp',			'SpeedDown',		'FreqUp', 			'FreqDown',
+	'SwitchOn', 		'SwitchOff',		'ChangeSprite', 	'PlaySfx',
 	'ClipOff',	 		'ClipOn', 			'AnimStop', 		'AnimResume',
 	'TransparencyUp',	 'TransparencyDown')
 let CODES_WITH_PARAMS = (0x20, 0x21, 0x22, 0x23)

@@ -859,7 +859,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 
 	public def TakeDamage(power as int, Defense as int, mDefense as int, Variance as int) as int:
 		result = 0
-		for i in range(1, (MAXPARTYSIZE + 1)):
+		for i in range(1, MAXPARTYSIZE + 1):
 			if self[i] != GEnvironment.value.Heroes[0]:
 				result += FParty[i].TakeDamage(power, Defense, mDefense, Variance)
 		return result

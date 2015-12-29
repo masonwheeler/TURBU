@@ -640,8 +640,6 @@ class T2kMapEngine(TMapEngine):
 		FPartySprite = null
 		GSpriteEngine.value = null
 		GEnvironment.value = T2kEnvironment(FDatabase)
-		GScriptEngine.value.Reset()
-		//SetupScriptImports()
 		FPlaying = false
 		FCurrentMap = null
 		turbu.RM2K.savegames.Load(savefile, self.InitializeParty)

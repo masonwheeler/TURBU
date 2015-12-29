@@ -118,14 +118,14 @@ def EraseScreen(whichTransition as TTransitions):
 		turbu.RM2K.transitions.erase(LDefaultTransitions[TTransitionTypes.MapExit])
 	else:
 		turbu.RM2K.transitions.erase(whichTransition)
-	GScriptEngine.value.SetWaiting(waitForBlank)
+	GScriptEngine.value.SetWaiting(WaitForBlank)
 
 def ShowScreen(whichTransition as TTransitions):
 	if whichTransition == TTransitions.Default:
 		turbu.RM2K.transitions.show(LDefaultTransitions[TTransitionTypes.MapEnter])
 	else:
 		turbu.RM2K.transitions.show(whichTransition)
-	GScriptEngine.value.SetWaiting(waitForFadeEnd)
+	GScriptEngine.value.SetWaiting(WaitForFadeEnd)
 
 def EraseScreenDefault(whichTransition as TTransitionTypes):
 	EraseScreen(LDefaultTransitions[whichTransition])
@@ -193,7 +193,7 @@ def PanScreenTo(x as int, y as int, speed as int, wait as bool):
 	GSpriteEngine.value.DisplaceTo(x * TILE_SIZE.x, y * TILE_SIZE.y)
 	GSpriteEngine.value.SetDispSpeed(speed)
 	if wait:
-		GScriptEngine.value.SetWaiting(waitForPanEnd)
+		GScriptEngine.value.SetWaiting(WaitForPanEnd)
 
 def ReturnScreen(speed as int, wait as bool):
 	GSpriteEngine.value.Returning = true
@@ -246,7 +246,7 @@ def ShowBattleAnimT(engine as TSpriteEngine, which as int, target as IAnimTarget
 
 def WaitUntilMoved():
 	GEnvironment.value.Party.Sprite.CheckMoveChange()
-	for i in range(1, (GEnvironment.value.MapObjectCount + 1)):
+	for i in range(1, GEnvironment.value.MapObjectCount + 1):
 		if assigned(GEnvironment.value.MapObject[i]):
 			GEnvironment.value.MapObject[i].Base.CheckMoveChange()
 	GScriptEngine.value.SetWaiting(AllMoved)
@@ -267,13 +267,13 @@ def ChangeTileset(which as int):
 def RenderPause():
 	GGameEngine.value.RenderPause()
 
-private def waitForBlank() as bool:
+private def WaitForBlank() as bool:
 	return GGameEngine.value.CurrentMap.Blank
 
-private def waitForFadeEnd() as bool:
+private def WaitForFadeEnd() as bool:
 	return GSpriteEngine.value.State != TGameState.Fading
 
-private def waitForPanEnd() as bool:
+private def WaitForPanEnd() as bool:
 	return not GSpriteEngine.value.Displacing
 
 private def LoadAnim(filename as string):
@@ -283,11 +283,11 @@ private class TCharacterTarget(TObject, IAnimTarget):
 
 	private FTarget as TRpgCharacter
 
-	def position(sign as int) as TSgPoint:
+	def Position(sign as int) as TSgPoint:
 		result as TSgPoint
 		assert sign >= -1 and sign <= 1
-		result.x = FTarget.ScreenXP + (FTarget.Base.Tiles[1].Width / 2)
-		result.y = FTarget.ScreenYP + (FTarget.Base.Tiles[1].Height * sign)
+		result.x = FTarget.ScreenXP + (FTarget.Base.Tiles[0].Width / 2)
+		result.y = FTarget.ScreenYP + (FTarget.Base.Tiles[0].Height * sign)
 		return result
 
 	def Flash(r as int, g as int, b as int, power as int, time as int):
