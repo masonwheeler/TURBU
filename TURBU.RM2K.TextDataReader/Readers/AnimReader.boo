@@ -17,6 +17,9 @@ macro Animations(body as ExpressionStatement*):
 	yield ExpressionStatement([|Data()|])
 
 macro Animations.Animation(index as IntegerLiteralExpression, body as ExpressionStatement*):
+	macro CellSize(w as IntegerLiteralExpression, h as IntegerLiteralExpression):
+		return ExpressionStatement([|CellSize(sgPoint($w, $h))|])
+	
 	return ExpressionStatement(PropertyList('TAnimTemplate', index, body))
 
 macro Animations.Animation.Frames(body as ExpressionStatement*):

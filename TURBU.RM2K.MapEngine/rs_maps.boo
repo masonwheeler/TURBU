@@ -239,7 +239,7 @@ def ShowBattleAnimT(engine as TSpriteEngine, which as int, target as IAnimTarget
 	template as TAnimTemplate = GDatabase.value.Anim[which]
 	return if template == null
 	try:
-		LoadAnim(template.Filename)
+		LoadAnim(template.Filename, template.CellSize)
 	except:
 		return
 	TAnimSprite(engine, template, target, fullscreen, signal)
@@ -276,8 +276,9 @@ private def WaitForFadeEnd() as bool:
 private def WaitForPanEnd() as bool:
 	return not GSpriteEngine.value.Displacing
 
-private def LoadAnim(filename as string):
-	GSpriteEngine.value.Images.EnsureImage("Animations\\$filename.png", 'Anim ' + filename)
+private def LoadAnim(filename as string, cellSize as TSgPoint):
+	var image = GSpriteEngine.value.Images.EnsureImage("Animations\\$filename.png", 'Anim ' + filename)
+	image.TextureSize = cellSize
 
 private class TCharacterTarget(TObject, IAnimTarget):
 

@@ -8,12 +8,14 @@ import turbu.animations
 
 static class TAnimConverter:
 	def Convert(base as RMAnimation) as MacroStatement:
+		cellSize = (128 if base.LargeAnim else 96)
 		result = [|
 			Animation $(base.ID):
 				Name $(base.Name)
 				Filename $(base.Filename)
 				HitsAll $(base.HitsAll)
 				YTarget $(ReferenceExpression(Enum.GetName(TAnimYTarget, base.YTarget)))
+				CellSize $cellSize, $cellSize
 				Frames
 				Effects
 		|]

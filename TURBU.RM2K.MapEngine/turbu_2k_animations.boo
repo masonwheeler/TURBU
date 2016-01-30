@@ -26,6 +26,7 @@ class TAnimSpriteCell(TSprite):
 
 	public def constructor(AParent as TParentSprite):
 		super(AParent)
+		FImageType = TImageType.SpriteSheet
 
 	[Property(Sat)]
 	private FSaturation as int
@@ -45,23 +46,19 @@ class TAnimSpriteCell(TSprite):
 		GPU_BlitScale(
 			self.Image.Surface,
 			spriteRect,
-			self.Engine.Canvas.RenderTarget,
+			sdl.canvas.currentRenderTarget().RenderTarget,
 			center.x - (halfWidth * self.ScaleX),
 			center.y - (halfHeight * self.ScaleY),
 			self.ScaleX,
 			self.ScaleY)
 
 	protected override def DoDraw():
-		center as TSgFloatPoint
-		halfWidth as single
-		halfHeight as single
-		spriteRect as GPU_Rect
-		color = GPU_GetColor(self.Image.Surface)
+		var color = GPU_GetColor(self.Image.Surface)
 		PrepareShader(GSpriteEngine.value.ShaderEngine)
-		halfWidth = ((self.Width cast double) / 2.0)
-		halfHeight = ((self.Height cast double) / 2.0)
-		center = sgPointF((self.X + halfWidth), (self.Y + halfHeight))
-		spriteRect = self.Image.SpriteRect[self.ImageIndex]
+		halfWidth as single = self.PatternWidth / 2.0
+		halfHeight as single = self.PatternHeight / 2.0
+		var center = sgPointF(self.X + halfWidth, self.Y + halfHeight)
+		spriteRect as GPU_Rect = self.Image.SpriteRect[self.ImageIndex]
 		Drawself(center, halfWidth, halfHeight, spriteRect)
 		GPU_DeactivateShaderProgram()
 		GPU_SetColor(self.Image.Surface, color)
@@ -86,6 +83,21 @@ class TAnimSprite(TParentSprite):
 	[DisposeParent]
 	private FSignal as EventWaitHandle
 
+	public def constructor(parent as TSpriteEngine, base as TAnimTemplate, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
+		super(parent)
+		FBase = base
+		self.Z = 19
+		self.Pinned = true
+		FFrameCount = FBase.Frames.Last.Frame
+		FTimer = TRpgTimestamp(0)
+		FTarget = target
+		FFullScreen = fullscreen
+		FSignal = signal
+
+	private new def Destroy():
+		if assigned(FSignal):
+			FSignal.Set()
+
 	private def Move():
 		tr as uint = FTimer.TimeRemaining
 		return if tr > 0
@@ -98,10 +110,7 @@ class TAnimSprite(TParentSprite):
 		FTimer = TRpgTimestamp(32)
 
 	private def SetupFrame(currFrame as TAnimCell):
-		newSprite as TAnimSpriteCell
-		sign as short
-		position as TSgPoint
-		newSprite = TAnimSpriteCell(self)
+		var newSprite = TAnimSpriteCell(self)
 		newSprite.Pinned = true
 		newSprite.ImageName = ('Anim ' + FBase.Filename)
 		newSprite.ImageIndex = currFrame.ImageIndex
@@ -109,6 +118,7 @@ class TAnimSprite(TParentSprite):
 			newSprite.X = currFrame.Position.x + (Engine.Canvas.Width / 2)
 			newSprite.Y = currFrame.Position.y + (Engine.Canvas.Height / 2)
 		else:
+			sign as int
 			caseOf FBase.YTarget:
 				case TAnimYTarget.Top:
 					sign = -1
@@ -118,26 +128,25 @@ class TAnimSprite(TParentSprite):
 					sign = 1
 				default :
 					raise ESpriteError('Bad yTarget value')
-			position = FTarget.Position(sign)
+			position as TSgPoint = FTarget.Position(sign)
 			newSprite.X = (currFrame.Position.x + position.x) - (newSprite.Width / 2)
 			newSprite.Y = (currFrame.Position.y + position.y) - (newSprite.Height / 2)
 		newSprite.Z = 1
 		newSprite.ScaleX = currFrame.Zoom / 100.0
 		newSprite.ScaleY = newSprite.ScaleX
-		newSprite.Red = commons.round(currFrame.Color.Rgba[1] * 1.275)
+		newSprite.Red = commons.round(currFrame.Color.Rgba[1] * 1.275) //half of 2.55
 		newSprite.Green = commons.round(currFrame.Color.Rgba[2] * 1.275)
 		newSprite.Blue = commons.round(currFrame.Color.Rgba[3] * 1.275)
 		newSprite.Alpha = 255
 		newSprite.Sat = commons.round(currFrame.Color.Rgba[4] * 1.275)
 
 	private def PlayEffect(frame as ushort):
-		currEffect as TAnimEffects
 		r as byte
 		g as byte
 		b as byte
 		a as byte
 		while (FLastEffect < FBase.Effects.Count) and (FBase.Effects[FLastEffect].Frame == frame):
-			currEffect = FBase.Effects[FLastEffect]
+			currEffect as TAnimEffects = FBase.Effects[FLastEffect]
 			if currEffect.Sound.Filename != '':
 				PlaySoundData(currEffect.Sound)
 			caseOf currEffect.Flash:
@@ -156,21 +165,6 @@ class TAnimSprite(TParentSprite):
 
 	protected override def InVisibleRect() as bool:
 		return false
-
-	public def constructor(parent as TSpriteEngine, base as TAnimTemplate, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
-		super(parent)
-		FBase = base
-		self.Z = 19
-		self.Pinned = true
-		FFrameCount = FBase.Frames.Last.Frame
-		FTimer = TRpgTimestamp(0)
-		FTarget = target
-		FFullScreen = fullscreen
-		FSignal = signal
-
-	private new def Destroy():
-		if assigned(FSignal):
-			FSignal.Set()
 
 	public override def Draw():
 		self.Move()

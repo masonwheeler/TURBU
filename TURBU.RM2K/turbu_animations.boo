@@ -17,33 +17,6 @@ enum TFlashTarget:
 	Target
 	Screen
 
-/*
-[Pythia.Attributes.DelphiClass]
-class UploadColorAttribute(TDBUploadAttribute):
-
-	public override def upload(db as DataTable, field as TRttiField, instance as TObject):
-		anim as TAnimEffects
-		assert instance isa TAnimEffects
-		db.FieldByName('color').AsInteger = integer(anim.FColor.color)
-
-	public override def download(db as DataTable, field as TRttiField, instance as TObject):
-		anim as TAnimEffects
-		assert instance isa TAnimEffects
-		anim.FColor.color = cardinal(db.FieldByName('color').AsInteger)
-
-[Pythia.Attributes.DelphiClass]
-class UploadCellColorAttribute(TDBUploadAttribute):
-
-	public override def upload(db as DataTable, field as TRttiField, instance as TObject):
-		anim as TAnimCell
-		assert instance isa TAnimCell
-		db.FieldByName('color').AsInteger = integer(anim.FColor.color)
-
-	public override def download(db as DataTable, field as TRttiField, instance as TObject):
-		anim as TAnimCell
-		assert instance isa TAnimCell
-		anim.FColor.color = cardinal(db.FieldByName('color').AsInteger)
-*/
 class TAnimEffects(TRpgDatafile):
 
 	[Property(Frame)]
@@ -101,7 +74,7 @@ class TAnimCell(TRpgDatafile):
 
 	[Property(ImageIndex)]
 	private FImageIndex as int
-	
+
 	[Property(Transparency)]
 	private FTransparency as int
 
@@ -122,6 +95,9 @@ class TAnimTemplate(TRpgDatafile):
 
 	[Property(YTarget)]
 	private FYTarget as TAnimYTarget
+
+	[Property(CellSize)]
+	private FCellSize as TSgPoint
 
 	public def constructor():
 		super()
