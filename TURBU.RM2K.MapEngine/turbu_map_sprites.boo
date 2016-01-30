@@ -341,6 +341,22 @@ class TMapSprite(TObject):
 		FMoveRate = Math.Max(1, FMoveRate - 1)
 		return true
 
+	public def ClipOff():
+		FSlipThrough = true
+		return true
+
+	public def ClipOn():
+		FSlipThrough = false
+		return true
+
+	public def FacingFixed():
+		FDirLocked = true
+		return true
+
+	public def FacingFree():
+		FDirLocked = false
+		return true
+
 	protected virtual def DoMove(which as Path) as bool:
 		unless assigned(FMoveStep):
 			FMoveStep = which.NextCommand()
@@ -378,8 +394,6 @@ class TMapSprite(TObject):
 			case 33: GEnvironment.value.Switch[FOrder.Data[1]] = false
 			case 34: FChangeSprite(FOrder.Name, FOrder.Data[1] == 1, 0)
 			case 35: PlaySound(FOrder.Name, FOrder.Data[1], FOrder.Data[2], FOrder.Data[3])
-			case 36: FSlipThrough = true
-			case 37: FSlipThrough = false
 			case 38: self.AnimFix = true
 			case 39: self.AnimFix = false
 			case 40: IncTransparencyFactor()
