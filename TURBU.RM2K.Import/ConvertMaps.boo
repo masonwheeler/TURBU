@@ -124,7 +124,7 @@ static class TMapConverter:
 		tile -= 10000
 		group = tile / 48
 		assert group <= 2
-		group += 18
+		group += 19
 		return (group << 8) + (tile % 48)
 	
 	private def ConvertLowTileValue(tile as int) as int:
