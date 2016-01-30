@@ -161,16 +161,19 @@ vec3 ProcessShifts(vec3 rgbColor)
 
 		self.Vertex.Add('default',
 """
-#version 110
-varying vec4 v_color;
-varying vec2 texture_coordinate; 
+#version 130
+in vec2 RPG_Vertex;
+in vec2 RPG_TexCoord;
+uniform mat4 RPG_ModelViewProjectionMatrix;
+out vec2 texture_coordinate;
+out vec4 v_color;
 
 void main()
 {
-  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  gl_Position = RPG_ModelViewProjectionMatrix * vec4(RPG_Vertex, 0.0, 1.0);
 
   // Passing The Texture Coordinate Of Texture Unit 0 To The Fragment Shader
-  texture_coordinate = vec2(gl_MultiTexCoord0);
+  texture_coordinate = RPG_TexCoord;
   v_color = gl_Color;
   gl_FrontColor = gl_Color;
 }""")
@@ -205,7 +208,7 @@ void main()
 
 		self.Fragment.Add('tint',
 """
-#version 110
+#version 140
 varying vec2 texture_coordinate; 
 varying vec4 v_color;
 uniform sampler2D baseTexture;
