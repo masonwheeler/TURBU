@@ -129,8 +129,8 @@ class TAnimSprite(TParentSprite):
 				default :
 					raise ESpriteError('Bad yTarget value')
 			position as TSgPoint = FTarget.Position(sign)
-			newSprite.X = (currFrame.Position.x + position.x) - (newSprite.Width / 2)
-			newSprite.Y = (currFrame.Position.y + position.y) - (newSprite.Height / 2)
+			newSprite.X = currFrame.Position.x + position.x
+			newSprite.Y = currFrame.Position.y + position.y
 		newSprite.Z = 1
 		newSprite.ScaleX = currFrame.Zoom / 100.0
 		newSprite.ScaleY = newSprite.ScaleX
@@ -178,4 +178,3 @@ class TAnimSprite(TParentSprite):
 		g = commons.round(effect.g * MULTIPLIER_31)
 		b = commons.round(effect.b * MULTIPLIER_31)
 		a = commons.round(effect.a * MULTIPLIER_31)
-
