@@ -33,17 +33,15 @@ class TFastSpriteList(List[of TSprite]):
 	private FSorted as bool
 
 	public def constructor():
-		i as int
 		super()
 		Array.Resize[of List[of TSprite]](FSprites, 11)
-		for I in range(0, 11):
+		for i in range(11):
 			FSprites[i] = List[of TSprite]()
 
 	public new def Add(ASprite as TSprite) as int:
-		z as int
 		result = Count
 		super.Add(ASprite)
-		z = ASprite.Z
+		z as int = ASprite.Z
 		if z >= FSprites.Length:
 			Array.Resize[of List[of TSprite]](FSprites, z + 1)
 		if FSprites[z] == null:
