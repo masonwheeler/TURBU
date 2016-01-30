@@ -62,13 +62,16 @@ partial class TdmShaders(TDataModule):
 	private FUniforms = Dictionary[of TUniform, int]()
 
 	def constructor():
-		super()
-		for name in FragLibs.MultipleStrings.Keys:
-			self.GetShader(name, FragLibs)
-		for name in Vertex.MultipleStrings.Keys:
-			self.GetShader(name, Vertex)
-		for name in Fragment.MultipleStrings.Keys:
-			self.GetShader(name, Fragment)
+		try:
+			super()
+			for name in FragLibs.MultipleStrings.Keys:
+				self.GetShader(name, FragLibs)
+			for name in Vertex.MultipleStrings.Keys:
+				self.GetShader(name, Vertex)
+			for name in Fragment.MultipleStrings.Keys:
+				self.GetShader(name, Fragment)
+		failure:
+			self.Dispose()
 
 	private def GetShader(name as string, container as TJvMultiStringHolder) as int:
 		shaderText as string

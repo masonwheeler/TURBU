@@ -378,11 +378,10 @@ class T2kMapEngine(TMapEngine):
 			FObjectManager.ScriptEngine.KillAll(null) if FObjectManager is not null
 			GMenuEngine.Value = null
 		FShaderEngine.Dispose() if assigned(FShaderEngine)
-		FShaderEngine = null
 		GEnvironment.value = null
 		FPartySprite = null
 		FCanvas = null
-		FImages = null
+		FImages.Dispose() if assigned(FImages)
 		FSignal = null
 		FImageEngine = null
 		FWeatherEngine = null
