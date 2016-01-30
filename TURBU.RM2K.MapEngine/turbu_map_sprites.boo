@@ -115,7 +115,7 @@ class TMapSprite(TObject):
 			SetLocation(lTarget)
 		FTarget.x -= WIDTH_BIAS
 		assert not assigned(FMoveTime)
-		FMoveTime = TRpgTimestamp(MOVE_DELAY[FMoveRate])
+		FMoveTime = TRpgTimestamp(MOVE_DELAY[FMoveRate - 1])
 		EnterTile()
 
 	private def SetMoveOrder(value as Path):
@@ -196,7 +196,7 @@ class TMapSprite(TObject):
 	private def OpChangeFacing(dir as TDirections):
 		self.Facing = dir
 		FMoveTime = TRpgTimestamp(100)
-		FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate] / 3)
+		FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate - 1] / 3)
 
 	private DirLocked as bool:
 		get: return (self.HasPage and (FMapObj.CurrentPage.AnimType in range(TAnimType.FixedDir, TAnimType.SpinRight + 1))) or FDirLocked
@@ -720,11 +720,11 @@ class TCharSprite(TMapSprite):
 		moveDelay as int
 		return if FJumpAnimateOverride or self.AnimFix or FAnimTimer.TimeRemaining > 0
 		++FWhichFrame
-		if FWhichFrame >= FOOTSTEP_CONSTANT[FMoveRate]:
+		if FWhichFrame >= FOOTSTEP_CONSTANT[FMoveRate - 1]:
 			FWhichFrame = 0
 			newFrame = (FMoveFrame + 1) % FActionMatrix[FAction].Length
 		else: newFrame = FMoveFrame
-		moveDelay = ANIM_DELAY[FMoveRate]
+		moveDelay = ANIM_DELAY[FMoveRate - 1]
 		if HasPage:
 			caseOf FMapObj.CurrentPage.AnimType:
 				case TAnimType.Sentry, TAnimType.FixedDir: FMoveFrame = (newFrame if assigned(FMoveTime) else 0)
