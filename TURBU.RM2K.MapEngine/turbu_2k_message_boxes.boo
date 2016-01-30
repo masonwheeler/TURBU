@@ -86,7 +86,7 @@ class TMessageBox(TGameMenuBox):
 
 	protected def InsertText(Text as string):
 		for i in range(Text.Length):
-			FParsedText.Insert(FTextCounter + i, Text[i].ToString())
+			FParsedText.Insert(FTextCounter + i + 1, Text[i].ToString())
 
 	protected override def DrawText():
 		if FTextCounter == 0:
