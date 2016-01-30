@@ -74,6 +74,8 @@ class TScriptThread(TThread):
 				try:
 					if FPage.Script is not null:
 						FParent.RunScript(FPage.Script)
+				except as EAbort:
+					pass
 				ensure:
 					Thread.Sleep(TRpgTimestamp.FrameLength)
 					FPage.Parent.Playing = false
