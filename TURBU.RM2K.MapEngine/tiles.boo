@@ -216,7 +216,7 @@ class TEventTile(TTile, IDisposable):
 		if assigned(FEvent) and assigned(FEvent.CurrentPage):
 			self.ImageIndex = FEvent.CurrentPage.SpriteIndex
 			if FEvent.CurrentPage.Tilegroup != -1:
-				name = engine.Tileset.Records[FEvent.CurrentPage.Tilegroup + 1].Group.Name
+				name = engine.Tileset.Records[FEvent.CurrentPage.Tilegroup].Group.Name
 			else: name = FEvent.CurrentPage.Name
 			engine.EnsureImage(name)
 		else: name = ''
