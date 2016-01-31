@@ -18,7 +18,7 @@ import Newtonsoft.Json
 import Newtonsoft.Json.Linq
 import TURBU.Meta
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TRpgImageSprite(TSprite):
 
 	private FRefPoint as TSgFloatPoint
@@ -267,7 +267,7 @@ class TRpgImageSprite(TSprite):
 			return result
 		set: FTransitionTimer = TRpgTimestamp(value)
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TRpgImage(TObject):
 
 	[Getter(Base)]
