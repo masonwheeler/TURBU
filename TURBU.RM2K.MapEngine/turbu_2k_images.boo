@@ -282,28 +282,23 @@ class TRpgImage(TObject):
 
 	[NoImport]
 	public def constructor(engine as TSpriteEngine, obj as JObject):
-		Name as string
-		x as int
-		y as int
+		name as string = ''
 		wx as single
 		wy as single
 		zoom as int
-		pinned as bool
-		masked as bool
-		pinned = false
-		masked = false
-		Name = ''
-		x = 0
-		y = 0
+		pinned as bool = false
+		masked as bool = false
+		x as int = 0
+		y as int = 0
 		obj.CheckRead('Masked', masked)
 		obj.CheckRead('Pinned', pinned)
-		obj.CheckRead('Name', Name)
+		obj.CheckRead('Name', name)
 		obj.CheckRead('X', x)
 		obj.CheckRead('Y', x)
 		obj.CheckRead('Zoom', zoom)
 		obj.CheckRead('WorldX', wx)
 		obj.CheckRead('WorldY', wy)
-		self(engine, Name, x, y, wx, wy, zoom, pinned, masked)
+		self(engine, name, x, y, wx, wy, zoom, pinned, masked)
 		FSprite.Deserialize(obj)
 		obj.CheckEmpty()
 
