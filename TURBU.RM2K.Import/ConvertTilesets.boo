@@ -7,6 +7,7 @@ import Boo.Lang.Compiler.Ast
 import Pythia.Runtime
 import SDL2.SDL
 import SDL2.SDL_image
+import SDL2.SDL_Pnglite
 import TURBU.Meta
 import TURBU.RM2K.Import.LCF
 
@@ -135,7 +136,7 @@ public def ConvertTileset(filename as string, outPath as string) as MacroStateme
 				aSubSurface as SDL_Surface = Marshal.PtrToStructure(subSurface, SDL_Surface)
 				SDL_SetPaletteColors(aSubSurface.Format.palette, aFormat.Palette.colors, 0, aFormat.Palette.ncolors)
 				SDL_BlitSurface(surface, currentRect, subSurface, IntPtr.Zero)
-				unless IMG_SavePNG(subSurface, System.IO.Path.Combine(outPath, "$(lFilename)-$(TILESET_NAME[i]).png")) == 0:
+				unless SDL_SavePNG(subSurface, System.IO.Path.Combine(outPath, "$(lFilename)-$(TILESET_NAME[i]).png")) == 0:
 					raise SDL_GetError()
 				yield CreateNewGroup(lFilename, i)
 			ensure:
