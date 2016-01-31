@@ -259,30 +259,27 @@ class T2kEnvironment(TObject):
 			FTimer2 = TRpgTimer(TSystemTimer(GGameEngine.value.ImageEngine))
 
 	public def KeyScan(mask as TButtonCode, wait as bool) as int:
-		scan as TButtonCode
-		thread as TScriptThread
-		btn as TButtonCode
 		assert not TThread.CurrentThread.IsMainThread
-		thread = (TThread.CurrentThread cast TScriptThread)
+		thread as TScriptThread = (TThread.CurrentThread cast TScriptThread)
 		while wait and FKeyLock:
 			GScriptEngine.value.ThreadWait()
-			scan = GGameEngine.value.ReadKeyboardState()
-			Thread.Sleep(TRpgTimestamp.FrameLength)
-			scan = scan | GGameEngine.value.ReadKeyboardState()
-			scan = scan & mask
-			if wait and (scan == TButtonCode.None):
-				GScriptEngine.value.SetWaiting(WaitForKeyPress)
-				repeat :
-					GScriptEngine.value.ThreadWait()
-					scan = (GGameEngine.value.ReadKeyboardState() & mask)
-					until scan != TButtonCode.None or thread.Terminated
-				FKeyLock = true
-			result = 0
-			if scan == TButtonCode.None:
-				return result
-			else:
-				for btn in scan.Values():
-					return ord(btn) //return lowest value found in set
+		scan as TButtonCode = GGameEngine.value.ReadKeyboardState()
+		Thread.Sleep(TRpgTimestamp.FrameLength)
+		scan = scan | GGameEngine.value.ReadKeyboardState()
+		scan = scan & mask
+		if wait and (scan == TButtonCode.None):
+			GScriptEngine.value.SetWaiting(WaitForKeyPress)
+			repeat :
+				GScriptEngine.value.ThreadWait()
+				scan = (GGameEngine.value.ReadKeyboardState() & mask)
+				until scan != TButtonCode.None or thread.Terminated
+			FKeyLock = true
+		result = 0
+		if scan == TButtonCode.None:
+			return result
+		else:
+			for btn in scan.Values():
+				return (Math.Log(ord(btn), 2) + 1) cast int //return lowest value found in set
 		return result
 
 	public def Wait(duration as int):
