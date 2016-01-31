@@ -64,6 +64,7 @@
     <Compile Include="BooReaderEnvironmentStep.boo" />
     <Compile Include="FixNegativeNumbers.boo" />
     <Compile Include="Readers\AnimReader.boo" />
+    <Compile Include="Readers\GlobalVarsReader.boo" />
     <Compile Include="Readers\HeroReader.boo" />
     <Compile Include="Readers\ItemReader.boo" />
     <Compile Include="Readers\MapDataReader.boo" />

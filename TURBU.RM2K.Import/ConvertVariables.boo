@@ -6,14 +6,14 @@ import Boo.Lang.Compiler.Ast
 import TURBU.RM2K.Import.LCF
 
 static class TVariableConverter:
-	public def Convert(switches as RMVariable*, variables as RMVariable*) as Block:
-		result = Block()
+	public def Convert(switches as RMVariable*, variables as RMVariable*) as MacroStatement:
+		result = MacroStatement('GlobalVars')
 		swMacro = MacroStatement('Switches')
-		result.Add(swMacro)
+		result.Body.Add(swMacro)
 		for variable in switches.Where({v | not string.IsNullOrEmpty(v.Name)}):
 			swMacro.Body.Add([|$(variable.ID) = $(variable.Name)|])
 		varMacro = MacroStatement('Variables')
-		result.Add(varMacro)
+		result.Body.Add(varMacro)
 		for variable in variables.Where({v | not string.IsNullOrEmpty(v.Name)}):
 			varMacro.Body.Add([|$(variable.ID) = $(variable.Name)|])
 		return result

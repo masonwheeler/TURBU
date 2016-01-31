@@ -11,6 +11,7 @@ import turbu.containers
 import turbu.defs
 import turbu.items
 import turbu.map.metadata
+import TURBU.Meta
 import turbu.resists
 import turbu.skills
 import turbu.sounds
@@ -27,6 +28,11 @@ import turbu.monsters
 class TRpgVocabDictionary(TRpgDatafile):
 	[Getter(Vocab)]
 	FVocab = Dictionary[of string, string]()
+
+[TableName('Variables')]
+class TRpgVarsList(TRpgDatafile)
+	[Getter(Values)]
+	FValues = Dictionary[of string, int]()
 
 [Transient]
 class TRpgDatabase(TRpgDatafile, IRpgDatabase):
@@ -116,6 +122,18 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 		FSysVocab = reader.GetReader[of TRpgVocabDictionary](true).GetData(0)
 		FMapTree = reader.GetReader[of TMapTree](true).GetData(0)
 		FMoveMatrix = FLayout.MoveMatrix
+		LoadVarArrays(reader)
+	
+	private def LoadVarArrays(reader as TURBU.DataReader.IDataReader):
+		vars = reader.GetReader[of TRpgVarsList](true).GetData(0)
+		list as List[of string]
+		for value in vars.Values:
+			caseOf value.Key:
+				case 'Switches': list = FSwitches
+				case 'Variables': list = FVariables
+				default: continue
+			for i in range(value.Value + 1):
+				list.Add('') //in the game engine, we don't care about the names
 	
 	private def LoadSounds(reader as TURBU.DataReader.IDataReader):
 		soundReader = reader.GetReader[of TRpgSound](true)
