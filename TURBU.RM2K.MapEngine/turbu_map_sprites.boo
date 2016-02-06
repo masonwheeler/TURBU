@@ -356,6 +356,10 @@ class TMapSprite(TObject):
 	public def FacingFree():
 		FDirLocked = false
 		return true
+	
+	public def ChangeSprite(name as string, translucent as int):
+		FChangeSprite(name, translucent == 1, 0)
+		return true
 
 	protected virtual def DoMove(which as Path) as bool:
 		unless assigned(FMoveStep):
@@ -392,7 +396,6 @@ class TMapSprite(TObject):
 			case 31: FMoveFreq = Math.Min(0, (FMoveFreq - 1))
 			case 32: GEnvironment.value.Switch[FOrder.Data[1]] = true
 			case 33: GEnvironment.value.Switch[FOrder.Data[1]] = false
-			case 34: FChangeSprite(FOrder.Name, FOrder.Data[1] == 1, 0)
 			case 35: PlaySound(FOrder.Name, FOrder.Data[1], FOrder.Data[2], FOrder.Data[3])
 			case 38: self.AnimFix = true
 			case 39: self.AnimFix = false
