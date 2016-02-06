@@ -36,17 +36,18 @@ def ConvertGlobalEvent(value as GlobalEvent, ScanScript as Action[of EventComman
 	name = SanitizeScriptName(value.Name)
 	script = ConvertPageScript(value.ID, 1, value.Script, ScanScript, makeWarning)
 	script.Name = 'GlobalScript'
+	script.Arguments.RemoveAt(script.Arguments.Count - 1)
 	saveScript(script)
 	result = [|
 		Script $(value.ID):
-			Name $(ReferenceExpression(name))
+			Name $(StringLiteralExpression(name))
 	|]
 	caseOf value.StartCondition:
-		case 3: cond = [|AutoStart|]
+		case 3: cond = [|Automatic|]
 		case 4: cond = [|ParallelProcess|]
 		case 5: cond = [|Call|]
 		default: assert false
-	result.Body.Add([|StartCondition $cond|])
+	result.Body.Add([|Trigger $cond|])
 	result.Body.Add([|Switch $(value.Switch)|]) if value.UsesSwitch
 	return result
 
@@ -133,7 +134,7 @@ class TScriptConverter:
 		10620: {c, e, p | p.Add([|Heroes[$(e.Data[0])].Title = $(e.Name)|])}, 11060: ConvertPanScreen,
 		10670: {c, e, p | p.Add([|SetSystemSound(ReferenceExpression(TSfxTypes.$(Enum.GetName(TSfxTypes, e.Data[0]))), $(e.Name), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]))|])},
 		10680: {c, e, p | p.Add([|SetSkin($(e.Name), $(e.Data[0] != 0))|])}, 10840: {c, e, p | p.Add([|RideVehicle()|])},
-		10820: {c, e, p | p.Add([|MemorizeLocationToInts($(e.Data[0]), $(e.Data[1]), $(e.Data[2]))|])},
+		10820: {c, e, p | p.Add([|MemorizeLocation($(e.Data[0]), $(e.Data[1]), $(e.Data[2]))|])},
 		10830: {c, e, p | p.Add([|Teleport(Ints[$(e.Data[0])], Ints[$(e.Data[1])], Ints[$(e.Data[2])])|])},
 		11030: {c, e, p | p.Add([|TintScreen($(e.Data[0]), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]), $(e.Data[4]), $(e.Data[5] != 0))|])},
 		11070: {c, e, p | p.Add([|SetWeather(TWeatherEffects.$(ReferenceExpression(Enum.GetName(TWeatherEffects, e.Data[0]))), $(e.Data[1]))|])},

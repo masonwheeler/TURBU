@@ -441,7 +441,8 @@ class T2kMapEngine(TMapEngine):
 				GScriptEngine.value.OnRenderUnpause = self.RenderUnpause
 				GEnvironment.value = T2kEnvironment(FDatabase)
 				dmDatabase.value.RegisterEnvironment(GEnvironment.value)
-				FObjectManager.LoadGlobalScripts(GDatabase.value.GlobalEvents)
+				FDatabase.LoadGlobalEvents(dmDatabase.value.MapLoader)
+				FObjectManager.LoadGlobalScripts(FDatabase.GlobalEvents)
 				FObjectManager.OnUpdate = GEnvironment.value.UpdateEvents
 			else:
 				FDatabase = GDatabase.value

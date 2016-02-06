@@ -271,10 +271,9 @@ class TMapObjectManager(TObject):
 
 	public def LoadGlobalScripts(list as TRpgObjectList[of TRpgMapObject]):
 		assert FGlobalScripts.Count == 0
-		for i in range(0, list.Count):
-			page as TRpgEventPage = list[i].Pages[0]
-			if page.Trigger != TStartCondition.Call:
-				FGlobalScripts.Add(page)
+		for obj in list:
+			obj.Initialize()
+		FGlobalScripts.AddRange(list.Select({o | o.Pages[0]}).Where({p | p.Trigger != TStartCondition.Call}))
 
 	public def LoadMap(map as IRpgMap, context as TThread):
 		FMapObjects.Clear()
@@ -287,9 +286,10 @@ class TMapObjectManager(TObject):
 			if assigned(obj.CurrentPage) and (obj.CurrentPage.HasScript) and (not obj.Locked or obj.Playing) \
 					and (obj.CurrentPage.Trigger in (TStartCondition.Automatic, TStartCondition.Parallel)):
 				FPlaylist.Add(obj.CurrentPage)
-		for page in FGlobalScripts:
-			obj = page.Parent
-			FPlaylist.Add(page) if (not (obj.Locked or obj.Playing)) and page.Valid
+		for gPage in FGlobalScripts:
+			gObj = gPage.Parent
+			if (not (gObj.Locked or gObj.Playing)) and gPage.Valid:
+				FPlaylist.Add(gPage)
 		if assigned(FOnUpdate):
 			FOnUpdate()
 		if FScriptEngine.TeleportThread == null:

@@ -56,3 +56,6 @@ class ScriptProcessor(DepthFirstTransformer):
 		onLine.LexicalInfo = node.LexicalInfo
 		onLine.IsSynthetic = true
 		parent.Insert(idx + 1, onLine)
+
+macro comment:
+	pass

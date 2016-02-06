@@ -226,7 +226,7 @@ class TRpgEventPage(TRpgDatafile):
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def IsValid() as bool:
-		return FConditions()
+		return (FConditions() if assigned(FConditions) else true)
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def HasScriptFunction() as bool:

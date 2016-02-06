@@ -11,6 +11,7 @@ class TdmDatabase(TDataModule):
 	[Getter(Reader)]
 	private _reader as IDataReader
 	
+	[Getter(MapLoader)]
 	private _mapLoader as IMapLoader
 	
 	override def Initialize():

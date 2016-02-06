@@ -25,3 +25,4 @@ interface IDataTypeReader[of T(IRpgObject)]:
 
 interface IMapLoader:
 	def GetMap(name as string) as TURBU.MapInterface.IRpgMap
+	def GetGlobals() as TURBU.MapInterface.IRpgMapObject*

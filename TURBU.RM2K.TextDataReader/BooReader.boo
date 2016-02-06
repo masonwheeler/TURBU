@@ -168,3 +168,12 @@ import TURBU.RM2K.RPGScript""")
 		if ctx.Errors.Count > 0:
 			raise ctx.Errors.ToString()
 		return _mapLoader.LastValue cast TURBU.MapInterface.IRpgMap
+
+	def GetGlobals() as TURBU.MapInterface.IRpgMapObject*:
+		dbFile = File.ReadAllLines(Path.Combine(_path, 'Database', 'GlobalEvents.tdb'))
+		scriptFile = File.ReadAllLines(Path.Combine(_path, 'Scripts', 'GlobalScripts.boo'))
+		text = string.Join(System.Environment.NewLine, scriptFile.Concat(dbFile))
+		ctx = _mapLoader.Eval(text)
+		if ctx.Errors.Count > 0:
+			raise ctx.Errors.ToString()
+		return _mapLoader.LastValue cast TURBU.MapInterface.IRpgMapObject*

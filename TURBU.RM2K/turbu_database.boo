@@ -124,6 +124,10 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 		FMoveMatrix = FLayout.MoveMatrix
 		LoadVarArrays(reader)
 	
+	public def LoadGlobalEvents(reader as TURBU.DataReader.IMapLoader):
+		assert FGlobalEvents.Count == 0
+		FGlobalEvents.AddRange(reader.GetGlobals().Cast[of TRpgMapObject]())
+	
 	private def LoadVarArrays(reader as TURBU.DataReader.IDataReader):
 		vars = reader.GetReader[of TRpgVarsList](true).GetData(0)
 		list as List[of string]
