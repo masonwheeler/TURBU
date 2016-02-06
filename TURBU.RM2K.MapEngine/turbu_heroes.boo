@@ -869,7 +869,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 			i = 1
 			while (self[i] != GEnvironment.value.Heroes[0]) and (i <= MAXPARTYSIZE):
 				++i
-				result = (0 if i > MAXPARTYSIZE else i)
+			result = (0 if i > MAXPARTYSIZE else i)
 			return result
 
 	public Size as int:
