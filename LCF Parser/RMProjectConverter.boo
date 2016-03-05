@@ -43,8 +43,9 @@ class RMProjectConverter(TThread):
 	converter:
 		task "Loading Project Files":
 			using fs = FileStream(Path.Combine(_projectFolder, 'RPG_RT.LDB'), FileMode.Open):
+				_2k3 = DatabaseVersion(fs) == 2003
+				LCFWord.Is2k3 = _2k3
 				_ldb = LDB(fs)
-			_2k3 = _ldb.SysData.RMVersion == 2003
 			using fs = FileStream(Path.Combine(_projectFolder, 'RPG_RT.LMT'), FileMode.Open):
 				_lmt = LMT(fs)
 			_scripts = Path.Combine(_outputPath, 'Scripts')

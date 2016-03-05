@@ -3,6 +3,17 @@
 import System
 import System.Linq.Enumerable
 
+def DatabaseVersion(stream as System.IO.Stream) as int:
+	preserving stream.Position:
+		assert ReadLCFString(stream) == 'LcfDataBase'
+		var current = BERInt(stream)
+		while current < 0x16:
+			stream.Position = (BERInt(stream) + stream.Position)
+			current = BERInt(stream)
+		BERInt(stream) //read length and discard
+		var SysData = RMSystemRecord(stream)
+		return SysData.RMVersion
+
 LCFObject LDB:
 	header 'LcfDataBase'
 	0x0B = Heroes as (RMHero)
