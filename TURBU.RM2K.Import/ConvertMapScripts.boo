@@ -563,7 +563,6 @@ class TScriptConverter:
 			if ec.Data[5] == 1:
 				result.Arguments.Add([|5|])
 			else: result.Arguments.Add([|$(ec.Data[6])|])
-			result.Arguments.Add([|$(ec.Data[2])|])
 			caseOf ec.Data[2]:
 				case 0: result.Arguments.Add([|0|])
 				case 1: result.Arguments.Add([|$(ec.Data[7] - 1)|])

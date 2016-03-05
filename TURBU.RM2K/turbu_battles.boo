@@ -6,13 +6,13 @@ import turbu.defs
 
 class TBattleConditions(TObject):
 
-	[Getter(background)]
+	[Getter(Background)]
 	private FBackground as string
 
-	[Getter(results)]
+	[Getter(Results)]
 	private FResults as TBattleResult
 
-	[Getter(formation)]
+	[Getter(Formation)]
 	private FFormation as TBattleFormation
 
 	public def constructor(background as string, formation as TBattleFormation, results as TBattleResult):

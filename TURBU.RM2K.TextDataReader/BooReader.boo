@@ -154,6 +154,7 @@ import Pythia.Runtime
 import turbu.defs
 import turbu.maps
 import SG.defs
+import TURBU.BattleEngine
 import TURBU.MapObjects
 import TURBU.Meta
 import TURBU.RM2K.RPGScript""")
