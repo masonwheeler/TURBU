@@ -1,7 +1,8 @@
 namespace timing
 
-import Pythia.Runtime
 import System
+import System.Linq.Enumerable
+import Pythia.Runtime
 
 class TRpgTimestamp(TObject):
 
@@ -12,7 +13,6 @@ class TRpgTimestamp(TObject):
 	private static FFrameLength = array(int, 10)
 
 	private static def constructor():
-		i as int
 		for i in range(FFrameLength.Length):
 			FFrameLength[i] = 16
 
@@ -39,7 +39,7 @@ class TRpgTimestamp(TObject):
 			if FMsec >= 1000:
 				++FSec
 				FMsec -= 1000
-			length = (length / 1000)
+			length /= 1000
 			return if length == 0
 			FSec += length % 60
 			while FSec >= 60:
@@ -56,12 +56,6 @@ class TRpgTimestamp(TObject):
 		ensure:
 			if FHour == 0:
 				FHour = 24
-
-	private static def GetFrameLength() as int:
-		sum = 0
-		for i in FFrameLength:
-			sum += i
-		return Math.Round((sum cast double) / (FFrameLength.Length cast double))
 
 	public def constructor(length as int):
 		super()
@@ -120,7 +114,7 @@ class TRpgTimestamp(TObject):
 				FFrameLength[FCounter] = delta
 
 	public static FrameLength as int:
-		get: return GetFrameLength()
+		get: return Math.Round(FFrameLength.Average())
 
 def MoveTowards(timer as int, ref current as double, goal as double):
 	timefactor as int = Math.Max((timer / TRpgTimestamp.FrameLength), 1)

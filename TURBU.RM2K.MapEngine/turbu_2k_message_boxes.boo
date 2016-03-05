@@ -44,7 +44,7 @@ class TMessageBox(TGameMenuBox):
 				System.Threading.Monitor.Exit(self)
 
 	private def SetTextRate(value as int):
-		FTextRate = (value * 0.1)
+		FTextRate = value * 0.0167
 
 	protected override def NewLine():
 		++FTextLine
