@@ -31,7 +31,7 @@ import SDL2.SDL2_GPU
 import System.Linq.Enumerable
 import TURBU.Meta
 
-let BASESPEED = 2.2
+let BASESPEED = 0.55
 let SHAKE_MAX = 23
 let MOVESPEED = (0, BASESPEED / 8, BASESPEED / 4, BASESPEED / 2, BASESPEED, BASESPEED * 2, BASESPEED * 4)
 
