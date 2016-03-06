@@ -5,14 +5,11 @@ import System.Drawing
 import System.Linq.Enumerable
 import turbu.containers
 import SG.defs
-//import archiveInterface
-//import dm_database
 import Boo.Adt
 import Pythia.Runtime
 import turbu.classes
 import TURBU.MapInterface
 import TURBU.Meta
-import TURBU.RM2K
 import turbu.tilesets
 import turbu.map.metadata
 import TURBU.MapObjects
@@ -163,13 +160,6 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	def GetMapObjects() as IRpgMapObject*:
 		return FMapObjects.Cast[of IRpgMapObject]()
 
-	def GetScript() as string:
-		result = dmDatabase.value.ScriptLookup(self.ID)
-		if result == BAD_LOOKUP:
-			assert false
-			//result = self.ScriptObject.GetScript(0)
-		return result
-
 	[Property(EncounterParams)]
 	protected FEncounters = array(int, 4)
 
@@ -184,7 +174,6 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	public def constructor():
 		super()
 		self.SetDepth(turbu.constants.LAYERS)
-//		FScriptFile = ScriptFilename()
 		FModified = true
 
 	public def Initialize():
@@ -294,11 +283,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 			return GetBattleCount()
 		set:
 			SetBattleCount(value)
-/*
-	public ScriptObject as TEBMap:
-		get:
-			return GetScriptObject()
-*/
+
 	public Width as int:
 		get: return FSize.x
 

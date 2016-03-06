@@ -17,9 +17,6 @@ class TdmDatabase(TDataModule):
 	override def Initialize():
 		pass
 	
-	public def ScriptLookup(id as int) as string:
-		assert false
-	
 	def NameLookup(name as string, id as int) as string:
 		assert false
 	

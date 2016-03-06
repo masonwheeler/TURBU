@@ -13,8 +13,6 @@ interface IRpgMap(IRpgObject):
 
 	def GetMapObjects() as IRpgMapObject*
 
-	def GetScript() as string
-
 	Tileset as int:
 		get
 		set

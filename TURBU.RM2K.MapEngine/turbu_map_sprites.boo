@@ -105,7 +105,7 @@ class TMapSprite(TObject):
 		FLocation = target
 		lTarget as TSgPoint = target
 		GSpriteEngine.value.NormalizePoint(lTarget.x, lTarget.y)
-		SetTarget((lTarget * TILE_SIZE))
+		SetTarget(lTarget * TILE_SIZE)
 		if lTarget != target:
 			caseOf FMoveDir:
 				case TDirections.Up: --lTarget.y
@@ -191,7 +191,8 @@ class TMapSprite(TObject):
 		if FMoveFreq < 8:
 			frequency = 8 - FMoveFreq
 			frequency = 2 ** frequency
-			FPause = TRpgTimestamp(frequency * ((BASE_MOVE_DELAY - 15) / 4))
+			FPause = TRpgTimestamp(frequency * (BASE_MOVE_DELAY - 15) / 4)
+		else: FPause = null
 
 	private def OpChangeFacing(dir as TDirections):
 		self.Facing = dir
