@@ -27,7 +27,10 @@ import turbu.RM2K.transitions
 import System.Drawing
 import System.Threading
 
-def Teleport(MapID as int, x as int, y as int, facing as int):
+def Teleport(mapID as int, x as int, y as int):
+	Teleport(mapID, x, y, 0)
+
+def Teleport(mapID as int, x as int, y as int, facing as int):
 	newpoint as TSgPoint
 	unless Monitor.TryEnter(LTeleportLock):
 		GScriptEngine.value.AbortThread()
@@ -35,7 +38,7 @@ def Teleport(MapID as int, x as int, y as int, facing as int):
 		EraseScreen(TTransitions.Default)
 		while GSpriteEngine.value.State == TGameState.Fading:
 			Thread.Sleep(TRpgTimestamp.FrameLength)
-		if MapID == GSpriteEngine.value.MapID:
+		if mapID == GSpriteEngine.value.MapID:
 			newpoint = sgPoint(x, y)
 			if GSpriteEngine.value.OnMap(newpoint):
 				runThreadsafe(true) def ():
@@ -44,7 +47,7 @@ def Teleport(MapID as int, x as int, y as int, facing as int):
 					GEnvironment.value.Party.Sprite.LeaveTile()
 					GEnvironment.value.Party.Sprite.Location = newpoint
 					GSpriteEngine.value.CenterOn(x, y)
-		else: GGameEngine.value.ChangeMaps(MapID, sgPoint(x, y))
+		else: GGameEngine.value.ChangeMaps(mapID, sgPoint(x, y))
 		ShowScreen(TTransitions.Default)
 	ensure:
 		System.Threading.Monitor.Exit(LTeleportLock)
