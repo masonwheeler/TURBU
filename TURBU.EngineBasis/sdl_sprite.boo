@@ -11,6 +11,7 @@ import SG.defs
 import SDL2
 import SDL2.SDL2_GPU
 import System.Drawing
+import System.Linq.Enumerable
 
 enum TImageType:
 	SingleImage
@@ -716,20 +717,39 @@ class TSpriteEngine(TParentSprite):
 		get: return GetHeight()
 
 class TSpriteRenderer:
-	private FDrawMap = TMultimap[of TSdlImage, TSprite]()
+	private FLastZ as int
+
+	private FLastMap as TMultimap[of TSdlImage, TSprite]
+
+	private FDrawMap = Dictionary[of int, TMultimap[of TSdlImage, TSprite]]()
 
 	private FEngine as TSpriteEngine
 
 	public def constructor(engine as TSpriteEngine):
 		FEngine = engine
+		FLastZ = -1
 
 	public def Draw(sprite as TSprite):
-		FDrawMap.Add(sprite.Image, sprite)
+		map as TMultimap[of TSdlImage, TSprite]
+		if sprite.Z == FLastZ:
+			map = FLastMap
+		else:
+			//manual TryGetValue.  Replace once https://github.com/boo-lang/boo/issues/133 is fixed
+			if FDrawMap.ContainsKey(sprite.Z):
+				map = FDrawMap[sprite.Z]
+			else:
+				map = TMultimap[of TSdlImage, TSprite]()
+				FDrawMap.Add(sprite.Z, map)
+			FLastZ = sprite.Z
+			FLastMap = map
+		map.Add(sprite.Image, sprite)
 
 	public def Reset():
-		FDrawMap.Clear()
+		for value in FDrawMap.Values:
+			value.Clear()
 
 	public def Render(target as GPU_Target_PTR):
-		for image in FDrawMap.Keys:
-			for sprite in FDrawMap[image]:
-				sprite.Render()
+		for map in FDrawMap.OrderBy({e | e.Key}).Select({e | e.Value}):
+			for list in map.Values:
+				for sprite in list:
+					sprite.Render()
