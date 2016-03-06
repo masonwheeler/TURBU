@@ -170,12 +170,12 @@ out vec4 v_color;
 
 void main()
 {
-  gl_Position = RPG_ModelViewProjectionMatrix * vec4(RPG_Vertex, 0.0, 1.0);
-
-  // Passing The Texture Coordinate Of Texture Unit 0 To The Fragment Shader
-  texture_coordinate = RPG_TexCoord;
-  v_color = gl_Color;
-  gl_FrontColor = gl_Color;
+	gl_Position = RPG_ModelViewProjectionMatrix * vec4(RPG_Vertex, 0.0, 1.0);
+	
+	// Passing The Texture Coordinate Of Texture Unit 0 To The Fragment Shader
+	texture_coordinate = RPG_TexCoord;
+	v_color = gl_Color;
+	gl_FrontColor = gl_Color;
 }""")
 
 		self.Vertex.Add('textV',
@@ -218,7 +218,7 @@ vec3 ProcessShifts(vec3 rgbColor);
 
 void main(void)
 {
-	vec4 lColor =  texture2D(baseTexture, texture_coordinate);
+	vec4 lColor = texture2D(baseTexture, texture_coordinate);
 	gl_FragColor = vec4(ProcessShifts(lColor.rgb), lColor.a * v_color.a);
 }""")
 
@@ -245,7 +245,7 @@ uniform sampler2D texAlpha;
 float alpha;
 void main(void)
 {
-    alpha = texture2D(texAlpha, texCoord).a;
+	alpha = texture2D(texAlpha, texCoord).a;
 	if (alpha < 0.1)
 		discard;
 	gl_FragColor = vec4(0, 0, 0, alpha * strength);
@@ -264,16 +264,16 @@ void main()
 
 		self.Fragment.Add('flash',
 """
-#version 110
+#version 130
 varying vec2 texture_coordinate;
 uniform sampler2D baseTexture;
 uniform vec4 flashColor;
 
 void main(void)
 {
-	vec4 lColor =  texture2D(baseTexture, texture_coordinate);
+	vec4 lColor = texture2D(baseTexture, texture_coordinate);
 	vec3 mixColor = mix(lColor.rgb, flashColor.rgb, flashColor.a);
-    gl_FragColor = vec4(mixColor, lColor.a);
+	gl_FragColor = vec4(mixColor, lColor.a);
 }""")
 
 		self.Fragment.Add('noAlpha',

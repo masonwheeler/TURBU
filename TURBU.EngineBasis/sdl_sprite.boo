@@ -181,7 +181,7 @@ class TSprite(TObject):
 		FHeight = value.h
 		FImageType = TImageType.RectSet
 
-	internal def Render():
+	internal protected virtual def Render():
 		followX as single
 		followY as single
 		if FPinned:

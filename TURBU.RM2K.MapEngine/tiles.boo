@@ -172,14 +172,9 @@ class TEventTile(TTile, IDisposable):
 	private def DrawFlash():
 		if self.Image is not null:
 			PrepareShader(GSpriteEngine.value.ShaderEngine)
-			Drawself(self.Image.SpriteRect[self.ImageIndex])
+			super.Render()
 			GPU_DeactivateShaderProgram()
 		
-	private def Drawself(SpriteRect as GPU_Rect):
-		left as int = Math.Truncate((self.X + OffsetX) - FEngine.WorldX)
-		top as int = Math.Truncate((self.Y + OffsetY) - FEngine.WorldY)
-		GPU_Blit(self.Image.Surface, SpriteRect, self.Engine.Canvas.RenderTarget, left, top)
-
 	private def PrepareShader(shaders as TdmShaders):
 		handle as int = shaders.ShaderProgram('default', 'flash')
 		shaders.UseShaderProgram(handle)
@@ -222,11 +217,11 @@ class TEventTile(TTile, IDisposable):
 		else: name = ''
 		self.ImageName = name
 
-	public override def Draw():
+	public override def Render():
 		if self.MustFlash:
 			DrawFlash()
 		else:
-			super.Draw()
+			super.Render()
 
 class TScrollData(TObject):
 
