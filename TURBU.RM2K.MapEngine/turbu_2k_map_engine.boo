@@ -636,12 +636,16 @@ class T2kMapEngine(TMapEngine):
 		
 		FTimer.Enabled = false
 		GScriptEngine.value.KillAll(null)
-		GEnvironment.value = null
+#		GEnvironment.value.Dispose()
+#		GEnvironment.value = null
 		FPartySprite = null
 		GSpriteEngine.value = null
-		GEnvironment.value = T2kEnvironment(FDatabase)
+#		GEnvironment.value = T2kEnvironment(FDatabase)
+#		dmDatabase.value.RegisterEnvironment(GEnvironment.value)
+#		FObjectManager.OnUpdate = GEnvironment.value.UpdateEvents
 		FPlaying = false
 		FCurrentMap = null
+		GMenuEngine.Value.Reset()
 		turbu.RM2K.savegames.Load(savefile, self.InitializeParty)
 		FCurrentMap.CurrentParty = (GEnvironment.value.Party.Sprite cast TCharSprite)
 		FImageEngine = TImageEngine(GSpriteEngine.value, FCanvas, FImages)

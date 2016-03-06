@@ -412,7 +412,7 @@ class TRpgHero(TRpgBattleCharacter):
 						writer.WriteValue(FEquipment[slot].ID)
 			writer.WritePropertyName('Stat')
 			writeJsonArray writer:
-				for i in range(1, 5):
+				for i in range(4):
 					writer.WriteValue(FStat[i, TStatComponents.Bonus])
 			writer.WritePropertyName('Condition')
 			writeJsonArray writer:
@@ -446,15 +446,15 @@ class TRpgHero(TRpgBattleCharacter):
 				self.Unequip(slot)
 			else:
 				self.EquipSlot(arr[slot] cast int, slot)
-		arr.Remove()
+		obj.Remove('Equipment')
 		arr = obj['Stat'] cast JArray
-		for i in range(1, 5):
-			FStat[i, TStatComponents.Bonus] = arr[i - 1] cast int
-		arr.Remove()
+		for i in range(4):
+			FStat[i, TStatComponents.Bonus] = arr[i] cast int
+		obj.Remove('Stat')
 		arr = obj['Condition'] cast JArray
 		for i in range(0, arr.Count):
 			FCondition[arr[i] cast int] = true
-		arr.Remove()
+		obj.Remove('Condition')
 		obj.ReadArray('Skill', FSkill)
 		obj.CheckEmpty()
 
@@ -667,7 +667,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 	private FDeathPossible as bool
 
 	private def GetMap() as int:
-		if assigned(GSpriteEngine):
+		if assigned(GSpriteEngine.value):
 			result = GSpriteEngine.value.MapID
 		else:
 			result = 0
@@ -729,7 +729,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 		writeJsonObject writer:
 			writer.WritePropertyName('Heroes')
 			writeJsonArray writer:
-				for i in range(1, MAXPARTYSIZE + 1):
+				for i in range(MAXPARTYSIZE):
 					if assigned(FParty[i]):
 						writer.WriteValue(FParty[i].Template.ID)
 					else:
@@ -753,37 +753,37 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 	public def Deserialize(obj as JObject):
 		value as JToken
 		value = obj['Heroes']
-		for i in range(1, MAXPARTYSIZE + 1):
-			if value[i - 1].Type == JTokenType.Null:
+		for i in range(MAXPARTYSIZE):
+			if value[i].Type == JTokenType.Null:
 				self[i] = null
 			else:
-				self[i] = GEnvironment.value.Heroes[value[i - 1] cast int]
-		value.Remove()
+				self[i] = GEnvironment.value.Heroes[value[i] cast int]
+		obj.Remove('Heroes')
 		obj.CheckRead('Cash', FCash)
 		value = obj['Inventory']
 		FInventory.Deserialize(value cast JArray)
-		value.Remove()
+		obj.Remove('Inventory')
 		value = obj['X']
 		SetX(value cast int)
-		value.Remove()
+		obj.Remove('X')
 		value = obj['Y']
 		SetY(value cast int)
-		value.Remove()
+		obj.Remove('Y')
 		value = obj['Facing']
 		self.FacingValue = value cast int
-		value.Remove()
+		obj.Remove('Facing')
 		value = obj['Path']
 		if assigned(value):
 			FSprite.MoveOrder = Path(value cast JObject)
-			value.Remove()
+			obj.Remove('Path')
 		value = obj['MoveFreq']
 		if assigned(value):
 			FSprite.MoveFreq = value cast int
-			value.Remove()
+			obj.Remove('MoveFreq')
 		value = obj['MoveRate']
 		if assigned(value):
 			FSprite.MoveRate = value cast int
-			value.Remove()
+			obj.Remove('MoveRate')
 		obj.CheckEmpty()
 
 	public def AddItem(id as int, number as int):

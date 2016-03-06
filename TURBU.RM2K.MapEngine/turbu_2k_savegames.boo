@@ -29,15 +29,15 @@ def Load(filename as string, OnInitializeParty as Action):
 	using obj = JObject.Parse(File.ReadAllText(filename)):
 		value as JToken = obj['Map']
 		GGameEngine.value.LoadMap(value cast int)
-		value.Remove()
+		obj.Remove('Map')
 		OnInitializeParty()
 		value = obj['Environment']
 		GEnvironment.value.Deserialize(value cast JObject)
-		value.Remove() if (value cast JObject).Count == 0
+		obj.Remove('Environment') if (value cast JObject).Count == 0
 		if obj.TryGetValue('Sound', value):
 			DeserializeSound(value cast JObject)
-			value.Remove()
+			obj.Remove('Sound')
 		if obj.TryGetValue('Messages', value):
 			DeserializeMessageState(value cast JObject)
-			value.Remove()
+			obj.Remove('Messages')
 		obj.CheckEmpty()

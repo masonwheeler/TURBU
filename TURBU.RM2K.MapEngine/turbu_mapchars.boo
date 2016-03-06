@@ -125,23 +125,23 @@ class TRpgEvent(TRpgCharacter):
 		value as JToken = obj['SpriteName']
 		if assigned(value):
 			FBase.BaseTile.ImageName = value cast string
-			value.Remove()
+			obj.Remove('SpriteName')
 		value = obj['Transparent']
 		if assigned(value):
 			FBase.Translucency = value cast int
-			value.Remove()
+			obj.Remove('Transparent')
 		value = obj['Path']
 		if assigned(value):
 			FBase.MoveOrder = Path(value cast JObject)
-			value.Remove()
+			obj.Remove('Path')
 		value = obj['MoveFreq']
 		if assigned(value):
 			FBase.MoveFreq = value cast int
-			value.Remove()
+			obj.Remove('MoveFreq')
 		value = obj['MoveRate']
 		if assigned(value):
 			FBase.MoveRate = value cast int
-			value.Remove()
+			obj.Remove('MoveRate')
 		obj.CheckEmpty()
 
 	protected override def GetX() as int:
@@ -192,16 +192,16 @@ class TRpgEvent(TRpgCharacter):
 		value as JToken = obj['Location']
 		if assigned(value):
 			FBase.Location = sgPoint(value[0] cast int, value[1] cast int)
-			value.Remove()
+			obj.Remove('Location')
 		FEvent.UpdateCurrentPage()
 		if assigned(FEvent.CurrentPage):
 			value = (obj['Base'] cast JObject)
 			var id = value['PageID'] cast int
 			if id != FEvent.CurrentPage.ID:
 				raise "Expected FEvent.CurrentPage.ID of $id but got $(FEvent.CurrentPage.ID) instead."
-			value['PageID'].Remove()
+			obj.Remove('PageID')
 			DeserializeBase(value cast JObject)
-			value.Remove()
+			obj.Remove('Base')
 		obj.CheckEmpty()
 
 	[NoImport]

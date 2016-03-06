@@ -237,7 +237,7 @@ public def CheckRead(obj as JObject, name as string, ref value as string):
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		value = item cast string
-		item.Remove()
+		obj.Remove(name)
 
 [Extension]
 public def CheckRead(obj as JObject, name as string, ref value as int):
@@ -245,7 +245,7 @@ public def CheckRead(obj as JObject, name as string, ref value as int):
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		value = item cast int
-		item.Remove()
+		obj.Remove(name)
 
 [Extension]
 public def CheckRead(obj as JObject, name as string, ref value as uint):
@@ -253,7 +253,7 @@ public def CheckRead(obj as JObject, name as string, ref value as uint):
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		value = item cast uint
-		item.Remove()
+		obj.Remove(name)
 
 [Extension]
 public def CheckRead(obj as JObject, name as string, ref value as byte):
@@ -261,7 +261,7 @@ public def CheckRead(obj as JObject, name as string, ref value as byte):
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		value = item cast byte
-		item.Remove()
+		obj.Remove(name)
 
 [Extension]
 public def CheckRead(obj as JObject, name as string, ref value as single):
@@ -269,7 +269,7 @@ public def CheckRead(obj as JObject, name as string, ref value as single):
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		value = item cast single
-		item.Remove()
+		obj.Remove(name)
 
 [Extension]
 public def CheckRead(obj as JObject, name as string, ref value as bool):
@@ -277,7 +277,7 @@ public def CheckRead(obj as JObject, name as string, ref value as bool):
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		value = item cast bool
-		item.Remove()
+		obj.Remove(name)
 
 [Extension]
 public def ReadArray(obj as JObject, name as string, ref value as (bool)):
@@ -290,7 +290,7 @@ public def ReadArray(obj as JObject, name as string, ref value as (bool)):
 		Array.Resize[of bool](value, arr.Count)
 		for i in range(0, arr.Count):
 			value[i] = arr[i] cast bool
-		arr.Remove()
+		obj.Remove(name)
 
 [Extension]
 public def CheckEmpty(obj as JObject):

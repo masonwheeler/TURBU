@@ -130,13 +130,13 @@ def DeserializeMessageState(obj as JObject):
 	portrait as JObject
 	GMenuEngine.Value.BoxVisible = obj.Value[of bool]('Visible')
 	SetMessageBoxPosition(obj.Value[of int]('Position'))
-	obj.Item['Visible'].Remove()
-	obj.Item['Position'].Remove()
+	obj.Remove('Visible')
+	obj.Remove('Position')
 	obj.CheckRead('Cautious', L.MboxCautious)
 	obj.CheckRead('Modal', L.MboxModal)
 	portrait = (obj.Item['Portrait'] cast JObject)
 	GMenuEngine.Value.DeserializePortrait(portrait)
-	portrait.Remove()
+	obj.Remove('Portrait')
 	obj.CheckEmpty()
 
 def SetShowMessageHandler(Event as Action of string):

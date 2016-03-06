@@ -383,6 +383,9 @@ class TMenuEngine(TObject, IMenuEngine):
 		self.FState = TMenuShowState.Fading
 		PlaceCursor(0)
 
+	def CloseMenu():
+		FCurrentPage.CurrentMenu.EngineEndMessage()
+
 	def OpenMenu(Name as string, cursorValue as int):
 		unless FMenus.TryGetValue(Name, FCurrentPage):
 			raise Exception("No Menu named \"$Name\" is registered.")

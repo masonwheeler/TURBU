@@ -27,7 +27,7 @@ import TURBU.RM2K.Menus
 import Newtonsoft.Json
 import Newtonsoft.Json.Linq
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class T2kEnvironment(TObject):
 
 	private FRand = System.Random()
@@ -145,18 +145,19 @@ class T2kEnvironment(TObject):
 			FInts[i] = value
 
 	private def SerializeVariables(writer as JsonWriter):
-		i as int
 		writer.WritePropertyName('switch')
 		writeJsonArray writer:
-			for i in range(1, FSwitches.Length):
-				if FSwitches[i]:
-					writer.WriteValue(i)
+			if FSwitches.Length > 0:
+				for i in range(1, FSwitches.Length):
+					if FSwitches[i]:
+						writer.WriteValue(i)
 		writer.WritePropertyName('int')
 		writeJsonArray writer:
-			for i in range(1, FInts.Length):
-				if FInts[i] != 0:
-					writer.WriteValue(i)
-					writer.WriteValue(FInts[i])
+			if FInts.Length >0:
+				for i in range(1, FInts.Length):
+					if FInts[i] != 0:
+						writer.WriteValue(i)
+						writer.WriteValue(FInts[i])
 
 	private def SerializeHeroes(writer as JsonWriter):
 		i as int
@@ -166,64 +167,63 @@ class T2kEnvironment(TObject):
 				FHeroes[i].Serialize(writer)
 
 	private def SerializeImages(writer as JsonWriter):
-		i as int
 		writer.WritePropertyName('Images')
 		writeJsonObject writer:
-			for i in range(1, FImages.Length):
-				if assigned(FImages[i]) and assigned(FImages[i].Base):
-					writer.WritePropertyName(i.ToString())
-					FImages[i].Serialize(writer)
+			if FImages.Length > 0:
+				for i in range(1, FImages.Length):
+					if assigned(FImages[i]) and assigned(FImages[i].Base):
+						writer.WritePropertyName(i.ToString())
+						FImages[i].Serialize(writer)
 
 	private def SerializeMapObjects(writer as JsonWriter):
-		i as int
 		writer.WritePropertyName('MapObjects')
 		writeJsonArray writer:
-			for i in range(1, FEvents.Length):
-				if assigned(FEvents[i]):
-					FEvents[i].Serialize(writer)
-				else:
-					writer.WriteNull()
+			if FEvents.Length > 0:
+				for i in range(1, FEvents.Length):
+					if assigned(FEvents[i]):
+						FEvents[i].Serialize(writer)
+					else:
+						writer.WriteNull()
 
 	private def DeserializeVariables(obj as JObject):
+		FSwitches = array(bool, FSwitches.Length)
 		arr as JArray = obj['switch'] cast JArray
 		for i in range(0, arr.Count):
 			FSwitches[arr[i] cast int] = true
-		arr.Remove()
+		obj.Remove('switch')
+		FInts = array(int, FInts.Length)
 		arr = obj['int'] cast JArray
-		i = 0
-		while i < arr.Count:
+		for i in range(0, arr.Count, 2):
 			FInts[arr[i] cast int] = arr[i + 1] cast int
-			i += 2
-		arr.Remove()
+		obj.Remove('int')
 
 	private def DeserializeHeroes(obj as JObject):
 		arr as JArray = obj['Heroes'] cast JArray
 		for i in range(0, arr.Count):
 			FHeroes[i + 1].Deserialize(arr[i] cast JObject)
-		arr.Remove()
+		obj.Remove('Heroes')
 
 	private def DeserializeImages(obj as JObject):
-		sub as JObject
-		image as JObject
-		Name as string
-		masked as bool
-		sub = obj['Images'] cast JObject
+		var sub = obj['Images'] cast JObject
+		for image in FImages:
+			image.Dispose() if assigned(image)
+		FImages = array(TRpgImage, FImages.Length)
 		for prop as JProperty in sub.Properties():
-			image = prop.Value cast JObject
-			masked = image['Masked'] cast bool
-			Name = image['Name'] cast string
+			var image = prop.Value cast JObject
+			var masked = image['Masked'] cast bool
+			var Name = image['Name'] cast string
 			unless string.IsNullOrEmpty(Name):
 				GGameEngine.value.LoadRpgImage(Name, masked)
 				self.Image[int.Parse(prop.Name)] = TRpgImage(GGameEngine.value.ImageEngine, image)
-		sub.Remove()
+		obj.Remove('Images')
 
 	private def DeserializeMapObjects(obj as JObject):
-		arr as JArray = obj['MapObjects'] cast JArray
+		var arr = obj['MapObjects'] cast JArray
 		for i in range(0, arr.Count):
 			if arr[i].Type == JTokenType.Null:
 				FEvents[i + 1] = null
-			else: FEvents[(i + 1)].Deserialize((arr[i] cast JObject))
-		arr.Remove()
+			else: FEvents[i + 1].Deserialize(arr[i] cast JObject)
+		obj.Remove('MapObjects')
 
 	private def GetVehicleCount() as int:
 		return FVehicles.Length - 1
@@ -332,11 +332,11 @@ class T2kEnvironment(TObject):
 	public def CallScript(objectID as int, pageID as int):
 		GScriptEngine.value.RunObjectScript(self.MapObject[objectID].MapObj, pageID)
 
+	public def CallGlobalScript(scriptID as int):
+		System.Diagnostics.Debugger.Break()
+
 	public def ImageIndex(img as TRpgImage) as int:
-		for i in range(FImages.Length):
-			if FImages[i] == img:
-				return i
-		return -1
+		return Array.IndexOf(FImages, img)
 
 	internal def RemoveImage(image as TRpgImage):
 		for i in range(FImages.Length):
@@ -344,8 +344,7 @@ class T2kEnvironment(TObject):
 				FImages[i] = null
 
 	internal def AddEvent(base as TMapSprite):
-		newItem as TRpgEvent
-		newItem = TRpgEvent(base)
+		var newItem = TRpgEvent(base)
 		if newItem.ID >= FEvents.Length:
 			Array.Resize[of TRpgEvent](FEvents, newItem.ID + 1)
 		FEvents[newItem.ID] = newItem
@@ -356,7 +355,7 @@ class T2kEnvironment(TObject):
 		FEventMap.Clear()
 
 	internal def UpdateEvents():
-		for Event as TRpgEvent in FEvents:
+		for Event in FEvents:
 			Event.Update() if assigned(Event)
 		if assigned(FParty?.Base):
 			FParty.Base.CheckMoveChange()
@@ -393,14 +392,13 @@ class T2kEnvironment(TObject):
 				Timer2.Serialize(writer)
 
 	internal def Deserialize(obj as JObject):
-		value as JToken
 		DeserializeVariables(obj)
 		DeserializeHeroes(obj)
 		DeserializeImages(obj)
-		value = obj['Party']
+		value as JToken = obj['Party']
 		assert assigned(value)
-		FParty.Deserialize((value cast JObject))
-		value.Remove()
+		FParty.Deserialize(value cast JObject)
+		obj.Remove('Party')
 		DeserializeMapObjects(obj)
 		obj.CheckRead('MenuEnabled', FMenuEnabled)
 		obj.CheckRead('SaveCount', FSaveCount)
@@ -408,12 +406,12 @@ class T2kEnvironment(TObject):
 		obj.CheckRead('SaveEnabled', FSaveEnabled)
 		value = obj['Timer']
 		if assigned(value):
-			FTimer.Deserialize((value cast JObject))
-			value.Remove()
+			FTimer.Deserialize(value cast JObject)
+			obj.Remove('Timer')
 		value = obj['Timer2']
 		if assigned(value):
-			FTimer2.Deserialize((value cast JObject))
-			value.Remove()
+			FTimer2.Deserialize(value cast JObject)
+			obj.Remove('Timer2')
 		obj.CheckEmpty()
 		self.UpdateEvents()
 

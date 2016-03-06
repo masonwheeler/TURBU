@@ -119,17 +119,17 @@ def DeserializeSound(obj as JObject):
 	if obj.TryGetValue('FadedBGM', item):
 		L.FadedBGM = TRpgMusic()
 		L.FadedBGM.Deserialize(item cast JObject)
-		item.Remove()
+		obj.Remove('FadedBGM')
 	if obj.TryGetValue('MemorizedBGM', item):
 		L.MemorizedBGM = TRpgMusic()
 		L.MemorizedBGM.Deserialize(item cast JObject)
-		item.Remove()
+		obj.Remove('MemorizedBGM')
 	DeserializeSystemSound(obj)
 	item = obj['CurrentBGM']
 	assert assigned(item)
 	current = TRpgMusic()
 	current.Deserialize(item cast JObject)
-	item.Remove()
+	obj.Remove('CurrentBGM')
 	PlayMusicData(current)
 	obj.CheckEmpty()
 
@@ -157,23 +157,17 @@ private def SerializeSystemSound(writer as JsonWriter):
 			currentMusic.Serialize(writer)
 
 private def DeserializeSystemSound(obj as JObject):
-	arr as JArray
-	sfx as TSfxTypes
-	bgm as TBgmTypes
 	arr = obj['SystemSounds'] cast JArray
 	for sfx in range(TSfxTypes.ItemUsed + 1):
 		L.SystemSounds[sfx] = TRpgSound()
 		L.SystemSounds[sfx].Deserialize(arr[ord(sfx)] cast JObject)
-	arr.Remove()
+	obj.Remove('SystemSounds')
 	arr = (obj['SystemMusic'] cast JArray)
 	for bgm in range(TBgmTypes.BossBattle + 1):
 		L.SystemMusic[bgm] = TRpgMusic()
 		L.SystemMusic[bgm].Deserialize(arr[ord(bgm)] cast JObject)
-	arr.Remove()
-/*
-private def FreeSoundsAndMusic():
-	L.Clear()
-*/
+	obj.Remove('SystemMusic')
+
 private static class L:
 	public SystemSounds = array(TRpgSound, TSfxTypes.ItemUsed + 1)
 	

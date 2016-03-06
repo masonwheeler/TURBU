@@ -243,9 +243,11 @@ enum TMessageBoxTypes:
 
 interface IMenuEngine:
 
-	def OpenMenu(Name as string, cursorValue as int)
+	def OpenMenu(name as string, cursorValue as int)
 
-	def OpenMenuEx(Name as string, data as TObject)
+	def OpenMenuEx(name as string, data as TObject)
+
+	def CloseMenu()
 
 	def Button(input as TButtonCode)
 
@@ -451,8 +453,11 @@ class TMenuSpriteEngine(TSpriteEngine):
 			FSystemGraphic = newPaper
 			NotifySystemGraphicChanged(Name)
 
-	public def OpenMenu(Name as string):
-		FMenuEngine.OpenMenu(Name, FMenuInt)
+	public def Reset():
+		FMenuEngine.CloseMenu()
+
+	public def OpenMenu(name as string):
+		FMenuEngine.OpenMenu(name, FMenuInt)
 		FMenuState = TMenuState.Full
 
 	public def OpenMenuEx(Name as string, data as TObject):

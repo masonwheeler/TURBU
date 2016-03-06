@@ -141,6 +141,7 @@ private class TMapLoader(IMapLoader):
 	
 	def constructor(env as object, path as string):
 		_path = path
+		_environment = env
 		_mapLoader = InteractiveInterpreter(Ducky: false, RememberLastValue: true)
 		_mapLoader.Pipeline.Replace(AbstractInterpreter.ProcessVariableDeclarations, BooReaderEnvironmentStep(_mapLoader, env))
 		_mapLoader.References.Add(typeof(SG.defs.SG_DefsModule).Assembly) //TURBU.SDL
