@@ -3,6 +3,7 @@ namespace turbu.RM2K.images
 import turbu.defs
 import commons
 import SG.defs
+import sdl.canvas
 import sdl.sprite
 import timing
 import dm.shaders
@@ -115,8 +116,8 @@ class TRpgImageSprite(TSprite):
 			shaders.UseShaderProgram(shaders.ShaderProgram('default', 'noAlpha'))
 		currentColor = GPU_GetColor(self.Image.Surface)
 		GPU_SetRGBA(self.Image.Surface, 255, 255, 255, self.Alpha)
-		halfWidth = (self.Width cast double) / 2.0
-		halfHeight = (self.Height cast double) / 2.0
+		halfWidth = self.Width / 2.0
+		halfHeight = self.Height / 2.0
 		if Pinned:
 			cx = (FCenterX + Engine.WorldX) - FBaseWX
 			cy = (FCenterY + Engine.WorldY) - FBaseWY
@@ -127,9 +128,9 @@ class TRpgImageSprite(TSprite):
 		GPU_BlitScale(
 			self.Image.Surface,
 			drawRect,
-			self.Engine.Canvas.RenderTarget,
-			round(cx - (halfWidth * self.ScaleX)),
-			round(cy - (halfHeight * self.ScaleY)),
+			currentRenderTarget().RenderTarget,
+			round(cx),
+			round(cy),
 			self.ScaleX,
 			self.ScaleY)
 		GPU_SetColor(self.Image.Surface, currentColor)
@@ -182,7 +183,7 @@ class TRpgImageSprite(TSprite):
 			FTransitionTimer = TRpgTimestamp(Item cast int)
 			Item.Remove()
 
-	protected override def DoDraw():
+	protected override def Render():
 		DrawQuad()
 		if FWavePower != 0:
 			++FTag
