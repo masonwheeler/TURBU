@@ -319,6 +319,7 @@ class TScriptConverter:
 		ProcessImageBlock(blk, values)
 		if values[15] != 0:
 			blk.Add([|Image[$(values[0])].WaitFor()|])
+		parent.Add(blk)
 	
 	simpleConverter ConvertNewImage:
 		blk = Block() 
