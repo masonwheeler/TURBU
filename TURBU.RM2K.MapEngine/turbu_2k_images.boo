@@ -116,8 +116,6 @@ class TRpgImageSprite(TSprite):
 			shaders.UseShaderProgram(shaders.ShaderProgram('default', 'noAlpha'))
 		currentColor = GPU_GetColor(self.Image.Surface)
 		GPU_SetRGBA(self.Image.Surface, 255, 255, 255, self.Alpha)
-		halfWidth = self.Width / 2.0
-		halfHeight = self.Height / 2.0
 		if Pinned:
 			cx = (FCenterX + Engine.WorldX) - FBaseWX
 			cy = (FCenterY + Engine.WorldY) - FBaseWY
