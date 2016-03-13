@@ -117,4 +117,4 @@ macro MapData.MapObjects.MapObject.Pages.Page.MoveScript(loop as bool, ignoreObs
 				body2.Add(forSt)
 			case MethodInvocationExpression():
 				body2.Add([|yield {mo.$step}|])
-	return ExpressionStatement([|MoveScript = $result|])
+	return ExpressionStatement([|MoveScript($result)|])
