@@ -15,3 +15,4 @@ macro Vocab(body as ExpressionStatement*):
 	result.Body.Add([|return (System.Collections.Generic.KeyValuePair[of int, System.Func[of TRpgVocabDictionary]](0, {return result}),)|])
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import TURBU.RM2K|]

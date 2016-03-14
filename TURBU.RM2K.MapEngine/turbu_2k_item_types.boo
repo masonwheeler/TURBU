@@ -32,16 +32,16 @@ class TEquipment(TRpgItem):
 		return hero in (Template cast TUsableItemTemplate).UsableByHero
 
 	public Attack as short:
-		get: return (Template cast TEquipmentTemplate).Stat[2]
+		get: return (Template cast TEquipmentTemplate).Stats[2]
 
 	public Defense as short:
-		get: return (Template cast TEquipmentTemplate).Stat[3]
+		get: return (Template cast TEquipmentTemplate).Stats[3]
 
 	public Mind as short:
-		get: return (Template cast TEquipmentTemplate).Stat[4]
+		get: return (Template cast TEquipmentTemplate).Stats[4]
 
 	public Speed as short:
-		get: return (Template cast TEquipmentTemplate).Stat[5]
+		get: return (Template cast TEquipmentTemplate).Stats[5]
 
 	def constructor(Item as int, Quantity as int):
 		super(Item, Quantity)
@@ -77,7 +77,7 @@ abstract class TAppliedItem(TRpgItem):
 			return result
 
 	public virtual def AreaItem() as bool:
-		return (Template cast TMedicineTemplate).AreaMedicine
+		return (Template cast TMedicineTemplate).AreaEffect
 
 	public virtual def Use(target as TRpgHero):
 		self.UseOnce() unless self.AreaItem()
@@ -94,35 +94,32 @@ abstract class TAppliedItem(TRpgItem):
 class TRecoveryItem(TAppliedItem):
 
 	public override def UsableBy(hero as int) as bool:
-		med as TMedicineTemplate
 		result = false
 		return result unless super.UsableBy(hero)
-		med = self.Template cast TMedicineTemplate
-		if med.HpPercent > 0 or med.HpHeal > 0:
+		var med = self.Template cast TMedicineTemplate
+		if med.HPPercent > 0 or med.HPHeal > 0:
 			result = result or GEnvironment.value.Party[hero].HP < GEnvironment.value.Party[hero].MaxHp
-		if med.MpPercent > 0 or med.MpHeal > 0:
+		if med.MPPercent > 0 or med.MPHeal > 0:
 			result = result or GEnvironment.value.Party[hero].MP < GEnvironment.value.Party[hero].MaxMp
 		if GEnvironment.value.Heroes[hero].Dead:
-			result = result and (CTN_DEAD in med.Condition)
+			result = result and (CTN_DEAD in med.Conditions)
 		elif med.DeadOnly:
 			result = false
 		return result
 
 	public override def Use(target as TRpgHero):
-		med as TMedicineTemplate
 		fraction as single
-		med = Template cast TMedicineTemplate
-		for i in range(1, GDatabase.value.Conditions.Count):
-			if i in med.Condition:
-				target.Condition[i] = false
-		if med.HpPercent != 0:
-			fraction = (med.HpPercent cast double) / 100.0
+		var med = Template cast TMedicineTemplate
+		for i in med.Conditions:
+			target.Condition[i] = false
+		if med.HPPercent != 0:
+			fraction = med.HPPercent / 100.0
 			target.HP += Math.Truncate(target.MaxHp * fraction)
-		if med.MpPercent != 0:
-			fraction = (med.MpPercent cast double) / 100.0
+		if med.MPPercent != 0:
+			fraction = med.MPPercent / 100.0
 			target.MP += Math.Truncate(target.MaxMp * fraction)
-		target.HP += med.HpHeal
-		target.MP += med.MpHeal
+		target.HP += med.HPHeal
+		target.MP += med.MPHeal
 		super.Use(target)
 
 	def constructor(Item as int, Quantity as int):
@@ -150,12 +147,12 @@ class TStatItem(TAppliedItem):
 		return result
 
 	public override def Use(target as TRpgHero):
-		target.MaxHp += (Template cast TUsableItemTemplate).Stat[0]
-		target.MaxMp += (Template cast TUsableItemTemplate).Stat[1]
-		target.Attack += (Template cast TUsableItemTemplate).Stat[2]
-		target.Defense += (Template cast TUsableItemTemplate).Stat[3]
-		target.Mind += (Template cast TUsableItemTemplate).Stat[4]
-		target.Agility += (Template cast TUsableItemTemplate).Stat[5]
+		target.MaxHp += (Template cast TUsableItemTemplate).Stats[0]
+		target.MaxMp += (Template cast TUsableItemTemplate).Stats[1]
+		target.Attack += (Template cast TUsableItemTemplate).Stats[2]
+		target.Defense += (Template cast TUsableItemTemplate).Stats[3]
+		target.Mind += (Template cast TUsableItemTemplate).Stats[4]
+		target.Agility += (Template cast TUsableItemTemplate).Stats[5]
 		super.Use(target)
 
 	def constructor(Item as int, Quantity as int):

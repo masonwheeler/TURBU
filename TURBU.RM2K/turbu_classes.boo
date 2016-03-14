@@ -118,7 +118,7 @@ class TRpgDataDict[of T(TRpgDatafile, constructor)](Dictionary[of int, TRpgDataf
 
 	public def constructor(dataset as IDataReader):
 		super()
-		FDataset = dataset.GetReader[of T](false)
+		FDataset = dataset.GetReader[of T]()
 		//FSerializer = serializer
 		self.Add(Activator.CreateInstance[of T]())
 

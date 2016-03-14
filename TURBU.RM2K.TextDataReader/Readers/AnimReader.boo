@@ -7,20 +7,22 @@ import Boo.Lang.PatternMatching
 
 macro Animations(body as ExpressionStatement*):
 	result = [|
-		def Data() as TAnimTemplate:
+		def Data() as System.Collections.Generic.KeyValuePair[of int, System.Func[of TAnimTemplate]]*:
 			pass
 	|]
-	value = body.Select({e | e.Expression}).Single()
-	result.Body.Statements.Add([|return $value|])
+	arr = ArrayLiteralExpression()
+	arr.Items.AddRange(body.Select({e | e.Expression}))
+	result.Body.Statements.Add([|return $(arr)|])
 	result.Accept(EnumFiller({'YTarget': [|TAnimYTarget|], 'Flash': [|TFlashTarget|], 'Shake': [|TFlashTarget|] }))
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import turbu.animations|]
 
 macro Animations.Animation(index as IntegerLiteralExpression, body as ExpressionStatement*):
 	macro CellSize(w as IntegerLiteralExpression, h as IntegerLiteralExpression):
 		return ExpressionStatement([|CellSize(sgPoint($w, $h))|])
 	
-	return ExpressionStatement(PropertyList('TAnimTemplate', index, body))
+	return Lambdify('TAnimTemplate', index, body)
 
 macro Animations.Animation.Frames(body as ExpressionStatement*):
 	macro Cell(frameID as IntegerLiteralExpression, cellID as IntegerLiteralExpression, body as ExpressionStatement*):

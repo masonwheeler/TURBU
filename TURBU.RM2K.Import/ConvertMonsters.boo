@@ -28,7 +28,7 @@ static class TMonsterConverter:
 		resists = MacroStatement('Attributes')
 		resists.Arguments.AddRange((base.DTypeModifiers cast (byte)).Select({b | Expression.Lift(b)}))
 		result.Body.Add(resists)
-		conditions = MacroStatement('Conditions')
+		conditions = MacroStatement('Condition')
 		conditions.Arguments.AddRange((base.ConditionModifiers cast (byte)).Select({b | Expression.Lift(b)}))
 		result.Body.Add(conditions)
 		if assigned(base.Behavior) and base.Behavior.Count > 0:

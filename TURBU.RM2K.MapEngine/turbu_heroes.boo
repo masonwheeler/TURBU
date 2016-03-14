@@ -574,12 +574,12 @@ class TRpgHero(TRpgBattleCharacter):
 		assert item == 0 or theItem.ItemType in (TItemType.Weapon, TItemType.Armor)
 		result = self.Stat[whichStat]
 		if self.FEquipment[slot] != null:
-			result -= (FEquipment[slot].Template cast TUsableItemTemplate).Stat[whichStat + 1]
+			result -= (FEquipment[slot].Template cast TUsableItemTemplate).Stats[whichStat + 1]
 		if item != 0:
-			result += (theItem cast TUsableItemTemplate).Stat[whichStat + 1]
+			result += (theItem cast TUsableItemTemplate).Stats[whichStat + 1]
 			if assigned(theItem) and (theItem.ItemType == TItemType.Weapon) and \
 					(theItem cast TWeaponTemplate).TwoHanded and (FEquipment[2 - ord(slot)] != null):
-				result -= (FEquipment[2 - ord(slot)].Template cast TUsableItemTemplate).Stat[whichStat + 1]
+				result -= (FEquipment[2 - ord(slot)].Template cast TUsableItemTemplate).Stats[whichStat + 1]
 		return result
 
 	public def ChangeHP(quantity as int, deathPossible as bool):

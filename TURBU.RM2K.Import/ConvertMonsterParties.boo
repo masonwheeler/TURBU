@@ -48,7 +48,7 @@ static class TMonsterPartyConverter:
 		result = [|
 			Page $(base.ID):
 				Name $(pageName)
-				Conditions:
+				PageConditions:
 					$(ConvertConditions(base.Conditions))
 		|]
 		ConvertBattleScripts(baseID, base, ScanScript, saveScript,

@@ -55,7 +55,7 @@ static class TSkillConverter:
 		result.Body.Add([|Offensive $(base.Range in (0, 1))|])
 		conds = (base.Conditions cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).ToArray()
 		if conds.Length > 0:
-			conditions = MacroStatement('Conditions')
+			conditions = MacroStatement('Condition')
 			conditions.Arguments.AddRange(conds.Select({i | Expression.Lift(i)}))
 			result.Body.Add(conditions)
 		attrs = (base.Attributes cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).ToArray()

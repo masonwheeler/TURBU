@@ -58,6 +58,12 @@ def Lambdify(e as Expression, i as IntegerLiteralExpression, typename as String)
 	
 	return ExpressionStatement([|System.Collections.Generic.KeyValuePair[of int, System.Func[of $T]]($i, {return $e})|])
 
+def Lambdify(name as string, index as IntegerLiteralExpression, body as ExpressionStatement*) as ExpressionStatement:
+	return Lambdify(PropertyList(name, index, body), index, name)
+
+def Lambdify(name as string, index as IntegerLiteralExpression, body as ExpressionStatement*, formalType as string) as ExpressionStatement:
+	return Lambdify(PropertyList(name, index, body), index, formalType)
+
 class EnumFiller(FastDepthFirstVisitor):
 	
 	private _mapping as Hash

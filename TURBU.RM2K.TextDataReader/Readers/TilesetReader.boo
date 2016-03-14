@@ -7,17 +7,19 @@ import Boo.Lang.PatternMatching
 
 macro Tilesets(body as ExpressionStatement*):
 	result = [|
-		def Data() as TTileSet:
+		def Data() as System.Collections.Generic.KeyValuePair[of int, System.Func[of TTileSet]]*:
 			pass
 	|]
-	value = body.Select({e | e.Expression}).Single()
-	result.Body.Statements.Add([|return $value|])
+	arr = ArrayLiteralExpression()
+	arr.Items.AddRange(body.Select({e | e.Expression}))
+	result.Body.Statements.Add([|return $(arr)|])
 	result.Accept(EnumFiller( {'AnimDir': [|sdl.sprite.TAnimPlayMode|]} ))
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import turbu.tilesets|]
 
 macro Tilesets.Tileset(index as IntegerLiteralExpression, body as ExpressionStatement*):
-	return ExpressionStatement(PropertyList('TTileSet', index, body))
+	return Lambdify('TTileSet', index, body)
 
 macro Tilesets.Tileset.TileGroups(body as ExpressionStatement*):
 	macro TileGroupRecord(ID as IntegerLiteralExpression, body as ExpressionStatement*):

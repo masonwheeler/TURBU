@@ -112,15 +112,15 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 		FSkills = TRpgDataDict[of TSkillTemplate](reader)
 		FTerrains = TRpgDataDict[of TRpgTerrain](reader)
 		FTilesets = TRpgDataDict[of TTileSet](reader)
-		for grp in reader.GetReader[of TTileGroup](true).GetAll():
+		for grp in reader.GetReader[of TTileGroup]().GetAll():
 			FTileGroups.Add(grp.Filename, grp)
 		TTileGroupRecord.LookupGroup = {name | return FTileGroups[name]}
 		FVehicles = TRpgDataDict[of TVehicleTemplate](reader)
 		FCommands = TBattleCommandList(reader)
-		FLayout = reader.GetReader[of TGameLayout](true).GetData(0)
+		FLayout = reader.GetReader[of TGameLayout]().GetData(0)
 		LoadSounds(reader)
-		FSysVocab = reader.GetReader[of TRpgVocabDictionary](true).GetData(0)
-		FMapTree = reader.GetReader[of TMapTree](true).GetData(0)
+		FSysVocab = reader.GetReader[of TRpgVocabDictionary]().GetData(0)
+		FMapTree = reader.GetReader[of TMapTree]().GetData(0)
 		FMoveMatrix = FLayout.MoveMatrix
 		LoadVarArrays(reader)
 	
@@ -129,7 +129,7 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 		FGlobalEvents.AddRange(reader.GetGlobals().Cast[of TRpgMapObject]())
 	
 	private def LoadVarArrays(reader as TURBU.DataReader.IDataReader):
-		vars = reader.GetReader[of TRpgVarsList](true).GetData(0)
+		vars = reader.GetReader[of TRpgVarsList]().GetData(0)
 		list as List[of string]
 		for value in vars.Values:
 			caseOf value.Key:
@@ -140,8 +140,8 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 				list.Add('') //in the game engine, we don't care about the names
 	
 	private def LoadSounds(reader as TURBU.DataReader.IDataReader):
-		soundReader = reader.GetReader[of TRpgSound](true)
-		musicReader = reader.GetReader[of TRpgMusic](true)
+		soundReader = reader.GetReader[of TRpgSound]()
+		musicReader = reader.GetReader[of TRpgMusic]()
 		i = -1
 		for sfx in soundReader.GetAll():
 			++i

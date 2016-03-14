@@ -6,28 +6,42 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 
 macro Items(body as ExpressionStatement*):
-	result = [|
-		def Data() as TItemTemplate:
-			pass
-	|]
-	value = body.Select({e | e.Expression}).Single()
-	result.Body.Statements.Add([|return $value|])
-	result.Accept(EnumFiller({'Usable': [|TUsableWhere|], 'Slot': [|TSlot|] }))
-	result.Accept(PropRenamer({'Usable': 'UsableWhere', 'SkillMessage': 'CustomSkillMessage'}))
-	yield result
-	yield ExpressionStatement([|Data()|])
-
-macro Items.JunkItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
-	return ExpressionStatement(PropertyList('TJunkTemplate', index, body))
-
-macro Items.ArmorItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
-	macro Heroes(values as IntegerLiteralExpression*):
+	macro UsableByHero(values as IntegerLiteralExpression*):
 		return MakeArrayValue('UsableByHero', values)
 	
 	macro Classes(values as IntegerLiteralExpression*):
 		return MakeArrayValue('UsableByClass', values)
 	
-	return ExpressionStatement(PropertyList('TArmorTemplate', index, body))
+	result = [|
+		def Data() as System.Collections.Generic.KeyValuePair[of int, System.Func[of TItemTemplate]]*:
+			pass
+	|]
+	arr = ArrayLiteralExpression()
+	arr.Items.AddRange(body.Select({e | e.Expression}))
+	result.Body.Statements.Add([|return $(arr)|])
+	result.Accept(EnumFiller({'Usable': [|TUsableWhere|], 'Slot': [|TSlot|] }))
+	result.Accept(PropRenamer({'Usable': 'UsableWhere', 'SkillMessage': 'CustomSkillMessage'}))
+	yield result
+	yield ExpressionStatement([|Data()|])
+	yield [|import turbu.items|]
+
+macro Items.JunkItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
+	return Lambdify('TJunkTemplate', index, body, 'TItemTemplate')
+
+macro Items.MedicineItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
+	macro Conditions(values as IntegerLiteralExpression*):
+		return MakeArrayValue('Conditions', values)
+	
+	return Lambdify('TMedicineTemplate', index, body, 'TItemTemplate')
+
+macro Items.UpgradeItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
+	macro Stats(values as IntegerLiteralExpression*):
+		return MakeArrayValue('Stats', values)
+	
+	return Lambdify('TStatItemTemplate', index, body, 'TItemTemplate')
+
+macro Items.ArmorItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
+	return Lambdify('TArmorTemplate', index, body, 'TItemTemplate')
 
 macro Items.ArmorItem.Attributes(body as ExpressionStatement*):
 	macro Attribute(l as IntegerLiteralExpression, r as IntegerLiteralExpression):
@@ -41,13 +55,7 @@ macro Items.ArmorItem.Attributes(body as ExpressionStatement*):
 	return ExpressionStatement([|Attributes($result)|])
 
 macro Items.WeaponItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
-	macro Heroes(values as IntegerLiteralExpression*):
-		return MakeArrayValue('UsableByHero', values)
-	
-	macro Classes(values as IntegerLiteralExpression*):
-		return MakeArrayValue('UsableByClass', values)
-	
-	return ExpressionStatement(PropertyList('TWeaponTemplate', index, body))
+	return Lambdify('TWeaponTemplate', index, body, 'TItemTemplate')
 
 macro Items.WeaponItem.Attributes(body as ExpressionStatement*):
 	macro Attribute(l as IntegerLiteralExpression, r as IntegerLiteralExpression):
@@ -69,23 +77,11 @@ macro Items.WeaponItem.Animations(body as ExpressionStatement*):
 	return result
 
 macro Items.SkillItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
-	macro Heroes(values as IntegerLiteralExpression*):
-		return MakeArrayValue('UsableByHero', values)
-	
-	macro Classes(values as IntegerLiteralExpression*):
-		return MakeArrayValue('UsableByClass', values)
-	
-	return ExpressionStatement(PropertyList('TSkillItemTemplate', index, body))
+	return Lambdify('TSkillItemTemplate', index, body, 'TItemTemplate')
 
 macro Items.SwitchItem(index as IntegerLiteralExpression, body as Statement*):
-	macro Heroes(values as IntegerLiteralExpression*):
-		return MakeArrayValue('UsableByHero', values)
-	
-	macro Classes(values as IntegerLiteralExpression*):
-		return MakeArrayValue('UsableByClass', values)
-	
 	macro Value(typ as ReferenceExpression, id as IntegerLiteralExpression):
 		yield ExpressionStatement([|Which($id)|])
 		yield ExpressionStatement([|Style(TVarSets.$typ)|])
 	
-	return ExpressionStatement(PropertyList('TVariableItemTemplate', index, Flatten(body)))
+	return Lambdify('TVariableItemTemplate', index, Flatten(body), 'TItemTemplate')

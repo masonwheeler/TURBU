@@ -7,17 +7,19 @@ import Boo.Lang.PatternMatching
 
 macro Heroes(body as ExpressionStatement*):
 	result = [|
-		def Data() as THeroTemplate:
+		def Data() as System.Collections.Generic.KeyValuePair[of int, System.Func[of THeroTemplate]]*:
 			pass
 	|]
-	value = body.Select({e | e.Expression}).Single()
-	result.Body.Statements.Add([|return $value|])
+	arr = ArrayLiteralExpression()
+	arr.Items.AddRange(body.Select({e | e.Expression}))
+	result.Body.Statements.Add([|return $(arr)|])
 	result.Accept(EnumFiller( {'DualWield': [|TWeaponStyle|]} ))
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import turbu.characters|]
 
 macro Heroes.Hero(index as IntegerLiteralExpression, body as ExpressionStatement*):
-	return ExpressionStatement(PropertyList('THeroTemplate', index, body))
+	return Lambdify('THeroTemplate', index, body)
 
 macro Heroes.Hero.ExpFunc(value as MethodInvocationExpression):
 	Hero.Body.Add(ExpressionStatement([|ExpMethod($(value.Target.ToString()))|]))
@@ -48,7 +50,7 @@ macro Heroes.Hero.Equipment(values as IntegerLiteralExpression*):
 
 macro Heroes.Hero.SkillSet(body as ExpressionStatement*):
 	macro SkillRecord(skillType as ReferenceExpression, id as IntegerLiteralExpression, args as ArrayLiteralExpression):
-		return ExpressionStatement([|TSkillGainInfo(Skill: $id, Style: TSkillFuncStyle.$skillType, Nums: $args)|])
+		return ExpressionStatement([|turbu.skills.TSkillGainInfo(Skill: $id, Style: turbu.skills.TSkillFuncStyle.$skillType, Nums: $args)|])
 	
 	return MakeArrayValue('Skillset', body.Select({e | e.Expression}))
 
@@ -58,7 +60,7 @@ macro Heroes.Hero.Attributes(body as ExpressionStatement*):
 	
 	return MakeArrayValue('Resist', body.Select({e | e.Expression}))
 
-macro Heroes.Hero.Conditions(body as ExpressionStatement*):
+macro Heroes.Hero.CondResists(body as ExpressionStatement*):
 	macro Condition(id as IntegerLiteralExpression, percentage as IntegerLiteralExpression):
 		return ExpressionStatement([|sgPoint($id, $percentage)|])
 	

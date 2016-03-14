@@ -24,6 +24,7 @@ macro SystemSounds(body as ExpressionStatement*):
 		data.Body.Add([|yield $pair|])
 	yield data
 	yield ExpressionStatement([|Data()|])
+	yield [|import turbu.sounds|]
 
 macro SystemMusic(body as ExpressionStatement*):
 	data = [|

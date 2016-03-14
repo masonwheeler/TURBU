@@ -21,6 +21,7 @@ macro MapTree(body as Statement*):
 	result.Accept(PropRenamer({'Song': 'BgmData'}))
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import turbu.map.metadata|]
 
 macro MapTree.MapEngines(body as ExpressionStatement*):
 	YieldAll body.Select({es | [|result.MapEngines.Add($(es.Expression))|] })

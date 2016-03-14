@@ -19,6 +19,7 @@ macro TileGroups(body as ExpressionStatement*):
 	result.Body.Statements.Add([|return $(arr)|])
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import turbu.tilesets|]
 
 macro TileGroups.TileGroup(name as StringLiteralExpression, body as ExpressionStatement*):
 	macro TileType(values as ReferenceExpression*):

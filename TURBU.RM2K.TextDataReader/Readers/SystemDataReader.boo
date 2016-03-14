@@ -10,12 +10,13 @@ macro SystemData(body as ExpressionStatement*):
 		def Data() as System.Collections.Generic.KeyValuePair[of int, System.Func[of TGameLayout]]*:
 			pass
 	|]
-	value = Lambdify(PropertyList('TGameLayout', [|0|], body), [|0|], 'TGameLayout')
+	value = Lambdify('TGameLayout', [|0|], body)
 	arr = ArrayLiteralExpression()
 	arr.Items.Add(value.Expression)
 	result.Body.Statements.Add([|return $(arr)|])
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import TURBU.RM2K.GameData|]
 
 macro SystemData.LogicalSize(x as int, y as int):
 	SystemData.Body.Add([|Width($x)|])

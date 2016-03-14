@@ -32,7 +32,7 @@ enum TDotEffect:
 
 class TRpgResistable(TRpgDatafile):
 	[Property(Standard)]
-	private FStandard = array(short, 7)
+	private FStandard = array(int, 5)
 
 [TableName('Conditions')]
 class TConditionTemplate(TRpgResistable):
@@ -79,17 +79,29 @@ class TConditionTemplate(TRpgResistable):
 	[Property(PhysCutoff)]
 	protected FPhysCutoff as int
 
-	[Property(MagBlock)]
-	protected FMagBlock as bool
+	[Property(MagicReflect)]
+	protected FMagicReflect as bool
 
-	[Property(MagCutoff)]
+	[Property(MagicCutoff)]
 	protected FMagCutoff as int
 
-	[Property(ConditionMessages)]
-	protected FConditionMessages as TConditionMessages
+	[Property(UsesMessages)]
+	protected FUsesMessages as bool
 
-	[Property(UsesConditionMessages)]
-	protected FUsesConditionMessages as bool
+	[Property(AllyMessage)]
+	protected FAllyMessage = ''
+
+	[Property(EnemyMessage)]
+	protected FEnemyMessage = ''
+
+	[Property(AlreadyMessage)]
+	protected FAlreadyMessage = ''
+
+	[Property(NormalMessage)]
+	protected FNormalMessage = ''
+
+	[Property(RecoveryMessage)]
+	protected FRecoveryMessage = ''
 
 	[Property(HpTurnPercent)]
 	protected FHpTurnPercent as int
@@ -130,10 +142,10 @@ class TConditionTemplate(TRpgResistable):
 	[Property(Animation)]
 	protected FStatusAnimation as int
 
-	[Property(HpDot)]
+	[Property(HPDot)]
 	protected FHpDot as TDotEffect
 
-	[Property(MpDot)]
+	[Property(MPDot)]
 	protected FMpDot as TDotEffect
 
 	[Property(Tag)]

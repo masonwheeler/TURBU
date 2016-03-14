@@ -37,7 +37,7 @@ static class TItemConverter:
 		result.Body.Add([|Usable Both|])
 		bub = base.UsableBy cast (bool)
 		usable = bub.Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).ToArray()
-		heroes = MacroStatement('Heroes')
+		heroes = MacroStatement('UsableByHero')
 		heroes.Arguments.AddRange(usable.Select({i | Expression.Lift(i)}))
 		result.Body.Add(heroes)
 		classes = MacroStatement('Classes')
@@ -141,7 +141,7 @@ static class TItemConverter:
 		return result
 	
 	private def ConvertUpgradeItem(base as RMItem, db as LDB) as MacroStatement:
-		result = ConvertItem('UpgradekItem', base, db)
+		result = ConvertItem('UpgradeItem', base, db)
 		result.Body.Add([|Stats $(base.PermHPGain), $(base.PermMPGain), $(base.PermAttackGain), \
 										$(base.PermDefenseGain), $(base.PermMindGain), $(base.PermSpeedGain)|])
 		return result

@@ -8,7 +8,7 @@ import TURBU.PluginInterface
 interface IDataReader(ITurbuEngine):
 	def Initialize(path as string)
 	
-	def GetReader[of T(IRpgObject)](eager as bool) as IDataTypeReader[of T]
+	def GetReader[of T(IRpgObject)]() as IDataTypeReader[of T]
 	
 	def GetMapLoader(environment as object) as IMapLoader
 	

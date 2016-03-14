@@ -109,7 +109,7 @@ abstract class TUsableItemTemplate(TItemTemplate):
 	[Property(UsableByClass)]
 	private FUsableByClass = array(int, 0)
 
-	[Property(Stat)]
+	[Property(Stats)]
 	protected FStat = array(int, 6)
 
 abstract class TEquipmentTemplate(TUsableItemTemplate):
@@ -199,13 +199,13 @@ class TArmorTemplate(TEquipmentTemplate):
 [ItemType(TItemType.Medicine)]
 class TMedicineTemplate(TUsableItemTemplate):
 
-	[Property(AreaMedicine)]
+	[Property(AreaEffect)]
 	private FAreaMedicine as bool
 
-	[Property(HpPercent)]
+	[Property(HPPercent)]
 	private FHPPercent as byte
 
-	[Property(MpPercent)]
+	[Property(MPPercent)]
 	private FMPPercent as byte
 
 	[Property(DeadOnly)]
@@ -214,14 +214,14 @@ class TMedicineTemplate(TUsableItemTemplate):
 	[Property(OutOfBattle)]
 	private FOutOfBattle as bool
 
-	[Property(Condition)]
+	[Property(Conditions)]
 	private FConditions = array(int, 0)
 
-	public HpHeal as int:
+	public HPHeal as int:
 		get: return FStat[1]
 		set: FStat[1] = value
 
-	public MpHeal as int:
+	public MPHeal as int:
 		get: return FStat[2]
 		set: FStat[2] = value
 

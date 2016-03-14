@@ -18,7 +18,7 @@ class TBooReader(TRpgPlugBase, IDataReader):
 	
 	private _path as string
 	
-	private _loader = InteractiveInterpreter(/*Boo.Lang.Parser.BooParsingStep(),*/ Ducky: false, RememberLastValue: true)
+	private _loader = InteractiveInterpreter(/*Boo.Lang.Parser.BooParsingStep(),*/ Ducky: false, RememberLastValue: true, ReplaceSingleEmptyMacro: false)
 	
 	private _mapLoader as TMapLoader
 	
@@ -45,16 +45,17 @@ import SG.defs""")
 	def Initialize(path as string):
 		_path = path
 	
-	def GetReader[of T(IRpgObject)](eager as bool) as IDataTypeReader[of T]:
-		if _readers.ContainsKey(typeof(T)):
-			return _readers[typeof(T)] cast IDataTypeReader[of T]
+	def GetReader[of T(IRpgObject)]() as IDataTypeReader[of T]:
+		var TType = typeof(T)
+		if _readers.ContainsKey(TType):
+			return _readers[TType] cast IDataTypeReader[of T]
 		
-		_loader.References.Add(typeof(T).Assembly)
-		key = typeof(T).GetCustomAttributes(false).OfType[of TableNameAttribute]().SingleOrDefault()
+		_loader.References.Add(TType.Assembly)
+		key = TType.GetCustomAttributes(false).OfType[of TableNameAttribute]().SingleOrDefault()
 		if key is null:
-			raise "Class $(typeof(T).Name) has no TableName attribute registered"
-		result = TDataFileReader[of T](Path.Combine(_path, "$(key.Name).tdb"), typeof(T).Namespace, _loader, eager)
-		_readers.Add(typeof(T), result)
+			raise "Class $(TType.Name) has no TableName attribute registered"
+		result = TDataFileReader[of T](Path.Combine(_path, "$(key.Name).tdb"), _loader)
+		_readers.Add(TType, result)
 		return result
 	
 	def Dispose():
@@ -65,46 +66,15 @@ private class TDataFileReader[of T(IRpgObject)](IDataTypeReader[of T]):
 	private _store = Dictionary[of int, Func[of T]]()
 	private _cache = Dictionary[of int, T]()
 	private _loader as InteractiveInterpreter
-	private _lines as (string)
 	
-	def constructor(filename as string, aNamespace as string, loader as InteractiveInterpreter, eager as bool):
+	def constructor(filename as string, loader as InteractiveInterpreter):
 		_loader = loader
-		loader.Eval("import $aNamespace")
-		if eager:
-			ctx = loader.Eval(File.ReadAllText(filename))
-			if ctx.Errors.Count > 0:
-				raise ctx.Errors.ToString()
-			else:
-				values as KeyValuePair[of int, Func[of T]]* = loader.LastValue
-				_store = values.ToDictionary({kv | kv.Key}, {kv | kv.Value})
+		ctx = loader.Eval(File.ReadAllText(filename))
+		if ctx.Errors.Count > 0:
+			raise ctx.Errors.ToString()
 		else:
-			lines = File.ReadAllLines(filename)
-			_lines = lines
-			indices = List[of int]()
-			for i in range(lines.Length):
-				if IndentationOf(lines[i]) == 1:
-					indices.Add(i)
-			indices.Add(lines.Length)
-			for i in range(indices.Count - 1):
-				AddLambda(indices[i], indices[i + 1])
-	
-	private def AddLambda(start as int, end as int):
-		lambda = do() as T:
-			lines as string = _lines[0] + Environment.NewLine + string.Join(Environment.NewLine, _lines[start:end])
-			ctx = _loader.Eval(lines)
-			if ctx.Errors.Count > 0:
-				raise ctx.Errors.ToString()
-			return _loader.LastValue cast T
-		
-		line1 = _lines[start][:-1]
-		id = int.Parse(line1.Split(*(' '[0],))[1])
-		_store.Add(id, lambda)
-	
-	private static def IndentationOf(value as string) as int:
-		i = 0
-		while value[i] == char('\t'):
-			++i
-		return i
+			values as KeyValuePair[of int, Func[of T]]* = loader.LastValue
+			_store = values.ToDictionary({kv | kv.Key}, {kv | kv.Value})
 	
 	def GetData(index as int) as T:
 		lock _store:

@@ -33,7 +33,7 @@ static class TClassConverter:
 		for i in range(base.DTypeModifiers.Length):
 			resistVal = -((base.DTypeModifiers cast (byte))[i] - 100)
 			attributes.Body.Add([|Attribute $i, $resistVal|]) unless resistVal == db.Attributes[i].RateC
-		conditions = MacroStatement('Conditions')
+		conditions = MacroStatement('CondResists')
 		for i in range(base.ConditionModifiers.Length):
 			resistVal = -((base.ConditionModifiers cast (byte))[i] - 100)
 			conditions.Body.Add([|Condition $i, $resistVal|]) unless resistVal == 0
@@ -72,7 +72,7 @@ static class TClassConverter:
 		for i in range(base.DTypeModifiers.Length):
 			resistVal = -((base.DTypeModifiers cast (byte))[i] - 100)
 			attributes.Body.Add([|Attribute $i, $resistVal|]) unless resistVal == db.Attributes[i].RateC
-		conditions = MacroStatement('Conditions')
+		conditions = MacroStatement('CondResists')
 		for i in range(base.ConditionModifiers.Length):
 			resistVal = -((base.ConditionModifiers cast (byte))[i] - 100)
 			conditions.Body.Add([|Condition $i, $resistVal|]) unless resistVal == 0
