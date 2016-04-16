@@ -222,6 +222,9 @@ class TVehicleTemplate(TRpgDatafile):
 	[Property(MapSprite)]
 	protected FMapSprite as string
 
+	[Property(SpriteIndex)]
+	protected FSpriteIndex as int
+
 	[Property(Translucent)]
 	protected FTranslucent as bool
 

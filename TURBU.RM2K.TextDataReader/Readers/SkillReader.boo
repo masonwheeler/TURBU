@@ -7,8 +7,9 @@ import Boo.Lang.PatternMatching
 
 macro Skills(body as ExpressionStatement*):
 	macro Cost(value as int, percentCost as bool):
-		yield [|Cost($value)|]
-		yield [|CostAsPercentage(true)|] if percentCost
+		var parent = Cost.GetAncestor[of MacroStatement]()
+		parent.Body.Add([|Cost($value)|])
+		parent.Body.Add([|CostAsPercentage(true)|]) if percentCost
 	
 	macro SFX(name as string, v1 as int, v2 as int, v3 as int, v4 as int):
 		return ExpressionStatement([|Sfx(TRpgSound($name, $v1, $v2, $v3, $v4))|])
