@@ -13,6 +13,7 @@ macro GlobalVars(body as ExpressionStatement*):
 	result.Body.Add([|return (System.Collections.Generic.KeyValuePair[of int, System.Func[of TRpgVarsList]](0, {return result}),)|])
 	yield result
 	yield ExpressionStatement([|Data()|])
+	yield [|import TURBU.RM2K|]
 
 macro GlobalVars.Switches(body as ExpressionStatement*):
 	return ListReader(body, 'Switches')
