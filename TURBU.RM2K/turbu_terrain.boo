@@ -1,10 +1,11 @@
 namespace turbu.terrain
 
-import turbu.classes
-import turbu.sounds
-import turbu.defs
 import System
+
 import Pythia.Runtime
+import turbu.classes
+import turbu.defs
+import turbu.sounds
 
 [EnumSet]
 enum SpecialBattleTypes:
@@ -17,26 +18,26 @@ enum SpecialBattleTypes:
 [TableName('Terrains')]
 class TRpgTerrain(TRpgDatafile):
 
-	[Getter(Damage)]
+	[Property(Damage)]
 	protected FDamage as int
 
-	[Getter(EncounterMultiplier)]
+	[Property(EncounterMultiplier)]
 	protected FEncounterMultiplier as int
 	
-	[Getter(BattleBG)]
+	[Property(BattleBG)]
 	protected FBattleBg as string
 
-	[Getter(VehiclePass)]
+	[Property(VehiclePass)]
 	protected FVehiclePass as (bool)
 
-	[Getter(AirshipLanding)]
+	[Property(AirshipLanding)]
 	protected FAirshipLanding as bool
 
-	[Getter(Concealment)]
+	[Property(Concealment)]
 	protected FConcealment as TConcealmentFactor
 
-	[Getter(SoundEffect)]
+	[Property(SoundEffect)]
 	protected FSoundEffect as TRpgSound
 
-	[Getter(Frame)]
+	[Property(Frame)]
 	protected FFrame as string
