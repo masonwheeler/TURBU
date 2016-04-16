@@ -45,7 +45,7 @@ class TGameSkillMenu(TCustomScrollBox):
 		for i in range(1, GDatabase.value.Skill.Count):
 			if ourHero.Skill[i]:
 				FSkillIndex[index] = i
-				FOptionEnabled[index] = GDatabase.value.Skill[i].UsableWhere in (TUsableWhere.Field, TUsableWhere.Both)
+				FOptionEnabled[index] = GDatabase.value.Skill[i].Usable in (TUsableWhere.Field, TUsableWhere.Both)
 				++index
 				FParsedText.Add(GDatabase.value.Skill[i].Name)
 		self.Visible = true

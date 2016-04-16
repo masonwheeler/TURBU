@@ -1,10 +1,10 @@
 namespace turbu.skills
 
+import System
+import Pythia.Runtime
+import SG.defs
 import turbu.operators
 import TURBU.RM2K
-import Pythia.Runtime
-import System
-import System.Drawing
 import turbu.constants
 import turbu.defs
 import turbu.classes
@@ -57,7 +57,7 @@ class TSkillTemplate(TRpgDatafile):
 	[Property(FailureMessage)]
 	private FFailureMessage as ushort
 
-	[Property(UsableWhere)]
+	[Property(Usable)]
 	private FUsableWhere as TUsableWhere
 
 	[Property(Range)]
@@ -80,11 +80,13 @@ class TNormalSkillTemplate(TSkillTemplate):
 	[Property(Animation)]
 	private FAnim as ushort
 
+	[Property(SkillPower, value.Length == 5)]
 	private FSkillPower = array(int, 5)
 
 	[Property(SuccessRate)]
 	private FSuccessRate as int
 
+	[Property(Stats, value.Length == STAT_COUNT + 1)]
 	private FStat = array(bool, STAT_COUNT + 1)
 
 	[Property(Drain)]
@@ -108,23 +110,15 @@ class TNormalSkillTemplate(TSkillTemplate):
 	protected override def GetSound1() as TRpgSound:
 		result = null
 		anim as TAnimTemplate = GDatabase.value.Anim[self.Animation]
-		i as int = 1
+		var i = 1
 		while (i < anim.Effects.Count) and ((anim.Effects[i].Sound == null) or string.IsNullOrEmpty(anim.Effects[i].Sound.Filename)):
 			++i
 			if i <= anim.Effects.Count:
 				result = anim.Effects[i].Sound
 		return result
 
-	[Property(Attribute)]
-	protected FAttributes as (Point)
-
-	public SkillPower[x as int] as int:
-		get:
-			assert x in range(1, 5)
-			return FSkillPower[x]
-		set:
-			assert x in range(1, 5)
-			FSkillPower[x] = value
+	[Property(Attributes)]
+	protected FAttributes as (TSgPoint)
 
 	public StrEffect as int:
 		get: return SkillPower[1]
@@ -138,31 +132,23 @@ class TNormalSkillTemplate(TSkillTemplate):
 	public Base as int:
 		get: return SkillPower[4]
 
-	public Stat[x as int] as bool:
-		get:
-			assert x in range(1, STAT_COUNT + 1)
-			return FStat[x]
-		set:
-			assert x in range(1, STAT_COUNT + 1)
-			FStat[x] = value
-
 	public HP as bool:
-		get: return Stat[1]
+		get: return Stats[1]
 
 	public MP as bool:
-		get: return Stat[2]
+		get: return Stats[2]
 
 	public Attack as bool:
-		get: return Stat[3]
+		get: return Stats[3]
 
 	public Defense as bool:
-		get: return Stat[4]
+		get: return Stats[4]
 
-	public mind as bool:
-		get: return Stat[5]
+	public Mind as bool:
+		get: return Stats[5]
 
-	public speed as bool:
-		get: return Stat[6]
+	public Speed as bool:
+		get: return Stats[6]
 
 class TSpecialSkillTemplate(TSkillTemplate):
 

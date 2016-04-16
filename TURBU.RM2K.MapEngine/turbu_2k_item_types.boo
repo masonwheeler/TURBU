@@ -164,7 +164,7 @@ class TSkillItem(TAppliedItem):
 	private FSkill as TRpgSkill
 
 	protected override def GetOnField() as bool:
-		return (FSkill.Template.UsableWhere == TUsableWhere.Field)
+		return (FSkill.Template.Usable == TUsableWhere.Field)
 
 	public def constructor(Item as int, Quantity as int):
 		super(Item, Quantity)
