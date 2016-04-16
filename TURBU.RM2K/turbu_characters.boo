@@ -16,7 +16,7 @@ enum TCommandStyle:
 	Defend
 	Item
 	Flee
-	Skillgroup
+	SkillGroup
 	Special
 	Script
 
@@ -57,7 +57,7 @@ class TStatBlock(TObject, IStatBlock):
 	public def Compare(other as IStatBlock) as bool:
 		i as int
 		lOther as TStatBlock
-		if not ((other isa TStatBlock) and (self.Size != other.Size)):
+		if not ((other isa TStatBlock) and (self.Size == other.Size)):
 			return false
 		lOther = other cast TStatBlock
 		i = 0
