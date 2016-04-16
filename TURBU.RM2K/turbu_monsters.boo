@@ -105,52 +105,36 @@ class TRpgMonsterElement(TObject):
 
 class TBattleEventPage(TObject):
 
-	[Getter(id)]
+	[Getter(ID)]
 	protected FID as int
 
-	[Getter(conditions)]
-	protected FConditions = TBattleEventConditions()
+	[Property(Name)]
+	protected FName as string
 
-	[Getter(eventText)]
-	protected FEventText as string
+	[Property(Conditions)]
+	protected FConditions as Func of bool
 
-	public def constructor():
+	public def constructor(id as int):
 		super()
-
-class TBattleEventList(TRpgObjectList[of TBattleEventPage]):
-	pass
-
-class TMonsterElementList(List[of TRpgMonsterElement]):
-	pass
-
-/*
-[Pythia.Attributes.DelphiClass]
-class HabitatUploadAttribute(TDBUploadAttribute):
-
-	public override def upload(db as DataTable, field as TRttiField, instance as TObject):
-		db.FieldByName('habitats').AsBytes = (instance cast TRpgMonsterParty).FHabitats
-
-	public override def download(db as DataTable, field as TRttiField, instance as TObject):
-		(instance cast TRpgMonsterParty).FHabitats = db.FieldByName('habitats').AsBytes
-*/
+		FID = id
 
 [TableName('MonsterParties')]
 class TRpgMonsterParty(TRpgDatafile):
 
-	[Getter(AutoAlign)]
+	[Property(AutoAlign)]
 	protected FAutoAlign as bool
 
-	[Getter(Random)]
+	[Property(Random)]
 	protected FRandom as bool
 
-	[Getter(Habitats)]
-	protected FHabitats as (byte)
+	[Property(Habitats)]
+	protected FHabitats as (int)
 
-	[Getter(Monsters)]
-	protected FMonsters = TMonsterElementList()
+	[Property(Monsters)]
+	protected FMonsters = List[of TRpgMonsterElement]()
 
-	[Getter(Events)]
-	protected FEvents = TBattleEventList()
+	[Property(Pages)]
+	protected FPages = TRpgObjectList[of TBattleEventPage]()
 
 	public def constructor():
 		super()

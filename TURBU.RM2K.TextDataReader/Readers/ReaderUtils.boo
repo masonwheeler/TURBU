@@ -45,6 +45,10 @@ def MakeDataListValue(name as string, baseType as string, values as ExpressionSt
 def MakeListValue(name as string, baseType as string, values as ExpressionStatement*):
 	return DoMakeListValue(name, baseType, values, [|turbu.containers.TRpgObjectList|])
 
+def MakeGenericListValue(name as string, baseType as string, values as ExpressionStatement*):
+	return DoMakeListValue(name, baseType, values, [|System.Collections.Generic.List|])
+
+
 def Flatten(values as Statement*) as ExpressionStatement*:
 	for value in values:
 		if value isa Block:
@@ -63,6 +67,18 @@ def Lambdify(name as string, index as IntegerLiteralExpression, body as Expressi
 
 def Lambdify(name as string, index as IntegerLiteralExpression, body as ExpressionStatement*, formalType as string) as ExpressionStatement:
 	return Lambdify(PropertyList(name, index, body), index, formalType)
+
+private def SubMacro(body as ExpressionStatement*, name as string) as MethodInvocationExpression:
+	var target = ReferenceExpression(name)
+	return body.Select({e | e.Expression}).OfType[of MethodInvocationExpression]().Where({m|m.Target.Matches(target)}).Single()
+
+def SubMacroValue(body as ExpressionStatement*, name as string) as Expression:
+	return SubMacro(body, name).Arguments[0]
+
+def SubMacroNamed(body as ExpressionStatement*, name as string, newName as string) as MethodInvocationExpression:
+	var result = SubMacro(body, name).CleanClone()
+	result.Target = ReferenceExpression(newName)
+	return result
 
 class EnumFiller(FastDepthFirstVisitor):
 	
