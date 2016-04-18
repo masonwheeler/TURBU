@@ -62,6 +62,9 @@
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="BooReader.boo" />
     <Compile Include="BooReaderEnvironmentStep.boo" />
+    <Compile Include="Compiler\CompilerEnvironmentStep.boo" />
+    <Compile Include="Compiler\PrepareDataFiles.boo" />
+    <Compile Include="Compiler\TURBUBuilderPipeline.boo" />
     <Compile Include="FixNegativeNumbers.boo" />
     <Compile Include="Readers\AnimReader.boo" />
     <Compile Include="Readers\ClassesReader.boo" />
@@ -115,6 +118,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Compiler" />
     <Folder Include="Readers" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />

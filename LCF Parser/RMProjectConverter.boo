@@ -111,6 +111,10 @@ class RMProjectConverter(TThread):
 			glyphPath = Path.Combine(_outputPath, 'Images', 'SysTiles', 'Glyphs')
 			Directory.CreateDirectory(glyphPath)
 			File.Copy(Path.Combine(exePath, 'resources', 'glyphs.png'), Path.Combine(glyphPath, 'glyphs.png'))
+		
+		task "Building TURBU package":
+			exePath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName)
+			RunBake(_outputPath, exePath, _lmt.Maps[0].Name)
 	
 	private static final RES_TYPES = HashSet[of string](('Music', 'Sound', 'Movie', 'Sprite', 'Portrait',
 		'Background', 'BattleBG', 'Picture', 'Frame', 'Monster', 'SysTile', 'Tileset', 'Anim', 'BattleSprite',

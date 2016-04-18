@@ -37,6 +37,12 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bake.Compiler.Extensions">
+      <HintPath>..\..\boo-build-system\bin\Bake.Compiler.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Bake.Engine">
+      <HintPath>..\..\boo-build-system\src\bake.engine\obj\Debug\Bake.Engine.dll</HintPath>
+    </Reference>
     <Reference Include="Boo.Adt">
       <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
     </Reference>
@@ -46,20 +52,11 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
+    <Compile Include="BakeTask.boo" />
     <Compile Include="MainForm.boo" />
     <Compile Include="MainForm.Designer.boo">
       <DependentUpon>MainForm.boo</DependentUpon>
@@ -93,6 +90,14 @@
     <ProjectReference Include="..\TURBU.RM2K.Import\TURBU.RM2K.Import.booproj">
       <Project>{BC1569F6-A2CE-474E-88F9-B1673FE1AC9D}</Project>
       <Name>TURBU.RM2K.Import</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K.MapEngine\TURBU.RM2K.MapEngine.booproj">
+      <Project>{DC05E2F6-6214-4ED1-84BB-07EC636C386B}</Project>
+      <Name>TURBU.RM2K.MapEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2K.TextDataReader\TURBU.RM2K.TextDataReader.booproj">
+      <Project>{0B907BBD-7CAE-49CB-8221-FF96B4A25FBC}</Project>
+      <Name>TURBU.RM2K.TextDataReader</Name>
     </ProjectReference>
     <ProjectReference Include="..\TURBU.RM2K\TURBU.RM2K.booproj">
       <Project>{38D2D905-9F6B-4845-B72C-A2C95B4ABCF7}</Project>

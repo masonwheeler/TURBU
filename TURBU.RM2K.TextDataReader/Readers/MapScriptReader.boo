@@ -38,11 +38,12 @@ internal def BuildScriptMap(values as Dictionary[of int, string]) as Method:
 			pass
 	|]
 	body = result.Body
-	for pair in values:
-		k = pair.Key
-		id = k >> 16
-		page = k % (2**16)
-		body.Add([|MapObjects.Single({o | return o.ID == $id}).Pages.Single({p | return p.ID == $page}).Script = $(ReferenceExpression(pair.Value))|])
+	if values is not null:
+		for pair in values:
+			k = pair.Key
+			id = k >> 16
+			page = k % (2**16)
+			body.Add([|MapObjects.Single({o | return o.ID == $id}).Pages.Single({p | return p.ID == $page}).Script = $(ReferenceExpression(pair.Value))|])
 	return result
 
 class ScriptProcessor(DepthFirstTransformer):

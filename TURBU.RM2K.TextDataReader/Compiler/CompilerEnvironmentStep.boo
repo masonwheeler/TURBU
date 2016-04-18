@@ -1,33 +1,34 @@
-﻿namespace TURBU.RM2K.TextDataReader
+﻿namespace TURBU.RM2K.TextDataReader.Compiler
 
 import System
 import System.Collections.Generic
 import System.Linq.Enumerable
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
+import Boo.Lang.Compiler.Steps
 import Boo.Lang.Compiler.TypeSystem
 import Boo.Lang.Compiler.TypeSystem.Reflection
 import Boo.Lang.Environments
-import Boo.Lang.Interpreter
 
-class BooReaderEnvironmentNamespace(AbstractInterpreter.InterpreterNamespace):
-	private _environment as object
+class CompilerEnvironmentNamespace(AbstractNamespace):
+	[getter(ParentNamespace)]
+	_parent as INamespace
 	
 	[Getter(EnvType)]
 	private _envType as ExternalType
 	
 	private _entities = Dictionary[of string, IEntity]()
 	
-	public def constructor(env as object, parent as INamespace):
-		super(null, null, parent)
-		_environment = env
-		type = env.GetType()
-		while type != typeof(object):
-			envType = My[of ReflectionTypeSystemProvider].Instance.Map(type) cast ExternalType
-			_envType = envType if _envType is null
-			for member in envType.GetMembers():
+	public def constructor(envType as ExternalType, parent as INamespace):
+		super()
+		_parent = parent
+		_envType = envType
+		var typeClass = envType
+		var ot = My[of TypeSystemServices].Instance.ObjectType
+		while typeClass != ot:
+			for member in typeClass.GetMembers():
 				_entities.Add(member.Name, member) unless _entities.ContainsKey(member.Name)
-			type = type.BaseType
+			typeClass = typeClass.BaseType
 	
 	override def Resolve(targetList as System.Collections.Generic.ICollection of IEntity, name as string, flags as EntityType) as bool:
 		return false unless flags == EntityType.Any
@@ -38,10 +39,14 @@ class BooReaderEnvironmentNamespace(AbstractInterpreter.InterpreterNamespace):
 			return true
 		
 		return false
-
-class BooReaderEnvironmentStep(AbstractInterpreter.ProcessVariableDeclarations):
 	
-	private _environment as object
+	override def GetMembers() as IEnumerable of IEntity:
+		return _entities.Values
+
+class CompilerEnvironmentStep(ProcessMethodBodiesWithDuckTyping):
+	
+	[Property(EnvironmentType)]
+	private static _environmentType as Type = turbu.RM2K.environment.T2kEnvironment
 	
 	private _envType as ExternalType
 	
@@ -49,11 +54,9 @@ class BooReaderEnvironmentStep(AbstractInterpreter.ProcessVariableDeclarations):
 	
 	private _environmentField as IField
 	
-	private static final EnvFieldName = '$EnvironmentField$'
+	private _namespace as CompilerEnvironmentNamespace
 	
-	def constructor(interpreter, environment):
-		super(interpreter)
-		_environment = environment
+	private static final EnvFieldName = '$EnvironmentField$'
 	
 	override public def Run():
 		_moduleClass = null
@@ -62,17 +65,17 @@ class BooReaderEnvironmentStep(AbstractInterpreter.ProcessVariableDeclarations):
 	
 	override public def OnModule(node as Module):
 		//process the module class first
-		mc = node.Members.Single({m | Boo.Lang.Compiler.Steps.IntroduceModuleClasses.IsModuleClass(m)})
-		unless node.Members.IndexOf(mc) == 0:
-			node.Members.Remove(mc)
-			node.Members.Insert(0, mc)
+		mc = node.Members.SingleOrDefault({m | Boo.Lang.Compiler.Steps.IntroduceModuleClasses.IsModuleClass(m)})
+		if mc is not null:
+			unless node.Members.IndexOf(mc) == 0:
+				node.Members.Remove(mc)
+				node.Members.Insert(0, mc)
 		super.OnModule(node)
 	
 	override public def OnClassDefinition(node as ClassDefinition):
 		return if WasVisited(node)
 		
 		if _moduleClass is null:
-			assert Boo.Lang.Compiler.Steps.IntroduceModuleClasses.IsModuleClass(node)
 			env = CodeBuilder.CreateField(EnvFieldName, _envType)
 			env.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Static
 			node.Members.Add(env)
@@ -80,21 +83,12 @@ class BooReaderEnvironmentStep(AbstractInterpreter.ProcessVariableDeclarations):
 			_environmentField = env.Entity cast IField
 		super.OnClassDefinition(node)
 	
-	override public def OnMethod(node as Method):
-		super(node)
-		if node == _entryPoint:
-			node.Body.Statements.Insert(0,
-				ExpressionStatement(
-					CodeBuilder.CreateAssignment(
-						CodeBuilder.CreateReference(_environmentField),
-						CodeBuilder.CreateReference(AbstractInterpreter.InterpreterEntity('Environment', _envType)))))
-	
 	override def Initialize(context as CompilerContext):
 		super.Initialize(context)
-		newNS =  BooReaderEnvironmentNamespace(_environment, _namespace.ParentNamespace)
-		_namespace = newNS
+		_envType = My[of ReflectionTypeSystemProvider].Instance.Map(_environmentType) cast ExternalType
+		_namespace =  CompilerEnvironmentNamespace(_envType, NameResolutionService.GlobalNamespace)
 		NameResolutionService.GlobalNamespace = _namespace
-		_envType = newNS.EnvType
+		_envType = _namespace.EnvType
 		
 	override def CreateMemberReferenceTarget(sourceNode as Node, member as IMember) as Expression:
 		target as Expression = null
@@ -111,3 +105,8 @@ class BooReaderEnvironmentStep(AbstractInterpreter.ProcessVariableDeclarations):
 			target = SelfLiteralExpression(sourceNode.LexicalInfo)
 		BindExpressionType(target, member.DeclaringType)
 		return target
+
+macro EnvironmentClass(value as TypeReference):
+""" Can be used in a config file (to be implemented later) to override the environment type """
+	var entity = value.Entity cast ExternalType
+	CompilerEnvironmentStep.EnvironmentType = entity.ActualType

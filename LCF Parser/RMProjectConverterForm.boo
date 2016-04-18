@@ -100,25 +100,23 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 			_running = false
 	
 	def Fatal(errorMessage as string):
-		System.Windows.Forms.MessageBox.Show(errorMessage, 'Fatal error')
+		MakeError(errorMessage, 9999)
+		self.Invoke({System.Windows.Forms.MessageBox.Show(errorMessage, 'Fatal error')})
 	
 	def Fatal(error as Exception):
 		Fatal("Unhandled conversion exception $(error.GetType().Name):$(Environment.NewLine)$(error.Message)")
 	
 	def MakeError(text as string, group as int):
 		_conversionReport.Add("Error (E$group): $text")
-		self.Invoke() do():
-			lblErrors.Text = (int.Parse(lblErrors.Text) + 1).ToString()
+		self.Invoke({lblErrors.Text = (int.Parse(lblErrors.Text) + 1).ToString()})
 	
 	def MakeHint(text as string, group as int):
 		_conversionReport.Add("Hint (H$group): $text")
-		self.Invoke() do():
-			lblHints.Text = (int.Parse(lblHints.Text) + 1).ToString()
+		self.Invoke({lblHints.Text = (int.Parse(lblHints.Text) + 1).ToString()})
 		
 	def MakeNotice(text as string, group as int):
 		_conversionReport.Add("Hint (H$group): $text")
-		self.Invoke() do():
-			lblWarnings.Text = (int.Parse(lblWarnings.Text) + 1).ToString()
+		self.Invoke({lblWarnings.Text = (int.Parse(lblWarnings.Text) + 1).ToString()})
 	
 	private def BtnDoneClick(sender as object, e as System.EventArgs):
 		_thread.Terminate() if assigned(_thread) and not _finished
