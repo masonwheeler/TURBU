@@ -459,7 +459,7 @@ class TScriptConverter:
 			case 1: right = [|Ints[$(ec.Data[5])]|]
 			case 2: right = [|Ints[Ints[$(ec.Data[5])]]|]
 			case 3: right = [|Random($(ec.Data[5]), $(ec.Data[6]))|]
-			case 4: right = [|HeldItems($(ec.Data[5]), $(ec.Data[6]))|]
+			case 4: right = [|HeldItems($(ec.Data[5]), $(ec.Data[6] == 1))|]
 			case 5:
 				if ec.Data[6] in range(6):
 					prop = ReferenceExpression(('Level', 'Exp', 'HP', 'MP', 'MaxHP', 'MaxMP')[ec.Data[6]])

@@ -67,6 +67,7 @@
     <Compile Include="Compiler\TURBUBuilderPipeline.boo" />
     <Compile Include="FixNegativeNumbers.boo" />
     <Compile Include="Readers\AnimReader.boo" />
+    <Compile Include="Readers\AttributeReader.boo" />
     <Compile Include="Readers\ClassesReader.boo" />
     <Compile Include="Readers\CommandReader.boo" />
     <Compile Include="Readers\ConditionReader.boo" />

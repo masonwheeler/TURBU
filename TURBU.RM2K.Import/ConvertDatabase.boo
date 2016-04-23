@@ -150,10 +150,11 @@ class TDatabaseConverter:
 			File.WriteAllText(Path.Combine(self._database, 'Animations.tdb'), anims.ToCodeString())
 		
 		task "Converting Battle Char data":
-			bChars = MacroStatement('BattleChars')
-			for bChar in _ldb.BattleAnims:
-				bChars.Body.Add(TBattleAnimConverter.Convert(bChar))
-			File.WriteAllText(Path.Combine(self._database, 'BattleChars.tdb'), bChars.ToCodeString())
+			if _2k3:
+				bChars = MacroStatement('BattleChars')
+				for bChar in _ldb.BattleAnims:
+					bChars.Body.Add(TBattleAnimConverter.Convert(bChar))
+				File.WriteAllText(Path.Combine(self._database, 'BattleChars.tdb'), bChars.ToCodeString())
 
 		task "Converting Terrain":
 			terrains = MacroStatement('Terrains')

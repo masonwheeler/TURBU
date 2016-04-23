@@ -6,28 +6,56 @@ import System.Linq.Enumerable
 import Boo.Lang.Compiler.Ast
 
 macro MapCode(id as IntegerLiteralExpression, body as TypeMemberStatement*):
-	name = ReferenceExpression("Map$(id.Value.ToString('D4'))")
-	result = [|
+	var name = ReferenceExpression("Map$(id.Value.ToString('D4'))")
+	var result = [|
 		class $name(turbu.maps.TRpgMap):
 			pass
 	|]
 	
 	result.Members.AddRange(body.Select({tm | tm.TypeMember}).Cast[of Method]())
-	scriptList = MapCode['scriptList'] cast Dictionary[of int, string]
+	var scriptList = MapCode['scriptList'] cast Dictionary[of int, string]
 	result.Members.Add(BuildScriptMap(scriptList))
 	yield result
 	yield [|import System.Linq.Enumerable|]
 
 macro MapCode.PageScript(id as int, page as int):
-	name = "Event$(id.ToString('D4'))Page$(page.ToString('D3'))"
-	result = [|
+	var name = "Event$(id.ToString('D4'))Page$(page.ToString('D3'))"
+	var result = [|
 		internal def $name():
 			$(PageScript.Body)
 	|]
-	scriptList = MapCode['scriptList'] cast Dictionary[of int, string]
+	var scriptList = MapCode['scriptList'] cast Dictionary[of int, string]
 	if scriptList is null:
 		scriptList = Dictionary[of int, string]()
 		MapCode['scriptList'] = scriptList
+	scriptList.Add(id << 16 + page, name)
+	result.Accept(ScriptProcessor())
+	return TypeMemberStatement(result)
+
+macro BattleScripts(body as TypeMemberStatement*):
+	var result = [|
+		static class BattleScripts:
+			pass
+	|]
+	
+	result.Members.AddRange(body.Select({tm | tm.TypeMember}).Cast[of Method]())
+	var scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
+	var scriptMap = BuildScriptMap(scriptList)
+	scriptMap.Modifiers = TypeMemberModifiers.Public
+	result.Members.Add(scriptMap)
+	yield result
+	yield [|import System.Linq.Enumerable|]
+
+macro BattleScripts.BattleScript(id as int, page as int):
+	var name = "BattleScript$(id.ToString('D4'))Page$(page.ToString('D3'))"
+	var result = [|
+		public def $name():
+			$(BattleScript.Body)
+	|]
+	scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
+	if scriptList is null:
+		scriptList = Dictionary[of int, string]()
+		BattleScripts['scriptList'] = scriptList
 	scriptList.Add(id << 16 + page, name)
 	result.Accept(ScriptProcessor())
 	return TypeMemberStatement(result)
