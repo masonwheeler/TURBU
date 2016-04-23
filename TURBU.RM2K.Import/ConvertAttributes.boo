@@ -9,7 +9,7 @@ static class TAttributeConverter:
 		result = [|
 			Attribute $(base.ID):
 				Name $(base.Name)
-				Magic $(base.MagicAttribute)
+				RequiredForSkills $(base.MagicAttribute)
 				Damage $(base.RateA), $(base.RateB), $(base.RateC), $(base.RateD), $(base.RateE)
 		|]
 		return result
