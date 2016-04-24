@@ -319,21 +319,10 @@ class TRpgImage(TObject):
 		FSprite.Timer = duration * 100
 
 	public def Erase():
-		runThreadsafe(true) def ():
-			i as int
-			idx as int
-			idx = -1
-			for i in range(1, (GEnvironment.value.ImageCount + 1)):
-				if GEnvironment.value.Image[i] == self:
-					idx = i
-					break
-			if idx == -1:
-				return
-			GEnvironment.value.Image[idx].Dispose()
+		self.Dispose()
 
-	public def Waitfor():
-		idx as int
-		idx = GEnvironment.value.ImageIndex(self)
+	public def WaitFor():
+		idx as int = GEnvironment.value.ImageIndex(self)
 		if idx == -1:
 			return
 		GScriptEngine.value.SetWaiting() def () as bool:
