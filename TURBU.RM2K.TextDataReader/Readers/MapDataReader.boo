@@ -79,7 +79,7 @@ macro MapData.MapObjects.MapObject.Pages.Page.Conditions(body as ExpressionState
 		return ExpressionStatement([|Switch[$id]|])
 	
 	macro Variable(comp as BinaryExpression):
-		be = BinaryExpression(comp.Operator, [|Variables[$(comp.Left)]|], comp.Right)
+		be = BinaryExpression(comp.Operator, [|Ints[$(comp.Left)]|], comp.Right)
 		return ExpressionStatement(be)
 	
 	macro Item(id as int):
@@ -100,21 +100,7 @@ macro MapData.MapObjects.MapObject.Pages.Page.Conditions(body as ExpressionState
 	return ExpressionStatement([| Conditions({return $result}) |])
 
 macro MapData.MapObjects.MapObject.Pages.Page.MoveScript(loop as bool, ignoreObstacles as bool, body as ExpressionStatement*):
-	result as BlockExpression = [| {mo as TRpgMapObject | mo.IgnoreObstacles = $ignoreObstacles} |]
-	body2 = result.Body
-	if loop:
-		ws = WhileStatement([|true|])
-		body2.Add(ws)
-		body2 = ws.Block
-	for step in body.Select({es | es.Expression}):
-		match step:
-			case ReferenceExpression():
-				body2.Add([|yield {mo.$step()}|])
-			case [|$name * $reps|]:
-				forSt = ForStatement([|range($reps)|])
-				forSt.Declarations.Add(Declaration(reps.LexicalInfo, 'i'))
-				forSt.Block.Add([|yield {mo.$name()}|])
-				body2.Add(forSt)
-			case MethodInvocationExpression():
-				body2.Add([|yield {mo.$step}|])
-	return ExpressionStatement([|MoveScript($result)|])
+	var arr = ArrayLiteralExpression()
+	arr.Items.AddRange(body.Select({es | es.Expression}))
+	var result = [|CreatePath($loop, $ignoreObstacles, $arr)|]
+	return ExpressionStatement([|Path($result)|])

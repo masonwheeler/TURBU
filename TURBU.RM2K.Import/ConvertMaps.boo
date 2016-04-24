@@ -87,7 +87,6 @@ static class TMapConverter:
 	private def ConvertMoveBlock(script as EventMoveBlock, makeWarning as Action of string) as MacroStatement:
 		result = [|MoveScript $(script.Loop), $(script.Ignore)|]
 		result.Body.Add(MacroStatement('Option Loop')) if script.Loop
-		result.Body.Add(MacroStatement('Option IgnoreObstacles')) if script.Ignore
 		ConvertMoveOrders(script.MoveOrder, result.Body, makeWarning)
 		return result
 	

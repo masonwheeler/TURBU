@@ -47,11 +47,11 @@ class TRpgCharacter(TObject):
 			DoFlash(r, g, b, power, time)
 			GScriptEngine.value.ThreadSleep(time * 100, true) if wait
 
-	public def Move(frequency as int, skip as bool, path as Func[of Path, Func[of bool]*]):
+	public def Move(frequency as int, skip as bool, path as Func[of Path, Func[of TObject, bool]*]):
 		return unless assigned(self.Base)
 		lock self:
 			try:
-				var lPath = Path(path)
+				var lPath = Path(skip, path)
 			except as Boo.Lang.Runtime.AssertionFailedException:
 				return
 			self.Base.MoveChange(lPath, clamp(frequency, 1, 8), skip)

@@ -5,27 +5,43 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 
 [Meta]
-def MoveMapObject(obj as Expression, frequency as IntegerLiteralExpression, loop as BoolLiteralExpression,
+def MoveMapObject(obj as Expression, frequency as Expression, loop as BoolLiteralExpression,
 		skip as BoolLiteralExpression, path as ArrayLiteralExpression) as MethodInvocationExpression:
 	var result = [|$obj.Move($frequency, $skip)|]
+	var steps = DoBuildSteps(loop, path)
+	result.Arguments.Add(steps)
+	return result
+
+[Meta]
+def CreatePath(loop as BoolLiteralExpression, skip as BoolLiteralExpression, path as ArrayLiteralExpression) as MethodInvocationExpression:
+	var steps = DoBuildSteps(loop, path)
+	var result = [|turbu.pathing.Path($skip, $steps)|]
+	return result
+
+private def DoBuildSteps(loop as BoolLiteralExpression, path as ArrayLiteralExpression) as BlockExpression:
 	var steps = BlockExpression()
-	
 	steps.Parameters.Add(ParameterDeclaration.Lift([|p as turbu.pathing.Path|]))
-	steps.ReturnType = GenericTypeReference('System.Collections.Generic.IEnumerable', GenericTypeReference('System.Func', SimpleTypeReference('bool')))
+	steps.ReturnType = GenericTypeReference(
+		'System.Collections.Generic.IEnumerable',
+		GenericTypeReference(
+			'System.Func',
+			SimpleTypeReference('Pythia.Runtime.TObject'),
+			SimpleTypeReference('bool')))
 	for step in path.Items:
 		match step:
 			case [|$expr * $quantity|]:
 				value = [|
 					for i in range($quantity):
-						yield {return $obj.Base.$expr()}
+						yield {m | return (m cast turbu.map.sprites.TMapSprite).$expr()}
 				|]
 				steps.Body.Add(value)
 			case MethodInvocationExpression():
 				mieStep = step cast MethodInvocationExpression
-				var mie = MethodInvocationExpression([|$obj.Base.$(mieStep.Target)|])
+				var mie = MethodInvocationExpression([|(m cast turbu.map.sprites.TMapSprite).$(mieStep.Target)|])
 				mie.Arguments.AddRange(mieStep.Arguments.Select({a | a.CleanClone()}))
-				steps.Body.Add([| yield {return $mie} |])
-			case ReferenceExpression():			steps.Body.Add([| yield {return $obj.Base.$step()} |])
+				steps.Body.Add([| yield {m | return $mie} |])
+			case ReferenceExpression():
+				steps.Body.Add([| yield {m | return (m cast turbu.map.sprites.TMapSprite).$step()} |])
 	if loop.Value:
 		var body = steps.Body
 		steps.Body = Block()
@@ -35,5 +51,4 @@ def MoveMapObject(obj as Expression, frequency as IntegerLiteralExpression, loop
 				p.Looped = true
 		|]
 		steps.Body.Add(infLoop)
-	result.Arguments.Add(steps)
-	return result
+	return steps

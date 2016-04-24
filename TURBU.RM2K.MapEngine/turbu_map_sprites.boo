@@ -297,6 +297,18 @@ class TMapSprite(TObject):
 	public def Left():
 		return TryMove(TDirections.Left)
 
+	public def UpRight():
+		return TryMoveDiagonal(TDirections.Up, TDirections.Right)
+
+	public def DownRight():
+		return TryMoveDiagonal(TDirections.Down, TDirections.Right)
+
+	public def DownLeft():
+		return TryMoveDiagonal(TDirections.Down, TDirections.Left)
+
+	public def UpLeft():
+		return TryMoveDiagonal(TDirections.Up, TDirections.Left)
+
 	public def RandomStep():
 		return TryMove(_random.Next(4) cast TDirections)
 
@@ -357,9 +369,21 @@ class TMapSprite(TObject):
 	public def FacingFree():
 		FDirLocked = false
 		return true
-	
+
 	public def ChangeSprite(name as string, translucent as int):
 		FChangeSprite(name, translucent == 1, 0)
+		return true
+
+	public def AnimStop():
+		self.AnimFix = true
+		return true
+
+	public def AnimResume():
+		self.AnimFix = false
+		return true
+
+	public def PlaySfx(name as string, volume as int, tempo as int, balance as int):
+		PlaySound(name, volume, tempo, balance)
 		return true
 
 	protected virtual def DoMove(which as Path) as bool:
@@ -375,10 +399,6 @@ class TMapSprite(TObject):
 		if FOrder.Opcode == OP_CLEAR:
 			FOrder = which.NextCommand()
 		caseOf FOrder.Opcode:
-			case 4: unchanged = not TryMoveDiagonal(TDirections.Up, TDirections.Right)
-			case 5: unchanged = not TryMoveDiagonal(TDirections.Down, TDirections.Right)
-			case 6: unchanged = not TryMoveDiagonal(TDirections.Down, TDirections.Left)
-			case 7: unchanged = not TryMoveDiagonal(TDirections.Up, TDirections.Left)
 			case 11: unchanged = not TryMove(FFacing)
 			case 16: OpChangeFacing((ord(self.Facing) + 1) % 4)
 			case 17: OpChangeFacing((ord(self.Facing) + 3) % 4)
@@ -397,9 +417,6 @@ class TMapSprite(TObject):
 			case 31: FMoveFreq = Math.Min(0, (FMoveFreq - 1))
 			case 32: GEnvironment.value.Switch[FOrder.Data[1]] = true
 			case 33: GEnvironment.value.Switch[FOrder.Data[1]] = false
-			case 35: PlaySound(FOrder.Name, FOrder.Data[1], FOrder.Data[2], FOrder.Data[3])
-			case 38: self.AnimFix = true
-			case 39: self.AnimFix = false
 			case 40: IncTransparencyFactor()
 			case 41: DecTransparencyFactor()
 			case 48: result = false
@@ -431,7 +448,7 @@ class TMapSprite(TObject):
 			case TDirections.Left: step = self.Left
 			case TDirections.Right: step = self.Right
 			default: raise "Unknown path direction: $dir"
-		return Path() do(p as Path):
+		return Path(true) do(p as Path):
 			yield step
 
 	protected def MakeLoopingPath(step as Func of bool):
@@ -440,7 +457,7 @@ class TMapSprite(TObject):
 				yield step
 				p.Looped = true
 		
-		return Path(steps)
+		return Path(false, steps)
 
 	private def MakeRandomPath():
 		return MakeLoopingPath({return self.RandomStep()})
