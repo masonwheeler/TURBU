@@ -2,13 +2,11 @@ namespace turbu.monsters
 
 import System
 import System.Collections.Generic
-import System.Drawing
 import Pythia.Runtime
 import SG.defs
 import turbu.classes
 import turbu.containers
 import turbu.defs
-import TURBU.MapObjects
 
 enum TMonsterBehaviorAction:
 	Attack

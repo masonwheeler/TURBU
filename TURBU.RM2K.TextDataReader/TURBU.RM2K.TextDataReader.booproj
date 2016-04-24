@@ -80,6 +80,7 @@
     <Compile Include="Readers\MapScriptReader.boo" />
     <Compile Include="Readers\MapTreeReader.boo" />
     <Compile Include="Readers\MonsterPartyReader.boo" />
+    <Compile Include="Readers\MonstersReader.boo" />
     <Compile Include="Readers\ReaderUtils.boo" />
     <Compile Include="Readers\SkillReader.boo" />
     <Compile Include="Readers\SoundReader.boo" />

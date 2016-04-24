@@ -21,7 +21,7 @@ class IfFalseFlipper(FastDepthFirstVisitor):
 		if ue is not null and ue.Operator == UnaryOperatorType.LogicalNot:
 			return ue.Operand
 		be = cond as BinaryExpression
-		if be is not null and be.Operator = BinaryOperatorType.Assign:
+		if be is not null and be.Operator == BinaryOperatorType.Equality:
 			bl = be.Right as BoolLiteralExpression
 			if bl is not null:
 				bl.Value = not bl.Value
