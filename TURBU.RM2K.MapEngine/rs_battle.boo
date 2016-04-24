@@ -58,3 +58,23 @@ private def GetCurrentBackground() as string:
 				return GetTerrainBackground()
 			case TInheritedDecision.Yes:
 				return GetMapBackground(metadata)
+
+//Hack, just to get this to compile at this stage.  Will probably revamp later.
+static class BattleState:
+	def TurnsMatch(multiple as int, offset as int) as bool:
+		raise "Not implemented yet"
+
+	def MonstersPresent(minimum as int, maximum as int) as bool:
+		raise "Not implemented yet"
+
+	def MonsterHPBetween(minimum as int, maximum as int) as bool:
+		raise "Not implemented yet"
+
+	def MonsterMPBetween(minimum as int, maximum as int) as bool:
+		raise "Not implemented yet"
+
+	def PartyLevelBetween(minimum as int, maximum as int) as bool:
+		raise "Not implemented yet"
+
+	def PartyExhaustionBetween(minimum as int, maximum as int) as bool:
+		raise "Not implemented yet"

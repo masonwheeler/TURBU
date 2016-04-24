@@ -10,16 +10,6 @@ import turbu.containers
 import turbu.defs
 import TURBU.MapObjects
 
-enum TMonsterBehaviorCondition:
-	None
-	Switch
-	Turns
-	MonstersPresent
-	MonsterHP
-	MonsterMP
-	PartyLevel
-	PartyExhaustion
-
 enum TMonsterBehaviorAction:
 	Attack
 	DoubleAttack
@@ -30,58 +20,72 @@ enum TMonsterBehaviorAction:
 	Escape
 	None
 
+class TMonsterBehavior(TRpgDatafile):
+
+	public def constructor(id as int):
+		FId = id
+
+	[Property(Priority)]
+	private FPriority as int
+
+	[Property(Action)]
+	private FAction as TMonsterBehaviorAction
+
+	[Property(Skill)]
+	private FSkill as int
+
+	[Property(Requirement)]
+	private FRequirement as Func of bool
+
 class TRpgMonster(TRpgDatafile):
 
-	[Getter(Filename)]
+	[Property(Filename)]
 	protected FFilename as string
 
-	[Getter(Transparent)]
+	[Property(Transparent)]
 	protected FTransparent as bool
 
-	[Getter(Flying)]
+	[Property(Flying)]
 	protected FFlying as bool
 
-	[Getter(ColorShift)]
+	[Property(ColorShift)]
 	protected FColorShift as int
 
+	[Property(Stats)]
 	protected FStats as (int)
 
-	[Getter(Exp)]
+	[Property(Exp)]
 	protected FExp as int
 
-	[Getter(Money)]
+	[Property(Money)]
 	protected FMoney as int
 
-	[Getter(Item)]
+	[Property(Item)]
 	protected FItem as int
 
-	[Getter(ItemChance)]
+	[Property(ItemChance)]
 	protected FItemChance as int
 
-	[Getter(CanCrit)]
+	[Property(CanCrit)]
 	protected FCanCrit as bool
 
-	[Getter(CritChance)]
+	[Property(CritChance)]
 	protected FCritChance as int
 
-	[Getter(OftenMiss)]
+	[Property(OftenMiss)]
 	protected FOftenMiss as bool
 
-	[Getter(Condition)]
-	protected FConditions as (Point)
+	[Property(Condition)]
+	protected FConditions as (TSgPoint)
 
-	[Getter(Resist)]
-	protected FResists as (Point)
+	[Property(Resist)]
+	protected FResists as (TSgPoint)
 
-	[Getter(Tag)]
+	[Property(Behavior)]
+	private FBehavior as (TMonsterBehavior)
+
+	[Property(Tag)]
 	protected FTag as (int)
-
-	protected def getStat(i as byte) as int:
-		return FStats[i]
-
-	public Stat[i as byte] as int:
-		get:
-			return getStat(i)
 
 class TRpgMonsterElement(TObject):
 
