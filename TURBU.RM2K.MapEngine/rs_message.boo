@@ -84,7 +84,7 @@ def Inn(messageStyle as int, Cost as int) as bool:
 		GGameEngine.value.EnterCutscene()
 		try:
 			for i in range(1, (GEnvironment.value.HeroCount + 1)):
-				GEnvironment.value.Heroes[i].Fullheal()
+				GEnvironment.value.Heroes[i].FullHeal()
 			assert GEnvironment.value.Money >= Cost
 			GEnvironment.value.Money -= Cost
 			GSpriteEngine.value.FadeOut(1500)

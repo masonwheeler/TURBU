@@ -38,7 +38,7 @@ static class TMapConverter:
 		//legacy data is related to RM2k3 random generation. Ignore.
 		ConvertMapScripts(id, map.Events, ScanScript,
 			{script as Node | saveData("$(mapName)_$id", ms, script)},
-			{msg, id, page | progress.MakeNotice("$msg at Map $id ($mapName), event #$id, page #$page.", 3)})
+			{msg, eventId, page | progress.MakeNotice("$msg at Map $id ($mapName), event #$eventId, page #$page.", 3)})
 	
 	private def EventData(events as List[of MapEvent], mapName as string, progress as IConversionReport) as MacroStatement:
 		return null if events is null or events.Count == 0

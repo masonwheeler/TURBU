@@ -52,11 +52,20 @@ macro BattleScripts.BattleScript(id as int, page as int):
 		public def $name():
 			$(BattleScript.Body)
 	|]
-	scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
+	var scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
 	if scriptList is null:
 		scriptList = Dictionary[of int, string]()
 		BattleScripts['scriptList'] = scriptList
 	scriptList.Add(id << 16 + page, name)
+	result.Accept(ScriptProcessor())
+	return TypeMemberStatement(result)
+
+macro BattleScripts.BattleGlobal(id as int):
+	var name = "BattleGlobal$(id.ToString('D4'))"
+	var result = [|
+		public def $name():
+			$(BattleGlobal.Body)
+	|]
 	result.Accept(ScriptProcessor())
 	return TypeMemberStatement(result)
 

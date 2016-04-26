@@ -103,7 +103,7 @@ static class TItemConverter:
 		if attrs.Length > 0:
 			attributes = MacroStatement('Attributes')
 			for attr in attrs:
-				dbAttr = db.Attributes[attr]
+				dbAttr = db.Attributes[attr - 1]
 				attributes.Body.Add([|Attribute $(attr), $(AveragePct(dbAttr))|])
 			result.Body.Add(attributes)
 		return result

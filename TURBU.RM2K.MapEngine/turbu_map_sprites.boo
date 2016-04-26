@@ -334,6 +334,18 @@ class TMapSprite(TObject):
 		OpChangeFacing(TDirections.Left)
 		return true
 
+	public def TurnRight():
+		OpChangeFacing((ord(self.Facing) + 1) % 4)
+		return true
+
+	public def TurnLeft():
+		OpChangeFacing((ord(self.Facing) + 3) % 4)
+		return true
+
+	public def Turn180():
+		OpChangeFacing(opposite_facing(self.Facing))
+		return true
+
 	public def Pause():
 		assert FPause is null
 		FPause = TRpgTimestamp(300)
@@ -400,9 +412,6 @@ class TMapSprite(TObject):
 			FOrder = which.NextCommand()
 		caseOf FOrder.Opcode:
 			case 11: unchanged = not TryMove(FFacing)
-			case 16: OpChangeFacing((ord(self.Facing) + 1) % 4)
-			case 17: OpChangeFacing((ord(self.Facing) + 3) % 4)
-			case 18: OpChangeFacing(opposite_facing(self.Facing))
 			case 19: OpChangeFacing((ord(self.Facing) + _random.Next(3)) % 4)
 			case 20: OpChangeFacing(_random.Next(4))
 			case 21: OpChangeFacing(DirTowardsHero())

@@ -37,6 +37,7 @@ def ConvertGlobalEvent(value as GlobalEvent, ScanScript as Action[of EventComman
 	script = ConvertPageScript(value.ID, 1, value.Script, ScanScript, makeWarning)
 	script.Name = 'GlobalScript'
 	script.Arguments.RemoveAt(script.Arguments.Count - 1)
+	script.Body.Clear() if value.Script.Count == 1
 	saveScript(script)
 	result = [|
 		Script $(value.ID):
@@ -368,7 +369,7 @@ class TScriptConverter:
 		items = ArrayLiteralExpression()
 		for i in range(4, ec.Data.Count):
 			items.Items.Add(Expression.Lift(ec.Data[i]))
-		return SetupMif(converter, ec, parent, [|Shop(TShopTypes.$(ReferenceExpression(Enum.GetName(TShopTypes, ec.Data[0]))), ec.Data[1], $items)|])
+		return SetupMif(converter, ec, parent, [|Shop(TShopTypes.$(ReferenceExpression(Enum.GetName(TShopTypes, ec.Data[0]))), $(ec.Data[1]), $items)|])
 	
 	private static def SetupMif(converter as TScriptConverter, ec as EventCommand, parent as Block, \
 										 expr as Expression) as Block:
@@ -559,7 +560,7 @@ class TScriptConverter:
 		bx = ec.Data.Count > 6
 		result = ([|BattleEx()|] if bx else [|Battle()|])
 		result.Arguments.AddRange((GetIntScript(ec.Data[0], ec.Data[1]), [|$(ec.Name if ec.Data[2] == 1 else '')|]))
-		result.Arguments.Add(([|TBattleFormation.$(ReferenceExpression(Enum.GetName(TBattleFormation, ec.Data[2])))|] if bx else [|$(ec.Data[2] != 0)|]))
+		result.Arguments.Add(([|TBattleFormation.$(ReferenceExpression(Enum.GetName(TBattleFormation, ec.Data[2])))|] if bx else [|$(ec.Data[5] != 0)|]))
 		if bx:
 			if ec.Data[5] == 1:
 				result.Arguments.Add([|5|])
@@ -568,7 +569,6 @@ class TScriptConverter:
 				case 0: result.Arguments.Add([|0|])
 				case 1: result.Arguments.Add([|$(ec.Data[7] - 1)|])
 				case 2: result.Arguments.Add([|$(ec.Data[8])|])
-		else: result.Arguments.Add([|$(ec.Data[5])|])
 		AddBattleResult([|Escaped|]) if ec.Data[3] != 0
 		AddBattleResult([|Defeated|]) if ec.Data[4] != 0
 		result.Arguments.Add(battleResult)

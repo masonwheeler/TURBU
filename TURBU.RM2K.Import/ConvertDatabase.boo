@@ -134,10 +134,9 @@ class TDatabaseConverter:
 			for party in _ldb.MParties:
 				parties.Body.Add(TMonsterPartyConverter.Convert(party, saveScript, _scanner, _report))
 			for id as int, global as LCF.EventCommand* in enumerate(battleGlobals):
-				scriptName = "battleGlobal$((id + 1).ToString('D4'))"
 				gScript = [|
-					BattleScript $(ReferenceExpression(scriptName)):
-						$(PageScriptBlock(global, {m | _report.MakeNotice("$m while converting repeated battle script $scriptName", 3)}))
+					BattleGlobal $(id + 1):
+						$(PageScriptBlock(global, {m | _report.MakeNotice("$m while converting repeated battle script BattleGlobal$((id + 1).ToString('D4'))", 3)}))
 				|]
 				battleScripts.Body.Add(gScript)
 			File.WriteAllText(Path.Combine(self._database, 'MonsterParties.tdb'), parties.ToCodeString())

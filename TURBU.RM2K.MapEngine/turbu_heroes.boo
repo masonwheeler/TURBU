@@ -534,7 +534,7 @@ class TRpgHero(TRpgBattleCharacter):
 				result = true
 		return result
 
-	public def Fullheal():
+	public def FullHeal():
 		FHitPoints = FMaxHitPoints
 		FManaPoints = FMaxManaPoints
 		for i in range(1, FCondition.Length):
