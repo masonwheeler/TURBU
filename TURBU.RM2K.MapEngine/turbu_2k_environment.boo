@@ -188,12 +188,12 @@ class T2kEnvironment(TObject):
 	private def DeserializeVariables(obj as JObject):
 		FSwitches = array(bool, FSwitches.Length)
 		arr as JArray = obj['switch'] cast JArray
-		for i in range(0, arr.Count):
+		for i in range(arr.Count):
 			FSwitches[arr[i] cast int] = true
 		obj.Remove('switch')
 		FInts = array(int, FInts.Length)
 		arr = obj['int'] cast JArray
-		for i in range(0, arr.Count, 2):
+		for i in range(arr.Count, 2):
 			FInts[arr[i] cast int] = arr[i + 1] cast int
 		obj.Remove('int')
 

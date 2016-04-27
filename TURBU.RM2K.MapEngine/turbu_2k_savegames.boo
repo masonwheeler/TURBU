@@ -21,6 +21,8 @@ def SaveTo(filename as string, MapID as int, explicit as bool):
 			SerializeSound(writer)
 			writer.WritePropertyName('Messages')
 			SerializeMessageState(writer)
+			writer.WritePropertyName('Locations')
+			SerializeLocations(writer)
 		File.WriteAllText(filename, tw.ToString(), System.Text.Encoding.UTF8)
 		timer.Stop()
 		Diagnostics.Debug.Write("Saved to $filename in $(timer.ElapsedMilliseconds) milliseconds")
@@ -40,4 +42,7 @@ def Load(filename as string, OnInitializeParty as Action):
 		if obj.TryGetValue('Messages', value):
 			DeserializeMessageState(value cast JObject)
 			obj.Remove('Messages')
+		if obj.TryGetValue('Locations', value):
+			DeserializeLocations(value cast JObject)
+			obj.Remove('Locations')
 		obj.CheckEmpty()

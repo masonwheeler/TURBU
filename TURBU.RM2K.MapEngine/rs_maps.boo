@@ -26,6 +26,8 @@ import turbu.map.sprites
 import turbu.RM2K.transitions
 import System.Drawing
 import System.Threading
+import Newtonsoft.Json
+import Newtonsoft.Json.Linq
 
 def Teleport(mapID as int, x as int, y as int):
 	Teleport(mapID, x, y, 0)
@@ -270,6 +272,9 @@ def ChangeTileset(which as int):
 def RenderPause():
 	GGameEngine.value.RenderPause()
 
+def SetEscape(map as int, x as int, y as int, switch as int):
+	LData.Escape = (map, x, y, switch)
+
 private def WaitForBlank() as bool:
 	return GGameEngine.value.CurrentMap.Blank
 
@@ -313,6 +318,46 @@ private def AllMoved() as bool:
 		if assigned(obj) and assigned(obj.Base.MoveOrder):
 			result = obj.Base.MoveOrder.Looped
 	return result
+
+def SerializeLocations(writer as JsonWriter):
+	writeJsonObject writer:
+		if LData.Escape[0] != 0:
+			writer.WritePropertyName('Escape')
+			writeJsonArray writer:
+				for value in LData.Escape:
+					writer.WriteValue(value)
+		if LData.Teleport.Count > 0:
+			writer.WritePropertyName('Teleport')
+			writeJsonArray writer:
+				for tel in LData.Teleport:
+					writeJsonArray writer:
+						for value2 in tel:
+							writer.WriteValue(value2)
+
+def DeserializeLocations(obj as JObject):
+	value as JToken
+	arr as JArray
+	if obj.TryGetValue('Escape', value):
+		arr = value cast JArray
+		for i in range(arr.Count):
+			LData.Escape[i] = arr[i] cast int
+		obj.Remove('Escape')
+	else: LData.Escape = array(int, 4)
+	var tp = LData.Teleport
+	tp.Clear()
+	if obj.TryGetValue('Teleport', value):
+		arr = value cast JArray
+		for x in range(arr.Count):
+			var list = arr[x] cast JArray
+			var tpItem = array(int, list.Count)
+			for y in range(list.Count):
+				tpItem[y] = list[y] cast int
+			tp.Add(tpItem)
+		obj.Remove('Teleport')
+
+private static class LData:
+	public Escape = array(int, 4)
+	public Teleport = List of (int)()
 
 let MAX_WEATHER = 10
 let LTeleportLock = object()

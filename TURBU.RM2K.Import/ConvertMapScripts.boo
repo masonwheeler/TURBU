@@ -174,7 +174,7 @@ class TScriptConverter:
 		12220: {c, e, p | p.Add((BreakStatement() if c.LoopDepth > 0 else ReturnStatement()))},
 		12320: {c, e, p | p.Add([|DeleteObject(false)|])}, 1009: ConvertBattleCommand, 10660: ConvertSysBGM,
 		11050: ConvertShakeScreen, 13110: ConvertMonsterHP, 13120: ConvertMonsterMP, 13310: ConvertBattleIf,
-		13130: {c, e, p | p.Add([|Monster[$(e.Data[0] + 1)].Condition($(e.Data[2]) = $(e.Data[1] != 0))|])},
+		13130: {c, e, p | p.Add([|Monster[$(e.Data[0] + 1)].Condition[$(e.Data[2])] = $(e.Data[1] == 0)|])},
 		13150: {c, e, p | p.Add([|Monster[$(e.Data[0] + 1)].Show()|])}, 23310: ConvertIfElse, 23311: ConvertEndIf,
 		1005: {c, e, p | p.Add([|CallGlobalScript($(e.Data[0]))|])}, 10740: ConvertInputHeroName,
 		11010: {c, e, p | p.Add([|EraseScreen(TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[0] + 1))))|])},
