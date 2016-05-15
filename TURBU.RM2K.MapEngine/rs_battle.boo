@@ -40,6 +40,12 @@ def BattleEx(which as int, background as string, formation as TBattleFormation, 
 	assert battleResult.data == null
 	return battleResult.result
 
+def SetEncounterRate(low as int, high as int):
+	raise "Not implemented yet"
+
+def EndBattle():
+	raise "Not implemented yet"
+
 private def GetTerrainBackground() as string:
 	loc as TSgPoint = GEnvironment.value.Party.Sprite.Location
 	terrain as int = GSpriteEngine.value.GetTile(loc.x, loc.y, 0).Terrain
@@ -77,4 +83,7 @@ static class BattleState:
 		raise "Not implemented yet"
 
 	def PartyExhaustionBetween(minimum as int, maximum as int) as bool:
+		raise "Not implemented yet"
+	
+	def GetMonster(i as int) as TRpgMonster:
 		raise "Not implemented yet"

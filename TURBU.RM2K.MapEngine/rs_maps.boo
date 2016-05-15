@@ -260,8 +260,8 @@ def StopMoveScripts():
 	for i in range(1, (GEnvironment.value.MapObjectCount + 1)):
 		GEnvironment.value.MapObject[i].Base.Stop()
 	for i in range(1, (GEnvironment.value.VehicleCount + 1)):
-		if assigned(GEnvironment.value.Vehicle[i]):
-			GEnvironment.value.Vehicle[i].Base.Stop()
+		if assigned(GEnvironment.value.Vehicles[i]):
+			GEnvironment.value.Vehicles[i].Base.Stop()
 	GEnvironment.value.Party.Base.Stop()
 
 def ChangeTileset(which as int):
@@ -274,6 +274,9 @@ def RenderPause():
 
 def SetEscape(map as int, x as int, y as int, switch as int):
 	LData.Escape = (map, x, y, switch)
+
+def EnableEscape(value as bool):
+	LData.CanEscape = value
 
 private def WaitForBlank() as bool:
 	return GGameEngine.value.CurrentMap.Blank
@@ -333,6 +336,8 @@ def SerializeLocations(writer as JsonWriter):
 					writeJsonArray writer:
 						for value2 in tel:
 							writer.WriteValue(value2)
+		writer.WritePropertyName('CanEscape')
+		writer.WriteValue(LData.CanEscape)
 
 def DeserializeLocations(obj as JObject):
 	value as JToken
@@ -354,8 +359,12 @@ def DeserializeLocations(obj as JObject):
 				tpItem[y] = list[y] cast int
 			tp.Add(tpItem)
 		obj.Remove('Teleport')
+	if obj.TryGetValue('Escape', value):
+		LData.CanEscape = value cast bool
+	else: LData.CanEscape = true
 
 private static class LData:
+	public CanEscape = true
 	public Escape = array(int, 4)
 	public Teleport = List of (int)()
 

@@ -14,15 +14,15 @@ class TRpgTimer(TObject):
 
 	private FSecs as ushort
 
-	[Property(time)]
+	[Property(Time)]
 	private FTimeRemaining as int
 
-	[Getter(active)]
+	[Getter(Active)]
 	private FActivated as bool
 
 	private FVisible as bool
 
-	[Property(inBattle)]
+	[Property(InBattle)]
 	private FInBattle as bool
 
 	private def Tick():

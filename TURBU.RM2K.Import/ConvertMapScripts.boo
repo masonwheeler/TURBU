@@ -133,7 +133,7 @@ class TScriptConverter:
 		10410: ConvertExperience, 10420: ConvertLevel, 10500: ConvertTakeDamage, 10910: ConvertTerrainID,
 		10610: {c, e, p | p.Add([|Heroes[$(e.Data[0])].Name = $(e.Name)|])}, 10920: ConvertObjectID,
 		10620: {c, e, p | p.Add([|Heroes[$(e.Data[0])].Title = $(e.Name)|])}, 11060: ConvertPanScreen,
-		10670: {c, e, p | p.Add([|SetSystemSound(ReferenceExpression(TSfxTypes.$(Enum.GetName(TSfxTypes, e.Data[0]))), $(e.Name), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]))|])},
+		10670: {c, e, p | p.Add([|SetSystemSound(TSfxTypes.$(ReferenceExpression(Enum.GetName(TSfxTypes, e.Data[0]))), $(e.Name), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]))|])},
 		10680: {c, e, p | p.Add([|SetSkin($(e.Name), $(e.Data[0] != 0))|])}, 10840: {c, e, p | p.Add([|RideVehicle()|])},
 		10820: {c, e, p | p.Add([|MemorizeLocation($(e.Data[0]), $(e.Data[1]), $(e.Data[2]))|])},
 		10830: {c, e, p | p.Add([|Teleport(Ints[$(e.Data[0])], Ints[$(e.Data[1])], Ints[$(e.Data[2])])|])},
@@ -155,13 +155,13 @@ class TScriptConverter:
 		12420: {c, e, p | p.Add([|GameOver()|])}, 12510: {c, e, p | p.Add([|TitleScreen()|])}, 10220: ConvertVar,
 		13210: {c, e, p | p.Add([|SetBattleBG($(e.Name))|])}, 13410: {c, e, p | p.Add([|EndBattle()|])},
 		1007: {c, e, p | p.Add([|EnableCombo(Heroes[$(e.Data[0])], $(e.Data[1]), $(e.Data[2]))|])},
-		13260: {c, e, p | p.Add([|ShowAnimation($(e.Data[0]), $(e.Data[1] != 0), $(e.Data[2]))|])},
+		13260: ConvertShowAnimBattle,
 		10120: ConvertMessageOptions, 10140: ConvertCase, 20140: ConvertCaseItem, 20141: ConvertEndCase,
 		12010: ConvertIf, 22010: ConvertIfElse, 22011: ConvertEndIf, 10710: ConvertBattle, 20710: ConvertVictory,
 		20711: ConvertEscape, 20712: ConvertDefeat, 10320: ConvertInventory, 10330: ConvertParty, 10430: ConvertStats,
 		10440: ConvertSkills, 10450: ConvertEquipment, 10460: ConvertHP, 10470: ConvertMP, 10480: ConvertStatus,
 		10640: {c, e, p | p.Add([|Heroes[$(e.Data[0])].SetPortrait($(e.Name), $(e.Data[1] + 1))|])},
-		10650: {c, e, p | p.Add([|Vehicle[$(e.Data[0])].SetSprite(e.Name, $(e.Data[1] != 0))|])},
+		10650: {c, e, p | p.Add([|Vehicles[$(e.Data[0])].SetSprite(e.Name, $(e.Data[1] != 0))|])},
 		10720: ConvertShop, 20721: ConvertIfElse, 20722: ConvertEndIf, 20731: ConvertIfElse, 20732: ConvertEndIf,
 		10730: {c, e, p | return SetupMif(c, e, p, [|Inn($(e.Data[0]), $(e.Data[1]))|])}, 11110: ConvertNewImage,
 		10850: ConvertTeleportVehicle, 10860: ConvertTeleportEvent, 11040: ConvertFlashScreen, 10630: ConvertSprite,
@@ -185,8 +185,7 @@ class TScriptConverter:
 	}
 	
 	simpleConverter ConvertSprite:
-		spritename = "$name $(values[1])"
-		result = [|Heroes[$(values[0])].SetSprite($spritename, $(values[2] != 0))|]
+		result = [|Heroes[$(values[0])].SetSprite($name, $(values[2] != 0), $(values[1]))|]
 	
 	simpleConverter ConvertCallEvent:
 		caseOf values[0]:
@@ -265,7 +264,7 @@ class TScriptConverter:
 				result = [|SetSystemMusic(TBgmTypes.$(ReferenceExpression(Enum.GetName(TBgmTypes, values[0]))), $name, $(values[1]), $(values[2]), 
 												  $(values[3]), $(values[4]))|]
 			case 3, 4, 5:
-				result = [|Vehicle[$(values[0])].SetMusic($name, $(values[1]), $(values[2]), 
+				result = [|Vehicles[$(values[0])].SetMusic($name, $(values[1]), $(values[2]), 
 												$(values[3]), $(values[4]))|]
 			default: raise ERpgScriptError("Unknown BGM index $(values[0])")
 	
@@ -308,6 +307,10 @@ class TScriptConverter:
 	simpleConverter ConvertShowAnim:
 		a2 as Expression = (EventDeref(values[1]) if values[3] == 0 else [|null|])
 		result = [|ShowBattleAnim($(values[0]), $a2, $(values[2] != 0), $(values[3] != 0))|]
+	
+	simpleConverter ConvertShowAnimBattle:
+		a2 as Expression = ([| Monster[$(values[1])] |] if values[1] != 0 else [|null|])
+		result = [| ShowAnimation($(values[0]), $a2, $(values[2] != 0), $(values[3] != 0)) |]
 	
 	simpleConverter ConvertMoveImage:
 		assert values[4] == 0
@@ -362,7 +365,7 @@ class TScriptConverter:
 											  $(GetIntScript(values[1], values[3])))|]
 	
 	simpleConverter ConvertTeleportVehicle:
-		result = [|TeleportVehicle($(values[0]), $(GetIntScript(values[1], values[2])),\
+		result = [|TeleportVehicle(Vehicles[$(values[0])], $(GetIntScript(values[1], values[2])),\
 											$(GetIntScript(values[1], values[3])), $(GetIntScript(values[1], values[4])))|]
 	
 	private static def ConvertShop(converter as TScriptConverter, ec as EventCommand, parent as Block) as Block:
@@ -413,7 +416,7 @@ class TScriptConverter:
 				expr = ([|TSlot.Weapon|], [|TSlot.Shield|], [|TSlot.Armor|], [|TSlot.Helmet|], [|TSlot.Relic|], \
 						  [|TSlot.All|])[values[3]]
 			else: expr = GetIntScript(values[3], values[4])
-			return ([|$subscript.Equip(expr)|] if values[2] == 0 else [|$subscript.Unequip(expr)|])
+			return ([|$subscript.Equip($expr)|] if values[2] == 0 else [|$subscript.Unequip(expr)|])
 	
 	simpleConverter ConvertSkills:
 		SetupPartySubscript(values[0], values[1], parent) do (subscript as Expression) as Expression:
@@ -624,7 +627,7 @@ class TScriptConverter:
 	private static def EventDeref(data as int) as Expression:
 		caseOf data:
 			case 10001: return [|Party|]
-			case 10002, 10003, 10004: return [|Vehicle[$(data - 10001)]|]
+			case 10002, 10003, 10004: return [|Vehicles[$(data - 10001)]|]
 			case 10005: return [|ThisObject|]
 			default: return [|MapObject[$data]|]
 	
@@ -654,7 +657,7 @@ class TScriptConverter:
 				PrepareHeroIf(ec.Data[2], ec.Data[3], ec.Name, left, right, op)
 				left = [|Heroes[$(ec.Data[1])].$left|]
 			case 6:
-				right = [|TDirection.$(ReferenceExpression(Enum.GetName(TDirections, ec.Data[2])))|]
+				right = [|TDirections.$(ReferenceExpression(Enum.GetName(TDirections, ec.Data[2])))|]
 				left = [|$(EventDeref(ec.Data[1])).Facing|]
 			case 7: left = [|$(EventDeref(ec.Data[1] + 10002)).InUse|]
 			case 8: left = [|StartedWithButton|]
@@ -815,11 +818,11 @@ class TScriptConverter:
 	
 	simpleConverter ConvertTimer:
 		if (values.Count > 5) and (values[5] == 1):
-			timer = [|timer2|]
-		else: timer = [|timer|]
+			timer = [|Timer2|]
+		else: timer = [|Timer|]
 		caseOf values[0]:
-			case 0: result = [|$timer.time = $(GetIntScript(values[1], values[2]))|]
-			case 1: result = [|$timer.start($(values[3] != 0), $(values[4] != 0))|]
+			case 0: result = [|$timer.Time = $(GetIntScript(values[1], values[2]))|]
+			case 1: result = [|$timer.Start($(values[3] != 0), $(values[4] != 0))|]
 			case 2: result = [|$timer.Pause()|]
 	
 	private static def ConvertShowMessage(converter as TScriptConverter, ec as EventCommand, parent as Block) as Block:

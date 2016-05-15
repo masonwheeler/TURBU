@@ -18,6 +18,7 @@ import Pythia.Runtime
 import System.Collections.Generic
 import turbu.Heroes
 import turbu.mapchars
+import turbu.monsters
 import turbu.RM2K.images
 import turbu.RM2K.map.timer
 import turbu.map.sprites
@@ -106,9 +107,9 @@ class T2kEnvironment(TObject):
 				case TPageConditions.Hero:
 					result = self.HeroPresent(value.HeroNeeded)
 				case TPageConditions.Timer1:
-					result = EvalValue(FTimer.time, value.TimeRemaining, value.Timer1Op)
+					result = EvalValue(FTimer.Time, value.TimeRemaining, value.Timer1Op)
 				case TPageConditions.Timer2:
-					result = EvalValue(FTimer2.time, value.TimeRemaining2, value.Timer2Op)
+					result = EvalValue(FTimer2.Time, value.TimeRemaining2, value.Timer2Op)
 			return false unless result
 		return result
 
@@ -384,10 +385,10 @@ class T2kEnvironment(TObject):
 			writer.CheckWrite('SaveCount', FSaveCount, 0)
 			writer.CheckWrite('PreserveSpriteOnTeleport', FPreserveSpriteOnTeleport, false)
 			writer.CheckWrite('SaveEnabled', FSaveEnabled, false)
-			if Timer.time > 0:
+			if Timer.Time > 0:
 				writer.WritePropertyName('Timer')
 				Timer.Serialize(writer)
-			if Timer2.time > 0:
+			if Timer2.Time > 0:
 				writer.WritePropertyName('Timer2')
 				Timer2.Serialize(writer)
 
@@ -437,8 +438,12 @@ class T2kEnvironment(TObject):
 		set:
 			SetInt(i, value)
 
+	public Monster[i as int] as TRpgMonster:
+		get:
+			return TURBU.RM2K.RPGScript.BattleState.GetMonster(i)
+
 	[Lookup('Vehicles')]
-	public Vehicle[i as int] as TRpgVehicle:
+	public Vehicles[i as int] as TRpgVehicle:
 		get:
 			return GetVehicle(i)
 

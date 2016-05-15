@@ -28,9 +28,10 @@ enum TScriptFormat:
 
 [EnumSet]
 enum TWraparound:
-	None
-	Vertical
-	Horizontal
+	None = 0
+	Vertical = 1
+	Horizontal = 2
+	Both = 3
 
 [EnumSet]
 enum TDirs8:

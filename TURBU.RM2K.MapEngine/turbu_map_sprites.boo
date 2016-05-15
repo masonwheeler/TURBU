@@ -334,6 +334,14 @@ class TMapSprite(TObject):
 		OpChangeFacing(TDirections.Left)
 		return true
 
+	public def FaceHero():
+		OpChangeFacing(DirTowardsHero())
+		return true
+
+	public def FaceAwayFromHero():
+		OpChangeFacing(opposite_facing(DirTowardsHero()))
+		return true
+
 	public def TurnRight():
 		OpChangeFacing((ord(self.Facing) + 1) % 4)
 		return true
@@ -357,6 +365,9 @@ class TMapSprite(TObject):
 			BeginJump(target)
 			return true
 		else: return false
+
+	public def Jump(x as int, y as int, random as int, chase as int, forward as int) as bool:
+		raise "Not implemented yet"
 
 	public def SpeedUp():
 		FMoveRate = Math.Min(6, FMoveRate + 1)
@@ -398,6 +409,14 @@ class TMapSprite(TObject):
 		PlaySound(name, volume, tempo, balance)
 		return true
 
+	public def SwitchOn(value as int):
+		GEnvironment.value.Switch[value] = true
+		return true
+
+	public def SwitchOff(value as int):
+		GEnvironment.value.Switch[value] = false
+		return true
+
 	protected virtual def DoMove(which as Path) as bool:
 		unless assigned(FMoveStep):
 			FMoveStep = which.NextCommand()
@@ -412,20 +431,10 @@ class TMapSprite(TObject):
 			FOrder = which.NextCommand()
 		caseOf FOrder.Opcode:
 			case 11: unchanged = not TryMove(FFacing)
-			case 19: OpChangeFacing((ord(self.Facing) + _random.Next(3)) % 4)
-			case 20: OpChangeFacing(_random.Next(4))
-			case 21: OpChangeFacing(DirTowardsHero())
-			case 22: OpChangeFacing(opposite_facing(DirTowardsHero()))
-			case 24:
-				BeginJump() if CanJump(which)
-			case 25:
-				assert false, 'Hit an incorrect end of jump!'
 			case 26: self.DirLocked = true
 			case 27: self.DirLocked = false
 			case 30: FMoveFreq = Math.Min(8, (FMoveFreq + 1))
 			case 31: FMoveFreq = Math.Min(0, (FMoveFreq - 1))
-			case 32: GEnvironment.value.Switch[FOrder.Data[1]] = true
-			case 33: GEnvironment.value.Switch[FOrder.Data[1]] = false
 			case 40: IncTransparencyFactor()
 			case 41: DecTransparencyFactor()
 			case 48: result = false

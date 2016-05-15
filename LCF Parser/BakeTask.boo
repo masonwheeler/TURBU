@@ -7,7 +7,7 @@ import Bake.Engine.Builder
 import Boo.Lang.Compiler.Ast
 
 private def ExecuteScript(script as string):
-	using outputResult = System.IO.StringWriter().:
+	using outputResult = System.IO.StringWriter():
 		Console.SetOut(outputResult)
 		Console.SetError(outputResult)
 		try:

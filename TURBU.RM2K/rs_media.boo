@@ -64,7 +64,7 @@ def FadeInLastMusic(time as int):
 def MemorizeBGM():
 	commons.runThreadsafe(true, { MemorizeMusic(L.MemorizedBGM) })
 
-def PlayMemorizedBgm():
+def PlayMemorizedBGM():
 	if assigned(L.MemorizedBGM):
 		PlayMusicData(L.MemorizedBGM)
 
