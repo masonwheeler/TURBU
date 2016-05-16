@@ -85,3 +85,6 @@ macro Items.SwitchItem(index as IntegerLiteralExpression, body as Statement*):
 		yield ExpressionStatement([|Style(TVarSets.$typ)|])
 	
 	return Lambdify('TVariableItemTemplate', index, Flatten(body), 'TItemTemplate')
+
+macro Items.BookItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
+	return Lambdify('TSkillBookTemplate', index, body, 'TItemTemplate')

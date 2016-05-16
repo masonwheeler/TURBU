@@ -46,6 +46,9 @@ def SetEncounterRate(low as int, high as int):
 def EndBattle():
 	raise "Not implemented yet"
 
+def SetBattleBG(filename as string):
+	raise "Not implemented yet"
+
 private def GetTerrainBackground() as string:
 	loc as TSgPoint = GEnvironment.value.Party.Sprite.Location
 	terrain as int = GSpriteEngine.value.GetTile(loc.x, loc.y, 0).Terrain
@@ -66,6 +69,17 @@ private def GetCurrentBackground() as string:
 				return GetMapBackground(metadata)
 
 //Hack, just to get this to compile at this stage.  Will probably revamp later.
+internal class T2kMonster(turbu.Heroes.TRpgBattleCharacter, turbu.RM2K.animations.IAnimTarget):
+	def constructor(base as turbu.classes.TRpgDatafile):
+		super(base)
+	
+	def Show():
+		raise "Not implemented yet"
+	
+	Condition[i as int] as bool:
+		get: raise "Not implemented yet"
+		set: raise "Not implemented yet"
+
 static class BattleState:
 	def TurnsMatch(multiple as int, offset as int) as bool:
 		raise "Not implemented yet"
@@ -73,10 +87,13 @@ static class BattleState:
 	def MonstersPresent(minimum as int, maximum as int) as bool:
 		raise "Not implemented yet"
 
-	def MonsterHPBetween(minimum as int, maximum as int) as bool:
+	def HeroHPBetween(minimum as int, maximum as int) as bool:
 		raise "Not implemented yet"
 
-	def MonsterMPBetween(minimum as int, maximum as int) as bool:
+	def MonsterHPBetween(id as int, minimum as int, maximum as int) as bool:
+		raise "Not implemented yet"
+
+	def MonsterMPBetween(id as int, minimum as int, maximum as int) as bool:
 		raise "Not implemented yet"
 
 	def PartyLevelBetween(minimum as int, maximum as int) as bool:
@@ -85,5 +102,5 @@ static class BattleState:
 	def PartyExhaustionBetween(minimum as int, maximum as int) as bool:
 		raise "Not implemented yet"
 	
-	def GetMonster(i as int) as TRpgMonster:
+	def GetMonster(i as int) as T2kMonster:
 		raise "Not implemented yet"

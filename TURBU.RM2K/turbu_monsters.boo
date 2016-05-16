@@ -26,11 +26,20 @@ class TMonsterBehavior(TRpgDatafile):
 	[Property(Priority)]
 	private FPriority as int
 
+	[Property(SwitchOn)]
+	private FSwitchOn as int
+
+	[Property(SwitchOff)]
+	private FSwitchOff as int
+
 	[Property(Action)]
 	private FAction as TMonsterBehaviorAction
 
 	[Property(Skill)]
 	private FSkill as int
+
+	[Property(Transform)]
+	private FTransform as int
 
 	[Property(Requirement)]
 	private FRequirement as Func of bool

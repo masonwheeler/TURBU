@@ -34,17 +34,17 @@ static class TMonsterConverter:
 		if assigned(base.Behavior) and base.Behavior.Count > 0:
 			behavior = MacroStatement('Behavior')
 			for bElem in base.Behavior:
-				behavior.Body.Add(ConvertMonsterBehavior(bElem))
+				behavior.Body.Add(ConvertMonsterBehavior(bElem, base.ID))
 			result.Body.Add(behavior)
 		return result
 	
-	private def ConvertMonsterBehavior(base as MonsterBehavior) as MacroStatement:
+	private def ConvertMonsterBehavior(base as MonsterBehavior, monsterID as int) as MacroStatement:
 		result = [|
 			MonsterBehavior $(base.ID):
 				Priority $(base.Priority)
 		|]
 		if base.Precondition >= 1:
-			result.Body.Add([|Requirement $(ConvertRequirement(base))|])
+			result.Body.Add([|Requirement $(ConvertRequirement(base, monsterID))|])
 			//SubMacro('Requirement').Arguments.Add(Expression.Lift(base.PreconditionSwitch))
 		elif base.Precondition > 1:
 			req = result.SubMacro('Requirement')
@@ -59,13 +59,13 @@ static class TMonsterConverter:
 			default: raise "Unexpected monster behavior action value: $(base.Action)"
 		return result
 
-	private def ConvertRequirement(base as MonsterBehavior) as Expression:
+	private def ConvertRequirement(base as MonsterBehavior, monsterID as int) as Expression:
 		caseOf base.Precondition:
 			case 1: return [|Switch[$(base.PreconditionSwitch)]|]
 			case 2: return [|BattleState.TurnsMatch($(base.PreconditionP1), $(base.PreconditionP2))|]
 			case 3: return [|BattleState.MonstersPresent($(base.PreconditionP1), $(base.PreconditionP2))|]
-			case 4: return [|BattleState.MonsterHPBetween($(base.PreconditionP1), $(base.PreconditionP2))|]
-			case 5: return [|BattleState.MonsterMPBetween($(base.PreconditionP1), $(base.PreconditionP2))|]
+			case 4: return [|BattleState.MonsterHPBetween($monsterID, $(base.PreconditionP1), $(base.PreconditionP2))|]
+			case 5: return [|BattleState.MonsterMPBetween($monsterID, $(base.PreconditionP1), $(base.PreconditionP2))|]
 			case 6: return [|BattleState.PartyLevelBetween($(base.PreconditionP1), $(base.PreconditionP2))|]
 			case 7: return [|BattleState.PartyExhaustionBetween($(base.PreconditionP1), $(base.PreconditionP2))|]
 			default: assert false

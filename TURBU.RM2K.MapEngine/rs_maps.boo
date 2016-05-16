@@ -240,6 +240,16 @@ def ShowBattleAnim(which as int, target as TRpgCharacter, wait as bool, fullscre
 	if wait:
 		GScriptEngine.value.SetWaiting({ signal.WaitOne(0) })
 
+def ShowBattleAnimB(which as int, target as IAnimTarget, wait as bool, fullscreen as bool):
+	signal as EventWaitHandle
+	if wait:
+		signal = EventWaitHandle(false, EventResetMode.ManualReset)
+	else:
+		signal = null
+	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, signal) })
+	if wait:
+		GScriptEngine.value.SetWaiting({ signal.WaitOne(0) })
+
 def ShowBattleAnimT(engine as TSpriteEngine, which as int, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
 	template as TAnimTemplate = GDatabase.value.Anim[which]
 	return if template == null

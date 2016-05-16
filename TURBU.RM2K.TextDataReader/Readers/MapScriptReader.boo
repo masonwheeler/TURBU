@@ -39,10 +39,11 @@ macro BattleScripts(body as TypeMemberStatement*):
 	|]
 	
 	result.Members.AddRange(body.Select({tm | tm.TypeMember}).Cast[of Method]())
-	var scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
-	var scriptMap = BuildScriptMap(scriptList)
-	scriptMap.Modifiers = TypeMemberModifiers.Public
-	result.Members.Add(scriptMap)
+	// TODO: Some version of this will be needed eventually, but for now it's implemented wrong and breaking things
+	# var scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
+	# var scriptMap = BuildScriptMap(scriptList)
+	# scriptMap.Modifiers = TypeMemberModifiers.Public
+	# result.Members.Add(scriptMap)
 	yield result
 	yield [|import System.Linq.Enumerable|]
 

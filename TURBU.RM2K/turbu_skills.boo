@@ -161,15 +161,18 @@ class TSpecialSkillTemplate(TSkillTemplate):
 class TTeleportSkillTemplate(TSpecialSkillTemplate):
 
 	[Property(TeleportTarget)]
-	private FTarget as byte
+	private FTarget as int
 
 class TVariableSkillTemplate(TSpecialSkillTemplate):
 
 	[Property(Which)]
-	private FWhich as ushort
+	private FWhich as int
+
+	[Property(IsVariable)]
+	private FIsVar as bool
 
 	[Property(Magnitude)]
-	private FMagnitude as short
+	private FMagnitude as int
 
 	[Property(Style)]
 	private FStyle as TVarSets

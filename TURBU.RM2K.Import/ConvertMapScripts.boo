@@ -45,7 +45,7 @@ def ConvertGlobalEvent(value as GlobalEvent, ScanScript as Action[of EventComman
 	|]
 	caseOf value.StartCondition:
 		case 3: cond = [|Automatic|]
-		case 4: cond = [|ParallelProcess|]
+		case 4: cond = [|Parallel|]
 		case 5: cond = [|Call|]
 		default: assert false
 	result.Body.Add([|Trigger $cond|])
@@ -310,7 +310,7 @@ class TScriptConverter:
 	
 	simpleConverter ConvertShowAnimBattle:
 		a2 as Expression = ([| Monster[$(values[1])] |] if values[1] != 0 else [|null|])
-		result = [| ShowAnimation($(values[0]), $a2, $(values[2] != 0), $(values[3] != 0)) |]
+		result = [| ShowBattleAnimB($(values[0]), $a2, $(values[2] != 0), $(values[1] != 0)) |]
 	
 	simpleConverter ConvertMoveImage:
 		assert values[4] == 0

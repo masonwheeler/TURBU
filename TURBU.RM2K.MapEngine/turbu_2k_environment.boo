@@ -438,7 +438,7 @@ class T2kEnvironment(TObject):
 		set:
 			SetInt(i, value)
 
-	public Monster[i as int] as TRpgMonster:
+	public Monster[i as int] as TURBU.RM2K.RPGScript.T2kMonster:
 		get:
 			return TURBU.RM2K.RPGScript.BattleState.GetMonster(i)
 

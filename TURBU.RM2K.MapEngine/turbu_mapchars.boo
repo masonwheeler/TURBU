@@ -397,8 +397,8 @@ class TRpgVehicle(TRpgCharacter):
 	public def SetMusic(Name as string, fadeIn as int, volume as int, tempo as int, balance as int):
 		pass
 
-	public def inUse() as bool:
-		return (FCarrying != null)
+	public InUse as bool:
+		get: return FCarrying != null
 
 	[NoImport]
 	public def CheckSprite():

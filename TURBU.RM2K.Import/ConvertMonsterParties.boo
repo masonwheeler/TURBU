@@ -13,11 +13,11 @@ private enum RMBattlePageConditions:
 	Switch2 = 2
 	Variable1 = 4
 	Turns = 8
-	MonsterTime = 0x10
-	HeroTime = 0x20
-	Exhaustion = 0x40
-	MonsterHP = 0x80
-	HeroHP = 0x100
+	HeroHP = 0x10
+	MonsterHP = 0x20
+	MonsterTime = 0x40
+	HeroTime = 0x80
+	Exhaustion = 0x100
 	CommandUsed = 0x200
 
 static class TMonsterPartyConverter:
@@ -62,13 +62,13 @@ static class TMonsterPartyConverter:
 			result.Add([|true|])
 			return result
 		if RMBattlePageConditions.Switch1 in cond:
-			result.Add([|Switch1 $(value.Switch1)|])
+			result.Add([|Switch $(value.Switch1)|])
 		if RMBattlePageConditions.Switch2 in cond:
-			result.Add([|Switch2 $(value.Switch2)|])
+			result.Add([|Switch $(value.Switch2)|])
 		if RMBattlePageConditions.Variable1 in cond:
 			be = BinaryExpression(BinaryOperatorType.GreaterThan, Expression.Lift(value.Variable), \
 				Expression.Lift(value.VarValue))
-			result.Add([|Variable1 $be|])
+			result.Add([|Variable $be|])
 		if RMBattlePageConditions.Turns in cond:
 			result.Add([|Turns $(value.TurnsMultiple), $(value.TurnsConst)|])
 		if RMBattlePageConditions.MonsterTime in cond:

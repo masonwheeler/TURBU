@@ -37,7 +37,8 @@ public def RunBake(basepath as string, TurbuPath as string, projectName as strin
 		"$(TurbuPath)/TURBU.RM2K.dll",
 		"$(TurbuPath)/TURBU.RM2K.MapEngine.dll",
 		"$(TurbuPath)/TURBU.RM2K.TextDataReader.dll",
-		"$(TurbuPath)/TURBU.SDL.dll"
+		"$(TurbuPath)/TURBU.SDL.dll",
+		"$(TurbuPath)/SDL2-CS.dll"
 		)
 	var refsList = ListLiteralExpression()
 	refsList.Items.AddRange(refs.Select({s | StringLiteralExpression(s)}))

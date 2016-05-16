@@ -248,7 +248,6 @@ private def ConvertJump(orders as List[of MoveOpcode], body as Block, makeWarnin
 		makeWarning('Start Jump with no End Jump')
 		i = start
 	else:
-		++i
 		if (rand == 0) and (chase == 0) and (forward == 0):
 			body.Add([|Jump($x, $y)|])
 		else: body.Add([|Jump($x, $y, $rand, $chase, $forward)|])

@@ -47,3 +47,10 @@ macro Skills.Skill(index as IntegerLiteralExpression, body as ExpressionStatemen
 
 macro Skills.TeleportSkill(index as IntegerLiteralExpression, body as ExpressionStatement*):
 	return Lambdify('TTeleportSkillTemplate', index, body, 'TSkillTemplate')
+
+macro Skills.VariableSkill(index as IntegerLiteralExpression, body as ExpressionStatement*):
+	macro Which(value as ReferenceExpression, id as int):
+		assert value.Name == 'Switch', 'Non-switch VariableSkill types are not yet supported'
+		return ExpressionStatement([| Which($id) |])
+	
+	return Lambdify('TVariableSkillTemplate', index, body, 'TSkillTemplate')

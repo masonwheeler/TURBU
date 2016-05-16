@@ -44,7 +44,7 @@ macro MonsterParties.MonsterParty.Pages.Page.PageConditions(body as ExpressionSt
 		return ExpressionStatement([|Switch[$id]|])
 	
 	macro Variable(comp as BinaryExpression):
-		be = BinaryExpression(comp.Operator, [|Variables[$(comp.Left)]|], comp.Right)
+		be = BinaryExpression(comp.Operator, [|Ints[$(comp.Left)]|], comp.Right)
 		return ExpressionStatement(be)
 	
 	macro Item(id as int):
@@ -58,6 +58,15 @@ macro MonsterParties.MonsterParty.Pages.Page.PageConditions(body as ExpressionSt
 	
 	macro Timer2(value as int):
 		return ExpressionStatement([|Timer2.Time <= ($value)|])
+	
+	macro Turns(mult as int, constant as int):
+		return ExpressionStatement([|BattleState.TurnsMatch($mult, $constant)|])
+	
+	macro HeroHP(id as int, min as int, max as int):
+		return ExpressionStatement([|BattleState.HeroHPBetween($id, $min, $max)|])
+	
+	macro MonsterHP(id as int, min as int, max as int):
+		return ExpressionStatement([|BattleState.MonsterHPBetween($id, $min, $max)|])
 	
 	result as Expression
 	for line in body:
