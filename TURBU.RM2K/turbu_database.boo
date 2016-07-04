@@ -3,6 +3,8 @@
 import System
 import System.Collections.Generic
 import System.Linq.Enumerable
+
+import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import turbu.animations
 import turbu.characters
@@ -28,11 +30,24 @@ import turbu.monsters
 class TRpgVocabDictionary(TRpgDatafile):
 	[Getter(Vocab)]
 	FVocab = Dictionary[of string, string]()
+	
+	def constructor():
+		super()
+	
+	def constructor(value as JObject):
+		super()
+		for pair in value.Cast[of JProperty]():
+			FVocab.Add(pair.Name, pair.Value)
 
 [TableName('Variables')]
 class TRpgVarsList(TRpgDatafile)
 	[Getter(Values)]
 	FValues = Dictionary[of string, int]()
+	
+	def constructor(value as JObject):
+		super()
+		for pair in value.Cast[of JProperty]():
+			FValues.Add(pair.Name, pair.Value)
 
 [Transient]
 class TRpgDatabase(TRpgDatafile, IRpgDatabase):
@@ -102,7 +117,7 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 	private FSysVocab as TRpgVocabDictionary
 	
 	def constructor(dm as TdmDatabase):
-		reader = dm.Reader
+		var reader = dm.Reader
 		FItems = TRpgDataDict[of TItemTemplate](reader)
 		FAnims = TRpgDataDict[of TAnimTemplate](reader)
 		FConditions = TRpgDataDict[of TConditionTemplate](reader)
@@ -113,8 +128,8 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 		FTerrains = TRpgDataDict[of TRpgTerrain](reader)
 		FTilesets = TRpgDataDict[of TTileSet](reader)
 		for grp in reader.GetReader[of TTileGroup]().GetAll():
-			FTileGroups.Add(grp.Filename, grp)
-		TTileGroupRecord.LookupGroup = {name | return FTileGroups[name]}
+			FTileGroups.Add(grp.Filename.ToUpper(), grp)
+		TTileGroupRecord.LookupGroup = {name | return FTileGroups[name.ToUpper()]}
 		FVehicles = TRpgDataDict[of TVehicleTemplate](reader)
 		FCommands = TBattleCommandList(reader)
 		FLayout = reader.GetReader[of TGameLayout]().GetData(0)

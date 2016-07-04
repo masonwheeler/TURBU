@@ -28,12 +28,7 @@ interface IMapMetadata(IRpgObject):
 	MapEngine as string:
 		get
 
-interface IMapMetadataEnumerator(IEnumerator[of IMapMetadata]):
-	pass
-
-interface IMapTree:
-
-	def GetEnumerator() as IMapMetadataEnumerator
+interface IMapTree(IEnumerable[of IMapMetadata]):
 
 	CurrentMap as int:
 		get

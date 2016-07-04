@@ -235,7 +235,6 @@ class TRpgHero(TRpgBattleCharacter):
 		return (FSkill[id] if (id > 0) and (id < FSkill.Length) else false)
 
 	private def LevelAdjustDown(before as int):
-		skill as TSkillGainInfo
 		base = Template cast THeroTemplate
 		for skill in base.Skillset[1:]:
 			if (skill.Style == TSkillFuncStyle.Level) and ((skill.Nums[1] > FLevel) and (skill.Nums[1] <= before)):
@@ -243,7 +242,6 @@ class TRpgHero(TRpgBattleCharacter):
 		LevelStatAdjust()
 
 	private def LevelAdjustUp(before as int):
-		skill as TSkillGainInfo
 		base = Template cast THeroTemplate
 		for skill in base.Skillset[1:]:
 			if (skill.Style == TSkillFuncStyle.Level) and ((skill.Nums[1] <= FLevel) and (skill.Nums[1] > before)):
@@ -253,12 +251,12 @@ class TRpgHero(TRpgBattleCharacter):
 	private def LevelStatAdjust():
 		base = Template cast THeroTemplate
 		return if base.ID == 0
-		FMaxHitPoints = base.StatBlocks[STAT_HP].Block[FLevel]
-		FMaxManaPoints = base.StatBlocks[STAT_MP].Block[FLevel]
-		FStat[0, TStatComponents.Base] = base.StatBlocks[STAT_STR].Block[FLevel]
-		FStat[1, TStatComponents.Base] = base.StatBlocks[STAT_DEF].Block[FLevel]
-		FStat[2, TStatComponents.Base] = base.StatBlocks[STAT_MIND].Block[FLevel]
-		FStat[3, TStatComponents.Base] = base.StatBlocks[STAT_AGI].Block[FLevel]
+		FMaxHitPoints = base.StatBlocks[STAT_HP].Block[FLevel - 1]
+		FMaxManaPoints = base.StatBlocks[STAT_MP].Block[FLevel - 1]
+		FStat[0, TStatComponents.Base] = base.StatBlocks[STAT_STR].Block[FLevel - 1]
+		FStat[1, TStatComponents.Base] = base.StatBlocks[STAT_DEF].Block[FLevel - 1]
+		FStat[2, TStatComponents.Base] = base.StatBlocks[STAT_MIND].Block[FLevel - 1]
+		FStat[3, TStatComponents.Base] = base.StatBlocks[STAT_AGI].Block[FLevel - 1]
 
 	private def LoseLevel():
 		--FLevel

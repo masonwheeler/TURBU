@@ -3,6 +3,7 @@
 import System
 import TURBU.Engines
 import TURBU.EngineBasis
+import TURBU.MapInterface
 import TURBU.PluginInterface
 
 interface IDataReader(ITurbuEngine):
@@ -24,5 +25,11 @@ interface IDataTypeReader[of T(IRpgObject)]:
 		get
 
 interface IMapLoader:
-	def GetMap(name as string) as TURBU.MapInterface.IRpgMap
+	def GetMap(data as IMapMetadata) as TURBU.MapInterface.IRpgMap
 	def GetGlobals() as TURBU.MapInterface.IRpgMapObject*
+
+interface IGlobalScriptProvider:
+	Value[x as int] as System.Action:
+		get
+	
+	def GetConditions(switch as int) as System.Func[of bool]

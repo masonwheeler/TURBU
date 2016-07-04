@@ -1,4 +1,4 @@
-﻿namespace TURBU.RM2K.TextDataReader.Readers
+﻿namespace TURBU.RM2K.TextDataReader.Readers.DataReaders
 
 import System
 import System.Linq.Enumerable

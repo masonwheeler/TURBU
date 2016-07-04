@@ -71,6 +71,10 @@
       <Project>{3BC74C47-9247-4CEB-B505-A86C42E45116}</Project>
       <Name>TURBU.RM2K.BattleEngine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TURBU.RM2k.CompiledDataReader\TURBU.RM2k.CompiledDataReader.booproj">
+      <Project>{40FE85E2-DFBF-4EDF-86FB-295A5F4BB429}</Project>
+      <Name>TURBU.RM2k.CompiledDataReader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TURBU.RM2K.MapEngine\TURBU.RM2K.MapEngine.booproj">
       <Project>{DC05E2F6-6214-4ED1-84BB-07EC636C386B}</Project>
       <Name>TURBU.RM2K.MapEngine</Name>

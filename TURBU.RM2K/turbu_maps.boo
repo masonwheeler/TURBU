@@ -14,6 +14,7 @@ import turbu.tilesets
 import turbu.map.metadata
 import TURBU.MapObjects
 import turbu.constants
+import Newtonsoft.Json.Linq
 
 enum TMapScrollType:
 	None
@@ -98,7 +99,6 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	private FScriptError as string
 
 	private def SetSize(value as TSgPoint):
-		i as int
 		FSize = value
 		for i in range(FTileMap.Length):
 			arr = FTileMap[i]
@@ -154,8 +154,8 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 					result.x = (first - second)
 					result.y = result.x
 					
-		point = CalcPoints(FSize.x, size.x, (position % 3))
-		point2 = CalcPoints(FSize.x, size.x, (position / 3))
+		point = CalcPoints(FSize.x, size.x, position % 3)
+		point2 = CalcPoints(FSize.x, size.x, position / 3)
 		return Rectangle(point.x, point.y, point2.x - point.x, point2.y - point.y)
 
 	def GetMapObjects() as IRpgMapObject*:
@@ -176,6 +176,29 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		super()
 		self.SetDepth(turbu.constants.LAYERS)
 		FModified = true
+
+	public def LoadFromJSON(obj as JObject):
+		obj.CheckRead('ID', FId)
+		obj.CheckRead('Tileset', FTileset)
+		obj.CheckRead('Size', FSize)
+		obj.CheckReadEnum('Wraparound', FWraparound)
+		var tm = obj['TileMap'] cast JArray
+		obj.Remove('TileMap')
+		SetDepth(tm.Count)
+		for i in range(tm.Count):
+			FTileMap[i] = (tm[i] cast JArray).Select({e | TTileRef(e cast int)}).ToArray()
+		var mo = obj['MapObjects'] cast JArray
+		obj.Remove('MapObjects')
+		for value in mo.Cast[of JObject]():
+			FMapObjects.Add(TRpgMapObject(value))
+		obj.CheckRead('HasBackground', FHasBG)
+		obj.CheckRead('BgName', FBgName)
+		obj.CheckReadEnum('HScroll', FHScroll)
+		obj.CheckReadEnum('VScroll', FVScroll)
+		obj.CheckRead('ScrollSpeed', FScrollSpeed)
+		obj.CheckEmpty()
+
+		Initialize()
 
 	public def Initialize():
 		assert not FInitialized

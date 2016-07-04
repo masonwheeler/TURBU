@@ -1,9 +1,10 @@
-﻿namespace TURBU.RM2K.TextDataReader.Readers
+﻿namespace TURBU.RM2K.TextDataReader.Readers.DataReaders
 
 import System
 import System.Linq.Enumerable
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
+import TURBU.RM2K.TextDataReader.Readers
 
 macro MapData(id as IntegerLiteralExpression, body as ExpressionStatement*):
 	name = "Map$(id.Value.ToString('D4'))"
@@ -33,9 +34,9 @@ macro MapData.Tiles(body as ExpressionStatement*):
 	macro Layer(body as ExpressionStatement*):
 		layer = ArrayLiteralExpression()
 		layer.Items.AddRange(
-					body.SelectMany({es | (es.Expression cast ArrayLiteralExpression).Items}) \
-						.Cast[of IntegerLiteralExpression]() \
-						.Select({i | [|turbu.tilesets.TTileRef($i)|]}))
+			body.SelectMany({es | (es.Expression cast ArrayLiteralExpression).Items}) \
+				.Cast[of IntegerLiteralExpression]() \
+				.Select({i | [|turbu.tilesets.TTileRef($i)|]}))
 		return ExpressionStatement(layer)
 	arr = ArrayLiteralExpression()
 	arr.Items.AddRange(body.Select({es | es.Expression}))

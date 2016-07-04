@@ -71,15 +71,10 @@ static class TItemConverter:
 			Target $(base.RangedTarget)
 		|]
 		result.Body.Add(props)
-		attrs = (base.Attributes cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).ToArray()
-		runningTotal = 0.0
+		attrs = (base.Attributes cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).Select({i | Expression.Lift(i)}).ToArray()
 		if attrs.Length > 0:
 			attributes = MacroStatement('Attributes')
-			percentage = 100.0 / attrs.Length
-			for item in attrs:
-				runningTotal += percentage
-				pct = (percentage cast int if runningTotal - Math.Floor(runningTotal) < 0.5 else (percentage + 1) cast int)
-				attributes.Body.Add([|Attribute $item, $(pct)|])
+			attributes.Arguments.AddRange(attrs)
 			result.Body.Add(attributes)
 		if base.AnimData.Count > 0:
 			anims = MacroStatement('Animations')
@@ -99,21 +94,12 @@ static class TItemConverter:
 			Slot $(ReferenceExpression(Enum.GetName(turbu.defs.TSlot, base.ItemType - 1)))
 		|]
 		result.Body.Add(props)
-		attrs = (base.Attributes cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).ToArray()
+		attrs = (base.Attributes cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).Select({i | Expression.Lift(i)}).ToArray()
 		if attrs.Length > 0:
 			attributes = MacroStatement('Attributes')
-			for attr in attrs:
-				dbAttr = db.Attributes[attr - 1]
-				attributes.Body.Add([|Attribute $(attr), $(AveragePct(dbAttr))|])
+			attributes.Arguments.AddRange(attrs)
 			result.Body.Add(attributes)
 		return result
-	
-	private def AveragePct(attr as RMAttribute) as int:
-		result = 0
-		result += attr.RateA - attr.RateB
-		result += attr.RateB - attr.RateC
-		result += attr.RateC - attr.RateD
-		return commons.round(result / 3.0)
 	
 	private def ConvertMedicineItem(base as RMItem, db as LDB) as MacroStatement:
 		result = ConvertItem('MedicineItem', base, db)

@@ -1,5 +1,8 @@
 namespace TURBU.MapObjects
 
+import System.Linq.Enumerable
+import Newtonsoft.Json.Linq
+
 import turbu.containers
 import turbu.operators
 import SG.defs
@@ -224,11 +227,9 @@ class TRpgEventPage(TRpgDatafile):
 	[Property(DoOverrideSprite)]
 	protected FOverrideSprite as bool
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def IsValid() as bool:
 		return (FConditions() if assigned(FConditions) else true)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def HasScriptFunction() as bool:
 		return FScript is not null
 
@@ -255,7 +256,33 @@ class TRpgEventPage(TRpgDatafile):
 	public def constructor(id as int):
 		FId = id
 		FMoveSpeed = 1
-	
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('SpriteIndex', FSpriteIndex)
+		value.CheckRead('Frame', FFrame)
+		value.CheckReadEnum('Direction', FDirection)
+		value.CheckRead('Transparent', FTransparent)
+		value.CheckReadEnum('MoveType', FMoveType)
+		value.CheckRead('MoveFrequency', FMoveFrequency)
+		value.CheckReadEnum('AnimType', FAnimType)
+		value.CheckRead('MoveSpeed', FMoveSpeed)
+		value.CheckRead('ZOrder', FEventHeight)
+		value.CheckRead('IsBarrier', FNoOverlap)
+		value.CheckReadEnum('Trigger', FStartCondition)
+		value.Remove('Conditions') //worry about this later
+		FConditions = {return false}
+		value.CheckEmpty()
+
+	public def constructor(value as JObject, id as int, globals as TURBU.DataReader.IGlobalScriptProvider):
+		super()
+		switch as int
+		value.CheckRead('Switch', switch)
+		FConditions = globals.GetConditions(switch)
+		value.CheckReadEnum('Trigger', FStartCondition)
+		FScript = globals.Value[id]
+		value.CheckEmpty()
+
 	internal def SetParent(value as TRpgMapObject):
 		FParent = value
 
@@ -317,6 +344,22 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 		FId = id
 		AddPage(TRpgEventPage(0))
 		FCurrentPage = FPages[0]
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Location', FLocation)
+		var pages = value['Pages'] cast JArray
+		value.Remove('Pages')
+		for p in pages.Cast[of JObject]():
+			AddPage(TRpgEventPage(p))
+		FCurrentPage = FPages[0]
+		value.CheckEmpty()
+
+	public def constructor(value as JObject, globals as TURBU.DataReader.IGlobalScriptProvider):
+		super(value)
+		AddPage(TRpgEventPage(value, FId, globals))
+		FCurrentPage = FPages[0]
+		value.CheckEmpty()
 
 	internal def Initialize():
 		for page in FPages:

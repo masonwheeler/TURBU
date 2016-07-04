@@ -78,6 +78,15 @@ class LMT:
 				WriteValue(output, sp.Y)
 			current += 10
 		output.WriteByte(0)
+	
+	def Ancestry(id as int) as string*:
+		var currentMap = id
+		var result = List[of string]()
+		while currentMap > 0:
+			var value = self.Maps[currentMap]
+			result.Add(value.Name)
+			currentMap = value.Parent
+		return result.AsEnumerable().Reverse().ToArray()
 
 LCFObject MapTreeData:
 	hasID

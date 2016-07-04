@@ -2,6 +2,9 @@ namespace TURBU.RM2K.GameData
 
 import System
 import System.Collections.Generic
+import System.Linq.Enumerable
+
+import Newtonsoft.Json.Linq
 import SG.defs
 import turbu.defs
 import turbu.classes
@@ -9,25 +12,25 @@ import turbu.classes
 [TableName('SystemData')]
 class TGameLayout(TRpgDatafile):
 
-	[Property(Width)]
+	[Getter(Width)]
 	private FWidth as int
 
-	[Property(Height)]
+	[Getter(Height)]
 	private FHeight as int
 
-	[Property(PhysWidth)]
+	[Getter(PhysWidth)]
 	private FPWidth as int
 
-	[Property(PhysHeight)]
+	[Getter(PhysHeight)]
 	private FPHeight as int
 
-	[Property(SpriteSize)]
+	[Getter(SpriteSize)]
 	private FSpriteSize as TSgPoint
 
-	[Property(SpriteSheet)]
+	[Getter(SpriteSheet)]
 	private FSpriteSheet as TSgPoint
 
-	[Property(SpriteSheetFrames)]
+	[Getter(SpriteSheetFrames)]
 	private FSpriteSheetFrames as TSgPoint
 
 	private FSpriteRow as int
@@ -46,67 +49,67 @@ class TGameLayout(TRpgDatafile):
 				FSpriteSheetRow = self.SpriteRow * FSpriteSheetFrames.y * 2
 			return FSpriteSheetRow 
 
-	[Property(PortraitSize)]
+	[Getter(PortraitSize)]
 	private FPortraitSize as TSgPoint
 
-	[Property(TileSize)]
+	[Getter(TileSize)]
 	private FTileSize as TSgPoint
 
-	[Property(TitleScreen)]
+	[Getter(TitleScreen)]
 	private FTitleScreen as string
 
-	[Property(GameOverScreen)]
+	[Getter(GameOverScreen)]
 	private FGameOverScreen as string
 
-	[Property(SysGraphic)]
+	[Getter(SysGraphic)]
 	private FSysGraphic as string
 
-	[Property(BattleSysGraphic)]
+	[Getter(BattleSysGraphic)]
 	private FBattleSysGraphic as string
 
-	[Property(BattleTestBG)]
+	[Getter(BattleTestBG)]
 	private FBattleTestBG as string
 
-	[Property(BattleTestTerrain)]
+	[Getter(BattleTestTerrain)]
 	private FBattleTestTerrain as int
 
-	[Property(BattleTestFormation)]
+	[Getter(BattleTestFormation)]
 	private FBattleTestFormation as int
 
-	[Property(BattleTestSpecialCondition)]
+	[Getter(BattleTestSpecialCondition)]
 	private FBattleTestSpecialCondition as int
 
-	[Property(EditorCondition)]
+	[Getter(EditorCondition)]
 	private FEditorCondition as int
 
-	[Property(EditorHero)]
+	[Getter(EditorHero)]
 	private FEditorHero as int
 
-	[Property(WallpaperStretch)]
+	[Getter(WallpaperStretch)]
 	private FWallpaperStretch as bool
 
-	[Property(FontID)]
+	[Getter(FontID)]
 	private FWhichFont as byte
 
-	[Property(StartingHeroes)]
+	[Getter(StartingHeroes)]
 	private FStartingHero = array(int, 4)
 
-	[Property(Transitions)]
-	private FTransition as (TTransitions)
+	[Getter(Transitions)]
+	private FTransition = array(TTransitions, 6)
 
-	[Property(BattleCommands)]
-	private FCommands as (int)
+	[Getter(BattleCommands)]
+	private FCommands = array(int, 4)
 
-	[Property(UsesFrame)]
+	[Getter(UsesFrame)]
 	private FUsesFrame as bool
 
-	[Property(Frame)]
+	[Getter(Frame)]
 	private FFrame as string
 
-	[Property(ReverseGraphics)]
+	[Getter(ReverseGraphics)]
 	private FReverseGraphics as bool
 
-	[Property(TranslucentMessages)]
+	[Getter(TranslucentMessages)]
 	private FTranslucentMessages as bool
 
 	public Transition[which as TTransitionTypes] as byte:
@@ -122,5 +125,54 @@ class TGameLayout(TRpgDatafile):
 			assert which in range(1, 9)
 			return FCommands[which]
 
-	[Property(MoveMatrix)]
-	private FMoveMatrix as List[of ((int))]
+	[Getter(MoveMatrix)]
+	private FMoveMatrix = List[of ((int))]()
+	
+	def constructor(value as JObject):
+		super()
+		value.CheckRead('Width', FWidth)
+		value.CheckRead('Height', FHeight)
+		value.CheckRead('PhysWidth', FPWidth)
+		value.CheckRead('PhysHeight', FPHeight)
+		value.CheckRead('SpriteSheet', FSpriteSheet)
+		value.CheckRead('SpriteSheetFrames', FSpriteSheetFrames)
+		value.CheckRead('TitleScreen', FTitleScreen)
+		value.CheckRead('GameOverScreen', FGameOverScreen)
+		value.CheckRead('SysGraphic', FSysGraphic)
+		value.CheckRead('BattleSysGraphic', FBattleSysGraphic)
+		value.CheckRead('WallpaperStretch', FWallpaperStretch)
+		value.CheckRead('FontID', FWhichFont)
+		value.CheckRead('ReverseGraphics', FReverseGraphics)
+		value.CheckRead('EditorCondition', FEditorCondition)
+		value.CheckRead('EditorHero', FEditorHero)
+		value.CheckRead('BattleTestBG', FBattleTestBG)
+		value.CheckRead('BattleTestTerrain', FBattleTestTerrain)
+		value.CheckRead('BattleTestFormation', FBattleTestFormation)
+		value.CheckRead('BattleTestSpecialCondition', FBattleTestSpecialCondition)
+		value.CheckRead('SpriteSize', FSpriteSize)
+		value.CheckRead('PortraitSize', FPortraitSize)
+		value.CheckRead('TileSize', FTileSize)
+		ints as (int)
+		if value.ReadArray('StartingHeroes', ints):
+			for i in range(ints.Length):
+				FStartingHero[i] = ints[i]
+		strs as (string)
+		if value.ReadArray('Transitions', strs):
+			for i in range(strs.Length):
+				self.FTransition[i] = Enum.Parse(TTransitions, strs[i]) cast TTransitions
+		ints = (,)
+		if value.ReadArray('BattleCommands', ints):
+			for i in range(ints.Length):
+				self.FCommands[i] = ints[i]
+		
+		mm as JArray = value['MoveMatrix']
+		value.Remove('MoveMatrix')
+		for mat as JArray in mm:
+			newMatrix as ((int))
+			Array.Resize[of (int)](newMatrix, mat.Count)
+			for i in range (mat.Count):
+				var elem = mat[i] cast JArray
+				var lizt = elem.Select({t | t cast int}).ToArray()
+				newMatrix[i] = lizt
+			FMoveMatrix.Add(newMatrix)
+		value.CheckEmpty()

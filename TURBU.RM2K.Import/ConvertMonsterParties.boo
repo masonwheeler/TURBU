@@ -48,9 +48,15 @@ static class TMonsterPartyConverter:
 		result = [|
 			Page $(base.ID):
 				Name $(pageName)
-				PageConditions:
-					$(ConvertConditions(base.Conditions))
 		|]
+		var cond = ConvertConditions(base.Conditions)
+		if cond is not null:
+			pc = [|
+				PageConditions:
+					$cond
+				|]
+			result.Body.Add(pc)
+
 		ConvertBattleScripts(baseID, base, ScanScript, saveScript,
 			{msg, id, page | progress.MakeNotice("$msg at monster party #$baseID, script #$page.", 3)})
 		return result
@@ -59,12 +65,11 @@ static class TMonsterPartyConverter:
 		result = Block()
 		cond as RMBattlePageConditions = value.Conditions cast int
 		if cond == RMBattlePageConditions.None:
-			result.Add([|true|])
-			return result
+			return null
 		if RMBattlePageConditions.Switch1 in cond:
 			result.Add([|Switch $(value.Switch1)|])
 		if RMBattlePageConditions.Switch2 in cond:
-			result.Add([|Switch $(value.Switch2)|])
+			result.Add([|Switch2 $(value.Switch2)|])
 		if RMBattlePageConditions.Variable1 in cond:
 			be = BinaryExpression(BinaryOperatorType.GreaterThan, Expression.Lift(value.Variable), \
 				Expression.Lift(value.VarValue))

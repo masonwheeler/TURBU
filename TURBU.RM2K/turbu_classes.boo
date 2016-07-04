@@ -10,7 +10,6 @@ import System.Threading
 import turbu.defs
 import TURBU.DataReader
 import TURBU.EngineBasis
-import TURBU.RM2K
 import System.IO
 import Newtonsoft.Json
 import Newtonsoft.Json.Linq
@@ -54,6 +53,11 @@ abstract class TRpgDatafile(TObject, IRpgObject):
 	public def constructor():
 		super()
 	
+	public def constructor(value as JObject):
+		super()
+		value.CheckRead('ID', FId)
+		value.CheckRead('Name', FName)
+
 	override def ToString():
 		return "$(self.ClassName) $ID: $Name"
 
@@ -280,19 +284,80 @@ public def CheckRead(obj as JObject, name as string, ref value as bool):
 		obj.Remove(name)
 
 [Extension]
-public def ReadArray(obj as JObject, name as string, ref value as (bool)):
-	arr as JArray
-	i as int
+public def CheckRead(obj as JObject, name as string, ref value as SG.defs.TSgPoint):
 	item as JToken
 	obj.TryGetValue(name, item)
 	if assigned(item):
-		arr = item cast JArray
+		var arr = item cast JArray
+		assert arr.Count == 2
+		value = SG.defs.TSgPoint(arr[0] cast int, arr[1] cast int)
+		obj.Remove(name)
+
+[Extension]
+public def ReadArray(obj as JObject, name as string, ref value as (string)) as bool:
+	item as JToken
+	obj.TryGetValue(name, item)
+	if assigned(item):
+		var arr = item cast JArray
+		Array.Resize[of string](value, arr.Count)
+		for i in range(arr.Count):
+			value[i] = arr[i] cast string
+		obj.Remove(name)
+		return true
+	else: return false
+
+[Extension]
+public def ReadArray(obj as JObject, name as string, ref value as (int)) as bool:
+	item as JToken
+	obj.TryGetValue(name, item)
+	if assigned(item):
+		var arr = item cast JArray
+		Array.Resize[of int](value, arr.Count)
+		for i in range(arr.Count):
+			value[i] = arr[i] cast int
+		obj.Remove(name)
+		return true
+	else: return false
+
+[Extension]
+public def ReadArray(obj as JObject, name as string, ref value as (bool)) as bool:
+	item as JToken
+	obj.TryGetValue(name, item)
+	if assigned(item):
+		var arr = item cast JArray
 		Array.Resize[of bool](value, arr.Count)
-		for i in range(0, arr.Count):
+		for i in range(arr.Count):
 			value[i] = arr[i] cast bool
+		obj.Remove(name)
+		return true
+	else: return false
+
+[Extension]
+public def ReadArray(obj as JObject, name as string, ref value as (SG.defs.TSgPoint)) as bool:
+	item as JToken
+	obj.TryGetValue(name, item)
+	if assigned(item):
+		var arr = item cast JArray
+		Array.Resize[of SG.defs.TSgPoint](value, arr.Count)
+		for i in range(arr.Count):
+			var pt = arr[i] cast JArray
+			assert pt.Count == 2
+			value[i] = SG.defs.TSgPoint(pt[0] cast int, pt[1] cast int)
+		obj.Remove(name)
+		return true
+	else: return false
+
+[Extension]
+public def CheckReadEnum[of T(struct)](obj as JObject, name as string, ref value as T):
+	item as JToken
+	obj.TryGetValue(name, item)
+	if assigned(item):
+		var jValue = item cast string
+		value = System.Enum.Parse(T, jValue) cast T
 		obj.Remove(name)
 
 [Extension]
 public def CheckEmpty(obj as JObject):
-	if obj.Count > 0:
-		logs.logText('Unknown savefile data: ' + obj.ToString())
+	assert obj.Count == 0, "Unknown JSON data: $obj"
+	#if obj.Count > 0:
+	#	logs.logText('Unknown savefile data: ' + obj.ToString())

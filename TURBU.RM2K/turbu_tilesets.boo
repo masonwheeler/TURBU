@@ -4,6 +4,7 @@ import System
 import System.Collections.Generic
 import System.Linq.Enumerable
 import System.Runtime.InteropServices
+import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import sdl.sprite
 import SG.defs
@@ -50,21 +51,37 @@ struct TTileRef:
 [TableName('TileGroups')]
 class TTileGroup(TRpgDatafile):
 
-	[Property(LinkedFilename)]
-	private FLinkedFileName = ''
+	[Getter(LinkedFilename)]
+	private FLinkedFilename = ''
 
-	[Property(Ocean)]
+	[Getter(Ocean)]
 	private FOcean as bool
 
-	[Property(TileType)]
+	[Getter(TileType)]
 	private FTileType as TTileType
 
-	[Property(Dimensions)]
+	[Getter(Dimensions)]
 	private FDimensions as TSgPoint
 
 	public Filename as string:
 		get: return FName
 		set: FName = value
+	
+	def constructor():
+		super()
+	
+	def constructor(obj as JObject):
+		super(obj)
+		obj.CheckRead('LinkedFilename', self.FLinkedFilename)
+		subtypes as (string)
+		if obj.ReadArray('TileType', subtypes):
+			for subtype in subtypes:
+				FTileType |= Enum.Parse(TTileType, subtype) cast TTileType
+		obj.CheckRead('Ocean', self.FOcean)
+		obj.CheckRead('Dimensions', FDimensions)
+		fn as string
+		obj.CheckRead('Filename', fn) //this can be safely discarded
+		obj.CheckEmpty()
 
 class TTileGroupRecord(TRpgDatafile):
 
@@ -90,7 +107,26 @@ class TTileGroupRecord(TRpgDatafile):
 		super()
 		FAttributes.Capacity = 32
 		FTerrain.Capacity = 32
-	
+
+	public def constructor(value as JObject):
+		super(value)
+		value.ReadArray('Layers', FLayers)
+		terrains as (int)
+		value.ReadArray('Terrain', terrains)
+		FTerrain.AddRange(terrains) if terrains is not null
+		gname as string
+		value.CheckRead('GroupName', gname)
+		GroupName = gname
+		value.CheckReadEnum('AnimDir', FAnimDir)
+		var attribs = value['Attributes'] cast JArray
+		value.Remove('Attributes')
+		for attr in attribs.Cast[of JArray]():
+			var attrValue = TTileAttribute.None
+			for attrName in attr:
+				attrValue |= Enum.Parse(TTileAttribute, attrName cast string) cast TTileAttribute
+			FAttributes.Add(attrValue)
+		value.CheckEmpty()
+
 	public GroupName as string:
 		get: return (FGroup.Name if assigned(FGroup) else '')
 		set: FGroup = LookupGroup(value)
@@ -126,6 +162,15 @@ class TTileSet(TRpgDatafile):
 		for i in range(8):
 			FGroupMap[i] = List[of byte]()
 			FGroupMap[i].Capacity = 256
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('HighSpeed', FHighSpeed)
+		var recs = value['Records'] cast JArray
+		value.Remove('Records')
+		for rec in recs:
+			FRecords.Add(TTileGroupRecord(rec))
+		value.CheckEmpty()
 
 	public def Tile(index as int, layer as byte) as TTileRef:
 		result as TTileRef

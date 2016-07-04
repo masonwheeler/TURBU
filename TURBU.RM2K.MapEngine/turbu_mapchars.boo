@@ -73,10 +73,10 @@ class TRpgCharacter(TObject):
 		get: return self.ScreenY * TILE_SIZE.y
 
 	public XPos as int:
-		get: return GetX()
+		virtual get: return GetX()
 
 	public YPos as int:
-		get: return GetY()
+		virtual get: return GetY()
 
 	public Base as TMapSprite:
 		get: return GetBase()

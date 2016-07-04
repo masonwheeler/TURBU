@@ -26,6 +26,8 @@ Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "Pythia.Runtime", "Pythia.Ru
 EndProject
 Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "TURBU.Meta", "TURBU.Meta\TURBU.Meta.booproj", "{D9D645BC-F085-40C9-8E7A-F64A029F9A42}"
 EndProject
+Project("{A33008B1-5DAC-44D5-9060-242E3B6E38F2}") = "TURBU.RM2K.CompiledDataReader", "TURBU.RM2k.CompiledDataReader\TURBU.RM2k.CompiledDataReader.booproj", "{40FE85E2-DFBF-4EDF-86FB-295A5F4BB429}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,5 +82,9 @@ Global
 		{D9D645BC-F085-40C9-8E7A-F64A029F9A42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D9D645BC-F085-40C9-8E7A-F64A029F9A42}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D9D645BC-F085-40C9-8E7A-F64A029F9A42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40FE85E2-DFBF-4EDF-86FB-295A5F4BB429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40FE85E2-DFBF-4EDF-86FB-295A5F4BB429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40FE85E2-DFBF-4EDF-86FB-295A5F4BB429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40FE85E2-DFBF-4EDF-86FB-295A5F4BB429}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 EndGlobal

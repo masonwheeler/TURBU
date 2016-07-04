@@ -186,7 +186,7 @@ class RMProjectConverter(TThread):
 			for value in engine:
 				grp.Body.Add(Expression.Lift(value)) unless string.IsNullOrEmpty(value)
 		grp = MacroStatement('DataReader')
-		grp.Body.Add([|'Boo Data Reader'|])
+		grp.Body.Add([|'Compiled Data Reader'|])
 		values.Add(grp)
 		File.WriteAllText(Path.Combine(_outputPath, "boot.boo"), values.ToCodeString())
 	

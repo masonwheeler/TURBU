@@ -194,7 +194,7 @@ class T2kMapEngine(TMapEngine):
 		GEnvironment.value.ClearEvents()
 		var map = data as TMapMetadata
 		raise ERpgPlugin('Incompatible metadata object.') unless assigned(map)
-		FWaitingMap = dmDatabase.value.LoadMap(map.InternalFilename)
+		FWaitingMap = dmDatabase.value.LoadMap(data)
 		FScrollPosition = map.ScrollPosition
 
 	protected def InitializeParty():

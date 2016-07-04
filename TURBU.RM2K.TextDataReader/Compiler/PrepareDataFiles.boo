@@ -24,7 +24,7 @@ class PrepareDataFiles(AbstractTransformerCompilerStep):
 		if pathSegments[1].EndsWith('.boo') or pathSegments[1].EndsWith('.tmf'):
 			AddImports(node, ("TURBU.RM2K.TextDataReader.Readers", "Pythia.Runtime", "turbu.defs", "turbu.maps", "SG.defs", "TURBU.BattleEngine", "TURBU.MapObjects", "TURBU.Meta", "TURBU.RM2K.RPGScript"))
 		elif pathSegments[1].EndsWith('.tdb'):
-			AddImports(node, ("TURBU.RM2K.TextDataReader.Readers", "Pythia.Runtime", "turbu.defs", "SG.defs"))
+			AddImports(node, ("TURBU.RM2K.TextDataReader.Readers", "TURBU.RM2K.TextDataReader.BSONReaders", "Pythia.Runtime", "turbu.defs", "SG.defs"))
 	
 	private def AddImports(mod as Module, imports as string*) as void:
 		mod.Imports.AddRange(imports.Select( {i | Import(i, IsSynthetic: true)} ))

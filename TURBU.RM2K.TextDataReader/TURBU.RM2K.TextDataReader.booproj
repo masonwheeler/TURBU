@@ -51,6 +51,9 @@
     <Reference Include="Boo.Lang.Useful">
       <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="SDL2-CS">
       <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
     </Reference>
@@ -62,34 +65,54 @@
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="BooReader.boo" />
     <Compile Include="BooReaderEnvironmentStep.boo" />
+    <Compile Include="BSONReaders\AnimReader.boo" />
+    <Compile Include="BSONReaders\ClassesReader.boo" />
+    <Compile Include="BSONReaders\CommandReader.boo" />
+    <Compile Include="BSONReaders\ConditionReader.boo" />
+    <Compile Include="BSONReaders\GlobalEventReader.boo" />
+    <Compile Include="BSONReaders\GlobalVarsReader.boo" />
+    <Compile Include="BSONReaders\HeroReader.boo" />
+    <Compile Include="BSONReaders\ItemReader.boo" />
+    <Compile Include="BSONReaders\JsonHelpers.boo" />
+    <Compile Include="BSONReaders\MapDataReader.boo" />
+    <Compile Include="BSONReaders\MapTreeReader.boo" />
+    <Compile Include="BSONReaders\MonsterPartyReader.boo" />
+    <Compile Include="BSONReaders\SkillReader.boo" />
+    <Compile Include="BSONReaders\SoundReader.boo" />
+    <Compile Include="BSONReaders\SystemData.boo" />
+    <Compile Include="BSONReaders\TerrainReader.boo" />
+    <Compile Include="BSONReaders\TileGroupReader.boo" />
+    <Compile Include="BSONReaders\TilesetReader.boo" />
+    <Compile Include="BSONReaders\VehicleReader.boo" />
+    <Compile Include="BSONReaders\VocabReader.boo" />
     <Compile Include="Compiler\CompilerEnvironmentStep.boo" />
     <Compile Include="Compiler\PrepareDataFiles.boo" />
     <Compile Include="Compiler\TURBUBuilderPipeline.boo" />
     <Compile Include="FixNegativeNumbers.boo" />
-    <Compile Include="Readers\AnimReader.boo" />
     <Compile Include="Readers\AttributeReader.boo" />
-    <Compile Include="Readers\ClassesReader.boo" />
-    <Compile Include="Readers\CommandReader.boo" />
-    <Compile Include="Readers\ConditionReader.boo" />
-    <Compile Include="Readers\GlobalEventReader.boo" />
+    <Compile Include="Readers\DataReaders\AnimReader.boo" />
+    <Compile Include="Readers\DataReaders\ClassesReader.boo" />
+    <Compile Include="Readers\DataReaders\CommandReader.boo" />
+    <Compile Include="Readers\DataReaders\ConditionReader.boo" />
+    <Compile Include="Readers\DataReaders\GlobalEventReader.boo" />
+    <Compile Include="Readers\DataReaders\GlobalVarsReader.boo" />
+    <Compile Include="Readers\DataReaders\HeroReader.boo" />
+    <Compile Include="Readers\DataReaders\ItemReader.boo" />
+    <Compile Include="Readers\DataReaders\MapDataReader.boo" />
+    <Compile Include="Readers\DataReaders\MapTreeReader.boo" />
+    <Compile Include="Readers\DataReaders\MonsterPartyReader.boo" />
+    <Compile Include="Readers\DataReaders\SkillReader.boo" />
+    <Compile Include="Readers\DataReaders\SoundReader.boo" />
+    <Compile Include="Readers\DataReaders\SystemDataReader.boo" />
+    <Compile Include="Readers\DataReaders\TerrainReader.boo" />
+    <Compile Include="Readers\DataReaders\TileGroupReader.boo" />
+    <Compile Include="Readers\DataReaders\TilesetReader.boo" />
+    <Compile Include="Readers\DataReaders\VehiclesReader.boo" />
+    <Compile Include="Readers\DataReaders\VocabReader.boo" />
     <Compile Include="Readers\GlobalScriptReader.boo" />
-    <Compile Include="Readers\GlobalVarsReader.boo" />
-    <Compile Include="Readers\HeroReader.boo" />
-    <Compile Include="Readers\ItemReader.boo" />
-    <Compile Include="Readers\MapDataReader.boo" />
     <Compile Include="Readers\MapScriptReader.boo" />
-    <Compile Include="Readers\MapTreeReader.boo" />
-    <Compile Include="Readers\MonsterPartyReader.boo" />
     <Compile Include="Readers\MonstersReader.boo" />
     <Compile Include="Readers\ReaderUtils.boo" />
-    <Compile Include="Readers\SkillReader.boo" />
-    <Compile Include="Readers\SoundReader.boo" />
-    <Compile Include="Readers\SystemDataReader.boo" />
-    <Compile Include="Readers\TerrainReader.boo" />
-    <Compile Include="Readers\TileGroupReader.boo" />
-    <Compile Include="Readers\TilesetReader.boo" />
-    <Compile Include="Readers\VehiclesReader.boo" />
-    <Compile Include="Readers\VocabReader.boo" />
     <Compile Include="TextDataReader.boo" />
     <Compile Include="BooReader.Meta.Boo" />
   </ItemGroup>
@@ -121,7 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Compiler" />
+    <Folder Include="BSONReaders" />
     <Folder Include="Readers" />
+    <Folder Include="Readers\DataReaders" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

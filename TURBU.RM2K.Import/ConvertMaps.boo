@@ -70,8 +70,6 @@ static class TMapConverter:
 			
 			sub as MacroStatement = [|
 				Page $(page.ID):
-					Conditions:
-						$(PageConditions(page.Conditions))
 					Sprite $graphicName, $graphicIndex, $(ReferenceExpression(EventPageFacing[page.Direction])), $(page.Frame),\
 						$(page.Transparent)
 					Move $(ReferenceExpression(Enum.GetName(TMoveType, page.MoveType))), $(page.MoveFrequency), \
@@ -79,6 +77,13 @@ static class TMapConverter:
 					Trigger $(ReferenceExpression(Enum.GetName(TStartCondition, page.StartCondition)))
 					Height $(page.EventHeight), $(page.NoOverlap)
 			|]
+			var cond = PageConditions(page.Conditions)
+			if cond != null:
+				var pc = [|
+					Conditions:
+						$cond
+				|]
+				sub.Body.Add(pc)
 			if page.MoveType == TMoveType.ByRoute:
 				sub.Body.Add(ConvertMoveBlock(page.MoveScript, {m | progress.MakeNotice("$m while converting custom route in map $mapName, event $eventName, page $(page.ID).", 3)}))
 			result.Body.Add(sub)
@@ -97,12 +102,11 @@ static class TMapConverter:
 		result = Block()
 		cond as TPageConditions = value.Conditions
 		if cond == TPageConditions.None:
-			result.Add([|true|])
-			return result
+			return null
 		if TPageConditions.Switch1 in cond:
 			result.Add([|Switch $(value.Switch1)|])
 		if TPageConditions.Switch2 in cond:
-			result.Add([|Switch $(value.Switch2)|])
+			result.Add([|Switch2 $(value.Switch2)|])
 		if TPageConditions.Var1 in cond:
 			be = BinaryExpression(COMPARISON_OPERATORS[value.VarOperator], Expression.Lift(value.Variable), \
 				Expression.Lift(value.VarValue))

@@ -1,8 +1,9 @@
-﻿namespace TURBU.RM2K.TextDataReader.Readers
+﻿namespace TURBU.RM2K.TextDataReader.Readers.DataReaders
 
 import System
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
+import TURBU.RM2K.TextDataReader.Readers
 
 macro GlobalEvents(body as ExpressionStatement*):
 	result = (MakeListValue('', 'TRpgMapObject', body).Expression cast MethodInvocationExpression).Arguments[0]

@@ -16,17 +16,19 @@ static class TMapTreeConverter:
 					'TURBU basic map engine'
 		|]
 		assert mapTree.Maps.Count == mapTree.Nodes.Count
+		var maps = MacroStatement('Maps')
+		result.Body.Add(maps)
 		mapping = System.Collections.Generic.Dictionary[of int, MacroStatement]()
 		for node in mapTree.Nodes:
 			current as MapTreeData = mapTree.Maps[node]
 			caseOf current.NodeType:
 				case 0:
 					metadata = ConvertRoot(current, node)
-					result.Body.Add(metadata)
+					maps.Body.Add(metadata)
 					mapping.Add(node, metadata)
 				case 1:
 					metadata = ConvertMetadata(current, node)
-					result.Body.Add(metadata)
+					maps.Body.Add(metadata)
 					mapping.Add(node, metadata)
 				case 2:
 					AddRegion(mapping[current.Parent], current, node)
@@ -34,8 +36,10 @@ static class TMapTreeConverter:
 		currentMapObj = mapTree.Maps[mapTree.CurrentMap]
 		currentMap = (mapTree.CurrentMap if currentMapObj.NodeType < 2 else currentMapObj.Parent)
 		result.Body.Add([|CurrentMap $currentMap|])
+		var sp = MacroStatement('StartPoints')
+		result.Body.Add(sp)
 		for pt in mapTree.StartPoints:
-			result.Body.Add([|StartPoint $(pt.Map), $(pt.X), $(pt.Y)|])
+			sp.Body.Add([| ($(pt.Map), $(pt.X), $(pt.Y)) |])
 		return result
 	
 	private def AddRegion(map as MacroStatement, area as MapTreeData, id as int):
@@ -59,14 +63,14 @@ static class TMapTreeConverter:
 	private def ConvertRoot(current as MapTreeData, id as int) as MacroStatement:
 		assert id == 0
 		return [|
-			root:
+			Root:
 				Name $(current.Name)
 				TreeOpen $(current.TreeOpen)
 		|]
 	
 	private def ConvertMetadata(current as MapTreeData, id as int) as MacroStatement:
 		result = [|
-			map $id:
+			Map $id:
 				Name $(current.Name)
 				Parent $(current.Parent)
 				MapEngine 'TURBU basic map engine'

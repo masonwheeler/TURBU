@@ -1,6 +1,8 @@
 namespace turbu.skills
 
 import System
+import System.Linq.Enumerable
+import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import SG.defs
 import turbu.operators
@@ -23,6 +25,15 @@ enum TSkillRange:
 	Area
 
 class TSkillGainInfo(TRpgDatafile):
+	def constructor():
+		super()
+
+	def constructor(value as JObject):
+		super()
+		value.CheckReadEnum('Style', FStyle)
+		value.CheckRead('Skill', FSkill)
+		value.ReadArray('Nums', FNums)
+		value.CheckEmpty()
 
 	[Property(Style)]
 	private FStyle as TSkillFuncStyle
@@ -108,14 +119,8 @@ class TNormalSkillTemplate(TSkillTemplate):
 	private FDisplaySprite as int
 
 	protected override def GetSound1() as TRpgSound:
-		result = null
 		anim as TAnimTemplate = GDatabase.value.Anim[self.Animation]
-		var i = 1
-		while (i < anim.Effects.Count) and ((anim.Effects[i].Sound == null) or string.IsNullOrEmpty(anim.Effects[i].Sound.Filename)):
-			++i
-			if i <= anim.Effects.Count:
-				result = anim.Effects[i].Sound
-		return result
+		return anim.Effects.Select({e | e.Sound}).FirstOrDefault({s | (s != null) and not string.IsNullOrEmpty(s.Filename) })
 
 	[Property(Attributes)]
 	protected FAttributes as (TSgPoint)

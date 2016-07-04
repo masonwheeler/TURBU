@@ -57,7 +57,9 @@
     <Compile Include="ConvertAttributes.boo" />
     <Compile Include="ConvertBattleAnims.boo" />
     <Compile Include="ConvertConditions.boo" />
-    <Compile Include="ConvertHeroesAndClasses.boo" />
+    <Compile Include="ConvertHeroesAndClasses.boo">
+      <DependentUpon>ConvertDatabase.boo</DependentUpon>
+    </Compile>
     <Compile Include="ConvertDatabase.boo" />
     <Compile Include="ConvertItems.boo" />
     <Compile Include="ConvertMaps.boo" />

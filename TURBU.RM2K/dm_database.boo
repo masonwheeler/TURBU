@@ -3,6 +3,7 @@
 import Boo.Adt
 import Pythia.Runtime
 import TURBU.DataReader
+import TURBU.MapInterface
 
 let BAD_LOOKUP = ''
 
@@ -29,8 +30,8 @@ class TdmDatabase(TDataModule):
 	public def RegisterEnvironment(env as object):
 		_mapLoader = _reader.GetMapLoader(env)
 	
-	public def LoadMap(name as string) as turbu.maps.TRpgMap:
-		return _mapLoader.GetMap(name)
+	public def LoadMap(data as IMapMetadata) as turbu.maps.TRpgMap:
+		return _mapLoader.GetMap(data)
 
 static class dmDatabase:
 	public value as TdmDatabase

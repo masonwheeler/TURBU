@@ -3,6 +3,8 @@ namespace turbu.characters
 import System
 import System.Drawing
 import System.Linq.Enumerable
+
+import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import SG.defs
 import turbu.defs
@@ -54,17 +56,20 @@ class TStatBlock(TObject, IStatBlock):
 	[Property(Index)]
 	private FIndex as int
 
+	internal def constructor(value as JObject):
+		super()
+		value.CheckRead('ID', FIndex)
+		value.ReadArray('Block', FBlock)
+		value.CheckEmpty()
+
 	public def Compare(other as IStatBlock) as bool:
-		i as int
-		lOther as TStatBlock
-		if not ((other isa TStatBlock) and (self.Size == other.Size)):
+		unless (other isa TStatBlock) and (self.Size == other.Size):
 			return false
-		lOther = other cast TStatBlock
-		i = 0
+		var lOther = other cast TStatBlock
+		var i = 0
 		while (i < Size) and (FBlock[i] == lOther.FBlock[i]):
 			++i
-			result = (i == Size)
-		return result
+		return i == Size
 
 	public Size as ushort:
 		get: return FBlock.Length
@@ -73,94 +78,122 @@ class TStatBlock(TObject, IStatBlock):
 [TableName('Classes')]
 class TClassTemplate(TRpgDatafile):
 
-	[Property(MapSprite)]
+	[Getter(MapSprite)]
 	private FMapSprite as string = ''
 
-	[Property(SpriteIndex)]
+	[Getter(SpriteIndex)]
 	private FSpriteIndex as int
 
-	[Property(Translucent)]
+	[Getter(Translucent)]
 	private FTranslucent as bool
 
-	[Property(ActionMatrix)]
+	[Getter(ActionMatrix)]
 	private FActionMatrix as int
 
-	[Property(BattleSprite)]
+	[Getter(BattleSprite)]
 	private FBattleSprite as int
 
 	private FBattleMatrix as int
 
-	[Property(Portrait)]
+	[Getter(Portrait)]
 	private FPortrait as string = ''
 
-	[Property(PortraitIndex)]
+	[Getter(PortraitIndex)]
 	private FPortraitIndex as int
 
-	[Property(Commands)]
-	private FCommand = array(int, 0)
+	[Getter(Commands)]
+	private FCommands = array(int, 0)
 
-	[Property(StatBlocks)]
+	[Getter(StatBlocks)]
 	private FStatBlocks as (IStatBlock)
 
-	[Property(ExpMethod)]
+	[Getter(ExpMethod)]
 	private FExpFunc as string = ""
 
-	[Property(ExpVars)]
+	[Getter(ExpVars)]
 	private FExpVars = array(int, 0)
 
-	[Property(Skillset)]
+	[Getter(Skillset)]
 	private FSkillset = array(TSkillGainInfo, 0)
 
-	[Property(Resist)]
+	[Getter(Resist)]
 	private FResists = array(TSgPoint, 0)
 
-	[Property(Condition)]
+	[Getter(Condition)]
 	private FConditions = array(TSgPoint, 0)
 
-	[Property(Equipment)]
+	[Getter(Equipment)]
 	private FEquip = array(int, 5)
 
-	[Property(DualWield)]
+	[Getter(DualWield)]
 	private FDualWield as TWeaponStyle
 
-	[Property(StaticEq)]
+	[Getter(StaticEq)]
 	private FStaticEq as bool
 
-	[Property(StrongDef)]
+	[Getter(StrongDef)]
 	private FStrongDef as bool
 
-	[Property(UnarmedAnim)]
+	[Getter(UnarmedAnim)]
 	private FUnarmedAnim as int
 
-	[Property(Guest)]
+	[Getter(Guest)]
 	private FGuest as bool
 
-	[Property(BattlePos)]
+	[Getter(BattlePos)]
 	private FBattlePos as TSgPoint
 
 	[Property(OnJoin)]
 	private FOnJoin as Action of TRpgObject
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	private def getCommand(x as byte) as short:
-		return FCommand[x]
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	private def setCommand(x as byte, value as short):
-		FCommand[x] = value
 
 	public def constructor():
 		super()
 		for i in range(TSlot.Relic):
 			self.Eq[i] = -1
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	public def addResist(value as Point):
+	public def constructor(value as JObject):
+		self(value, false)
+
+	public def constructor(value as JObject, inherited as bool):
+		super(value)
+		value.CheckRead('MapSprite', FMapSprite)
+		value.CheckRead('SpriteIndex', FSpriteIndex)
+		value.CheckRead('Translucent', FTranslucent)
+		value.CheckRead('ActionMatrix', FActionMatrix)
+		value.CheckRead('BattleSprite', FBattleSprite)
+		value.CheckRead('Portrait', FPortrait)
+		value.CheckRead('PortraitIndex', FPortraitIndex)
+		value.ReadArray('Commands', FCommands)
+		blocks as JArray = value['StatBlocks']
+		value.Remove('StatBlocks')
+		Array.Resize[of IStatBlock](FStatBlocks, blocks.Count)
+		for block in blocks.Cast[of JObject]().OrderBy({o | o['ID'] cast int}):
+			assert assigned(block['Block'])
+			FStatBlocks[block['ID'] cast int - 1] = TStatBlock(block)
+		value.CheckRead('ExpMethod', FExpFunc)
+		value.ReadArray('ExpVars', FExpVars)
+		skillset as JArray = value['Skillset']
+		if assigned(skillset):
+			value.Remove('Skillset')
+			Array.Resize[of TSkillGainInfo](FSkillset, skillset.Count)
+			for i in range(skillset.Count):
+				FSkillset[i] = TSkillGainInfo(skillset[i] cast JObject)
+		value.ReadArray('Resist', FResists)
+		value.ReadArray('Condition', FConditions)
+		value.ReadArray('Equipment', FEquip)
+		value.CheckReadEnum('DualWield', FDualWield)
+		value.CheckRead('StaticEq', FStaticEq)
+		value.CheckRead('StrongDef', FStrongDef)
+		value.CheckRead('UnarmedAnim', FUnarmedAnim)
+		value.CheckRead('Guest', FGuest)
+		value.CheckRead('BattlePos', FBattlePos)
+		value.CheckEmpty() unless inherited
+
+	public def AddResist(value as Point):
 		Array.Resize[of TSgPoint](FResists, FResists.Length + 1)
 		FResists[FResists.Length - 1] = value
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	public def addCondition(value as Point):
+	public def AddCondition(value as Point):
 		Array.Resize[of TSgPoint](FConditions, FConditions.Length + 1)
 		FConditions[FConditions.Length - 1] = value
 
@@ -168,10 +201,8 @@ class TClassTemplate(TRpgDatafile):
 		return FConditions.FirstOrDefault({p | p.x == value}).y
 	
 	public Command[x as byte] as short:
-		get:
-			return getCommand(x)
-		set:
-			setCommand(x, value)
+		get: return FCommands[x]
+		set: FCommands[x] = value
 
 	public Eq[x as TSlot] as short:
 		get: return FEquip[x]
@@ -200,16 +231,32 @@ class THeroTemplate(TClassTemplate):
 	private FBattleSpriteShift as TColorShift
 
 	[Property(MinLevel)]
-	private FMinLevel as ushort
+	private FMinLevel as int
 
 	[Property(MaxLevel)]
-	private FMaxLevel as ushort
+	private FMaxLevel as int
 
 	[Property(CanCrit)]
 	private FCanCrit as bool
 
 	[Property(CritRate)]
 	private FCritRate as int
+
+	public def constructor():
+		super()
+
+	public def constructor(value as JObject):
+		super(value, true)
+		value.CheckRead('Title', FTitle)
+		value.CheckRead('CharClass', FClass)
+		value.CheckReadEnum('PortraitShift', FPortraitShift)
+		value.CheckReadEnum('SpriteShift', FSpriteShift)
+		value.CheckReadEnum('BattleSpriteShift', FBattleSpriteShift)
+		value.CheckRead('MinLevel', FMinLevel)
+		value.CheckRead('MaxLevel', FMaxLevel)
+		value.CheckRead('CanCrit', FCanCrit)
+		value.CheckRead('CritRate', FCritRate)
+		value.CheckEmpty()
 
 enum TMovementStyle:
 	Surface

@@ -33,7 +33,7 @@ abstract class TSoundTemplate(TRpgDatafile):
 		FTempo = source.FTempo
 		FBalance = source.FBalance
 		FVolume = source.FVolume
-	
+
 	public def constructor(filename as string, fadeIn as int, volume as int, tempo as int, balance as int):
 		super()
 		FName = filename
@@ -42,6 +42,13 @@ abstract class TSoundTemplate(TRpgDatafile):
 		FTempo = tempo
 		FBalance = balance
 
+	public def constructor(value as JObject):
+		super(value)
+		Deserialize(value)
+
+	public def constructor(value as JArray):
+		self(value[0] cast string, value[1] cast int, value[2] cast int, value[3] cast int, value[4] cast int)
+	
 	public def Serialize(writer as JsonWriter):
 		writeJsonObject writer:
 			writer.CheckWrite('Name', FName, '')
@@ -74,6 +81,12 @@ class TRpgSound(TSoundTemplate):
 	public def constructor(filename as string, fadeIn as int, volume as int, tempo as int, balance as int):
 		super(filename, fadeIn, volume, tempo, balance)
 	
+	public def constructor(value as JObject):
+		super(value)
+	
+	public def constructor(value as JArray):
+		super(value)
+	
 	protected override def SetFilename(value as string):
 		FName = value
 
@@ -88,6 +101,12 @@ class TRpgMusic(TSoundTemplate):
 	
 	public def constructor(filename as string, fadeIn as int, volume as int, tempo as int, balance as int):
 		super(filename, fadeIn, volume, tempo, balance)
+	
+	public def constructor(value as JObject):
+		super(value)
+	
+	public def constructor(value as JArray):
+		super(value)
 	
 	protected override def SetFilename(value as string):
 		FName = value
