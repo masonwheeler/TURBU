@@ -29,7 +29,7 @@ class Path:
 	public def constructor():
 		super()
 
-	public def constructor(skip as bool, Data as Func[of Path, Func[of TObject, bool]*]):
+	public def constructor(skip as bool, Data as Func[of Path, Func[of bool]*]):
 		super()
 		FSkip = skip
 		try:

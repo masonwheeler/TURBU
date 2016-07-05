@@ -29,7 +29,7 @@ def PlayMusic(name as string, time as int, volume as int, tempo as int, balance 
 			LoadDisharmony().FadeInMusic(time)
 			LoadDisharmony().SetMusicVolume(volume)
 			LoadDisharmony().SetMusicSpeed(tempo)
-			LoadDisharmony().SetMusicPanpot(balance)
+			LoadDisharmony().SetMusicPanpot(cast(uint, balance * 0.64))
 			L.LastMusic = name
 			L.LastTime = time
 			L.LastVolume = volume
