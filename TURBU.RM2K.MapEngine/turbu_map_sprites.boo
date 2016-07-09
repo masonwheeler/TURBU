@@ -47,7 +47,7 @@ class TMapSprite(TObject):
 
 	private FMoveQueue as Path
 
-	private FMoveStep as Func of bool
+	private FMoveStep as Func[of TObject, bool]
 
 	[Getter(MoveAssign, Protected: true)]
 	private FMoveAssignment as Path
@@ -421,7 +421,7 @@ class TMapSprite(TObject):
 		unless assigned(FMoveStep):
 			FMoveStep = which.NextCommand()
 		FMoveOpen = true
-		result = (FMoveStep() if assigned(FMoveStep) else false)
+		result = (FMoveStep(self) if assigned(FMoveStep) else false)
 		if result:
 			FMoveStep = null
 /*
@@ -466,8 +466,8 @@ class TMapSprite(TObject):
 			case TDirections.Left: step = self.Left
 			case TDirections.Right: step = self.Right
 			default: raise "Unknown path direction: $dir"
-		return Path(true) do(p as Path):
-			yield step
+		return Path(true) do(p as Path) as Func[of TObject, bool]*:
+			yield {m | return step()}
 
 	protected def MakeLoopingPath(step as Func of bool):
 		def steps(p as Path):

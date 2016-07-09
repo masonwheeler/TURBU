@@ -21,7 +21,7 @@ class Path:
 	[Property(Looped)]
 	private FLooped as bool
 
-	private FSteps as IEnumerator of Func of bool
+	private FSteps as IEnumerator of Func[of TObject, bool]
 
 	[Getter(Skip)]
 	private FSkip as bool
@@ -29,7 +29,7 @@ class Path:
 	public def constructor():
 		super()
 
-	public def constructor(skip as bool, Data as Func[of Path, Func[of bool]*]):
+	public def constructor(skip as bool, Data as Func[of Path, Func[of TObject, bool]*]):
 		super()
 		FSkip = skip
 		try:
@@ -56,9 +56,9 @@ class Path:
 		obj.CheckRead('Looped', FLooped)
 		obj.CheckEmpty()
 
-	public def NextCommand() as Func of bool:
+	public def NextCommand() as Func[of TObject, bool]:
 		var wasLooped = self.FLooped
-		result as Func of bool = (FSteps.Current if FSteps.MoveNext() else null)
+		result as Func[of TObject, bool] = (FSteps.Current if FSteps.MoveNext() else null)
 		if assigned(result):
 			if FLooped and not wasLooped:
 				FLoopLength = FCursor
