@@ -2,6 +2,8 @@ namespace turbu.monsters
 
 import System
 import System.Collections.Generic
+import System.Linq.Enumerable
+import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import SG.defs
 import turbu.classes
@@ -114,10 +116,18 @@ class TRpgMonsterElement(TObject):
 		FPosition = position
 		FInvisible = invisible
 
+	public def constructor(value as JObject):
+		super()
+		value.CheckRead('ID', FId)
+		value.CheckRead('Monster', FMonster)
+		value.CheckRead('Position', FPosition)
+		value.CheckRead('Invisible', FInvisible)
+		value.CheckEmpty()
+
 class TBattleEventPage(TObject):
 
 	[Getter(ID)]
-	protected FID as int
+	protected FId as int
 
 	[Property(Name)]
 	protected FName as string
@@ -128,6 +138,12 @@ class TBattleEventPage(TObject):
 	public def constructor(id as int):
 		super()
 		FID = id
+
+	public def constructor(value as JObject):
+		super()
+		value.CheckRead('ID', FId)
+		value.CheckRead('Name', FName)
+		value.CheckEmpty()
 
 [TableName('MonsterParties')]
 class TRpgMonsterParty(TRpgDatafile):
@@ -149,3 +165,18 @@ class TRpgMonsterParty(TRpgDatafile):
 
 	public def constructor():
 		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('AutoAlign', FAutoAlign)
+		value.CheckRead('Random', FRandom)
+		value.ReadArray('Habitats', FHabitats)
+		var monsters = value['Monsters'] cast JArray
+		value.Remove('Monsters')
+		for monster in monsters.Cast[of JObject]():
+			FMonsters.Add(TRpgMonsterElement(monster))
+		var pages = value['Pages'] cast JArray
+		value.Remove('Pages')
+		for page in pages.Cast[of JObject]():
+			FPages.Add(TBattleEventPage(page))
+		value.CheckEmpty()
