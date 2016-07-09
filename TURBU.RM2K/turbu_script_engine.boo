@@ -282,10 +282,11 @@ class TMapObjectManager(TObject):
 	public def Tick():
 		FPlaylist.Clear()
 		for obj in FMapObjects:
-			obj.UpdateCurrentPage()
-			if assigned(obj.CurrentPage) and (obj.CurrentPage.HasScript) and (not obj.Locked or obj.Playing) \
-					and (obj.CurrentPage.Trigger in (TStartCondition.Automatic, TStartCondition.Parallel)):
-				FPlaylist.Add(obj.CurrentPage)
+			unless obj.Locked or obj.Playing:
+				obj.UpdateCurrentPage()
+				if assigned(obj.CurrentPage) and (obj.CurrentPage.HasScript) \
+						and (obj.CurrentPage.Trigger in (TStartCondition.Automatic, TStartCondition.Parallel)):
+					FPlaylist.Add(obj.CurrentPage)
 		for gPage in FGlobalScripts:
 			gObj = gPage.Parent
 			if (not (gObj.Locked or gObj.Playing)) and gPage.Valid:

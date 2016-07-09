@@ -106,7 +106,7 @@ static class TMapConverter:
 		if TPageConditions.Switch1 in cond:
 			result.Add([|Switch $(value.Switch1)|])
 		if TPageConditions.Switch2 in cond:
-			result.Add([|Switch2 $(value.Switch2)|])
+			result.Add([|Switch $(value.Switch2)|])
 		if TPageConditions.Var1 in cond:
 			be = BinaryExpression(COMPARISON_OPERATORS[value.VarOperator], Expression.Lift(value.Variable), \
 				Expression.Lift(value.VarValue))

@@ -336,6 +336,8 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 	[Property(Locked)]
 	private FLocked as bool
 
+	FPageUpdater as Func of int
+
 	public def constructor():
 		super()
 
@@ -345,7 +347,7 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 		AddPage(TRpgEventPage(0))
 		FCurrentPage = FPages[0]
 
-	public def constructor(value as JObject):
+	public def constructor(value as JObject, validPage as Func[of int, Func[of int]]):
 		super(value)
 		value.CheckRead('Location', FLocation)
 		var pages = value['Pages'] cast JArray
@@ -353,6 +355,7 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 		for p in pages.Cast[of JObject]():
 			AddPage(TRpgEventPage(p))
 		FCurrentPage = FPages[0]
+		FPageUpdater = validPage(FId)
 		value.CheckEmpty()
 
 	public def constructor(value as JObject, globals as TURBU.DataReader.IGlobalScriptProvider):
@@ -373,12 +376,12 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 		get: return (FCurrentPage.IsTile if assigned(FCurrentPage) else false)
 
 	public def UpdateCurrentPage():
-		current as TRpgEventPage = null
-		i as int = FPages.High
-		while (current == null) and (i >= 0):
-			if FPages[i].Valid:
-				current = FPages[i]
-			--i
+		current as TRpgEventPage
+		if assigned(FPageUpdater):
+			var pageID = FPageUpdater()
+			current = (FPages[pageID - 1] if pageID > 0 else null)
+		else:
+			current = null
 		FPageChanged = FCurrentPage != current
 		if FPageChanged and assigned(current):
 			current.DoOverrideSprite = false

@@ -8,7 +8,7 @@ import Boo.Lang.Compiler.Ast
 macro MapCode(id as IntegerLiteralExpression, body as TypeMemberStatement*):
 	var name = ReferenceExpression("Map$(id.Value.ToString('D4'))")
 	var result = [|
-		class $name(turbu.maps.TRpgMap):
+		partial class $name(turbu.maps.TRpgMap):
 			pass
 	|]
 	

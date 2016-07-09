@@ -63,6 +63,30 @@ class CompilerEnvironmentStep(ProcessMethodBodiesWithDuckTyping):
 		_environmentField = null
 		super.Run()
 	
+	private def BuildEnvModule(node as CompileUnit):
+		var init = CodeBuilder.CreateModule('Env', null)
+		node.Modules.Insert(0, init)
+		var provideEnvironment = CodeBuilder.CreateMethod('ProvideEnvironment', TypeSystemServices.VoidType, TypeMemberModifiers.Public)
+		_envType = TypeSystemServices.Map(_environmentType)
+		var p1 = CodeBuilder.CreateParameterDeclaration(0, 'value', _envType)
+		provideEnvironment.Parameters.Add(p1)
+		var envField = CodeBuilder.CreateField(EnvFieldName, _envType)
+		envField.Modifiers = TypeMemberModifiers.Internal
+		init.Members.Add(envField)
+		_environmentField = envField.Entity cast IField
+		init.Members.Add(provideEnvironment)
+		init.Accept(Context.Parameters.Pipeline.Get(IntroduceModuleClasses))
+		provideEnvironment.Body.Add(CodeBuilder.CreateFieldAssignmentExpression(_environmentField, CodeBuilder.CreateReference(p1.Entity)))
+		var moduleClass = init.Members.Single({m | IntroduceModuleClasses.IsModuleClass(m)}) cast ClassDefinition
+		_moduleClass = (moduleClass.Entity cast ITypedEntity).Type
+		My[of Boo.Lang.Compiler.TypeSystem.Internal.InternalTypeSystemProvider].Instance.EntityFor(
+			moduleClass.Members.OfType[of Constructor]().Single())
+		moduleClass.BaseTypes.Add(CodeBuilder.CreateTypeReference(object))
+	
+	override public def OnCompileUnit(node as CompileUnit):
+		BuildEnvModule(node)
+		super.OnCompileUnit(node)
+	
 	override public def OnModule(node as Module):
 		//process the module class first
 		mc = node.Members.SingleOrDefault({m | Boo.Lang.Compiler.Steps.IntroduceModuleClasses.IsModuleClass(m)})
@@ -71,17 +95,6 @@ class CompilerEnvironmentStep(ProcessMethodBodiesWithDuckTyping):
 				node.Members.Remove(mc)
 				node.Members.Insert(0, mc)
 		super.OnModule(node)
-	
-	override public def OnClassDefinition(node as ClassDefinition):
-		return if WasVisited(node)
-		
-		if _moduleClass is null:
-			env = CodeBuilder.CreateField(EnvFieldName, _envType)
-			env.Modifiers = TypeMemberModifiers.Public | TypeMemberModifiers.Static
-			node.Members.Add(env)
-			_moduleClass = (node.Entity cast ITypedEntity).Type
-			_environmentField = env.Entity cast IField
-		super.OnClassDefinition(node)
 	
 	override def Initialize(context as CompilerContext):
 		super.Initialize(context)

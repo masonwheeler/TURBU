@@ -9,6 +9,26 @@ import Newtonsoft.Json.Linq
 macro MapData(id as int, body as Statement*):
 	var result = PropertyList(id, body)
 	AddResource('Maps', result)
+	
+	var methods = MapData.Tags.Get[of Method*]()
+	if methods is not null:
+		var name = ReferenceExpression("Map$(id.ToString('D4'))")
+		var clazz = [|
+			partial class $name:
+				public override def MapObjectValidPage(id as int) as System.Func of int:
+					caseOf id:
+						pass
+					return null
+		|]
+		var caseBody = ((clazz.Members[0] cast Method).Body.FirstStatement cast MacroStatement).Body
+		for method in methods.OrderBy({n | n['ID'] cast int}):
+			clazz.Members.Add(method)
+			var methodID = method['ID'] cast int
+			var thisCase = [|
+				case $methodID: return $(ReferenceExpression(method.Name))
+			|]
+			caseBody.Add(thisCase)
+		return TypeMemberStatement(clazz)
 
 macro MapData.Size(x as int, y as int):
 	return JsonStatement(JProperty('Size', JArray(x, y)))
@@ -31,15 +51,25 @@ macro MapData.Tiles(body as JsonStatement*):
 		
 	return JsonStatement(JProperty('TileMap', JArray(*body.Select({j | j.Value}).ToArray())))
 
-macro MapData.MapObjects(body as JsonStatement*):
+macro MapData.MapObjects(body as Statement*):
 	macro MapObject(id as int, body as Statement*):
 		macro Position(x as int, y as int):
 			return JsonStatement(JProperty('Location', JArray(x, y)))
 		
-		return JsonStatement(PropertyList(id, body))
-	return MakeListValue('MapObjects', body)
+		MapObjects.Body.Add(JsonStatement(PropertyList(id, body)))
+		var ifst = body.OfType[of IfStatement]().Single()
+		var name = "CheckObj$id"
+		var validator = [|
+			private def $name() as int:
+				pass
+		|]
+		validator.Body.Add(ifst)
+		validator['ID'] = id
+		MapObjects.Body.Add(TypeMemberStatement(validator))
+	MapData.Tags.Set[of Method*](body.OfType[of TypeMemberStatement]().Select({tm | tm.TypeMember}).Cast[of Method]())
+	return MakeListValue('MapObjects', body.OfType[of JsonStatement]())
 
-macro MapData.MapObjects.MapObject.Pages(body as JsonStatement*):
+macro MapData.MapObjects.MapObject.Pages(body as Statement*):
 	macro Page(id as int, body as Statement*):
 		macro Sprite(filename as string, index as int, facing as ReferenceExpression, frame as int, transparent as bool):
 			yield JsonStatement(JProperty('Name', filename))
@@ -58,38 +88,57 @@ macro MapData.MapObjects.MapObject.Pages(body as JsonStatement*):
 			yield JsonStatement(JProperty('ZOrder', z))
 			yield JsonStatement(JProperty('IsBarrier', barrier))
 		
-		result = JsonStatement(PropertyList(id, body))
-		return result
+		Pages.Body.Add(JsonStatement(PropertyList(id, body)))
+		var cond = body.OfType[of IfStatement]().SingleOrDefault()
+		if cond is null:
+			cond = [|
+				if true:
+					pass
+			|]
+		cond.TrueBlock.Add([|return $id|])
+		cond['ID'] = id
+		Pages.Body.Add(cond)
 	
-	return MakeListValue('Pages', body)
+	MapObject.Body.Add(MakeListValue('Pages', body.OfType[of JsonStatement]()))
+	var selector = Flatten(body).OfType[of IfStatement]().OrderByDescending({n | return n['ID'] cast int}).ToList()
+	var ifst = selector[0]
+	var current = ifst
+	for value in selector.Skip(1):
+		current.FalseBlock = Block()
+		current.FalseBlock.Add(value)
+		current = value
+	current.FalseBlock = Block()
+	current.FalseBlock.Add([|return 0|])
+	MapObject.Body.Add(ifst)
 
-macro MapData.MapObjects.MapObject.Pages.Page.Conditions(body as JsonStatement*):
+macro MapData.MapObjects.MapObject.Pages.Page.Conditions(body as ExpressionStatement*):
 	macro Switch(id as int):
-		return JsonStatement(JProperty('Switch', id))
-	
-	macro Switch2(id as int):
-		return JsonStatement(JProperty('Switch2', id))
+		return ExpressionStatement([|Switch[$id]|])
 	
 	macro Variable(comp as BinaryExpression):
-		var result = JObject()
-		result.Add('Int', (comp.Left cast IntegerLiteralExpression).Value)
-		result.Add('Op', Boo.Lang.Compiler.Ast.Visitors.BooPrinterVisitor.GetBinaryOperatorText(comp.Operator))
-		result.Add('Value', (comp.Right cast IntegerLiteralExpression).Value)
-		return JsonStatement(JProperty('Int', result))
+		be = BinaryExpression(comp.Operator, [|Ints[$(comp.Left)]|], comp.Right)
+		return ExpressionStatement(be)
 	
 	macro Item(id as int):
-		return JsonStatement(JProperty('HasItem', id))
+		return ExpressionStatement([|HasItem($id)|])
 	
 	macro Hero(id as int):
-		return JsonStatement(JProperty('HeroPresent', id))
+		return ExpressionStatement([|HeroPresent($id)|])
 	
 	macro Timer1(value as int):
-		return JsonStatement(JProperty('Timer1', value))
+		return ExpressionStatement([|Timer.Time <= $value|])
 	
 	macro Timer2(value as int):
-		return JsonStatement(JProperty('Timer2', value))
+		return ExpressionStatement([|Timer2.Time <= $value|])
 	
-	return JsonStatement(JProperty('Conditions', PropertyList(body)))
+	result as Expression
+	for line in body:
+		result = (line.Expression if result is null else [|$result and $(line.Expression)|])
+	result = [|true|] if result is null
+	return [|
+		if $result:
+			pass
+	|]
 
 macro MapData.MapObjects.MapObject.Pages.Page.MoveScript(loop as bool, ignoreObstacles as bool, body as ExpressionStatement*):
 	var arr = JArray()

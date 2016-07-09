@@ -44,7 +44,7 @@ private def ValuePairOf(value as MethodInvocationExpression) as JProperty:
 	var name = value.Target.ToString()
 	return JProperty(name, ExpressionValue(arg))
 
-private def Flatten(body as Statement*) as Statement*:
+def Flatten(body as Statement*) as Statement*:
 	for value in body:
 		if value.NodeType == NodeType.Block:
 			yieldAll cast(Block, value).Statements

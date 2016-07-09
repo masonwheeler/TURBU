@@ -115,6 +115,7 @@ private class TMapLoader(IMapLoader):
 		_environment = env
 		var gs = asm.GetType('GlobalScripts')
 		_globalScripts = gs() cast IGlobalScriptProvider
+		asm.GetType('EnvModule').GetMethod('ProvideEnvironment').Invoke(null, (env,))
 
 	def GetMap(data as IMapMetadata) as TURBU.MapInterface.IRpgMap:
 		var map = data cast IRpgObject

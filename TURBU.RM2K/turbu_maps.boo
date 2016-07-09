@@ -190,7 +190,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		var mo = obj['MapObjects'] cast JArray
 		obj.Remove('MapObjects')
 		for value in mo.Cast[of JObject]():
-			FMapObjects.Add(TRpgMapObject(value))
+			FMapObjects.Add(TRpgMapObject(value, self.MapObjectValidPage))
 		obj.CheckRead('HasBackground', FHasBG)
 		obj.CheckRead('BgName', FBgName)
 		obj.CheckReadEnum('HScroll', FHScroll)
@@ -209,6 +209,9 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	
 	protected virtual def MapScripts():
 		pass
+	
+	public virtual def MapObjectValidPage(id as int) as Func of int:
+		return null
 	
 	public def constructor(meta as TMapMetadata):
 		self()
