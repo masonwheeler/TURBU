@@ -147,7 +147,7 @@ class TAnimSprite(TParentSprite):
 		a as byte
 		while (FLastEffect < FBase.Effects.Count) and (FBase.Effects[FLastEffect].Frame == frame):
 			currEffect as TAnimEffects = FBase.Effects[FLastEffect]
-			if currEffect.Sound.Filename != '':
+			if assigned(currEffect.Sound) and not string.IsNullOrEmpty(currEffect.Sound.Filename):
 				PlaySoundData(currEffect.Sound)
 			caseOf currEffect.Flash:
 				case TFlashTarget.None:

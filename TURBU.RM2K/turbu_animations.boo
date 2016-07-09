@@ -1,6 +1,8 @@
 namespace turbu.animations
 
 import System
+import System.Linq.Enumerable
+import Newtonsoft.Json.Linq
 import turbu.classes
 import turbu.containers
 import turbu.defs
@@ -20,7 +22,7 @@ enum TFlashTarget:
 class TAnimEffects(TRpgDatafile):
 
 	[Property(Frame)]
-	private FFrame as ushort
+	private FFrame as int
 
 	[Property(Sound)]
 	private FSound as TRpgSound
@@ -34,13 +36,27 @@ class TAnimEffects(TRpgDatafile):
 	[Property(ShakeWhere)]
 	private FShakeWhere as TFlashTarget
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def GetColor(index as int) as byte:
 		return FColor.Rgba[index]
 
 	public def constructor():
 		super()
 		FSound = TRpgSound()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Frame', FFrame)
+		var soundVal = value['Sound'] cast JArray
+		if soundVal is not null:
+			value.Remove('Sound')
+			FSound = TRpgSound(soundVal)
+		value.CheckReadEnum('Flash', FFlashWhere)
+		colorValue as (int)
+		if value.ReadArray('Color', colorValue):
+			assert colorValue.Length == 4
+			FColor = TSgColor(colorValue[0], colorValue[1], colorValue[2], colorValue[3])
+		value.CheckReadEnum('ShakeWhere', FShakeWhere)
+		value.CheckEmpty()
 
 	public r as byte:
 		get:
@@ -78,29 +94,62 @@ class TAnimCell(TRpgDatafile):
 	[Property(Transparency)]
 	private FTransparency as int
 
+	public def constructor():
+		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Frame', FFrame)
+		value.CheckRead('Position', FPosition)
+		value.CheckRead('Zoom', FZoom)
+		colorValue as (int)
+		if value.ReadArray('Color', colorValue):
+			assert colorValue.Length == 4
+			FColor = TSgColor(colorValue[0], colorValue[1], colorValue[2], colorValue[3])
+		value.CheckRead('ImageIndex', FImageIndex)
+		value.CheckRead('Transparency', FTransparency)
+		value.CheckEmpty()
+
+
 [TableName('Animations')]
 class TAnimTemplate(TRpgDatafile):
 
-	[Property(Filename)]
+	[Getter(Filename)]
 	private FFilename as string
 
-	[Property(Effects)]
+	[Getter(Effects)]
 	private FTimingSec = TRpgObjectList[of TAnimEffects]()
 
-	[Property(Frames)]
+	[Getter(Frames)]
 	private FFrameSec = TRpgObjectList[of TAnimCell]()
 
-	[Property(HitsAll)]
+	[Getter(HitsAll)]
 	private FHitsAll as bool
 
-	[Property(YTarget)]
+	[Getter(YTarget)]
 	private FYTarget as TAnimYTarget
 
-	[Property(CellSize)]
+	[Getter(CellSize)]
 	private FCellSize as TSgPoint
 
 	public def constructor():
 		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Filename', FFilename)
+		value.CheckRead('HitsAll', FHitsAll)
+		value.CheckReadEnum('YTarget', FYTarget)
+		value.CheckRead('CellSize', FCellSize)
+		var frames = value['Frames'] cast JArray
+		value.Remove('Frames')
+		for frame in frames.Cast[of JObject]():
+			FFrameSec.Add(TAnimCell(frame))
+		var effects = value['Effects'] cast JArray
+		value.Remove('Effects')
+		for effect in effects.Cast[of JObject]():
+			FTimingSec.Add(TAnimEffects(effect))
+		value.CheckEmpty()
 
 class TBattleCharData(TRpgDatafile):
 
