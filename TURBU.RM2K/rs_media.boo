@@ -53,7 +53,7 @@ def PlaySystemMusic(music as TBgmTypes, once as bool):
 
 def FadeOutMusic(time as int):
 	commons.runThreadsafe(false) def ():
-		LoadDisharmony().FadeOutMusic(time)
+		LoadDisharmony().FadeOutMusic((time if time > 0 else 1))
 		MemorizeMusic(L.FadedBGM)
 
 def FadeInLastMusic(time as int):
