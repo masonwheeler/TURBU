@@ -35,7 +35,7 @@ static class TSysDataConverter:
 				Transitions
 				BattleCommands
 				MoveMatrix:
-					((1, 0, 1, 2), (4, 3, 4, 5), (7, 6, 7, 8), (10, 9, 10, 11))
+					((0, 1, 2, 1), (3, 4, 5, 4), (6, 7, 8, 7), (9, 10, 11, 10))
 		|]
 		bt = result.SubMacro('BattleTestData')
 		for test in sysData.BattleTestData:

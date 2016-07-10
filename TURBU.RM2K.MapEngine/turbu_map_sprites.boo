@@ -393,8 +393,8 @@ class TMapSprite(TObject):
 		FDirLocked = false
 		return true
 
-	public def ChangeSprite(name as string, translucent as int):
-		FChangeSprite(name, translucent == 1, 0)
+	public def ChangeSprite(name as string, spriteIndex as int):
+		FChangeSprite(name, false, spriteIndex)
 		return true
 
 	public def AnimStop():
@@ -766,7 +766,7 @@ class TCharSprite(TMapSprite):
 		moveDelay = ANIM_DELAY[FMoveRate - 1]
 		if HasPage:
 			caseOf FMapObj.CurrentPage.AnimType:
-				case TAnimType.Sentry, TAnimType.FixedDir: FMoveFrame = (newFrame if assigned(FMoveTime) else 0)
+				case TAnimType.Sentry, TAnimType.FixedDir: FMoveFrame = (newFrame if assigned(FMoveTime) else 1)
 				case TAnimType.Jogger, TAnimType.FixedJog: FMoveFrame = newFrame
 				case TAnimType.SpinRight:
 					self.Facing = (ord(self.Facing) + 1) % 4
@@ -775,7 +775,7 @@ class TCharSprite(TMapSprite):
 					pass
 		elif not assigned(FMoveTime) and not assigned(MoveQueue) \
      			and not (assigned(MoveAssign) and (FTarget != FLocation * TILE_SIZE)):
-			FMoveFrame = 0
+			FMoveFrame = 1
 		else: FMoveFrame = newFrame
 		FAnimTimer = TRpgTimestamp(moveDelay / TIME_FACTOR)
 

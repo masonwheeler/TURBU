@@ -753,9 +753,9 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 		value = obj['Heroes']
 		for i in range(MAXPARTYSIZE):
 			if value[i].Type == JTokenType.Null:
-				self[i] = null
+				self[i + 1] = null
 			else:
-				self[i] = GEnvironment.value.Heroes[value[i] cast int]
+				self[i + 1] = GEnvironment.value.Heroes[value[i] cast int]
 		obj.Remove('Heroes')
 		obj.CheckRead('Cash', FCash)
 		value = obj['Inventory']
