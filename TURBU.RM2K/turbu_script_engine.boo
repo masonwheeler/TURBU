@@ -135,6 +135,8 @@ class TScriptEngine(TObject):
 	[Property(OnRenderUnpause)]
 	private FRenderUnpause as Action
 
+	private FAllGlobalScripts as IDictionary[of int, TRpgEventPage]
+
 	internal def AddScriptThread(thread as TScriptThread):
 		lock FThreadLock:
 			FThreads.Add(thread)
@@ -183,6 +185,14 @@ class TScriptEngine(TObject):
 			RunScript(lPage.Script)
 		ensure:
 			context.PopPage()
+
+	internal def LoadGlobals(list as TRpgMapObject*):
+		FAllGlobalScripts = list.ToDictionary({o | o.ID}, {o | o.Pages[0]})
+
+	public def CallGlobalScript(id as int):
+		page as TRpgEventPage
+		if FAllGlobalScripts.TryGetValue(id, page):
+			RunScript(page.Script)
 
 	public def KillAll(Cleanup as Action):
 		return unless TThread.HasCurrentThread
@@ -274,6 +284,7 @@ class TMapObjectManager(TObject):
 		for obj in list:
 			obj.Initialize()
 		FGlobalScripts.AddRange(list.Select({o | o.Pages[0]}).Where({p | p.Trigger != TStartCondition.Call}))
+		FScriptEngine.LoadGlobals(list)
 
 	public def LoadMap(map as IRpgMap, context as TThread):
 		FMapObjects.Clear()

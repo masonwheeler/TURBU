@@ -334,7 +334,7 @@ class T2kEnvironment(TObject):
 		GScriptEngine.value.RunObjectScript(self.MapObject[objectID].MapObj, pageID)
 
 	public def CallGlobalScript(scriptID as int):
-		System.Diagnostics.Debugger.Break()
+		GScriptEngine.value.CallGlobalScript(scriptID)
 
 	public def ImageIndex(img as TRpgImage) as int:
 		return Array.IndexOf(FImages, img)
