@@ -679,16 +679,15 @@ class T2kSpriteEngine(TSpriteEngine):
 		self.WorldX = newPosition.x
 		self.WorldY = newPosition.y
 
-	public def SetBG(Name as string, x as int, y as int, scrollX as TMapScrollType, scrollY as TMapScrollType):
-		bgName as string = 'Background ' + Name
+	public def SetBG(name as string, x as int, y as int, scrollX as TMapScrollType, scrollY as TMapScrollType):
+		bgName as string = 'Background ' + name
 		if assigned(FBgImage) and (FBgImage.ImageName != bgName):
 			FBgImage.Dead()
 			FBgImage = null
-		if Name == '':
-			return
-		filename as string = self.Name
+		return if string.IsNullOrEmpty(name)
+		filename as string = name
 		if not ArchiveUtils.GraphicExists(filename, 'Backgrounds'):
-			raise System.IO.FileNotFoundException("Background image $Name not found!")
+			raise System.IO.FileNotFoundException("Background image $name not found!")
 		if not assigned(FBgImage):
 			self.Images.EnsureBGImage('Backgrounds\\' + filename, bgName)
 			FBgImage = TBackgroundSprite(FEngine, x, y, scrollX, scrollY)
