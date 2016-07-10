@@ -137,7 +137,7 @@ class TBattleEventPage(TObject):
 
 	public def constructor(id as int):
 		super()
-		FID = id
+		FId = id
 
 	public def constructor(value as JObject):
 		super()
