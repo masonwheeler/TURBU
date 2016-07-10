@@ -194,7 +194,7 @@ class T2kEnvironment(TObject):
 		obj.Remove('switch')
 		FInts = array(int, FInts.Length)
 		arr = obj['int'] cast JArray
-		for i in range(arr.Count, 2):
+		for i in range(0, arr.Count, 2):
 			FInts[arr[i] cast int] = arr[i + 1] cast int
 		obj.Remove('int')
 
