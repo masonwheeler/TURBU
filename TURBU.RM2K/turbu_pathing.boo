@@ -42,6 +42,7 @@ class Path:
 
 	public def Clone() as Path:
 		result = Path(self)
+		result.FSteps = self.FSteps
 		result.FCursor = self.FCursor
 		result.FLooped = self.FLooped
 		return result
