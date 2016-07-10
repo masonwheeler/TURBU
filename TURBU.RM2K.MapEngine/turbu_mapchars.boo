@@ -195,12 +195,12 @@ class TRpgEvent(TRpgCharacter):
 			obj.Remove('Location')
 		FEvent.UpdateCurrentPage()
 		if assigned(FEvent.CurrentPage):
-			value = (obj['Base'] cast JObject)
-			var id = value['PageID'] cast int
+			var baseObj = obj['Base'] cast JObject
+			var id = baseObj['PageID'] cast int
 			if id != FEvent.CurrentPage.ID:
 				raise "Expected FEvent.CurrentPage.ID of $id but got $(FEvent.CurrentPage.ID) instead."
-			obj.Remove('PageID')
-			DeserializeBase(value cast JObject)
+			baseObj.Remove('PageID')
+			DeserializeBase(baseObj)
 			obj.Remove('Base')
 		obj.CheckEmpty()
 
