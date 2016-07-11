@@ -401,19 +401,19 @@ class TMenuSpriteEngine(TSpriteEngine):
 	public def ChoiceBox(msg as string, responses as (string), allowCancel as bool, OnValidate as Func[of string, bool]):
 		while GSpriteEngine.value.State == TGameState.Fading:
 			Thread.Sleep(TRpgTimestamp.FrameLength)
-			var box = FBoxes[TMessageBoxTypes.Choice] cast TChoiceBox
-			box.Text = msg
-			box.SetChoices(responses)
-			box.CanCancel = allowCancel
-			box.PlaceCursor(0)
-			box.OnValidate = OnValidate
-			box.Visible = true
-			FCurrentBox = box
-			try:
-				FMenuState = TMenuState.ExclusiveShared
-				WaitForCurrentBox()
-			ensure:
-				EndMessage()
+		var box = FBoxes[TMessageBoxTypes.Choice] cast TChoiceBox
+		box.Text = msg
+		box.SetChoices(responses)
+		box.CanCancel = allowCancel
+		box.PlaceCursor(0)
+		box.OnValidate = OnValidate
+		box.Visible = true
+		FCurrentBox = box
+		try:
+			FMenuState = TMenuState.ExclusiveShared
+			WaitForCurrentBox()
+		ensure:
+			EndMessage()
 
 	public def InputNumber(msg as string, digits as int):
 		FCurrentBox = FBoxes[TMessageBoxTypes.Input]
@@ -929,7 +929,7 @@ abstract class TCustomMessageBox(TSysFrame):
 		position += FPromptLines * columns
 		coords = GPU_MakeRect(
 			4 + (column * (width + SEPARATOR)) + FBounds.x,
-			(((position / columns) * 15) + FBounds.y) + (ord(FPosition) * 80) + 8,
+			((position / columns) * 15) + FBounds.y + 8,
 			(width + 8) - FBounds.x,
 			18)
 		if FCursorPosition > max:

@@ -179,20 +179,10 @@ class TInputBox(TCustomMessageBox):
 		DrawText()
 
 	protected def BasicDrawText():
-		let TEXTV = 0.1
-		let TEXTH = 0.25
-		dest as GPU_Rect
-		xVal as single
-		yVal as single
-		dest = GetDrawCoords()
-		xVal = dest.w * TEXTH
-		yVal = dest.h * TEXTV
-		dest.x += Math.Round(xVal)
-		dest.w -= round(xVal * 2)
-		dest.y += Math.Round(yVal)
-		dest.h -= round(yVal * 2)
-		GPU_Blit(FTextTarget.Image, IntPtr.Zero, FTextTarget.Parent.RenderSurface.RenderTarget, dest.x, dest.y)
-		//SDL.SDL_RenderCopy(FTextTarget.Parent.Renderer, FTextTarget.Handle, IntPtr.Zero, dest)
+		let TEXTV = 8
+		let TEXTH = 8
+		dest as GPU_Rect = GetDrawCoords()
+		FTextTarget.Parent.Draw(FTextTarget, SG.defs.TSgPoint(dest.x + TEXTH, dest.y + TEXTV))
 
 class TChoiceBox(TInputBox):
 	
@@ -208,11 +198,11 @@ class TChoiceBox(TInputBox):
 		FTextTarget.Parent.PushRenderTarget()
 		FTextTarget.SetRenderer()
 		try:
-			ResetText
+			ResetText()
 			for value in FParsedText:
 				DrawChar(value)
 			if FParsedText.Count > 0:
-				NewLine
+				NewLine()
 			FPromptLines = FTextLine
 			for i in range(FChoices.Length):
 				value = FChoices[i]
@@ -221,7 +211,7 @@ class TChoiceBox(TInputBox):
 				DoParseText(value, FParsedText)
 				for value in FParsedText:
 					DrawChar(value)
-				NewLine
+				NewLine()
 		ensure:
 			FTextTarget.Parent.PopRenderTarget()
 		PlaceCursor(0)
@@ -248,7 +238,7 @@ class TChoiceBox(TInputBox):
 
 	public def SetChoices(choices as (string)):
 		FChoices = choices
-		Array.Resize[of bool](FOptionEnabled, choices.Length)
+		FOptionEnabled = array(bool, choices.Length)
 
 class TValueInputBox(TInputBox):
 	
