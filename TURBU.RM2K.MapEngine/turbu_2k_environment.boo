@@ -263,6 +263,8 @@ class T2kEnvironment(TObject):
 		assert not TThread.CurrentThread.IsMainThread
 		thread as TScriptThread = (TThread.CurrentThread cast TScriptThread)
 		while wait and FKeyLock:
+			if thread.Terminated:
+				Abort
 			GScriptEngine.value.ThreadWait()
 		scan as TButtonCode = GGameEngine.value.ReadKeyboardState()
 		Thread.Sleep(TRpgTimestamp.FrameLength)
