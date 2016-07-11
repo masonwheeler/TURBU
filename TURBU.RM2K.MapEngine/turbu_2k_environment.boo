@@ -382,7 +382,7 @@ class T2kEnvironment(TObject):
 			SerializeMapObjects(writer)
 			writer.WritePropertyName('Party')
 			FParty.Serialize(writer)
-			writer.CheckWrite('MenuEnabled', FMenuEnabled, false)
+			writer.CheckWrite('MenuEnabled', FMenuEnabled, true)
 			++FSaveCount if explicitSave
 			writer.CheckWrite('SaveCount', FSaveCount, 0)
 			writer.CheckWrite('PreserveSpriteOnTeleport', FPreserveSpriteOnTeleport, false)
