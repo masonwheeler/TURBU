@@ -228,15 +228,15 @@ class TRpgEvent(TRpgCharacter):
 
 	[NoImport]
 	public def SwitchType():
-		old as TMapSprite
 		lock self:
-			old = FBase
+			old as TMapSprite = FBase
 			FBase = (TEventSprite(FEvent, GSpriteEngine.value) if FEvent.IsTile else TCharSprite(FEvent, GSpriteEngine.value))
 			FIsChar = Base isa TCharSprite
 			FBase.OnChangeSprite = self.ChangeSprite
 			FBase.CopyDrawState(old)
 			GSpriteEngine.value.SwapMapSprite(old, FBase)
 			FBase.Place()
+			old.Dispose()
 
 	public Map as int:
 		get: return ((FBase cast TVehicleSprite).Template.Map if FBase isa TVehicleSprite else GSpriteEngine.value.MapID)

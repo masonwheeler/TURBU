@@ -214,6 +214,7 @@ class TMapSprite(TObject):
 
 	protected FTiles = array(TEventTile, 2)
 
+	[DisposeParent]
 	protected FEngine as TSpriteEngine
 
 	[Property(MoveRate)]
