@@ -850,9 +850,10 @@ class TCharSprite(TMapSprite):
 			FSpriteIndex = base.CurrentPage.SpriteIndex
 			self.Facing = base.CurrentPage.Direction
 			UpdatePage(base.CurrentPage)
-			SetLocation(sgPoint(base.Location.x, base.Location.y))
 			FTiles[1].Z = FTiles[0].Z + 1
 		else: FActionMatrix = GDatabase.value.MoveMatrix[0]
+		if assigned(base):
+			SetLocation(sgPoint(base.Location.x, base.Location.y))
 		FUnderConstruction = false
 		self.SetFlashEvents(FTiles[0])
 		self.SetFlashEvents(FTiles[1])
