@@ -835,7 +835,7 @@ class TCharSprite(TMapSprite):
 			FMoveFrame = Data.Frame
 			UpdateMove(Data)
 			FUnderConstruction = false
-			Update(Data.Name, Translucency >= 3, Data.SpriteIndex)
+			Update(Data.PageName, Translucency >= 3, Data.SpriteIndex)
 		self.Visible = assigned(Data)
 
 	public def constructor(base as TRpgMapObject, parent as TSpriteEngine):
