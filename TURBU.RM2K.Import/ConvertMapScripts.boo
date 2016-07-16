@@ -221,6 +221,7 @@ class TScriptConverter:
 			if $left:
 				pass
 		|]
+		parent.Add(result)
 		converter.BlockStack.Push(-1)
 		converter.IfStack.Push(result)
 		return result.TrueBlock
