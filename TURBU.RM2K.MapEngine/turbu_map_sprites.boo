@@ -532,6 +532,12 @@ class TMapSprite(TObject):
 		FTiles[1].Dead() if assigned(FTiles[1])
 		(FEngine cast T2kSpriteEngine).LeaveLocation(FLocation, self)
 
+	override def ToString():
+		var result = self.ClassName
+		if assigned(FMapObj):
+			return "$result $(FMapObj.ID): $(FMapObj.Name)"
+		return result
+
 	public virtual def Move(whichDir as TDirections) as bool:
 		target as TSgPoint
 		result = false

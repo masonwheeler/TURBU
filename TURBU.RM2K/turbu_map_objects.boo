@@ -287,7 +287,6 @@ class TRpgEventPage(TRpgDatafile):
 		FParent = value
 
 	public IsTile as bool:
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		get: return self.Tilegroup != -1
 
 	public def OverrideSprite(filename as string, transparent as bool):

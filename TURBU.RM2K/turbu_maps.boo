@@ -129,10 +129,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 				Array.Copy(self.FTileMap[j], ((i + bounds.Top) * FSize.x) + bounds.Left, grid[j][i], 0, lineLength)
 
 	private def BlitFromGrid(grid as (((TTileRef))), bounds as Rectangle):
-		i as int
-		j as int
-		lineLength as int
-		lineLength = ((bounds.Right - bounds.Left) * sizeof(TTileRef))
+		lineLength as int = ((bounds.Right - bounds.Left) * sizeof(TTileRef))
 		for j in range(0, FDepth):
 			for i in range(grid[j].Length):
 				Array.Copy(grid[j][i], 0, self.FTileMap[j], ((i + bounds.Top) * FSize.x) + bounds.Left, lineLength)

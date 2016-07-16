@@ -50,6 +50,7 @@ class T2kEnvironment(TObject):
 	[Getter(Party)]
 	private FParty as TRpgParty
 
+	[Property(MenuEnabled)]
 	private FMenuEnabled as bool
 
 	[Property(SaveEnabled)]
@@ -230,7 +231,6 @@ class T2kEnvironment(TObject):
 		return FVehicles.Length - 1
 
 	internal def constructor(database as TRpgDatabase):
-//		vehicle as TVehicleTemplate
 		assert GEnvironment.value is null
 		GEnvironment.value = self
 		FDatabase = database
@@ -283,7 +283,6 @@ class T2kEnvironment(TObject):
 		else:
 			for btn in scan.Values():
 				return (Math.Log(ord(btn), 2) + 1) cast int //return lowest value found in set
-		return result
 
 	public def Wait(duration as int):
 		GScriptEngine.value.ThreadSleep(duration * 100, false)
@@ -502,10 +501,6 @@ class T2kEnvironment(TObject):
 
 	public DeathPossible as bool:
 		set: FParty.DeathPossible = value
-
-	public MenuEnabled as bool:
-		get: return FMenuEnabled
-		set: FMenuEnabled = value
 
 	public ThisObject as TRpgEvent:
 		get:

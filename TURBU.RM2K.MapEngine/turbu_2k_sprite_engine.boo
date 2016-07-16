@@ -535,7 +535,6 @@ class T2kSpriteEngine(TSpriteEngine):
 		return result
 
 	public def ReloadMapObjects():
-		sprite as TMapSprite
 		lock FMapObjects:
 			for sprite in FMapObjects:
 				GEnvironment.value.AddEvent(sprite)
@@ -546,9 +545,8 @@ class T2kSpriteEngine(TSpriteEngine):
 			FMapObjects.Remove(obj)
 
 	public def SwapMapSprite(old as TMapSprite, aNew as TMapSprite):
-		index as int
 		lock FMapObjects:
-			index = FMapObjects.IndexOf(old)
+			var index = FMapObjects.IndexOf(old)
 			if FSpriteLocations.KeyHasValue(old.Location, old):
 				FSpriteLocations.RemovePair(old.Location, old)
 			FMapObjects[index] = aNew

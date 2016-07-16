@@ -80,6 +80,9 @@ struct TSgFloatPoint:
 
 	y as single
 
+	override def ToString():
+		return "TSgFloatPoint: x: $x, y: $y"
+
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Equality(a as TSgFloatPoint, b as TSgFloatPoint) as bool:
 		result = ((a.x == b.x) and (a.y == b.y))
