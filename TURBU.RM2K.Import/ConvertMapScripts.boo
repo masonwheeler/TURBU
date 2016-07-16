@@ -246,7 +246,7 @@ class TScriptConverter:
 			case 2: value = [|percentage(Monster[$(values[0])].HP, $(values[3]))|]
 			default: raise ERpgScriptError("Unknown monster HP value 2: $(values[2])")
 		if values[1] == 1 and values[4] == 1:
-			result = [|$monster.SafeLoseHP($value)|]
+			result = [|$(monster.Target).SafeLoseHP($value)|]
 		else: result = BinaryExpression(op, monster, value)
 	
 	simpleConverter ConvertShakeScreen:

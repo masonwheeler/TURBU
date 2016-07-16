@@ -144,12 +144,6 @@ class TMapSprite(TObject):
 		assert not assigned(FMoveTime)
 		FMoveTime = TRpgTimestamp(FJumpTime)
 
-	private def IncTransparencyFactor():
-		self.Translucency = Math.Min(FTransparencyFactor + 1, MAX_TRANSPARENCY)
-
-	private def DecTransparencyFactor():
-		self.Translucency = Math.Max(FTransparencyFactor - 1, 0)
-
 	private def TryMovePreferredDirection(facing as TDirections) as bool:
 		ninetyDegrees as TDirections
 		return true if Move(facing)
@@ -319,6 +313,9 @@ class TMapSprite(TObject):
 	public def AwayFromHero():
 		return (self == GSpriteEngine.value.CurrentParty) or TryMoveAwayFromHero()
 
+	public def MoveForward():
+		return TryMove(FFacing)
+
 	public def FaceUp():
 		OpChangeFacing(TDirections.Up)
 		return true
@@ -418,6 +415,14 @@ class TMapSprite(TObject):
 		GEnvironment.value.Switch[value] = false
 		return true
 
+	public def TransparencyUp():
+		self.Translucency = Math.Min(FTransparencyFactor + 1, MAX_TRANSPARENCY)
+		return true
+
+	public def TransparencyDown():
+		self.Translucency = Math.Max(FTransparencyFactor - 1, 0)
+		return true
+
 	protected virtual def DoMove(which as Path) as bool:
 		unless assigned(FMoveStep):
 			FMoveStep = which.NextCommand()
@@ -431,12 +436,10 @@ class TMapSprite(TObject):
 		if FOrder.Opcode == OP_CLEAR:
 			FOrder = which.NextCommand()
 		caseOf FOrder.Opcode:
-			case 11: unchanged = not TryMove(FFacing)
 			case 26: self.DirLocked = true
 			case 27: self.DirLocked = false
 			case 30: FMoveFreq = Math.Min(8, (FMoveFreq + 1))
 			case 31: FMoveFreq = Math.Min(0, (FMoveFreq - 1))
-			case 40: IncTransparencyFactor()
 			case 41: DecTransparencyFactor()
 			case 48: result = false
 			default : assert false

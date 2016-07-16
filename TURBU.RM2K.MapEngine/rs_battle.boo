@@ -72,10 +72,13 @@ private def GetCurrentBackground() as string:
 internal class T2kMonster(turbu.Heroes.TRpgBattleCharacter, turbu.RM2K.animations.IAnimTarget):
 	def constructor(base as turbu.classes.TRpgDatafile):
 		super(base)
-	
+
 	def Show():
 		raise "Not implemented yet"
-	
+
+	def SafeLoseHP(value as int):
+		raise "Not implemented yet"
+
 	Condition[i as int] as bool:
 		get: raise "Not implemented yet"
 		set: raise "Not implemented yet"

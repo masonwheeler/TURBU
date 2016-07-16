@@ -102,16 +102,17 @@ class TRpgBattleCharacter(TRpgObject):
 	protected virtual def SetMaxMp(value as int):
 		FManaPoints = value
 
-	public virtual def TakeDamage(power as int, Defense as int, mDefense as int, variance as int) as int:
-		defFactor as int
-		mDefFactor as int
-		defFactor = round(((self.Defense * Defense) cast double) / 400.0)
-		mDefFactor = round(((self.Mind * mDefense) cast double) / 800.0)
+	public virtual def TakeDamage(power as int, pDefense as int, mDefense as int, variance as int) as int:
+		defFactor as int = round(((self.Defense * pDefense) cast double) / 400.0)
+		mDefFactor as int = round(((self.Mind * mDefense) cast double) / 800.0)
 		variance *= 5
 		power = round(((power * random.Next(100 - variance, 100 + variance)) cast double) / 100.0)
 		power = Math.Max(power - (defFactor + mDefFactor), 1)
 		HP -= power
 		return power
+
+	public def CanAct() as bool:
+		assert false, 'Battle engine is not supported yet'
 
 	[NoImport]
 	public abstract def Retarget() as TRpgBattleCharacter:
@@ -538,9 +539,9 @@ class TRpgHero(TRpgBattleCharacter):
 		for i in range(1, FCondition.Length):
 			FCondition[i] = false
 
-	public override def TakeDamage(power as int, Defense as int, mDefense as int, Variance as int) as int:
+	public override def TakeDamage(power as int, pDefense as int, mDefense as int, Variance as int) as int:
 		FParty.DeathPossible = true
-		return super.TakeDamage(power, Defense, mDefense, Variance)
+		return super.TakeDamage(power, pDefense, mDefense, Variance)
 
 	[NoImport]
 	public override def Retarget() as TRpgBattleCharacter:
@@ -855,11 +856,11 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 		h1 as TRpgHero = self.First()
 		commons.runThreadsafe(true, { self.ChangeSprite(h1.Sprite, h1.Transparent, h1.SpriteIndex) })
 
-	public def TakeDamage(power as int, Defense as int, mDefense as int, Variance as int) as int:
+	public def TakeDamage(power as int, pDefense as int, mDefense as int, Variance as int) as int:
 		result = 0
 		for i in range(1, MAXPARTYSIZE + 1):
 			if self[i] != GEnvironment.value.Heroes[0]:
-				result += FParty[i].TakeDamage(power, Defense, mDefense, Variance)
+				result += FParty[i].TakeDamage(power, pDefense, mDefense, Variance)
 		return result
 
 	public OpenSlot as int:
