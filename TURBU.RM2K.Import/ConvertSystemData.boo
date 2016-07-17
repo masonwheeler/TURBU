@@ -69,7 +69,6 @@ static class TSysDataConverter:
 				AutoLineup $(base.AutoLineup)
 				Row $(base.Row)
 				Style $(ReferenceExpression(Enum.GetName(TBattleStyle, base.BattleStyle)))
-				Commands
 				SmallWindow $(base.SmallWindowSize)
 				Translucent $(base.WindowTrans)
 		|]
@@ -81,15 +80,6 @@ static class TSysDataConverter:
 			if base.TeleportOnDeath:
 				deathEvent.Body.Add([|Teleport $(base.EscapeMap), $(base.EscapeX), $(base.EscapeY), $(base.EscapeFacing)|])
 			result.Body.Add(deathEvent)
-		result.SubMacro('Commands').Body.Statements.AddRange(base.Commands.Select({c | ConvertBattleCommand(c)}))
-		return result
-	
-	private def ConvertBattleCommand(base as BattleCommand) as MacroStatement:
-		result = [|
-			Command $(base.ID):
-				Name $(base.Name)
-				Style $(base.Style)
-		|]
 		return result
 
 static class TSysSoundConverter:

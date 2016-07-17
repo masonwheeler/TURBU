@@ -144,13 +144,16 @@ class TMapSprite(TObject):
 		assert not assigned(FMoveTime)
 		FMoveTime = TRpgTimestamp(FJumpTime)
 
+	private def Get90Dir() as TDirections:
+		if _random.Next(2) == 1:
+			return (ord(self.Facing cast TDirections) + 1) % 4
+		else:
+			return (ord(self.Facing cast TDirections) + 3) % 4
+
 	private def TryMovePreferredDirection(facing as TDirections) as bool:
 		ninetyDegrees as TDirections
 		return true if Move(facing)
-		if _random.Next(2) == 1:
-			ninetyDegrees = (ord(self.Facing cast TDirections) + 1) % 4
-		else:
-			ninetyDegrees = (ord(self.Facing cast TDirections) + 3) % 4
+		ninetyDegrees = Get90Dir()
 		if Move(ninetyDegrees):
 			result = true
 		elif Move(opposite_facing(ninetyDegrees)):
@@ -348,6 +351,10 @@ class TMapSprite(TObject):
 		OpChangeFacing((ord(self.Facing) + 3) % 4)
 		return true
 
+	public def Turn90():
+		OpChangeFacing(Get90Dir())
+		return true
+
 	public def Turn180():
 		OpChangeFacing(opposite_facing(self.Facing))
 		return true
@@ -423,6 +430,14 @@ class TMapSprite(TObject):
 		self.Translucency = Math.Max(FTransparencyFactor - 1, 0)
 		return true
 
+	public def FreqUp():
+		FMoveFreq = Math.Min(8, FMoveFreq + 1)
+		return true
+
+	public def FreqDown():
+		FMoveFreq = Math.Max(0, FMoveFreq - 1)
+		return true
+
 	protected virtual def DoMove(which as Path) as bool:
 		unless assigned(FMoveStep):
 			FMoveStep = which.NextCommand()
@@ -438,8 +453,6 @@ class TMapSprite(TObject):
 		caseOf FOrder.Opcode:
 			case 26: self.DirLocked = true
 			case 27: self.DirLocked = false
-			case 30: FMoveFreq = Math.Min(8, (FMoveFreq + 1))
-			case 31: FMoveFreq = Math.Min(0, (FMoveFreq - 1))
 			case 41: DecTransparencyFactor()
 			case 48: result = false
 			default : assert false

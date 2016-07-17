@@ -243,7 +243,7 @@ class TScriptConverter:
 		caseOf values[2]:
 			case 0: value = Expression.Lift(values[3])
 			case 1: value = [|Ints[$(values[3])]|]
-			case 2: value = [|percentage(Monster[$(values[0])].HP, $(values[3]))|]
+			case 2: value = [|Monster[$(values[0])].MaxHP * $(values[3] / 100.0)|]
 			default: raise ERpgScriptError("Unknown monster HP value 2: $(values[2])")
 		if values[1] == 1 and values[4] == 1:
 			result = [|$(monster.Target).SafeLoseHP($value)|]
@@ -355,7 +355,7 @@ class TScriptConverter:
 			result = [|FlashScreen($(RGB32(values[0])), $(RGB32(values[1])), $(RGB32(values[2])), \
 										  $(RGB32(values[3])), $(values[4]), $(values[5] != 0))|]
 			if values.Count == 7:
-				(result cast MethodInvocationExpression).Arguments.Add([|values[6] != 0|])
+				(result cast MethodInvocationExpression).Arguments.Add([|$(values[6] != 0)|])
 			else: (result cast MethodInvocationExpression).Arguments.Add([|false|])
 	
 	private static def RGB32(value as int) as int:

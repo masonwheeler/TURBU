@@ -79,9 +79,15 @@ internal class T2kMonster(turbu.Heroes.TRpgBattleCharacter, turbu.RM2K.animation
 	def SafeLoseHP(value as int):
 		raise "Not implemented yet"
 
+	MaxHP as int:
+		get: raise "Not implemented yet"
+
 	Condition[i as int] as bool:
 		get: raise "Not implemented yet"
 		set: raise "Not implemented yet"
+
+	def Flee(force as bool, ignoreIfSurrounded as bool):
+		raise "Not implemented yet"
 
 static class BattleState:
 	def TurnsMatch(multiple as int, offset as int) as bool:

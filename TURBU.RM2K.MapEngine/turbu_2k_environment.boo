@@ -299,10 +299,12 @@ class T2kEnvironment(TObject):
 		else: result = FParty.Inventory.QuantityOf(id)
 		return result
 
-	public def Shop(shopType as TShopTypes, messageSet as int, Inventory as (int)):
+	public def Shop(shopType as TShopTypes, messageSet as int, Inventory as (int)) as bool:
 		using data = TShopData(shopType, messageSet, Inventory):
 			GMenuEngine.Value.OpenMenuEx('Shop', data)
-			GScriptEngine.value.SetWaiting({ return GMenuEngine.Value.State == TMenuState.None })
+		GScriptEngine.value.SetWaiting({ return GMenuEngine.Value.State == TMenuState.None })
+		GScriptEngine.value.ThreadWait()
+		return GMenuEngine.Value.MenuInt != 0
 
 	public def Random(low as int, high as int) as int:
 		return FRand.Next(Math.Min(high, low), Math.Max(high, low))

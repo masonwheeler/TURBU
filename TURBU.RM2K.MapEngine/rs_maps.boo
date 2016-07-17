@@ -288,6 +288,15 @@ def SetEscape(map as int, x as int, y as int, switch as int):
 def EnableEscape(value as bool):
 	LData.CanEscape = value
 
+def SubstituteTiles(layer as int, fromTile as int, toTile as int):
+"""
+This method will have to forward its call on to the current map.  It should also
+probably keep a record of what substitutions have been performed, so they can be
+preserved ove a save.  Check RM2K behavior to see if they're preserved over
+save (maybe) and/or map exit/reentry (probably not).
+"""
+	raise "Not supported yet"
+
 private def WaitForBlank() as bool:
 	return GGameEngine.value.CurrentMap.Blank
 

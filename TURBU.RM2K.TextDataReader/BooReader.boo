@@ -8,6 +8,7 @@ import Boo.Lang.Interpreter
 import turbu.defs
 import turbu.versioning
 import TURBU.EngineBasis
+import TURBU.MapInterface
 import TURBU.PluginInterface
 import TURBU.DataReader
 
@@ -132,7 +133,8 @@ import TURBU.RM2K.RPGScript""")
 		_mapLoader.Pipeline.InsertBefore(Boo.Lang.Compiler.Steps.MacroAndAttributeExpansion, FixNegativeNumbers())
 		_mapLoader.SetValue('Environment', env)
 	
-	def GetMap(name as string) as TURBU.MapInterface.IRpgMap:
+	def GetMap(data as IMapMetadata) as TURBU.MapInterface.IRpgMap:
+		var name = data.Name
 		mapFile = File.ReadAllLines(Path.Combine(_path, 'Maps', name + '.tmf'))
 		scriptFile = File.ReadAllLines(Path.Combine(_path, 'Scripts', name + '.boo'))
 		text = string.Join(System.Environment.NewLine, scriptFile.Concat(mapFile))
