@@ -66,6 +66,9 @@ macro MonsterParties.MonsterParty.Pages.Page.PageConditions(body as JsonStatemen
 	macro MonsterHP(id as int, min as int, max as int):
 		return JsonStatement(JProperty('MonsterHP', JArray(id, min, max)))
 	
+	macro HeroTime(id as int, multiplier as int, base as int):
+		return JsonStatement(JProperty('HeroTime', JArray(id, multiplier, base)))
+	
 	macro MonsterTime(id as int, multiplier as int, base as int):
 		return JsonStatement(JProperty('MonsterTime', JArray(id, multiplier, base)))
 	

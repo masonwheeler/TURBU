@@ -66,6 +66,7 @@
     <Compile Include="BooReader.boo" />
     <Compile Include="BooReaderEnvironmentStep.boo" />
     <Compile Include="BSONReaders\AnimReader.boo" />
+    <Compile Include="BSONReaders\BattleCharReader.boo" />
     <Compile Include="BSONReaders\ClassesReader.boo" />
     <Compile Include="BSONReaders\CommandReader.boo" />
     <Compile Include="BSONReaders\ConditionReader.boo" />

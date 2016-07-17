@@ -13,6 +13,12 @@ macro Skills:
 	
 	macro SFX(name as string, v1 as int, v2 as int, v3 as int, v4 as int):
 		return JsonStatement(JProperty('Sfx', JArray(name, v1, v2, v3, v4)))
+	
+	macro BattleSkillAnims(body as JsonStatement*):
+		macro BattleSkillAnim(id as int, body as Statement*):
+			return JsonStatement(PropertyList(id, body))
+		
+		return MakeListValue('BattleSkillAnims', body)
 
 macro Skills.Skill(index as int, body as Statement*):
 	
@@ -28,6 +34,7 @@ macro Skills.Skill(index as int, body as Statement*):
 	macro Attributes(body as JsonStatement*):
 		macro Attribute(id as int, value as int):
 			return JsonStatement(JArray(id, value))
+		
 		return MakeListValue('Attributes', body)
 	
 	var result = PropertyList(index, body)

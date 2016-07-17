@@ -23,13 +23,28 @@ static class TSkillConverter:
 		result.Body.Add([|UseString $(skill.Usage)|]) unless string.IsNullOrEmpty(skill.Usage)
 		result.Body.Add([|UseString2 $(skill.Usage2)|]) unless string.IsNullOrEmpty(skill.Usage2)
 		result.Body.Add([|FailureMessage $(skill.Failure)|]) unless skill.Failure == -1
-		if skill.Legacy.ContainsKey(0x32):
-			l = [|Legacy 0x32|]
-			l32 = ArrayLiteralExpression()
-			l32.Items.AddRange(skill.Legacy[0x32].Select({i | Expression.Lift(i)}))
-			l.Arguments.Add(l32)
-			result.Body.Add(l)
+		if skill.Animations is not null:
+			var anims = ConvertSkillAnimations(skill.Animations)
+			result.Body.Add(anims) if anims is not null
 		result.Name = name
+		return result
+	
+	private def IsBlankAnim(value as RMBattleSkillAnim) as bool:
+		return value.Movement > 0 or value.Afterimage or value.Animation != 3
+	
+	private def ConvertSkillAnimation(base as RMBattleSkillAnim) as MacroStatement:
+		return [|
+			BattleSkillAnim $(base.ID):
+				Movement $(base.Movement)
+				Afterimage $(base.Afterimage)
+				Anim $(base.Animation)
+		|]
+	
+	private def ConvertSkillAnimations(base as RMBattleSkillAnim*) as MacroStatement:
+		var values = base.Where({a | not IsBlankAnim(a)}).ToArray()
+		return null if values.Length == 0
+		var result = MacroStatement('BattleSkillAnims')
+		result.Body.Statements.AddRange(values.Select({v | ConvertSkillAnimation(v)}))
 		return result
 	
 	private def ConvertNormalSkill(base as RMSkill) as MacroStatement:

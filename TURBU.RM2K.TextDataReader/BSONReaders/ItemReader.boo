@@ -1,7 +1,6 @@
 ﻿namespace TURBU.RM2K.TextDataReader.BSONReaders
 
 import System
-import System.Linq.Enumerable
 import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 import Newtonsoft.Json.Linq
@@ -51,10 +50,10 @@ macro Items.WeaponItem(index as int, body as Statement*):
 	AddResource('Items', result)
 
 macro Items.WeaponItem.Animations(body as JsonStatement*):
-	macro Anim(id as int, body as JsonStatement*):
+	macro Anim(id as int, body as Statement*):
 		return JsonStatement(PropertyList(id, body))
 	
-	result = MakeListValue('AnimData', body.Select({j | j.Value}))
+	result = MakeListValue('AnimData', body)
 	return result
 
 macro Items.SkillItem(index as int, body as Statement*):

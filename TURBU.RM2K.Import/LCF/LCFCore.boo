@@ -35,7 +35,7 @@ class LCFWord(ILCFObject):
 	
 	def constructor(input as Stream):
 		if _is2k3:
-			assert LCFInt(input) == 2
+			assert input.ReadByte() == 2
 			bytes = array(byte, 2)
 			input.Read(bytes, 0, 2)
 			_value = BitConverter.ToInt16(bytes, 0)

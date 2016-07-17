@@ -39,4 +39,10 @@ LCFObject RMSkill:
 	0x2C = Attributes as boolArray
 	0x2D = ResistMod(false) as bool
 	0x31 = DisplaySprite(1) as int
-	skipSec 0x32
+	0x32 = Animations as (RMBattleSkillAnim)
+
+LCFObject RMBattleSkillAnim:
+	hasID
+	5    = Movement(0) as int
+	6    = Afterimage(false) as bool
+	0x0E = Animation(3) as int
