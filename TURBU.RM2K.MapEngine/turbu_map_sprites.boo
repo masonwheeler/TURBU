@@ -94,6 +94,7 @@ class TMapSprite(TObject):
 		return towards(self.Location, heroLoc)
 
 	private def CanJump(target as TSgPoint) as bool:
+		FJumpTime = commons.round(MOVE_DELAY[FMoveRate] / 1.5)
 		if PointInRect(target, SDL.SDL_Rect(0, 0, FEngine.Width, FEngine.Height)) \
 				and (FSlipThrough or (FEngine cast T2kSpriteEngine).Passable(target.x, target.y)):
 			result = true
