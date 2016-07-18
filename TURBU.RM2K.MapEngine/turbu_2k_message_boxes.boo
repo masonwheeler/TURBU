@@ -9,6 +9,7 @@ import Boo.Adt
 import Pythia.Runtime
 import System
 import SDL2.SDL2_GPU
+import TURBU.RM2K
 import turbu.RM2K.environment
 import TURBU.Meta
 
@@ -138,7 +139,7 @@ class TMessageBox(TGameMenuBox):
 
 	public def SetPortrait(filename as string, index as byte):
 		image as TSdlImage
-		image = Engine.Images.EnsureImage("Portraits\\$filename", filename)
+		image = Engine.Images.EnsureImage("Portraits\\$filename", filename, GDatabase.value.Layout.PortraitSize)
 		FPortrait.Visible = true
 		FPortrait.ImageName = image.Name
 		FPortrait.ImageIndex = index

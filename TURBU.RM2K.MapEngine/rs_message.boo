@@ -9,6 +9,7 @@ import commons
 import turbu.constants
 import turbu.classes
 import Pythia.Runtime
+import TURBU.RM2K
 import turbu.RM2K.sprite.engine
 import TURBU.RM2K.Menus
 import turbu.RM2K.environment
@@ -54,7 +55,7 @@ def SetPortrait(filename as string, index as int, rightside as bool, flipped as 
 	return unless ArchiveUtils.GraphicExists(filename, 'Portraits')
 	commons.runThreadsafe(true) def ():
 		path as string = 'Portraits\\' + filename
-		valid = clamp(index, 0, (GSpriteEngine.value.Images.EnsureImage(path, filename, PORTRAIT_SIZE).Count - 1)) == index
+		valid = clamp(index, 0, (GSpriteEngine.value.Images.EnsureImage(path, filename, GDatabase.value.Layout.PortraitSize).Count - 1)) == index
 	return unless valid
 	SetRightside(rightside)
 	GMenuEngine.Value.SetPortrait(filename, index)
