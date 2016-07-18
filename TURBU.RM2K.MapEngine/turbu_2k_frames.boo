@@ -362,10 +362,10 @@ class TMenuSpriteEngine(TSpriteEngine):
 			SetPortrait(obj['Name']cast string, obj['Index'] cast int)
 			portrait.MirrorX = obj['Flipped'] cast bool
 			SetRightside(obj['Rightside'] cast bool)
-			obj['Name'].Remove()
-			obj['Index'].Remove()
-			obj['Flipped'].Remove()
-			obj['Rightside'].Remove()
+			obj.Remove('Name')
+			obj.Remove('Index')
+			obj.Remove('Flipped')
+			obj.Remove('Rightside')
 			obj.CheckEmpty()
 		else:
 			portrait.Visible = false

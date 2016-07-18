@@ -138,7 +138,7 @@ class TMessageBox(TGameMenuBox):
 
 	public def SetPortrait(filename as string, index as byte):
 		image as TSdlImage
-		image = Engine.Images.EnsureImage("portrait\\$filename", filename)
+		image = Engine.Images.EnsureImage("Portraits\\$filename", filename)
 		FPortrait.Visible = true
 		FPortrait.ImageName = image.Name
 		FPortrait.ImageIndex = index
