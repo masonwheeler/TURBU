@@ -181,7 +181,10 @@ class TSdlCanvas(TSdlRenderSurface, ISdlCanvas):
 	public def DrawRect(image as TSdlImage, dest as TSgPoint, source as GPU_Rect, flip as SDL.SDL_RendererFlip):
 		if flip == SDL.SDL_RendererFlip.SDL_FLIP_NONE:
 			GPU_Blit(image.Surface, source, lCurrentRenderTarget.RenderTarget, dest.x + (source.w / 2), dest.y + (source.h / 2))
-		else: raise "Flips are not implemented"
+		else:
+			var xScale = (-1 if flip & SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL > 0 else 1)
+			var yScale = (-1 if flip & SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL > 0 else 1)
+			GPU_BlitScale(image.Surface, source, lCurrentRenderTarget.RenderTarget, dest.x + (source.w / 2), dest.y + (source.h / 2), xScale, yScale)
 
 	public def DrawRect(target as TSdlRenderTarget, dest as TSgPoint, source as GPU_Rect):
 		GPU_Blit(target.Image, source, lCurrentRenderTarget.RenderTarget, dest.x, dest.y)

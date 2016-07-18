@@ -51,9 +51,9 @@ def ClearPortrait():
 
 def SetPortrait(filename as string, index as int, rightside as bool, flipped as bool):
 	valid as bool
-	return unless ArchiveUtils.GraphicExists(filename, 'portrait')
+	return unless ArchiveUtils.GraphicExists(filename, 'Portraits')
 	commons.runThreadsafe(true) def ():
-		path as string = 'portrait\\' + filename
+		path as string = 'Portraits\\' + filename
 		valid = clamp(index, 0, (GSpriteEngine.value.Images.EnsureImage(path, filename, PORTRAIT_SIZE).Count - 1)) == index
 	return unless valid
 	SetRightside(rightside)
