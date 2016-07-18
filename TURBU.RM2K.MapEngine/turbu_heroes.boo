@@ -517,7 +517,7 @@ class TRpgHero(TRpgBattleCharacter):
 			FStat[1, TStatComponents.EqMod] -= eq.Defense
 			FStat[2, TStatComponents.EqMod] -= eq.Mind
 			FStat[3, TStatComponents.EqMod] -= eq.Speed
-			if (slot in (TSlot.Weapon, TSlot.Shield)) and (FEquipment[slot].Template cast TWeaponTemplate).TwoHanded:
+			if (slot in (TSlot.Weapon, TSlot.Shield)) and (FEquipment[slot].Template as TWeaponTemplate)?.TwoHanded:
 				FEquipment[TSlot.Weapon] = null
 				FEquipment[TSlot.Shield] = null
 			else: FEquipment[slot] = null
