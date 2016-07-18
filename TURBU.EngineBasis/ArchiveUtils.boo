@@ -5,7 +5,8 @@ import System.IO
 import archiveInterface
 
 def ArchiveFileExists(archive as int, filename as string, folder as string) as bool:
-	return GArchives[archive].FileExists("$folder\\$filename")
+	var adjustedFilename = (filename if string.IsNullOrEmpty(folder) else "$folder\\$filename")
+	return GArchives[archive].FileExists(adjustedFilename)
 
 def GraphicExists(ref filename as string, folder as string) as bool:
 	result = ArchiveFileExists(IMAGE_ARCHIVE, filename, folder)
