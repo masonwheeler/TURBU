@@ -225,7 +225,7 @@ class TRpgHero(TRpgBattleCharacter):
 		return (FEquipment[which].Template.ID if assigned(FEquipment[which]) else 0)
 
 	private def GetExpNeeded() as int:
-		return (-1 if FLevel == 50 else FExpTable[(FLevel + 1)] - FExpTotal)
+		return (-1 if FLevel == (Template cast THeroTemplate).MaxLevel else FExpTable[(FLevel + 1)] - FExpTotal)
 
 	private def GetLevelUpdatedStatus() as bool:
 		result = FLevelUpdated
