@@ -43,8 +43,8 @@ class TSaveData(TObject):
 	[Getter(Portraits)]
 	private FPortraits as (TPortraitID)
 
-	public def constructor(Name as string, level as int, HP as int, portraits as (TPortraitID)):
-		FName = Name
+	public def constructor(name as string, level as int, HP as int, portraits as (TPortraitID)):
+		FName = name
 		FLevel = level
 		FHp = HP
 		FPortraits = portraits
@@ -56,7 +56,7 @@ class TSaveBox(TGameMenuBox):
 
 	private FPortraits = array(TSprite, 0)
 
-	internal FIndex as int
+	private FIndex as int
 
 	protected override def DrawText():
 		for portrait in FPortraits:
@@ -100,7 +100,16 @@ class TSaveBox(TGameMenuBox):
 
 	protected override def DoSetup(value as int):
 		super.DoSetup(value)
+		if value == 0:
+			FOptionEnabled[0] = true
+		else:
+			FOptionEnabled[0] = assigned((FOwner cast TSaveMenuPage).SaveData(FIndex))
 		InvalidateText()
+
+	internal Index as int:
+		set:
+			FIndex = value
+			DoSetup(FSetupValue)
 
 class TSaveMenuPage(TMenuPage):
 
@@ -117,34 +126,25 @@ class TSaveMenuPage(TMenuPage):
 	private FButtonLock as TRpgTimestamp
 
 	private def ReadSaveData(index as int) as TSaveData:
-		filename as string
-		leader as string
-		portrait as string
-		obj as JObject
-		heroObj as JObject
-		party as JArray
-		heroes as JArray
-		elem as JToken
-		i as int
-		hero as int
-		HP as int
-		LV as int
-		portraitID as int
-		portraits as (TPortraitID)
-		filename = Path.Combine(GProjectFolder.value, "save$(index.ToString('D2')).tsg")
+		var filename = Path.Combine(GProjectFolder.value, "save$(index.ToString('D2')).tsg")
 		unless File.Exists(filename):
 			return null
 		using obj = JObject.Parse(File.ReadAllText(filename)):
 			if obj == null:
 				return null
-			party = (obj['Environment']['Party']['Heroes'] cast JArray)
-			heroes = (obj['Environment']['Heroes'] cast JArray)
-			HP = 0
-			LV = 0
+			var party = (obj['Environment']['Party']['Heroes'] cast JArray)
+			var heroes = (obj['Environment']['Heroes'] cast JArray)
+			var HP = 0
+			var LV = 0
+			var leader = ''
+			portrait as string
+			elem as JToken
+			portraitID as int
+			portraits = array (TPortraitID, 0)
 			for i in range(0, party.Count):
 				continue if party[i].Type == JTokenType.Null
-				hero = party[i] cast int
-				heroObj = (heroes[hero - 1] cast JObject)
+				var hero = party[i] cast int
+				var heroObj = (heroes[hero - 1] cast JObject)
 				if leader == '':
 					if heroObj.TryGetValue('Name', elem):
 						leader = elem cast string
@@ -170,8 +170,7 @@ class TSaveMenuPage(TMenuPage):
 
 	private def ResetSlots():
 		for i in range(FSlots.Length):
-			FSlots[i].FIndex = FTop + i
-			FSlots[i].EngineInvalidateText()
+			FSlots[i].Index = FTop + i
 
 	private def MoveSlot(input as TButtonCode):
 		caseOf input:
@@ -202,7 +201,7 @@ class TSaveMenuPage(TMenuPage):
 			boxCoords.y = 32 + (68 * i)
 			boxCoords.h = SIZE.y + boxCoords.y
 			FSlots[i] = TSaveBox(parent, boxCoords, main, self)
-			FSlots[i].FIndex = i + 1
+			FSlots[i].Index = i + 1
 			RegisterComponent("Slot$i", FSlots[i])
 		FTitle = TOnelineLabelBox(parent, GPU_MakeRect(0, 0, 320, 32), main, self)
 		RegisterComponent('Title', FTitle)

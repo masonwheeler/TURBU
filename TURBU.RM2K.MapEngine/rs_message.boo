@@ -110,6 +110,7 @@ def OpenMenu():
 		GScriptEngine.value.SetWaiting(WaitForMenuClosed)
 
 def SaveMenu():
+	GMenuEngine.Value.MenuInt = 0
 	GMenuEngine.Value.OpenMenu('Save')
 	unless TThread.CurrentThread.IsMainThread:
 		GScriptEngine.value.SetWaiting(WaitForMenuClosed)

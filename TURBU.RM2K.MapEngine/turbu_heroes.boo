@@ -729,7 +729,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 			writer.WritePropertyName('Heroes')
 			writeJsonArray writer:
 				for i in range(MAXPARTYSIZE):
-					if assigned(FParty[i]):
+					if assigned(FParty[i] and FParty[i].Template.ID > 0):
 						writer.WriteValue(FParty[i].Template.ID)
 					else:
 						writer.WriteNull()
