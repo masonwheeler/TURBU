@@ -565,8 +565,8 @@ class TRpgHero(TRpgBattleCharacter):
 		FFaceNum = index
 		GSpriteEngine.value.Images.EnsureImage('Portraits\\' + filename, filename, PORTRAIT_SIZE)
 
-	public def InParty() as bool:
-		return FParty.Any({h | h == self})
+	public InParty as bool:
+		get: return FParty.Any({h | h == self})
 
 	public def PotentialStat(item as int, whichStat as int, slot as TSlot) as int:
 		theItem as TItemTemplate = GDatabase.value.Items[item]
