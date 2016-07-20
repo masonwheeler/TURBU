@@ -183,8 +183,6 @@ class T2kSpriteEngine(TSpriteEngine):
 			for x in range(viewport.x - 1, viewport.x + viewport.w):
 				EquivalizeCoords(x, y, equivX, equivY)
 				continue if assigned(matrix[equivX, equivY])
-				if x == equivX and equivY == 17:
-					System.Diagnostics.Debugger.Break()
 				tileRef as TTileRef = value[GetIndex(equivX, equivY)]
 				newTile as TMapTile = CreateNewTile(tileRef)
 				matrix[equivX, equivY] = newTile
