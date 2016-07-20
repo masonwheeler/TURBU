@@ -84,7 +84,7 @@ class TScriptThread(TThread):
 					FSignal.Reset()
 					if self == FParent.TeleportThread:
 						self.Terminate()
-					else: 
+					elif not Terminated: 
 						FParent.SaveToPool(self)
 						FSignal.WaitOne()
 		ensure:
