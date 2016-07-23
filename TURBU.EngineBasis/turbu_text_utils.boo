@@ -118,8 +118,6 @@ class TFontEngine(TObject):
 	public def DrawChar(target as GPU_Target_PTR, text as char, x as single, y as single, colorIndex as int) as TSgFloatPoint:
 		glCheckError()
 		RenderChar(text)
-		//GPU_FlushBlitBuffer()
-		//DrawTargetPass1(target, x + 1, y + 1)
 		GPU_FlushBlitBuffer()
 		DrawTargetPass2(target, x, y, colorIndex)
 		GPU_DeactivateShaderProgram()

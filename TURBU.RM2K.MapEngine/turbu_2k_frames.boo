@@ -392,11 +392,11 @@ class TMenuSpriteEngine(TSpriteEngine):
 		ensure:
 			EndMessage()
 
-	public def Inn(style as int, Cost as int):
-		greet1 as string = InnVocab(style, 'Greet', Cost)
+	public def Inn(style as int, cost as int):
+		greet1 as string = InnVocab(style, 'Greet', cost)
 		choices as (string) = (InnVocab(style, 'Stay', 0), InnVocab(style, 'Cancel', 0))
 		ChoiceBox(greet1, choices, true) def (line as string) as bool:
-			return ((GEnvironment.value.Money >= Cost) if line == choices[0] else true)
+			return ((GEnvironment.value.Money >= cost) if line == choices[0] else true)
 
 	public def ChoiceBox(msg as string, responses as (string), allowCancel as bool, OnValidate as Func[of string, bool]):
 		while GSpriteEngine.value.State == TGameState.Fading:
