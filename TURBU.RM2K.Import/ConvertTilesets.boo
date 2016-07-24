@@ -52,9 +52,9 @@ static class TTilesetConverter:
 			newRecord.Body.Add(attributes)
 			result.Body.Add(newRecord)
 		SwapTileGroupData(result, 1, 2)
-		SwapTileGroupData(result, 6, 7)
-		SwapTileGroupData(result, 10, 11)
-		SwapTileGroupData(result, 14, 15)
+		SwapTileGroupData(result, 5, 6)
+		SwapTileGroupData(result, 9, 10)
+		SwapTileGroupData(result, 13, 14)
 		return result
 	
 	private def SwapTileGroupData(value as MacroStatement, l as int, r as int):
