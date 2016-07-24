@@ -859,6 +859,7 @@ class TCharSprite(TMapSprite):
 			UpdateMove(Data)
 			FUnderConstruction = false
 			Update(Data.PageName, Translucency >= 3, Data.SpriteIndex)
+			FTiles[1].Z = FTiles[0].Z + 1
 		self.Visible = assigned(Data)
 
 	public def constructor(base as TRpgMapObject, parent as TSpriteEngine):
