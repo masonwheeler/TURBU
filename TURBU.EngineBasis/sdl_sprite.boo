@@ -698,12 +698,12 @@ class TSpriteEngine(TParentSprite):
 
 	public override def Draw():
 		return if FSpriteList == null
+		FRenderer.Reset()
 		for list in FSpriteList.FSprites:
 			if assigned(list):
-				FRenderer.Reset()
 				for item in list:
 					item.Draw()
-				FRenderer.Render(FCanvas.RenderTarget)
+		FRenderer.Render(FCanvas.RenderTarget)
 
 	public def Dead():
 		for sprite in FDeadList.ToArray():
