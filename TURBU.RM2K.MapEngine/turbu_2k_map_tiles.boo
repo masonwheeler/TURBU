@@ -103,88 +103,88 @@ class TBorderTile(TMapTile):
 		for i in range(4):
 			minitiles[i].ImageName = self.ImageName
 		if Neighbors != TDirs8.None:
-			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in Neighbors:
+			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in FNeighbors:
 				for i in range(4):
 					minis[i] -= 26
-			elif (TDirs8.n | TDirs8.e | TDirs8.w) in Neighbors:
+			elif (TDirs8.n | TDirs8.e | TDirs8.w) in FNeighbors:
 				minis[0] -= 14
 				minis[1] -= 10
 				minis[2] -= 14
 				minis[3] -= 10
-			elif (TDirs8.n | TDirs8.e | TDirs8.s) in Neighbors:
+			elif (TDirs8.n | TDirs8.e | TDirs8.s) in FNeighbors:
 				minis[0] -= 10
 				minis[1] -= 10
 				minis[2] += 14
 				minis[3] += 14
-			elif (TDirs8.e | TDirs8.w | TDirs8.s) in Neighbors:
+			elif (TDirs8.e | TDirs8.w | TDirs8.s) in FNeighbors:
 				minis[0] += 10
 				minis[1] += 14
 				minis[2] += 10
 				minis[3] += 14
-			elif (TDirs8.n | TDirs8.w | TDirs8.s) in Neighbors:
+			elif (TDirs8.n | TDirs8.w | TDirs8.s) in FNeighbors:
 				minis[0] -= 14
 				minis[1] -= 14
 				minis[2] += 10
 				minis[3] += 10
-			elif (TDirs8.n | TDirs8.w) in Neighbors:
+			elif (TDirs8.n | TDirs8.w) in FNeighbors:
 				minis[0] -= 14
 				minis[1] -= 14
 				minis[2] -= 14
-				minis[3] -= (22 if TDirs8.se in Neighbors else 14)
-			elif (TDirs8.n | TDirs8.e) in Neighbors:
+				minis[3] -= (22 if TDirs8.se in FNeighbors else 14)
+			elif (TDirs8.n | TDirs8.e) in FNeighbors:
 				minis[0] -= 10
 				minis[1] -= 10
 				minis[2] -= 10
-				minis[3] -= (22 if TDirs8.sw in Neighbors else 10)
-			elif (TDirs8.e | TDirs8.s) in Neighbors:
+				minis[3] -= (22 if TDirs8.sw in FNeighbors else 10)
+			elif (TDirs8.e | TDirs8.s) in FNeighbors:
 				minis[1] += 14
 				minis[2] += 14
 				minis[3] += 14
-				if TDirs8.nw in Neighbors:
+				if TDirs8.nw in FNeighbors:
 					minis[0] -= 22
 				else: minis[0] += 14
-			elif (TDirs8.s | TDirs8.w) in Neighbors:
+			elif (TDirs8.s | TDirs8.w) in FNeighbors:
 				minis[0] += 10
 				minis[2] += 10
 				minis[3] += 10
-				if TDirs8.ne in Neighbors:
+				if TDirs8.ne in FNeighbors:
 					minis[1] -= 22
 				else: minis[1] += 10
 			else:
 				for i in range(4):
 					base[i] = minis[i]
-				if TDirs8.nw in Neighbors:
+				if TDirs8.nw in FNeighbors:
 					base[0] -= 22
-				if TDirs8.ne in Neighbors:
+				if TDirs8.ne in FNeighbors:
 					base[1] -= 22
-				if TDirs8.sw in Neighbors:
+				if TDirs8.sw in FNeighbors:
 					base[2] -= 22
-				if TDirs8.se in Neighbors:
+				if TDirs8.se in FNeighbors:
 					base[3] -= 22
-				if TDirs8.n in Neighbors:
+				if TDirs8.n in FNeighbors:
 					base[0] = minis[0] - 12
 					base[1] = minis[1] - 12
-				elif TDirs8.s in Neighbors:
-					base[0] = minis[0] + 12
-					base[1] = minis[1] + 12
-				if TDirs8.s in Neighbors:
+				elif TDirs8.s in FNeighbors:
+					base[0] = minis[0] + 12 unless TDirs8.nw in FNeighbors
+					base[1] = minis[1] + 12 unless TDirs8.ne in FNeighbors
+				if TDirs8.s in FNeighbors:
 					base[2] = minis[2] + 12
 					base[3] = minis[3] + 12
-				elif TDirs8.n in Neighbors:
-					base[2] = minis[2] - 12
-					base[3] = minis[3] - 12
-				if TDirs8.w in Neighbors:
+				elif TDirs8.n in FNeighbors:
+					base[2] = minis[2] - 12 unless TDirs8.sw in FNeighbors
+					base[3] = minis[3] - 12 unless TDirs8.se in FNeighbors
+				if TDirs8.w in FNeighbors:
 					base[0] = minis[0] - 2
 					base[2] = minis[2] - 2
-				elif TDirs8.e in Neighbors:
-					base[0] = minis[0] + 2
-					base[2] = minis[2] + 2
-				if TDirs8.e in Neighbors:
+				elif TDirs8.e in FNeighbors:
+					base[0] = minis[0] + 2 unless TDirs8.nw in FNeighbors
+					base[2] = minis[2] + 2 unless TDirs8.sw in FNeighbors
+				if TDirs8.e in FNeighbors:
 					base[1] = minis[1] + 2
 					base[3] = minis[3] + 2
-				elif TDirs8.w in Neighbors:
-					base[1] = minis[1] - 2
-					base[3] = minis[3] - 2
+				elif TDirs8.w in FNeighbors:
+					base[1] = minis[1] - 2 unless TDirs8.ne in FNeighbors
+					base[3] = minis[3] - 2 unless TDirs8.se in FNeighbors
 				for i in range(4):
 					minis[i] = base[i]
 		for i in range(4):
@@ -319,76 +319,76 @@ class TShoreTile(TWaterTile):
 			minitiles[i].ImageName = FLinkedFilename
 			changed[i] = true
 		if Neighbors != TDirs8.None:
-			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in Neighbors:
+			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in FNeighbors:
 				UnchangeAll()
-			elif (TDirs8.n | TDirs8.e | TDirs8.w) in Neighbors:
+			elif (TDirs8.n | TDirs8.e | TDirs8.w) in FNeighbors:
 				minis[2] += 12
 				minis[3] += 12
 				UnchangeAll()
-			elif (TDirs8.n | TDirs8.e | TDirs8.s) in Neighbors:
+			elif (TDirs8.n | TDirs8.e | TDirs8.s) in FNeighbors:
 				minis[0] += 24
 				minis[2] += 24
 				UnchangeAll()
-			elif (TDirs8.e | TDirs8.w | TDirs8.s) in Neighbors:
+			elif (TDirs8.e | TDirs8.w | TDirs8.s) in FNeighbors:
 				minis[0] += 12
 				minis[1] += 12
 				UnchangeAll()
-			elif (TDirs8.n | TDirs8.w | TDirs8.s) in Neighbors:
+			elif (TDirs8.n | TDirs8.w | TDirs8.s) in FNeighbors:
 				minis[1] += 24
 				minis[3] += 24
 				UnchangeAll()
-			elif (TDirs8.n | TDirs8.w) in Neighbors:
+			elif (TDirs8.n | TDirs8.w) in FNeighbors:
 				minis[1] += 24
 				minis[2] += 12
 				for i in range(3):
 					changed[i] = false
-				if TDirs8.se in Neighbors:
+				if TDirs8.se in FNeighbors:
 					minis[3] += 36
 					changed[3] = false
-			elif (TDirs8.n | TDirs8.e) in Neighbors:
+			elif (TDirs8.n | TDirs8.e) in FNeighbors:
 				minis[0] += 24
 				minis[3] += 12
 				changed[0] = false
 				changed[1] = false
 				changed[3] = false
-				if TDirs8.sw in Neighbors:
+				if TDirs8.sw in FNeighbors:
 					minis[2] += 36
 					changed[2] = false
-			elif (TDirs8.s | TDirs8.e) in Neighbors:
+			elif (TDirs8.s | TDirs8.e) in FNeighbors:
 				minis[1] += 12
 				minis[2] += 24
 				changed[1] = false
 				changed[2] = false
 				changed[3] = false
-				if TDirs8.nw in Neighbors:
+				if TDirs8.nw in FNeighbors:
 					minis[0] += 36
 					changed[0] = false
-			elif (TDirs8.s | TDirs8.w) in Neighbors:
+			elif (TDirs8.s | TDirs8.w) in FNeighbors:
 				minis[0] += 12
 				minis[3] += 24
 				changed[0] = false
 				changed[2] = false
 				changed[3] = false
-				if TDirs8.ne in Neighbors:
+				if TDirs8.ne in FNeighbors:
 					minis[1] += 36
 					changed[1] = false
 			else:
 				for i in range(4):
 					base[i] = minis[i]
-				ChangeBase(0, 36) if TDirs8.nw in Neighbors
-				ChangeBase(1, 36) if TDirs8.ne in Neighbors
-				ChangeBase(2, 36) if TDirs8.sw in Neighbors
-				ChangeBase(3, 36) if TDirs8.se in Neighbors
-				if TDirs8.n in Neighbors:
+				ChangeBase(0, 36) if TDirs8.nw in FNeighbors
+				ChangeBase(1, 36) if TDirs8.ne in FNeighbors
+				ChangeBase(2, 36) if TDirs8.sw in FNeighbors
+				ChangeBase(3, 36) if TDirs8.se in FNeighbors
+				if TDirs8.n in FNeighbors:
 					OffsetBase(0, 24)
 					OffsetBase(1, 24)
-				if TDirs8.s in Neighbors:
+				if TDirs8.s in FNeighbors:
 					OffsetBase(2, 24)
 					OffsetBase(3, 24)
-				if TDirs8.w in Neighbors:
+				if TDirs8.w in FNeighbors:
 					OffsetBase(0, 12)
 					OffsetBase(2, 12)
-				if TDirs8.e in Neighbors:
+				if TDirs8.e in FNeighbors:
 					OffsetBase(1, 12)
 					OffsetBase(3, 12)
 				for i in range(4):
@@ -422,30 +422,30 @@ class TOceanTile(TWaterTile):
 		for i in range(4):
 			changed[i] = false
 		if Neighbors != TDirs8.None:
-			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in Neighbors:
+			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in FNeighbors:
 				ChangeAll()
-			elif (TDirs8.n | TDirs8.e | TDirs8.w) in Neighbors:
+			elif (TDirs8.n | TDirs8.e | TDirs8.w) in FNeighbors:
 				minis[2] += 12
 				minis[3] += 12
 				ChangeAll()
-			elif (TDirs8.n | TDirs8.e | TDirs8.s) in Neighbors:
+			elif (TDirs8.n | TDirs8.e | TDirs8.s) in FNeighbors:
 				minis[0] += 24
 				minis[2] += 24
 				ChangeAll()
-			elif (TDirs8.s | TDirs8.e | TDirs8.w) in Neighbors:
+			elif (TDirs8.s | TDirs8.e | TDirs8.w) in FNeighbors:
 				minis[0] += 12
 				minis[1] += 12
 				ChangeAll()
-			elif (TDirs8.n | TDirs8.s | TDirs8.w) in Neighbors:
+			elif (TDirs8.n | TDirs8.s | TDirs8.w) in FNeighbors:
 				minis[1] += 24
 				minis[3] += 24
 				ChangeAll()
-			elif (TDirs8.n | TDirs8.w) in Neighbors:
+			elif (TDirs8.n | TDirs8.w) in FNeighbors:
 				minis[1] += 24
 				minis[2] += 12
 				for i in range(3):
 					changed[i] = true
-				if TDirs8.se in Neighbors:
+				if TDirs8.se in FNeighbors:
 					minis[3] += 36)
 					changed[3] = true
 			elif Neighbors & (TDirs8.n | TDirs8.e) == (TDirs8.n | TDirs8.e):
@@ -454,7 +454,7 @@ class TOceanTile(TWaterTile):
 				changed[1] = true
 				minis[3] += 12
 				changed[3] = true
-				if TDirs8.sw in Neighbors:
+				if TDirs8.sw in FNeighbors:
 					minis[2] += 36)
 					changed[2] = true
 			elif Neighbors & (TDirs8.s | TDirs8.e) == (TDirs8.s | TDirs8.e):
@@ -462,7 +462,7 @@ class TOceanTile(TWaterTile):
 				minis[2] += 24
 				for i in range(1, 4):
 					changed[i] = true
-				if TDirs8.nw in Neighbors:
+				if TDirs8.nw in FNeighbors:
 					minis[0] += 36
 					changed[1] = true
 			elif Neighbors & (TDirs8.s | TDirs8.w) == (TDirs8.s | TDirs8.w):
@@ -471,40 +471,40 @@ class TOceanTile(TWaterTile):
 				changed[2] = true
 				minis[3] += 24
 				changed[3] = true
-				if TDirs8.ne in Neighbors:
+				if TDirs8.ne in FNeighbors:
 					minis[1] += 36
 					changed[1] = true
 			else:
 				for i in range(4):
 					base[i] = minis[i]
-				if TDirs8.nw in Neighbors:
+				if TDirs8.nw in FNeighbors:
 					base[0] += 36
 					changed[0] = true
-				if TDirs8.ne in Neighbors:
+				if TDirs8.ne in FNeighbors:
 					base[1] += 36
 					changed[1] = true
-				if TDirs8.sw in Neighbors:
+				if TDirs8.sw in FNeighbors:
 					base[2] += 36
 					changed[2] = true
-				if TDirs8.se in Neighbors:
+				if TDirs8.se in FNeighbors:
 					base[3] += 36
 					changed[3] = true
-				if TDirs8.n in Neighbors:
+				if TDirs8.n in FNeighbors:
 					base[0] = minis[0] + 24
 					base[1] = minis[1] + 24
 					changed[0] = true
 					changed[1] = true
-				if TDirs8.s in Neighbors:
+				if TDirs8.s in FNeighbors:
 					base[2] = minis[2] + 24
 					base[3] = minis[3] + 24
 					changed[2] = true
 					changed[3] = true
-				if TDirs8.w in Neighbors:
+				if TDirs8.w in FNeighbors:
 					base[0] = minis[0] + 12
 					base[2] = minis[2] + 12
 					changed[0] = true
 					changed[2] = true
-				if TDirs8.e in Neighbors:
+				if TDirs8.e in FNeighbors:
 					base[1] = minis[1] + 12
 					base[3] = minis[3] + 12
 					changed[1] = true
