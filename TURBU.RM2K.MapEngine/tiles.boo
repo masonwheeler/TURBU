@@ -150,10 +150,10 @@ abstract class TTile(TParentSprite):
 	
 	private static def DecodeZOrder(value as TTileAttribute) as byte:
 		if TTileAttribute.Overhang in value:
-			result = 10
+			return 10
 		elif TTileAttribute.Ceiling in value:
-			result = 6
-		else: result = 1
+			return 6
+		else: return 1
 
 class TEventTile(TTile, IDisposable):
 

@@ -193,12 +193,16 @@ class TBorderTile(TMapTile):
 	protected def SetMinisPosition():
 		minitiles[0].X = self.X
 		minitiles[0].Y = self.Y
+		minitiles[0].Z = self.Z
 		minitiles[1].X = self.X + (self.Width / 2)
 		minitiles[1].Y = self.Y
+		minitiles[1].Z = self.Z
 		minitiles[2].X = self.X
 		minitiles[2].Y = self.Y + (self.Height / 2)
+		minitiles[2].Z = self.Z
 		minitiles[3].X = self.X + (self.Width / 2)
 		minitiles[3].Y = self.Y + (self.Height / 2)
+		minitiles[3].Z = self.Z
 
 	protected override def SetEngine(newEngine as TSpriteEngine):
 		super.SetEngine(newEngine)
