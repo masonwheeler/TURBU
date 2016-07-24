@@ -326,6 +326,8 @@ class TMedicineTemplate(TUsableItemTemplate):
 
 	public def constructor(value as JObject):
 		super(value)
+		value.CheckRead('HPHeal', FStat[0])
+		value.CheckRead('MPHeal', FStat[1])
 		value.CheckRead('AreaEffect', FAreaMedicine)
 		value.CheckRead('HPPercent', FHPPercent)
 		value.CheckRead('MPPercent', FMPPercent)
@@ -335,12 +337,12 @@ class TMedicineTemplate(TUsableItemTemplate):
 		value.CheckEmpty()
 
 	public HPHeal as int:
-		get: return FStat[1]
-		set: FStat[1] = value
+		get: return FStat[0]
+		set: FStat[0] = value
 
 	public MPHeal as int:
-		get: return FStat[2]
-		set: FStat[2] = value
+		get: return FStat[1]
+		set: FStat[1] = value
 
 [ItemType(TItemType.Book)]
 class TSkillBookTemplate(TUsableItemTemplate):
