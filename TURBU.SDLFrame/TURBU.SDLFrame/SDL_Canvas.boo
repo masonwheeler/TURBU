@@ -169,8 +169,10 @@ class TSdlCanvas(TSdlRenderSurface, ISdlCanvas):
 	public def Draw(image as TSdlImage, dest as TSgPoint, flip as SDL.SDL_RendererFlip):
 		if flip == SDL.SDL_RendererFlip.SDL_FLIP_NONE:
 			GPU_Blit(image.Surface, IntPtr.Zero, lCurrentRenderTarget.RenderTarget, dest.x + image.TextureSize.x / 2.0, dest.y + image.TextureSize.y / 2.0)
-		else: raise "Flips are not implemented"
-//			assert SDL_RenderCopyEx(FRenderer, image.Surface, IntPtr.Zero, dummy, 0, IntPtr.Zero, flip) == 0
+		else:
+			var xScale = (-1 if flip & SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL > 0 else 1)
+			var yScale = (-1 if flip & SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL > 0 else 1)
+			GPU_BlitScale(image.Surface, IntPtr.Zero, lCurrentRenderTarget.RenderTarget, dest.x + image.TextureSize.x / 2.0, dest.y + image.TextureSize.y / 2.0, xScale, yScale)
 
 	public def Draw(target as TSdlRenderTarget, dest as TSgPoint):
 		GPU_Blit(target.Image, IntPtr.Zero, lCurrentRenderTarget.RenderTarget, dest.x + target.Width / 2.0, dest.y + target.Height / 2.0)
