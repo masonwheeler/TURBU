@@ -470,7 +470,7 @@ class TMapSprite(TObject):
 
 	protected virtual def SetTranslucency(value as byte):
 		FTransparencyFactor = clamp(value, 0, MAX_TRANSPARENCY)
-		FTiles[0].Alpha = (8 - FTransparencyFactor) * TRANSPARENCY_STEP
+		FTiles[0].Alpha = (((MAX_TRANSPARENCY + 1) - FTransparencyFactor) * TRANSPARENCY_STEP) cast int
 
 	protected def SetFlashEvents(tile as TEventTile):
 		tile.OnMustFlash = self.MustFlash
@@ -698,6 +698,7 @@ class TMapSprite(TObject):
 		FMoveReversed = base.FMoveReversed
 		FMoveOpen = base.FMoveOpen
 		FMoveDir = base.FMoveDir
+		FTransparencyFactor = base.FTransparencyFactor
 		self.Facing = base.Facing if base isa TCharSprite
 		self.Location = base.Location
 
@@ -927,4 +928,4 @@ let MOVE_DELAY = (1064, 532, 266, 133, 67, 33)
 let WIDTH_BIAS = 4
 let FOOTSTEP_CONSTANT = (11, 10, 8, 6, 5, 5) //yay for fudge factors!
 let MAX_TRANSPARENCY = 7
-let TRANSPARENCY_STEP = 255 / (MAX_TRANSPARENCY + 1)
+let TRANSPARENCY_STEP = 255.0 / (MAX_TRANSPARENCY + 1)

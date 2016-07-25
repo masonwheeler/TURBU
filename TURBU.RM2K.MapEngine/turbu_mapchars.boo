@@ -104,6 +104,8 @@ class TRpgEvent(TRpgCharacter):
 
 	private FChangeSprite as bool
 
+	private FChangeSpriteIndex as int
+
 	private def SetLocation(value as TSgPoint):
 		lock self:
 			FBase.LeaveTile()
@@ -114,7 +116,7 @@ class TRpgEvent(TRpgCharacter):
 		return (TABLE[(FBase cast TCharSprite).Facing] if FIsChar else 2)
 
 	private def InternalChangeSprite():
-		FEvent.CurrentPage.OverrideSprite(FChangeSpriteName, FChangeSpriteTranslucent)
+		FEvent.CurrentPage.OverrideSprite(FChangeSpriteName, FChangeSpriteTranslucent, FChangeSpriteIndex)
 		SwitchType()
 		FChangeSprite = false
 
@@ -225,6 +227,7 @@ class TRpgEvent(TRpgCharacter):
 			FChangeSprite = true
 			FChangeSpriteName = Name
 			FChangeSpriteTranslucent = translucent
+			FChangeSpriteIndex = spriteIndex
 
 	[NoImport]
 	public def SwitchType():

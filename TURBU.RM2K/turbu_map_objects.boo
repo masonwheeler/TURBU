@@ -178,7 +178,6 @@ class TBattleEventConditions(TRpgEventConditions):
 
 class TRpgEventPage(TRpgDatafile):
 
-	[Property(SpriteIndex)]
 	protected FSpriteIndex as int
 
 	[Property(Frame)]
@@ -223,6 +222,8 @@ class TRpgEventPage(TRpgDatafile):
 	protected FOverrideFile as string
 
 	protected FOverrideTransparency as bool
+
+	protected FOverrideIndex as int
 
 	[Property(DoOverrideSprite)]
 	protected FOverrideSprite as bool
@@ -289,10 +290,18 @@ class TRpgEventPage(TRpgDatafile):
 	public IsTile as bool:
 		get: return self.Tilegroup != -1
 
-	public def OverrideSprite(filename as string, transparent as bool):
+	public def OverrideSprite(filename as string, transparent as bool, index as int):
 		FOverrideSprite = true
 		FOverrideFile = filename
 		FOverrideTransparency = transparent
+		FOverrideIndex = index
+
+	public SpriteIndex as int:
+		get: return (FOverrideIndex if FOverrideSprite else FSpriteIndex)
+		set:
+			if FOverrideSprite:
+				FOverrideIndex = value
+			else: FSpriteIndex = value
 
 	public PageName as string:
 		get: return (FOverrideFile if FOverrideSprite else super.Name)

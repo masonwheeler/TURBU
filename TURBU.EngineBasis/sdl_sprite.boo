@@ -194,10 +194,16 @@ class TSprite(TObject):
 		flip as SDL.SDL_RendererFlip = SDL.SDL_RendererFlip.SDL_FLIP_NONE
 		flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL if MirrorX
 		flip |= SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL if MirrorY
+		alphaSet as bool
+		if FAlpha > 0 and FAlpha < 255:
+			GPU_SetRGBA(self.Image.Surface, 255, 255, 255, self.Alpha)
+			alphaSet = true
+		else: alphaSet = false
 		caseOf FImageType:
 			case TImageType.SingleImage: FImage.Draw(topleft, flip)
 			case TImageType.SpriteSheet: FImage.DrawSprite(topleft, FPatternIndex, flip)
 			case TImageType.RectSet: FImage.DrawRect(topleft, self.DrawRect, flip)
+		GPU_UnsetColor(self.Image.Surface) if alphaSet
 
 	protected virtual def DoDraw():
 		return if (not FVisible) or (FImage == null)
