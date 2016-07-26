@@ -191,7 +191,7 @@ class RMProjectConverter(TThread):
 		File.WriteAllText(Path.Combine(_outputPath, "boot.boo"), values.ToCodeString())
 	
 	private static final OPCODES = HashSet[of int]((10130, 10630, 10640, 10650, 10660, 10670, 10680, 10710, 11110,
-																	11510, 11550, 11560, 11720))
+																11330, 11510, 11550, 11560, 11720))
 	
 	private def ScanScriptForResources(script as EventCommand*):
 		for opcode in script.Where({o | OPCODES.Contains(o.Opcode)}):
@@ -201,15 +201,28 @@ class RMProjectConverter(TThread):
 		caseOf opcode.Opcode:
 			case 10130, 10640: _everything.Add([|Portrait $(opcode.Name)|])
 			case 10630, 10650: _everything.Add([|Sprite $(opcode.Name)|])
-			case 10660, 11510: 
-				_everything.Add([|Music $(opcode.Name)|])
+			case 10660, 11510: _everything.Add([|Music $(opcode.Name)|])
 			case 10670, 11550: _everything.Add([|Sound $(opcode.Name)|])
 			case 10680: _everything.Add([|SysTile $(opcode.Name)|])
 			case 10710: _everything.Add([|BattleBG $(opcode.Name)|])
 			case 11110: _everything.Add([|Picture $(opcode.Name)|])
+			case 11330: ScanMove(opcode)
 			case 11560: _everything.Add([|Movie $(opcode.Name)|])
 			case 11720: _everything.Add([|Background $(opcode.Name)|])
 			default: assert false
+	
+	private def ScanMove(opcode as EventCommand):
+		moveString = opcode.Data.Skip(4).Select({value | return value cast byte}).ToArray()
+		ms = System.IO.MemoryStream(moveString)
+		while ms.Position < ms.Length:
+			ScanMoveOpcode(MoveOpcode(ms))
+	
+	private def ScanMoveOpcode(value as MoveOpcode):
+		return unless value.Code == 0x22 or value.Code == 0x23
+		if value.Code == 0x22:
+			_everything.Add([|Sprite $(value.Name)|])
+		else:
+			_everything.Add([|Sound $(value.Name)|])
 	
 	private static def MapResources(map as MacroStatement) as Block:
 		mre = MapResourceExtractor()
