@@ -281,7 +281,7 @@ class TMapSprite(TObject):
 		else: ++destination.y
 		if two == TDirections.Left:
 			--destination.x
-		else: --destination.x
+		else: ++destination.x
 		return PointInRect(destination, SDL.SDL_Rect(0, 0, FEngine.Width, FEngine.Height)) and CurrentTile().Open(self)
 
 	public def Up():
