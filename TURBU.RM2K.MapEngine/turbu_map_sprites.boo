@@ -82,6 +82,8 @@ class TMapSprite(TObject):
 
 	private FFlashLength as int
 
+	protected FForceTurn as bool
+
 	private def TryMove(where as TDirections) as bool:
 		FMoveOpen = self.Move(where)
 		return FMoveOpen or CanSkip
@@ -183,18 +185,18 @@ class TMapSprite(TObject):
 		return result
 
 	private def SetMovePause():
-		frequency as int
 		if FMoveFreq not in range(1, 9):
 			raise Exception("Invalid move frequency: $FMoveFreq")
 		if FMoveFreq < 8:
-			frequency = 8 - FMoveFreq
+			var frequency = 8 - FMoveFreq
 			frequency = 2 ** frequency
 			FPause = TRpgTimestamp(frequency * (BASE_MOVE_DELAY - 15) / 4)
 		else: FPause = null
 
 	private def OpChangeFacing(dir as TDirections):
-		self.Facing = dir
-		FMoveTime = TRpgTimestamp(100)
+		preserving FForceTurn:
+			FForceTurn = true
+			self.Facing = dir
 		FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate - 1] / 3)
 
 	private DirLocked as bool:
@@ -243,7 +245,8 @@ class TMapSprite(TObject):
 			GSpriteEngine.value.AddLocation(self.Location, self)
 
 	protected virtual def SetFacing(Data as TDirections):
-		if FUnderConstruction or not (self.HasPage and (FMapObj.CurrentPage.AnimType in range(TAnimType.FixedDir, TAnimType.Statue + 1))):
+		if FUnderConstruction or FForceTurn or \
+				not (self.HasPage and (FMapObj.CurrentPage.AnimType in range(TAnimType.FixedDir, TAnimType.Statue + 1))):
 			FFacing = Data
 		FMoveDir = Data
 
