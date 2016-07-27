@@ -400,7 +400,7 @@ class TMenuEngine(TObject, IMenuEngine):
 
 	def Button(input as TButtonCode):
 		if FState == TMenuShowState.Off:
-			raise EParseMessage('Tried to send a Menu command when the Menu was not active!')
+			raise EFatalError('Tried to send a Menu command when the Menu was not active!')
 		else: FCurrentPage.Button(input)
 
 	def Draw():
