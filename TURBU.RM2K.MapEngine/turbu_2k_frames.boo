@@ -534,8 +534,9 @@ class TSysFrame(TSystemTile):
 	private static FGraphic as TSystemImages
 
 	protected virtual def SkinChanged(Name as string):
-		for sprite in self.FList:
-			sprite.ImageName = Name
+		if assigned(FList):
+			for sprite in self.FList:
+				sprite.ImageName = Name
 		self.ImageName = Name
 
 	public def constructor(parent as TMenuSpriteEngine, displacement as TSgPoint, length as int, coords as GPU_Rect):
