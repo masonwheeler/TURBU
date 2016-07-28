@@ -115,10 +115,10 @@ class TSystemImages(TObject):
 		GFontEngine.OnGetDrawRect = self.GetDrawRect
 
 	private def GetDrawRect(value as int) as GPU_Rect:
-		assert value in range(1, 21)
+		assert value >= 0 and value < 20
 		result = FRects[TSystemRects.Colors]
-		result.y += result.h if value > 10
-		result.x += result.w * ((value - 1) % 10)
+		result.y += result.h if value >= 10
+		result.x += result.w * (value % 10)
 		return result
 
 	private def GetHandle() as GPU_Image_PTR:
@@ -736,7 +736,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			caseOf line[1]:
 				case char('$'): DrawLine(GEnvironment.value.Money.ToString())
 				case char('_'): FTextPosX = (FTextPosX + HALF_CHAR)
-				case char('C'): FTextColor = clamp(GetIntegerValue(line), 1, 20)
+				case char('C'): FTextColor = clamp(GetIntegerValue(line), 0, 19)
 				case char('V'): DrawLine(GEnvironment.value.Ints[GetIntegerValue(line)].ToString())
 				case char('N'): DrawLine(GetHeroName(GetIntegerValue(line)))
 		else: DrawGlyph(line[1])
@@ -771,7 +771,7 @@ abstract class TCustomMessageBox(TSysFrame):
 		FTextCounter = 0
 		FTextLine = -1
 		NewLine()
-		FTextColor = 1
+		FTextColor = 0
 
 	protected def ParseToken(input as string, ref counter as int) as string:
 		assert input[counter] == char('\\')

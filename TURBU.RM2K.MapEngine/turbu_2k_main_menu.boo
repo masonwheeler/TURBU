@@ -35,27 +35,27 @@ class TGamePartyPanel(TCustomPartyPanel):
 			FPortrait[i - 1].Draw()
 			var origin2 = sgPoint(round(FPortrait[i - 1].X - Engine.WorldX) + 54, round(FPortrait[i - 1].Y - Engine.WorldY) + 2)
 			hero as TRpgHero = GEnvironment.value.Party[i]
-			GFontEngine.DrawText(target, hero.Name, origin2.x, origin2.y, 1)
-			GFontEngine.DrawText(target, hero.Title, origin2.x + 92, origin2.y, 1)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_LV], origin2.x, (origin2.y + 16), 2)
-			GFontEngine.DrawText(target, hero.Level.ToString(), origin2.x + 16, origin2.y + 16, 1)
+			GFontEngine.DrawText(target, hero.Name, origin2.x, origin2.y, 0)
+			GFontEngine.DrawText(target, hero.Title, origin2.x + 92, origin2.y, 0)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_LV], origin2.x, (origin2.y + 16), 1)
+			GFontEngine.DrawText(target, hero.Level.ToString(), origin2.x + 16, origin2.y + 16, 0)
 			if hero.HighCondition == 0:
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_NORMAL_STATUS], (origin2.x + 38), (origin2.y + 16), 1)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_NORMAL_STATUS], (origin2.x + 38), (origin2.y + 16), 0)
 			else:
 				cond as TConditionTemplate = GDatabase.value.Conditions[hero.HighCondition]
 				GFontEngine.DrawText(target, cond.Name, origin2.x + 38, origin2.y + 16, cond.Color)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_HP], origin2.x + 102, origin2.y + 16, 2)
-			GFontEngine.DrawTextRightAligned(target, hero.HP.ToString(), origin2.x + 138, origin2.y + 16, 1)
-			GFontEngine.DrawText(target, '/', origin2.x + 138, origin2.y + 16, 1)
-			GFontEngine.DrawTextRightAligned(target, hero.MaxHp.ToString(), origin2.x + 162, origin2.y + 16, 1)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_EXP], origin2.x, origin2.y + 32, 2)
-			GFontEngine.DrawTextRightAligned(target, hero.Exp.ToString(), origin2.x + 54, origin2.y + 32, 1)
-			GFontEngine.DrawText(target, '/', origin2.x + 54, origin2.y + 32, 1)
-			GFontEngine.DrawTextRightAligned(target, (hero.Exp + hero.ExpNeeded).ToString(), origin2.x + 98, origin2.y + 32, 1)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_MP], origin2.x + 102, origin2.y + 32, 2)
-			GFontEngine.DrawTextRightAligned(target, hero.MP.ToString(), origin2.x + 138, origin2.y + 32, 1)
-			GFontEngine.DrawText(target, '/', origin2.x + 138, origin2.y + 32, 1)
-			GFontEngine.DrawTextRightAligned(target, hero.MaxMp.ToString(), origin2.x + 162, origin2.y + 32, 1)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_HP], origin2.x + 102, origin2.y + 16, 1)
+			GFontEngine.DrawTextRightAligned(target, hero.HP.ToString(), origin2.x + 138, origin2.y + 16, 0)
+			GFontEngine.DrawText(target, '/', origin2.x + 138, origin2.y + 16, 0)
+			GFontEngine.DrawTextRightAligned(target, hero.MaxHp.ToString(), origin2.x + 162, origin2.y + 16, 0)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_EXP], origin2.x, origin2.y + 32, 1)
+			GFontEngine.DrawTextRightAligned(target, hero.Exp.ToString(), origin2.x + 54, origin2.y + 32, 0)
+			GFontEngine.DrawText(target, '/', origin2.x + 54, origin2.y + 32, 0)
+			GFontEngine.DrawTextRightAligned(target, (hero.Exp + hero.ExpNeeded).ToString(), origin2.x + 98, origin2.y + 32, 0)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_MP], origin2.x + 102, origin2.y + 32, 1)
+			GFontEngine.DrawTextRightAligned(target, hero.MP.ToString(), origin2.x + 138, origin2.y + 32, 0)
+			GFontEngine.DrawText(target, '/', origin2.x + 138, origin2.y + 32, 0)
+			GFontEngine.DrawTextRightAligned(target, hero.MaxMp.ToString(), origin2.x + 162, origin2.y + 32, 0)
 			++i
 
 	public override def DoSetup(value as int):
@@ -98,7 +98,7 @@ End Game"""
 		if self.Visible:
 			for i in range(0, Math.Min(FParsedText.Count - 1, 4) + 1):
 				yVal = 3 + (i * 15)
-				color as int = (1 if FOptionEnabled[i] else 4)
+				color as int = (0 if FOptionEnabled[i] else 3)
 				GFontEngine.DrawText(FTextTarget.RenderTarget, FParsedText[i], 4, yVal, color)
 
 	public override def DoSetup(value as int):

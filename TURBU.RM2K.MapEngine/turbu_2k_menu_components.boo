@@ -21,8 +21,8 @@ class TGameCashMenu(TGameMenuBox):
 		Money as string = GEnvironment.value.Money.ToString()
 		yPos as single = 2
 		target = FTextTarget.RenderTarget
-		xPos as single = GFontEngine.DrawTextRightAligned(target, GDatabase.value.Vocab[V_MONEY_NAME], GetRightSide(), yPos, 2).x
-		GFontEngine.DrawTextRightAligned(target, Money, xPos - 4, yPos, 1)
+		xPos as single = GFontEngine.DrawTextRightAligned(target, GDatabase.value.Vocab[V_MONEY_NAME], GetRightSide(), yPos, 1).x
+		GFontEngine.DrawTextRightAligned(target, Money, xPos - 4, yPos, 0)
 
 abstract class TCustomScrollBox(TGameMenuBox):
 
@@ -73,7 +73,7 @@ abstract class TCustomScrollBox(TGameMenuBox):
 		if FLastLineColumns > 0:
 			for i in range(max + 1, FParsedText.Count):
 				j = i - (max + 1)
-				color = (1 if FOptionEnabled[i] else 4)
+				color = (0 if FOptionEnabled[i] else 3)
 				GFontEngine.DrawTextCentered(
 					FTextTarget.RenderTarget,
 					FParsedText[i],
@@ -107,7 +107,7 @@ class TOnelineLabelBox(TCustomOnelineBox):
 
 	public override def DrawText():
 		assert FOrigin.x >= 0
-		GFontEngine.DrawText(FTextTarget.RenderTarget, FText, FOrigin.x + 2, FOrigin.y + 2, 1)
+		GFontEngine.DrawText(FTextTarget.RenderTarget, FText, FOrigin.x + 2, FOrigin.y + 2, 0)
 
 	public Text as string:
 		set:
@@ -127,21 +127,21 @@ class TOnelineCharReadout(TCustomOnelineBox):
 		hero = GEnvironment.value.Heroes[FChar]
 		yPos = 2
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, hero.Name, 0, yPos, 1)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab['StatShort-Lv'], 78, yPos, 2)
-		GFontEngine.DrawTextRightAligned(target, hero.Level.ToString(), 108, yPos, 1)
+		GFontEngine.DrawText(target, hero.Name, 0, yPos, 0)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab['StatShort-Lv'], 78, yPos, 1)
+		GFontEngine.DrawTextRightAligned(target, hero.Level.ToString(), 108, yPos, 0)
 		if hero.HighCondition == 0:
-			GFontEngine.DrawText(target, GDatabase.value.Vocab['Normal Status'], 118, yPos, 1)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab['Normal Status'], 118, yPos, 0)
 		else:
 			GFontEngine.DrawText(target, Name, 118, yPos, GDatabase.value.Conditions[hero.HighCondition].Color)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab['StatShort-HP'], 178, yPos, 2)
-		GFontEngine.DrawTextRightAligned(target, hero.HP.ToString(), 216, yPos, 1)
-		GFontEngine.DrawText(target, '/', 216, yPos, 1)
-		GFontEngine.DrawTextRightAligned(target, hero.MaxHp.ToString(), 240, yPos, 1)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab['StatShort-MP'], 246, yPos, 2)
-		GFontEngine.DrawTextRightAligned(target, hero.MP.ToString(), 280, yPos, 1)
-		GFontEngine.DrawText(target, '/', 280, yPos, 1)
-		GFontEngine.DrawTextRightAligned(target, hero.MaxMp.ToString(), 304, yPos, 1)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab['StatShort-HP'], 178, yPos, 1)
+		GFontEngine.DrawTextRightAligned(target, hero.HP.ToString(), 216, yPos, 0)
+		GFontEngine.DrawText(target, '/', 216, yPos, 0)
+		GFontEngine.DrawTextRightAligned(target, hero.MaxHp.ToString(), 240, yPos, 0)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab['StatShort-MP'], 246, yPos, 1)
+		GFontEngine.DrawTextRightAligned(target, hero.MP.ToString(), 280, yPos, 0)
+		GFontEngine.DrawText(target, '/', 280, yPos, 0)
+		GFontEngine.DrawTextRightAligned(target, hero.MaxMp.ToString(), 304, yPos, 0)
 
 abstract class TCustomPartyPanel(TGameMenuBox):
 

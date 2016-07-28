@@ -28,7 +28,6 @@ class TQuantityBox(TGameMenuBox):
 
 	private FSkill as TRpgSkill
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private new def Clear():
 		FItem = null
 		FSkill = null
@@ -38,12 +37,12 @@ class TQuantityBox(TGameMenuBox):
 			return
 		target = FTextTarget.RenderTarget
 		if assigned(FItem):
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_ITEMS_OWNED], 10, 2, 2)
-			GFontEngine.DrawTextRightAligned(target, FItem.Quantity.ToString(), 116, 2, 1)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_ITEMS_OWNED], 10, 2, 1)
+			GFontEngine.DrawTextRightAligned(target, FItem.Quantity.ToString(), 116, 2, 0)
 		else:
 			assert assigned(FSkill)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MP_COST], 10, 2, 2)
-			GFontEngine.DrawTextRightAligned(target, FSkill.Template.Cost.ToString(), 116, 2, 1)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MP_COST], 10, 2, 1)
+			GFontEngine.DrawTextRightAligned(target, FSkill.Template.Cost.ToString(), 116, 2, 0)
 
 	public RpgItem as TRpgItem:
 		set:
@@ -131,22 +130,22 @@ class TGameMiniPartyPanel(TCustomPartyPanel):
 			origin = sgPoint(Math.Round(FPortrait[i].X) + 54, Math.Round(FPortrait[i].Y) + 3)
 			hero = GEnvironment.value.Party[i]
 			target = FTextTarget.RenderTarget
-			GFontEngine.DrawText(target, hero.Name, origin.x + 1, origin.y, 1)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_LV], origin.x + 1, origin.y + 16, 1)
-			GFontEngine.DrawText(target, hero.Level.ToString(), origin.x + 17, origin.y + 16, 1)
+			GFontEngine.DrawText(target, hero.Name, origin.x + 1, origin.y, 0)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_LV], origin.x + 1, origin.y + 16, 0)
+			GFontEngine.DrawText(target, hero.Level.ToString(), origin.x + 17, origin.y + 16, 0)
 			if hero.HighCondition == 0:
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_NORMAL_STATUS], origin.x + 1, origin.y + 32, 1)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_NORMAL_STATUS], origin.x + 1, origin.y + 32, 0)
 			else:
 				cond = GDatabase.value.Conditions[hero.HighCondition]
 				GFontEngine.DrawText(target, cond.Name, origin.x + 1, origin.y + 32, cond.Color)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_HP], origin.x + 52, origin.y + 16, 2)
-			GFontEngine.DrawTextRightAligned(target, hero.HP.ToString(), origin.x + 86, origin.y + 16, 1)
-			GFontEngine.DrawText(target, '/', origin.x + 86, origin.y + 16, 1)
-			GFontEngine.DrawTextRightAligned(target, hero.MaxHp.ToString(), origin.x + 110, origin.y + 16, 1)
-			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_MP], origin.x + 52, origin.y + 32, 2)
-			GFontEngine.DrawTextRightAligned(target, hero.MP.ToString(), origin.x + 86, origin.y + 32, 1)
-			GFontEngine.DrawText(target, '/', origin.x + 86, origin.y + 32, 1)
-			GFontEngine.DrawTextRightAligned(target, hero.MaxMp.ToString(), origin.x + 110, origin.y + 32, 1)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_HP], origin.x + 52, origin.y + 16, 1)
+			GFontEngine.DrawTextRightAligned(target, hero.HP.ToString(), origin.x + 86, origin.y + 16, 0)
+			GFontEngine.DrawText(target, '/', origin.x + 86, origin.y + 16, 0)
+			GFontEngine.DrawTextRightAligned(target, hero.MaxHp.ToString(), origin.x + 110, origin.y + 16, 0)
+			GFontEngine.DrawText(target, GDatabase.value.Vocab[V_STAT_SHORT_MP], origin.x + 52, origin.y + 32, 1)
+			GFontEngine.DrawTextRightAligned(target, hero.MP.ToString(), origin.x + 86, origin.y + 32, 0)
+			GFontEngine.DrawText(target, '/', origin.x + 86, origin.y + 32, 0)
+			GFontEngine.DrawTextRightAligned(target, hero.MaxMp.ToString(), origin.x + 110, origin.y + 32, 0)
 			++i
 
 	public override def DoSetup(value as int):

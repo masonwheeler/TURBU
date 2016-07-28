@@ -40,25 +40,25 @@ class TCharStatBox(TGameMenuBox):
 		i as int
 		color as int
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, FChar.Name, FBoxOrigin.x, FBoxOrigin.y, 1)
+		GFontEngine.DrawText(target, FChar.Name, FBoxOrigin.x, FBoxOrigin.y, 0)
 		database = GDatabase.value
-		GFontEngine.DrawText(target, database.Vocab[V_STAT_ATTACK], FBoxOrigin.x, FBoxOrigin.y + 16, 2)
-		GFontEngine.DrawText(target, database.Vocab[V_STAT_DEFENSE], FBoxOrigin.x, FBoxOrigin.y + 32, 2)
-		GFontEngine.DrawText(target, database.Vocab[V_STAT_MIND], FBoxOrigin.x, FBoxOrigin.y + 48, 2)
-		GFontEngine.DrawText(target, database.Vocab[V_STAT_SPEED], FBoxOrigin.x, FBoxOrigin.y + 64, 2)
-		GFontEngine.DrawTextRightAligned(target, FChar.Attack.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 16, 1)
-		GFontEngine.DrawTextRightAligned(target, FChar.Defense.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 32, 1)
-		GFontEngine.DrawTextRightAligned(target, FChar.Mind.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 48, 1)
-		GFontEngine.DrawTextRightAligned(target, FChar.Agility.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 64, 1)
+		GFontEngine.DrawText(target, database.Vocab[V_STAT_ATTACK], FBoxOrigin.x, FBoxOrigin.y + 16, 1)
+		GFontEngine.DrawText(target, database.Vocab[V_STAT_DEFENSE], FBoxOrigin.x, FBoxOrigin.y + 32, 1)
+		GFontEngine.DrawText(target, database.Vocab[V_STAT_MIND], FBoxOrigin.x, FBoxOrigin.y + 48, 1)
+		GFontEngine.DrawText(target, database.Vocab[V_STAT_SPEED], FBoxOrigin.x, FBoxOrigin.y + 64, 1)
+		GFontEngine.DrawTextRightAligned(target, FChar.Attack.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 16, 0)
+		GFontEngine.DrawTextRightAligned(target, FChar.Defense.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 32, 0)
+		GFontEngine.DrawTextRightAligned(target, FChar.Mind.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 48, 0)
+		GFontEngine.DrawTextRightAligned(target, FChar.Agility.ToString(), FBoxOrigin.x + 76, FBoxOrigin.y + 64, 0)
 		for i in range(1, 5):
-			GFontEngine.DrawText(target, '->', FBoxOrigin.x + 76, FBoxOrigin.y + (i * 16), 2)
+			GFontEngine.DrawText(target, '->', FBoxOrigin.x + 76, FBoxOrigin.y + (i * 16), 1)
 		if FActive:
 			for i in range(1, 5):
 				if FPotential[i - 1] > FChar.Stat[i]:
-					color = 3
+					color = 2
 				elif FPotential[i - 1] < FChar.Stat[i]:
-					color = 4
-				else: color = 1
+					color = 3
+				else: color = 0
 				GFontEngine.DrawTextRightAligned(target, FPotential[i - 1].ToString(), FBoxOrigin.x + 108, FBoxOrigin.y + (i * 16), color)
 
 	public PotentialItem as TRpgItem:
@@ -155,15 +155,15 @@ class TGameEquipmentMenu(TGameMenuBox):
 		lOrigin as TSgPoint = ORIGIN
 		FPassiveCursor.Draw() unless self.Focused
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 6, lOrigin.y + 2, 2)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 6, lOrigin.y + 2, 1)
 		caseOf FChar.DualWield:
 			case TWeaponStyle.Single, TWeaponStyle.Shield:
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_SHIELD], lOrigin.x + 6, lOrigin.y + 18, 2)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_SHIELD], lOrigin.x + 6, lOrigin.y + 18, 1)
 			default :
-				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 6, lOrigin.y + 18, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ARMOR], lOrigin.x + 6, lOrigin.y + 34, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_HELMET], lOrigin.x + 6, lOrigin.y + 50, 2)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ACCESSORY], lOrigin.x + 6, lOrigin.y + 66, 2)
+				GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 6, lOrigin.y + 18, 1)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ARMOR], lOrigin.x + 6, lOrigin.y + 34, 1)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_HELMET], lOrigin.x + 6, lOrigin.y + 50, 1)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ACCESSORY], lOrigin.x + 6, lOrigin.y + 66, 1)
 		for i in range(0, 5):
 			GFontEngine.DrawText(target, FParsedText[i], lOrigin.x + 68, lOrigin.y + (i * 16) + 2, 1)
 

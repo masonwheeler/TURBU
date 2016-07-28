@@ -15,10 +15,10 @@ import SDL2.SDL2_GPU
 class TTitleMenu(TGameMenuBox):
 
 	protected override def DrawText():
-		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MENU_NEW], 4, 0, 1)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MENU_LOAD], 4, 16, 1)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MENU_QUIT], 4, 32, 1)
+		var target = FTextTarget.RenderTarget
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MENU_NEW], 4, 0, 0)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MENU_LOAD], 4, 16, 0)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_MENU_QUIT], 4, 32, 0)
 
 	protected override def DoCursor(position as short):
 		FCursorPosition = position
@@ -52,10 +52,9 @@ class TTitleMenu(TGameMenuBox):
 class TTitleMenuPage(TMenuPage):
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, layout as string):
-		TITLE_SCREEN = '*TitleScreen'
-		filename as string
+		var TITLE_SCREEN = '*TitleScreen'
 		super(parent, coords, main, layout)
-		filename = "Special Images\\$(GDatabase.value.Layout.TitleScreen).png"
+		var filename = "Special Images\\$(GDatabase.value.Layout.TitleScreen).png"
 		SetBG(filename, TITLE_SCREEN)
 
 let TITLE_LAYOUT = '[{"Name": "Main", "Class": "TTitleMenu",   "Coords": [130, 148, 200, 212]}]'

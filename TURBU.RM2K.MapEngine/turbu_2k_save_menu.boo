@@ -62,15 +62,15 @@ class TSaveBox(TGameMenuBox):
 		for portrait in FPortraits:
 			portrait.Dead()
 		data as TSaveData = (FOwner cast TSaveMenuPage).SaveData(FIndex)
-		var color = (1 if assigned(data) else 4)
+		var color = (0 if assigned(data) else 3)
 		var target = FTextTarget.RenderTarget
 		GFontEngine.DrawText(target, "File $FIndex", 6, 4, color)
 		if assigned(data):
-			GFontEngine.DrawText(target, data.Name, 6, 22, 1)
-			GFontEngine.DrawText(target, 'L', 6, 40, 2)
-			GFontEngine.DrawTextRightAligned(target, data.Level.ToString(), 22, 40, 1)
-			GFontEngine.DrawText(target, 'HP', 40, 40, 2)
-			GFontEngine.DrawTextRightAligned(target, data.Hp.ToString(), 70, 40, 1)
+			GFontEngine.DrawText(target, data.Name, 6, 22, 0)
+			GFontEngine.DrawText(target, 'L', 6, 40, 1)
+			GFontEngine.DrawTextRightAligned(target, data.Level.ToString(), 22, 40, 0)
+			GFontEngine.DrawText(target, 'HP', 40, 40, 1)
+			GFontEngine.DrawTextRightAligned(target, data.Hp.ToString(), 70, 40, 0)
 			Array.Resize[of TSprite](FPortraits, data.Portraits.Length)
 			for i in range(data.Portraits.Length):
 				FPortraits[i] = LoadPortrait(data.Portraits[i].Name, data.Portraits[i].Index)

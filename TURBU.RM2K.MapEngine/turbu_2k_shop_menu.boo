@@ -72,13 +72,13 @@ class TShopModeBox(TGameMenuBox):
 		let lOrigin = sgPoint(4, 2)
 		j as int
 		color as int
-		GFontEngine.DrawText(FTextTarget.RenderTarget, FParsedText[0], lOrigin.x, lOrigin.y, 1)
+		GFontEngine.DrawText(FTextTarget.RenderTarget, FParsedText[0], lOrigin.x, lOrigin.y, 0)
 		for i in range(1, FParsedText.Count):
 			j = i + 1
 			if FOptionEnabled[i - 1]:
-				color = 1
+				color = 0
 			else:
-				color = 4
+				color = 3
 			GFontEngine.DrawText(
 				FTextTarget.RenderTarget,
 				FParsedText[i],
@@ -186,19 +186,19 @@ class TTransactionMenu(TGameMenuBox):
 		align as TSgFloatPoint
 		return if FBlank or not assigned(FItem)
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, FItem.Name, 8, 42, 1)
-		GFontEngine.DrawText(target, 'x', 136, 42, 1)
-		GFontEngine.DrawTextRightAligned(target, FExistingQuantity.ToString(), 168, 42, 1)
-		align = GFontEngine.DrawTextRightAligned(target, GDatabase.value.Vocab[V_MONEY_NAME], self.GetRightSide(), 74, 2)
+		GFontEngine.DrawText(target, FItem.Name, 8, 42, 0)
+		GFontEngine.DrawText(target, 'x', 136, 42, 0)
+		GFontEngine.DrawTextRightAligned(target, FExistingQuantity.ToString(), 168, 42, 0)
+		align = GFontEngine.DrawTextRightAligned(target, GDatabase.value.Vocab[V_MONEY_NAME], self.GetRightSide(), 74, 1)
 		if FState == TTransactionState.Buying:
-			GFontEngine.DrawTextRightAligned(target, (FItem.Cost * FExistingQuantity).ToString(), align.x - 8, 74, 1)
+			GFontEngine.DrawTextRightAligned(target, (FItem.Cost * FExistingQuantity).ToString(), align.x - 8, 74, 0)
 		else:
 			GFontEngine.DrawTextRightAligned(
 				target,
 				Math.Truncate(FItem.Cost * FExistingQuantity * SELLBACK_RATIO).ToString(),
 				align.x - 8,
 				74,
-				1)
+				0)
 
 	public override def DoCursor(position as short):
 		if self.Focused:
@@ -409,10 +409,10 @@ class TShopQuantityBox(TGameMenuBox):
 	public override def DrawText():
 		return unless assigned(FItem)
 		target = FTextTarget.RenderTarget
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_ITEMS_OWNED], 2, 2, 2)
-		GFontEngine.DrawTextRightAligned(target, GEnvironment.value.HeldItems(FItem.ID, false).ToString(), self.GetRightSide(), 2, 1)
-		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_ITEMS_EQUIPPED], 2, 18, 2)
-		GFontEngine.DrawTextRightAligned(target, GEnvironment.value.HeldItems(FItem.ID, true).ToString(), self.GetRightSide(), 18, 1)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_ITEMS_OWNED], 2, 2, 1)
+		GFontEngine.DrawTextRightAligned(target, GEnvironment.value.HeldItems(FItem.ID, false).ToString(), self.GetRightSide(), 2, 0)
+		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_ITEMS_EQUIPPED], 2, 18, 1)
+		GFontEngine.DrawTextRightAligned(target, GEnvironment.value.HeldItems(FItem.ID, true).ToString(), self.GetRightSide(), 18, 0)
 
 class TShopItemMenu(TCustomGameItemMenu):
 
