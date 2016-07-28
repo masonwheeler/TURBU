@@ -490,7 +490,7 @@ class TMapSprite(TObject):
 		return Path(true) do(p as Path) as Func[of TObject, bool]*:
 			yield {m | return step()}
 
-	protected def MakeLoopingPath(step as Func of bool):
+	protected def MakeLoopingPath(step as Func[of TObject, bool]):
 		def steps(p as Path):
 			while true:
 				yield step
@@ -499,13 +499,13 @@ class TMapSprite(TObject):
 		return Path(false, steps)
 
 	private def MakeRandomPath():
-		return MakeLoopingPath({return self.RandomStep()})
+		return MakeLoopingPath({m as TObject| return self.RandomStep()})
 
 	private def MakeChasePath():
-		return MakeLoopingPath({return self.TowardsHero()})
+		return MakeLoopingPath({m as TObject| return self.TowardsHero()})
 
 	private def MakeFleePath():
-		return MakeLoopingPath({return self.AwayFromHero()})
+		return MakeLoopingPath({m as TObject| return self.AwayFromHero()})
 
 	protected def UpdateMove(Data as TRpgEventPage):
 		FMoveRate = Data.MoveSpeed
