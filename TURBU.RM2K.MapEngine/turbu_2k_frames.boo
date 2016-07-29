@@ -98,21 +98,25 @@ class TSystemImages(TObject):
 
 	internal def Setup(parent as TMenuSpriteEngine):
 		FBetterArrow = TSystemTile(parent, FRects[TSystemRects.MerchU], ARROW_DISPLACEMENT, 4)
-		FBetterArrow.ImageName = FFilename
 		FBetterArrow.DrawRect = FRects[TSystemRects.MerchU]
 		FDotArrow = TSystemTile(parent, FRects[TSystemRects.MerchDot], ARROW_DISPLACEMENT, 4)
-		FDotArrow.ImageName = FFilename
 		FDotArrow.DrawRect = FRects[TSystemRects.MerchDot]
 		FWorseArrow = TSystemTile(parent, FRects[TSystemRects.MerchD], ARROW_DISPLACEMENT, 4)
-		FWorseArrow.ImageName = FFilename
 		FWorseArrow.DrawRect = FRects[TSystemRects.MerchD]
 		FEqualValue = TSystemTile(parent, FRects[TSystemRects.MerchEq], ARROW_DISPLACEMENT, 4)
-		FEqualValue.ImageName = FFilename
 		FEqualValue.DrawRect = FRects[TSystemRects.MerchEq]
+		UpdateImage(FFilename)
 		if not assigned(GFontEngine):
 			System.Diagnostics.Debugger.Break()
 		GFontEngine.OnGetColor = self.GetHandle
 		GFontEngine.OnGetDrawRect = self.GetDrawRect
+		parent.AddSkinNotification(self, self.UpdateImage)
+
+	private def UpdateImage(filename as string):
+		FBetterArrow.ImageName = filename
+		FDotArrow.ImageName = filename
+		FWorseArrow.ImageName = filename
+		FEqualValue.ImageName = filename
 
 	private def GetDrawRect(value as int) as GPU_Rect:
 		assert value >= 0 and value < 20
