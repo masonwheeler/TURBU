@@ -165,19 +165,19 @@ struct TSgColor:
 	public Color as uint
 
 	[FieldOffset(0)]
-	[Getter(R)]
+	[Property(R)]
 	private _R as byte
 	
 	[FieldOffset(1)]
-	[Getter(G)]
+	[Property(G)]
 	private _G as byte
 
 	[FieldOffset(2)]
-	[Getter(B)]
+	[Property(B)]
 	private _B as byte
 
 	[FieldOffset(3)]
-	[Getter(A)]
+	[Property(A)]
 	private _A as byte
 
 	Rgba[index as byte] as byte:

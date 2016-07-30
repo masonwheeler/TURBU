@@ -164,6 +164,7 @@ vec3 ProcessShifts(vec3 rgbColor)
 #version 130
 in vec2 RPG_Vertex;
 in vec2 RPG_TexCoord;
+in vec4 RPG_Color;
 uniform mat4 RPG_ModelViewProjectionMatrix;
 out vec2 texture_coordinate;
 out vec4 v_color;
@@ -174,7 +175,7 @@ void main()
 	
 	// Passing The Texture Coordinate Of Texture Unit 0 To The Fragment Shader
 	texture_coordinate = RPG_TexCoord;
-	v_color = gl_Color;
+	v_color = RPG_Color;
 	gl_FrontColor = gl_Color;
 }""")
 
@@ -201,9 +202,35 @@ varying vec4 v_color;
 varying vec2 texture_coordinate; 
 uniform sampler2D baseTexture; 
 
+void MixChannel(inout float channel, float modifier, float alpha, float gray)
+{
+	if (modifier < 1.0)
+		channel = mix(gray * modifier, channel, alpha);
+	else if (modifier > 1.0)
+		channel += (modifier - 1.0) * alpha;
+}
+
+vec3 MixRGBValue(vec3 rgbColor, vec4 value)
+{
+	float gray;
+	
+	gray = (rgbColor.r + rgbColor.g + rgbColor.b) / 3.0;
+
+	MixChannel(rgbColor.r, value.r, value.a, gray);
+	MixChannel(rgbColor.g, value.g, value.a, gray);
+	MixChannel(rgbColor.b, value.b, value.a, gray);
+	return rgbColor;
+}
+
+const vec4 STANDARD = vec4(1.0, 1.0, 1.0, 1.0);
+
 void main() 
-{ 
-	gl_FragColor = texture2D(baseTexture, texture_coordinate) * v_color; 
+{
+	vec4 result;
+	result = texture2D(baseTexture, texture_coordinate) * v_color;
+	if (v_color != STANDARD)
+		result = vec4(MixRGBValue(result.rgb, v_color), result.a);
+	gl_FragColor = result;
 }""")
 
 		self.Fragment.Add('tint',
@@ -281,10 +308,32 @@ void main(void)
 #version 110
 varying vec2 texture_coordinate;
 uniform sampler2D baseTexture;
+varying vec4 v_color;
+
+void MixChannel(inout float channel, float modifier, float alpha, float gray)
+{
+	if (modifier < 1.0)
+		channel = mix(gray * modifier, channel, alpha);
+	else if (modifier > 1.0)
+		channel += (modifier - 1.0) * alpha;
+}
+
+vec3 MixRGBValue(vec3 rgbColor, vec4 value)
+{
+	float gray;
+	
+	gray = (rgbColor.r + rgbColor.g + rgbColor.b) / 3.0;
+
+	MixChannel(rgbColor.r, value.r, value.a, gray);
+	MixChannel(rgbColor.g, value.g, value.a, gray);
+	MixChannel(rgbColor.b, value.b, value.a, gray);
+	return rgbColor;
+}
 
 void main()
 {
-	gl_FragColor = vec4(texture2D(baseTexture, texture_coordinate).rgb, gl_Color.a);
+	vec3 base = MixRGBValue(texture2D(baseTexture, texture_coordinate).rgb, v_color);
+	gl_FragColor = vec4(base, 1.0);
 }""")
 
 		self.Fragment.Add('Ellipse',

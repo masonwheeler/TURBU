@@ -67,10 +67,10 @@ class TRpgImageSprite(TSprite):
 		FCenterY = y
 
 	private def ApplyColor():
-		self.Red = Math.Min(commons.round((FColor.Rgba[1] * 1.275)), 255)
-		self.Green = Math.Min(commons.round((FColor.Rgba[2] * 1.275)), 255)
-		self.Blue = Math.Min(commons.round((FColor.Rgba[3] * 1.275)), 255)
-		self.FSaturation = Math.Min(commons.round((FColor.Rgba[4] * 1.275)), 255)
+		self.Red = Math.Min(commons.round((FColor.Rgba[1] * 2.55)), 255)
+		self.Green = Math.Min(commons.round((FColor.Rgba[2] * 2.55)), 255)
+		self.Blue = Math.Min(commons.round((FColor.Rgba[3] * 2.55)), 255)
+		self.FSaturation = Math.Max(Math.Min(commons.round((FColor.Rgba[4] * 2.55)), 255), 0)
 
 	private def Update():
 		dummy as single
@@ -101,7 +101,7 @@ class TRpgImageSprite(TSprite):
 		if FRotation != FRotationTarget:
 			MoveTowards(TimeRemaining, FRotation, FRotationTarget)
 		if FRotation != 0:
-			self.Angle += ((FRotation cast double) / (ROTATE_FACTOR cast double))
+			self.Angle += FRotation / ROTATE_FACTOR
 		else:
 			self.Angle = 0
 		if FWavePower != FWaveTarget:
@@ -114,8 +114,8 @@ class TRpgImageSprite(TSprite):
 			shaders.UseShaderProgram(shaders.ShaderProgram('default', 'defaultF'))
 		else:
 			shaders.UseShaderProgram(shaders.ShaderProgram('default', 'noAlpha'))
-		currentColor = GPU_GetColor(self.Image.Surface)
-		GPU_SetRGBA(self.Image.Surface, 255, 255, 255, self.Alpha)
+		var currentColor = GPU_GetColor(self.Image.Surface)
+		GPU_SetRGBA(self.Image.Surface, self.Red, self.Green, self.Blue, FSaturation)
 		if Pinned:
 			cx = (FCenterX + Engine.WorldX) - FBaseWX
 			cy = (FCenterY + Engine.WorldY) - FBaseWY
@@ -202,7 +202,10 @@ class TRpgImageSprite(TSprite):
 		self.CenterOn(x, y)
 		FRefTarget = sgPointF(x, y)
 		FMasked = masked
-		self.ApplyImageColors(100, 100, 100, 100)
+		self.ApplyImageColors(100, 100, 100, -1)
+		for i in range(1, 5):
+			FColor.Rgba[i] = FColorTarget.Rgba[i]
+		ApplyColor()
 		self.Alpha = 255
 		FAlphaTarget = 255
 		FRpgImage = image
@@ -213,13 +216,15 @@ class TRpgImageSprite(TSprite):
 		FRpgImage.ClearSprite()
 
 	public def ApplyImageColors(r as int, g as int, b as int, sat as int):
-		FColorTarget.Rgba[1] = Math.Min(r, 200)
-		FColorTarget.Rgba[2] = Math.Min(g, 200)
-		FColorTarget.Rgba[3] = Math.Min(b, 200)
-		FColorTarget.Rgba[4] = Math.Min(sat, 200)
-		for i in range(1, 5):
-			FColor.Rgba[i] = FColorTarget.Rgba[i]
-		ApplyColor()
+		FColorTarget.R = Math.Min(r, 200)
+		FColorTarget.G = Math.Min(g, 200)
+		FColorTarget.B = Math.Min(b, 200)
+		if FColor.A < 0:
+			FColor.R = FColorTarget.R
+			FColor.G = FColorTarget.G
+			FColor.B = FColorTarget.B
+			FColor.A = 100
+		FColorTarget.A = Math.Max(Math.Min(sat, 200), 0)
 
 	public def ApplyImageEffect(which as TImageEffects, power as int):
 		power = Math.Min(power, 10)
@@ -341,4 +346,4 @@ class TRpgImage(TObject):
 		get: return FSprite.Timer
 		set: FSprite.Timer = value
 
-let ROTATE_FACTOR = 30
+let ROTATE_FACTOR = 30.0
