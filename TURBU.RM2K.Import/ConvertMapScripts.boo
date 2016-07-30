@@ -728,13 +728,12 @@ class TScriptConverter:
 	
 	simpleConverter ConvertChangeBG:
 		def GetScrollType(v1 as int, v2 as int):
-			if v1 == 0 and v2 == 0:
+			if v1 == 0:
 				return [|TMapScrollType.None|]
-			elif v1 != 0 and v2 == 0:
+			elif v2 == 0:
 				return [|TMapScrollType.Scroll|]
 			else: return [|TMapScrollType.Autoscroll|]
 		
-		System.Diagnostics.Debugger.Break() if name == 'Chara1'
 		result = [|SetBGImage($name, $(values[3]), $(values[5]), $(GetScrollType(values[0], values[2])), \
 									$(GetScrollType(values[1], values[4])))|]
 	

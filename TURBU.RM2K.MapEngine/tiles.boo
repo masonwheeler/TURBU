@@ -273,11 +273,11 @@ class TBackgroundSprite(TSprite):
 	public def Scroll():
 		if (FScroll.ScrollX == TMapScrollType.Autoscroll) and (Engine.WorldX != FSavedOrigin.x):
 			self.OffsetX += (Engine.WorldX - FSavedOrigin.x) / 2.0
-		else:
+		elif FScroll.ScrollX != TMapScrollType.None:
 			self.OffsetX += FScroll.X * BG_SCROLL_RATE
 		if (FScroll.ScrollY == TMapScrollType.Autoscroll) and (Engine.WorldY != FSavedOrigin.y):
 			self.OffsetY += (Engine.WorldY - FSavedOrigin.y) / 2.0
-		else:
+		elif FScroll.ScrollY != TMapScrollType.None:
 			self.OffsetY += FScroll.Y * BG_SCROLL_RATE
 		FSavedOrigin = sgPointF(Engine.WorldX, Engine.WorldY)
 		while self.OffsetX > 0:
