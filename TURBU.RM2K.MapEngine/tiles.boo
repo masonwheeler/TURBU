@@ -267,6 +267,9 @@ class TBackgroundSprite(TSprite):
 		super(parent)
 		FScroll = TScrollData(x, y, autoX, autoY)
 
+	public override def IsBackground() as bool:
+		return true
+
 	public def Scroll():
 		if (FScroll.ScrollX == TMapScrollType.Autoscroll) and (Engine.WorldX != FSavedOrigin.x):
 			self.OffsetX += (Engine.WorldX - FSavedOrigin.x) / 2.0

@@ -250,6 +250,9 @@ class TSprite(TObject):
 			FParent.Remove(self)
 			FEngine.FDeadList.Remove(self)
 
+	public virtual def IsBackground() as bool:
+		return false
+
 	public virtual def Assign(value as TSprite):
 		FName = value.Name
 		FImageName = value.ImageName
@@ -740,7 +743,7 @@ class TSpriteRenderer:
 		if sprite.Z == FLastZ:
 			map = FLastMap
 		else:
-			System.Diagnostics.Debugger.Break() if sprite.Z == 0
+			System.Diagnostics.Debugger.Break() if sprite.Z == 0 and not sprite.IsBackground()
 			//manual TryGetValue.  Replace once https://github.com/boo-lang/boo/issues/133 is fixed
 			if FDrawMap.ContainsKey(sprite.Z):
 				map = FDrawMap[sprite.Z]
