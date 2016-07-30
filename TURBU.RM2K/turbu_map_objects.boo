@@ -346,6 +346,10 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 
 	FPageUpdater as Func of int
 
+	public event OnTurn as Action
+	
+	public event OnDoneTurn as Action of TDirections
+
 	public def constructor():
 		super()
 
@@ -371,6 +375,13 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 		AddPage(TRpgEventPage(value, FId, globals))
 		FCurrentPage = FPages[0]
 		value.CheckEmpty()
+
+	public def FaceHero():
+		OnTurn()
+
+	public def ResumeFacing():
+		if self.FCurrentPage is not null:
+			OnDoneTurn(FCurrentPage.Direction)
 
 	internal def Initialize():
 		for page in FPages:

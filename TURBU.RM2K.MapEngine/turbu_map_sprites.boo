@@ -193,7 +193,7 @@ class TMapSprite(TObject):
 			FPause = TRpgTimestamp(frequency * (BASE_MOVE_DELAY - 15) / 4)
 		else: FPause = null
 
-	private def OpChangeFacing(dir as TDirections):
+	protected def OpChangeFacing(dir as TDirections):
 		preserving FForceTurn:
 			FForceTurn = true
 			self.Facing = dir
@@ -770,6 +770,7 @@ class TEventSprite(TMapSprite):
 		self.Translucency = (3 if transparent else 0)
 		assert false
 
+[Disposable(Destroy, true)]
 class TCharSprite(TMapSprite):
 
 	[Getter(Frame)]
@@ -882,10 +883,20 @@ class TCharSprite(TMapSprite):
 		else: FActionMatrix = GDatabase.value.MoveMatrix[0]
 		if assigned(base):
 			SetLocation(sgPoint(base.Location.x, base.Location.y))
+			base.OnTurn += self.ActivateFaceHero
+			base.OnDoneTurn += self.OpChangeFacing
 		FUnderConstruction = false
 		self.SetFlashEvents(FTiles[0])
 		self.SetFlashEvents(FTiles[1])
 		FAnimTimer = TRpgTimestamp(0)
+
+	private new def Destroy():
+		if assigned(FMapObj):
+			FMapObj.OnTurn -= self.ActivateFaceHero
+			FMapObj.OnDoneTurn -= self.OpChangeFacing
+
+	private def ActivateFaceHero():
+		self.FaceHero()
 
 	public def Reload(imageName as string, index as byte):
 		FTiles[0].Name = imageName + index.ToString()

@@ -69,6 +69,7 @@ class TScriptThread(TThread):
 	protected override def Execute():
 		try:
 			while not Terminated:
+				CurrentObject.FaceHero()
 				if FPage.Trigger != TStartCondition.Parallel:
 					TScriptEngine.Instance.OnEnterCutscene()
 				try:
@@ -81,6 +82,7 @@ class TScriptThread(TThread):
 					FPage.Parent.Playing = false
 					if FPage.Trigger != TStartCondition.Parallel:
 						TScriptEngine.Instance.OnLeaveCutscene()
+					CurrentObject.ResumeFacing()
 					FSignal.Reset()
 					if self == FParent.TeleportThread:
 						self.Terminate()
