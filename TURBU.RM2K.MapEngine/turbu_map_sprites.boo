@@ -91,7 +91,7 @@ class TMapSprite(TObject):
 	private def TryMoveDiagonal(one as TDirections, two as TDirections) as bool:
 		return self.MoveDiag(one, two) or CanSkip
 
-	private def DirTowardsHero() as TDirections:
+	protected def DirTowardsHero() as TDirections:
 		var heroLoc = (GSpriteEngine.value.CurrentParty.Location if assigned(GSpriteEngine.value.CurrentParty) else sgPoint(0, 1000)))
 		return towards(self.Location, heroLoc)
 
@@ -193,11 +193,14 @@ class TMapSprite(TObject):
 			FPause = TRpgTimestamp(frequency * (BASE_MOVE_DELAY - 15) / 4)
 		else: FPause = null
 
-	protected def OpChangeFacing(dir as TDirections):
+	private def OpChangeFacing(dir as TDirections):
 		preserving FForceTurn:
 			FForceTurn = true
 			self.Facing = dir
 		FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate - 1] / 3)
+
+	protected def TurnChangeFacing(dir as TDirections):
+		self.Facing = dir
 
 	private DirLocked as bool:
 		get: return (self.HasPage and (FMapObj.CurrentPage.AnimType in range(TAnimType.FixedDir, TAnimType.SpinRight + 1))) or FDirLocked
@@ -884,7 +887,7 @@ class TCharSprite(TMapSprite):
 		if assigned(base):
 			SetLocation(sgPoint(base.Location.x, base.Location.y))
 			base.OnTurn += self.ActivateFaceHero
-			base.OnDoneTurn += self.OpChangeFacing
+			base.OnDoneTurn += self.TurnChangeFacing
 		FUnderConstruction = false
 		self.SetFlashEvents(FTiles[0])
 		self.SetFlashEvents(FTiles[1])
@@ -893,10 +896,10 @@ class TCharSprite(TMapSprite):
 	private new def Destroy():
 		if assigned(FMapObj):
 			FMapObj.OnTurn -= self.ActivateFaceHero
-			FMapObj.OnDoneTurn -= self.OpChangeFacing
+			FMapObj.OnDoneTurn -= self.TurnChangeFacing
 
 	private def ActivateFaceHero():
-		self.FaceHero()
+		self.TurnChangeFacing(DirTowardsHero())
 
 	public def Reload(imageName as string, index as byte):
 		FTiles[0].Name = imageName + index.ToString()
