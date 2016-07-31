@@ -211,7 +211,7 @@ class TRpgEventPage(TRpgDatafile):
 	protected FMoveSpeed as byte
 
 	[Property(Path)]
-	protected FPath = Path()
+	protected FPath as Path
 
 	[Property(MoveIgnore)]
 	protected FMoveIgnore as bool

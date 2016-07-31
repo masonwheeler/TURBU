@@ -6,6 +6,36 @@ import Boo.Lang.Compiler.Ast
 import Boo.Lang.PatternMatching
 import Newtonsoft.Json.Linq
 
+internal def AddValidators(clazz as ClassDefinition, methods as Method*):
+	var result = [|
+		public override def MapObjectValidPage(id as int) as System.Func of int:
+			caseOf id:
+				pass
+			return null
+	|]
+	var caseBody = (result.Body.FirstStatement cast MacroStatement).Body
+	for method in methods.OrderBy({n | n['ID'] cast int}):
+		clazz.Members.Add(method)
+		var methodID = method['ID'] cast int
+		var thisCase = [|
+			case $methodID: return $(ReferenceExpression(method.Name))
+		|]
+		caseBody.Add(thisCase)
+	clazz.Members.Add(result)
+
+internal def AddMoveScripts(clazz as ClassDefinition, methods as Method*):
+	var result = [|
+		protected override def InitializeRoutes():
+			pass
+	|]
+	var body = result.Body
+	for method in methods:
+		var obj = method['Obj'] cast int
+		var page = method['Page'] cast int
+		body.Add([| FMapObjects.First({m | return m.ID == $obj}).Pages[$page].Path = $(ReferenceExpression(method.Name))() |])
+		clazz.Members.Add(method)
+	clazz.Members.Add(result)
+
 macro MapData(id as int, body as Statement*):
 	var result = PropertyList(id, body)
 	AddResource('Maps', result)
@@ -15,20 +45,14 @@ macro MapData(id as int, body as Statement*):
 		var name = ReferenceExpression("Map$(id.ToString('D4'))")
 		var clazz = [|
 			partial class $name:
-				public override def MapObjectValidPage(id as int) as System.Func of int:
-					caseOf id:
-						pass
-					return null
+				pass
 		|]
-		var caseBody = ((clazz.Members[0] cast Method).Body.FirstStatement cast MacroStatement).Body
-		for method in methods.OrderBy({n | n['ID'] cast int}):
-			clazz.Members.Add(method)
-			var methodID = method['ID'] cast int
-			var thisCase = [|
-				case $methodID: return $(ReferenceExpression(method.Name))
-			|]
-			caseBody.Add(thisCase)
-		return TypeMemberStatement(clazz)
+		AddValidators(clazz, methods)
+		var moveScripts = MapData['MoveScripts'] cast Method*
+		if moveScripts is not null:
+			AddMoveScripts(clazz, moveScripts)
+			yield [| import System.Linq.Enumerable |]
+		yield clazz
 
 macro MapData.Size(x as int, y as int):
 	return JsonStatement(JProperty('Size', JArray(x, y)))
@@ -66,6 +90,17 @@ macro MapData.MapObjects(body as Statement*):
 		validator.Body.Add(ifst)
 		validator['ID'] = id
 		MapObjects.Body.Add(TypeMemberStatement(validator))
+		var moves = body.OfType[of TypeMemberStatement]()
+		for move in moves:
+			var moveMethod = move.TypeMember cast Method
+			moveMethod.Name = "Obj$(id)$(moveMethod.Name)"
+			moveMethod['Obj'] = id
+			var moveScripts = MapData['MoveScripts'] cast List[of Method]
+			if moveScripts is null:
+				moveScripts = List[of Method]()
+				MapData['MoveScripts'] = moveScripts
+			moveScripts.Add(moveMethod)
+				
 	MapData.Tags.Set[of Method*](body.OfType[of TypeMemberStatement]().Select({tm | tm.TypeMember}).Cast[of Method]())
 	return MakeListValue('MapObjects', body.OfType[of JsonStatement]())
 
@@ -98,6 +133,11 @@ macro MapData.MapObjects.MapObject.Pages(body as Statement*):
 		cond.TrueBlock.Add([|return $id|])
 		cond['ID'] = id
 		Pages.Body.Add(cond)
+		var moveScript = Page['MoveScript'] cast Method
+		if moveScript is not null:
+			moveScript.Name = "Page$(id.ToString('D3'))Move"
+			moveScript['Page'] = id - 1
+			MapObject.Body.Add(TypeMemberStatement(moveScript))
 	
 	MapObject.Body.Add(MakeListValue('Pages', body.OfType[of JsonStatement]()))
 	var selector = Flatten(body).OfType[of IfStatement]().OrderByDescending({n | return n['ID'] cast int}).ToList()
@@ -141,24 +181,10 @@ macro MapData.MapObjects.MapObject.Pages.Page.Conditions(body as ExpressionState
 	|]
 
 macro MapData.MapObjects.MapObject.Pages.Page.MoveScript(loop as bool, ignoreObstacles as bool, body as ExpressionStatement*):
-	var arr = JArray()
-	for value in body.Select({es | es.Expression}):
-		if value.NodeType == NodeType.ReferenceExpression:
-			arr.Add(value.ToString())
-		elif value.NodeType == NodeType.MethodInvocationExpression:
-			var mie = value cast MethodInvocationExpression
-			var name = mie.Target.ToString()
-			var args = mie.Arguments.Select(ExpressionValue).ToArray()
-			subArr = JArray(name)
-			subArr.Add(args)
-			arr.Add(subArr)
-		else:
-			var be = value cast BinaryExpression
-			var step = be.Left cast ReferenceExpression
-			var mult = be.Right cast IntegerLiteralExpression
-			arr.Add(JArray(step.Name, mult.Value))
-	var result = JObject()
-	result['Loop'] = loop
-	result['IgnoreObstacles'] = ignoreObstacles
-	result['Path'] = arr
-	return JsonStatement(JProperty('Path', result))
+	var bodyArr = ArrayLiteralExpression()
+	bodyArr.Items.AddRange(body.Select({es | es.Expression}))
+	var method = [|
+		private def Name() as turbu.pathing.Path:
+			return CreatePath($loop, $ignoreObstacles, $bodyArr)
+	|]
+	Page['MoveScript'] = method

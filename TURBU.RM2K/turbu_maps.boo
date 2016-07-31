@@ -199,7 +199,11 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		for obj in FMapObjects:
 			obj.Initialize()
 		MapScripts()
+		InitializeRoutes()
 		FInitialized = true
+	
+	protected virtual def InitializeRoutes():
+		pass
 	
 	protected virtual def MapScripts():
 		pass

@@ -109,3 +109,7 @@ def AddResource(name as string, value as JObject):
 		res = BSONResource(name)
 		cc.Parameters.Resources.Add(res)
 	res.Add(value)
+	
+[Extension]
+def SubMacro(base as MacroStatement, name as string) as MacroStatement:
+	return base.Body.Statements.OfType[of MacroStatement]().FirstOrDefault({ms | ms.Name == name})
