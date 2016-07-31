@@ -18,7 +18,7 @@ class TAsphyreTimer(TObject):
 	[Property(Enabled)]
 	private FEnabled as bool
 
-	event OnTimer as EventHandler
+	event OnTimer as Action
 
 	[Getter(FrameRate)]
 	private FFrameRate as int
@@ -59,7 +59,7 @@ class TAsphyreTimer(TObject):
 	static def SleepEx(dwMilliseconds as uint, bAlertable as bool) as uint:
 		pass
 	
-	public def constructor(fps as int, onTimer as EventHandler):
+	public def constructor(fps as int, onTimer as Action):
 		super()
 		Speed = 60.0
 		MaxFPS = fps
@@ -109,7 +109,7 @@ class TAsphyreTimer(TObject):
 			if Processed:
 				FixedDelta += DeltaFP
 				Processed = false
-			OnTimer(self, null)
+			OnTimer()
 			until NativeMethods.PeekMessage(msg, IntPtr.Zero, 0, 0, 0)
 
 	public Delta as double:
