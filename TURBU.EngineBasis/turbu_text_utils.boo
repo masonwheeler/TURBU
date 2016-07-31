@@ -82,7 +82,8 @@ class TFontEngine(TObject):
 		FTarget.Parent.PushRenderTarget()
 		FTarget.SetRenderer()
 		GPU_Clear(FTarget.RenderTarget)
-		FCurrent.Font.draw(FTarget.RenderTarget, 0, 0, text.ToString())
+		var targetText = (text.ToString() if text != char('%') else '%%')
+		FCurrent.Font.draw(FTarget.RenderTarget, 0, 0, targetText)
 		FTarget.Parent.PopRenderTarget()
 
 	private def DrawTargetPass1(target as GPU_Target_PTR, x as single, y as single):
