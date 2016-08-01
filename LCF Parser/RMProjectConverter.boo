@@ -126,7 +126,7 @@ class RMProjectConverter(TThread):
 	
 	private def SaveImageResources(values as string*, fromPath as string, toPath as string):
 		for value in values:
-			continue if string.IsNullOrEmpty(value)
+			continue if string.IsNullOrEmpty(value) or value.StartsWith('*')
 			loc = LocateFileGeneral(value, fromPath, IMG_TYPES)
 			if loc is null:
 				_report.MakeError("Unable to locate file $(fromPath)\\$value.", 2)
@@ -170,7 +170,7 @@ class RMProjectConverter(TThread):
 	
 	private def LocateFileSpecific(dir as string, filename as string, extensions as HashSet[of string]) as string:
 		return null unless Directory.Exists(dir)
-		return Directory.EnumerateFiles(dir, filename + '.*').FirstOrDefault({f | Path.GetExtension(f) in extensions})
+		return Directory.EnumerateFiles(dir, filename + '.*').FirstOrDefault({f | Path.GetExtension(f).ToLowerInvariant() in extensions})
 	
 	private def CopyBMP(filename as string, destination as string):
 		System.Drawing.Bitmap.FromFile(filename).Save(destination, System.Drawing.Imaging.ImageFormat.Png)
