@@ -502,13 +502,13 @@ class TMapSprite(TObject):
 		return Path(false, steps)
 
 	private def MakeRandomPath():
-		return MakeLoopingPath({m as TObject| return self.RandomStep()})
+		return MakeLoopingPath({m as TObject| return (m cast TMapSprite).RandomStep()})
 
 	private def MakeChasePath():
-		return MakeLoopingPath({m as TObject| return self.TowardsHero()})
+		return MakeLoopingPath({m as TObject| return (m cast TMapSprite).TowardsHero()})
 
 	private def MakeFleePath():
-		return MakeLoopingPath({m as TObject| return self.AwayFromHero()})
+		return MakeLoopingPath({m as TObject| return (m cast TMapSprite).AwayFromHero()})
 
 	protected def UpdateMove(Data as TRpgEventPage):
 		FMoveRate = Data.MoveSpeed
