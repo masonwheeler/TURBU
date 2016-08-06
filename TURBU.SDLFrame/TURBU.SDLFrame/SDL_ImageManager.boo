@@ -166,12 +166,12 @@ class TSdlImage(TObject):
 		get: return FTextureSize
 		set: 
 			var lSize = FImageSize
-			if (lSize.x % value.x > 0) or (lSize.y % value.y > 0):
-				raise ESdlImageException('Texture size is not evenly divisible into base image size.')
+			//I still think this check is a good idea, but RM2K disagrees and I have to stay compatible
+			#if (lSize.x % value.x > 0) or (lSize.y % value.y > 0):
+			#	raise ESdlImageException('Texture size is not evenly divisible into base image size.')
 			FTextureSize = value
 			FTexturesPerRow = lSize.x / value.x
 			FTextureRows = lSize.y / value.y
-
 
 	public Count as int:
 		get: return FTexturesPerRow * FTextureRows
