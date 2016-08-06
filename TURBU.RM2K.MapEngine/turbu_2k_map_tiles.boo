@@ -132,8 +132,8 @@ class TBorderTile(TMapTile):
 			elif (TDirs8.n | TDirs8.e) in FNeighbors:
 				minis[0] -= 10
 				minis[1] -= 10
-				minis[2] -= 10
-				minis[3] -= (22 if TDirs8.sw in FNeighbors else 10)
+				minis[2] -= (22 if TDirs8.sw in FNeighbors else 10)
+				minis[3] -= 10
 			elif (TDirs8.e | TDirs8.s) in FNeighbors:
 				minis[1] += 14
 				minis[2] += 14
