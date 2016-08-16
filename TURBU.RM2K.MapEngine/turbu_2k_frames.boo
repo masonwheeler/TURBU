@@ -532,6 +532,14 @@ class TSysFrame(TSystemTile):
 			Cursors.Add(key, result)
 		return result
 
+	private static def ClearFrames():
+		for value in Frames.Values:
+			GPU_FreeImage(value)
+		Frames.Clear()
+		for cursor in Cursors.Values:
+			cursor.Dispose()
+		Cursors.Clear()
+
 	[Getter(Bounds)]
 	protected FBounds as GPU_Rect
 
@@ -542,6 +550,7 @@ class TSysFrame(TSystemTile):
 			for sprite in self.FList:
 				sprite.ImageName = Name
 		self.ImageName = Name
+		ClearFrames()
 
 	public def constructor(parent as TMenuSpriteEngine, displacement as TSgPoint, length as int, coords as GPU_Rect):
 		super(parent, NULLRECT, commons.ORIGIN, 0)
