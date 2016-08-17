@@ -1,6 +1,7 @@
 namespace turbu.resists
 
 import System
+import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import turbu.classes
 import turbu.defs
@@ -33,6 +34,13 @@ enum TDotEffect:
 class TRpgResistable(TRpgDatafile):
 	[Property(Standard)]
 	private FStandard = array(int, 5)
+
+	public def constructor():
+		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.ReadArray('Standard', FStandard)
 
 [TableName('Conditions')]
 class TConditionTemplate(TRpgResistable):
@@ -150,6 +158,51 @@ class TConditionTemplate(TRpgResistable):
 
 	[Property(Tag)]
 	protected FTag as (int)
+
+	public def constructor():
+		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('OutOfBattle', FOutOfBattle)
+		value.CheckRead('Color', FColor)
+		value.CheckRead('Priority', FPriority)
+		value.CheckReadEnum('AttackLimit', FAttackLimit)
+		value.CheckRead('HealTurns', FHealTurns)
+		value.CheckRead('HealTurnPercent', FHealPercent)
+		value.CheckRead('HealShockPercent', FHealShock)
+		value.CheckRead('Attack', FAttackStat)
+		value.CheckRead('Defense', FDefenseStat)
+		value.CheckRead('Mind', FMindStat)
+		value.CheckRead('Speed', FSpeedStat)
+		value.CheckRead('ToHitChange', FToHitChange)
+		value.CheckRead('PhysBlock', FPhysBlock)
+		value.CheckRead('PhysCutoff', FPhysCutoff)
+		value.CheckRead('MagicReflect', FMagicReflect)
+		value.CheckRead('MagicCutoff', FMagCutoff)
+		value.CheckRead('UsesMessages', FUsesMessages)
+		value.CheckRead('AllyMessage', FAllyMessage)
+		value.CheckRead('EnemyMessage', FEnemyMessage)
+		value.CheckRead('AlreadyMessage', FAlreadyMessage)
+		value.CheckRead('NormalMessage', FNormalMessage)
+		value.CheckRead('RecoveryMessage', FRecoveryMessage)
+		value.CheckRead('HpTurnPercent', FHpTurnPercent)
+		value.CheckRead('HpTurnFixed', FHpTurnFixed)
+		value.CheckRead('HpStepCount', FHpStepCount)
+		value.CheckRead('HpStepQuantity', FHpStepQuantity)
+		value.CheckRead('MpTurnPercent', FMpTurnPercent)
+		value.CheckRead('MpTurnFixed', FMpTurnFixed)
+		value.CheckRead('MpStepCount', FMpStepCount)
+		value.CheckRead('MpStepQuantity', FMpStepQuantity)
+		value.CheckReadEnum('StatEffect', FStatEffect)
+		value.CheckRead('Evade', FEvade)
+		value.CheckRead('Reflect', FReflect)
+		value.CheckRead('EqLock', FEqLock)
+		value.CheckRead('Animation', FStatusAnimation)
+		value.CheckReadEnum('HPDot', FHpDot)
+		value.CheckReadEnum('MPDot', FMpDot)
+		value.ReadArray('Tag', FTag)
+		value.CheckEmpty()
 
 class TAttributeTemplate(TRpgResistable):
 
