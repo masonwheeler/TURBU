@@ -23,7 +23,7 @@ macro Skills:
 macro Skills.Skill(index as int, body as Statement*):
 	
 	macro SkillPower(values as int*):
-		return JsonStatement(JProperty('SkillPoer', JArray(values)))
+		return JsonStatement(JProperty('SkillPower', JArray(values)))
 	
 	macro Stats(values as bool*):
 		return JsonStatement(JProperty('Stats', JArray(values)))

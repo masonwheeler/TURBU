@@ -12,6 +12,7 @@ import turbu.defs
 import turbu.classes
 import turbu.sounds
 import turbu.animations
+import TURBU.Meta
 
 enum TSkillFuncStyle:
 	Bool
@@ -23,6 +24,12 @@ enum TSkillRange:
 	Self
 	Target
 	Area
+
+enum TSkillType:
+	Normal
+	Teleport
+	Variable
+	Script
 
 class TSkillGainInfo(TRpgDatafile):
 	def constructor():
@@ -46,9 +53,35 @@ class TSkillGainInfo(TRpgDatafile):
 
 [TableName('Skills')]
 class TSkillTemplate(TRpgDatafile):
-	
+
+	static def Create(value as JObject) as TSkillTemplate:
+		st as TSkillType
+		value.CheckReadEnum('SkillType', st)
+		caseOf st:
+			case TSkillType.Normal:
+				return TNormalSkillTemplate(value)
+			case TSkillType.Teleport:
+				return TTeleportSkillTemplate(value)
+			case TSkillType.Variable:
+				return TVariableSkillTemplate(value)
+			case TSkillType.Script:
+				return TScriptSkillTemplate(value)
+			default: raise "Unknown skill type: $st"
+
 	def constructor():
 		super()
+
+	def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Cost', FCost)
+		value.CheckRead('CostAsPercentage', FCostPercent)
+		value.CheckRead('Desc', FDescription)
+		value.CheckRead('UseString', FUseString)
+		value.CheckRead('UseString2', FUseString2)
+		value.CheckRead('FailureMessage', FFailureMessage)
+		value.CheckReadEnum('Usable', FUsableWhere)
+		value.CheckReadEnum('Range', FRange)
+		value.ReadArray('Tag', FTag)
 
 	[Property(Cost)]
 	private FCost as int
@@ -66,7 +99,7 @@ class TSkillTemplate(TRpgDatafile):
 	private FUseString2 as string
 
 	[Property(FailureMessage)]
-	private FFailureMessage as ushort
+	private FFailureMessage as int
 
 	[Property(Usable)]
 	private FUsableWhere as TUsableWhere
@@ -85,11 +118,27 @@ class TSkillTemplate(TRpgDatafile):
 
 class TNormalSkillTemplate(TSkillTemplate):
 
+	def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Offensive', FOffensive)
+		value.CheckRead('Animation', FAnim)
+		value.ReadArray('SkillPower', FSkillPower)
+		value.CheckRead('SuccessRate', FSuccessRate)
+		value.ReadArray('Stats', FStat)
+		value.CheckRead('Drain', FVampire)
+		value.CheckRead('Phased', FPhased)
+		value.ReadArray('Condition', FCondition)
+		value.CheckRead('ResistMod', FResistMod)
+		value.CheckRead('InflictReversed', FInflictReversed)
+		value.CheckRead('DisplaySprite', FDisplaySprite)
+		value.ReadArray('Attributes', FAttributes)
+		value.CheckEmpty()
+	
 	[Property(Offensive)]
 	private FOffensive as bool
 
 	[Property(Animation)]
-	private FAnim as ushort
+	private FAnim as int
 
 	[Property(SkillPower, value.Length == 5)]
 	private FSkillPower = array(int, 5)
@@ -155,7 +204,13 @@ class TNormalSkillTemplate(TSkillTemplate):
 	public Speed as bool:
 		get: return Stats[6]
 
-class TSpecialSkillTemplate(TSkillTemplate):
+abstract class TSpecialSkillTemplate(TSkillTemplate):
+
+	def constructor(value as JObject):
+		super(value)
+		var sfx = value['Sfx'] cast JObject
+		if assigned(sfx):
+			FSfx = TRpgSound(sfx)
 
 	[Property(Sfx)]
 	private FSfx as TRpgSound
@@ -165,10 +220,24 @@ class TSpecialSkillTemplate(TSkillTemplate):
 
 class TTeleportSkillTemplate(TSpecialSkillTemplate):
 
+	def constructor(value as JObject):
+		super(value)
+		value.CheckRead('TeleportTarget', FTarget)
+		value.CheckEmpty()
+
 	[Property(TeleportTarget)]
 	private FTarget as int
 
 class TVariableSkillTemplate(TSpecialSkillTemplate):
+
+	def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Which', FWhich)
+		value.CheckRead('IsVariable', FIsVar)
+		value.CheckRead('Magnitude', FMagnitude)
+		value.CheckReadEnum('Style', FStyle)
+		value.CheckReadEnum('Operation', FOperation)
+		value.CheckEmpty()
 
 	[Property(Which)]
 	private FWhich as int
@@ -186,6 +255,9 @@ class TVariableSkillTemplate(TSpecialSkillTemplate):
 	private FOperation as TBinaryOp
 
 class TScriptSkillTemplate(TSkillTemplate):
+
+	def constructor(value as JObject):
+		raise "Not implemented yet"
 
 	[Property(Event)]
 	private FEvent as Action of TRpgObject
