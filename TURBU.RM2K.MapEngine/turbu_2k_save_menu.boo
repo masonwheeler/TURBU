@@ -150,7 +150,9 @@ class TSaveMenuPage(TMenuPage):
 						leader = elem cast string
 					else:
 						leader = GDatabase.value.Hero[hero].Name
-					HP = heroObj['HitPoints'] cast int
+					if heroObj.TryGetValue('HitPoints', elem):
+						HP = elem cast int
+					else: HP = 0
 					if heroObj.TryGetValue('Level', elem):
 						LV = elem cast int
 					else:
