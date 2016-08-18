@@ -27,8 +27,7 @@ class TMultimap[of TKey, TValue](Dictionary[of TKey, List[of TValue]]):
 		self[key].Remove(value)
 
 	public new def Clear():
-		default as TKey
-		FLastKey = default
+		FLastKey = Default(TKey)
 		FLast = null
 		super.Clear()
 
