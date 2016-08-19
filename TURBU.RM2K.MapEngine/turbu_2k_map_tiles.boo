@@ -103,7 +103,7 @@ class TBorderTile(TMapTile):
 		if Neighbors != TDirs8.None:
 			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in FNeighbors:
 				for i in range(4):
-					minis[i] -= 26
+					minis[i] -= 24
 			elif (TDirs8.n | TDirs8.e | TDirs8.w) in FNeighbors:
 				minis[0] -= 14
 				minis[1] -= 10
