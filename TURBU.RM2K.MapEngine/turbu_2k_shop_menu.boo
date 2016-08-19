@@ -42,11 +42,9 @@ class TShopModeBox(TGameMenuBox):
 		FPromptLines = 1
 
 	public override def DoSetup(value as int):
-		which as int
-		i as int
 		super.DoSetup(value)
 		FParsedText.Clear()
-		which = (FOwner cast TShopMenuPage).Format
+		which as int = (FOwner cast TShopMenuPage).Format
 		if not FAccessed:
 			FParsedText.Add(GDatabase.value.VocabNum(V_SHOP_NUM_GREET, which))
 		else:
@@ -258,8 +256,7 @@ class TTransactionMenu(TGameMenuBox):
 			case TButtonCode.Right:
 				++FExistingQuantity if FExistingQuantity < maximum
 			case TButtonCode.Left:
-				assert FExistingQuantity > 0
-				--FExistingQuantity
+				--FExistingQuantity if FExistingQuantity > 1
 		if FExistingQuantity != current:
 			PlaySound(TSfxTypes.Cursor)
 			InvalidateText()
@@ -322,7 +319,9 @@ class TCompatSprite(TSprite):
 	public def constructor(AParent as TSpriteEngine, template as TRpgHero):
 		super(AParent)
 		FTemplate = template
-		self.ImageName = template.Template.MapSprite
+		var spriteName = template.Template.MapSprite
+		FEngine.Images.EnsureImage("Sprites\\$spriteName.png", spriteName)
+		self.ImageName = spriteName
 		self.SetSpecialRender()
 
 	public override def Draw():
@@ -358,23 +357,13 @@ class TShopCompatBox(TGameMenuBox):
 
 	private FItem as TRpgItem
 
-	private FParty as (TCompatSprite)
-
-	private def setItem(value as TRpgItem):
-		FItem = value
-		for i in range(1, MAXPARTYSIZE + 1):
-			if assigned(FParty[i]):
-				FParty[i].Item = value
-		(FOwner cast TShopMenuPage).Quantities.RpgItem = value
+	private FParty = array(TCompatSprite, MAXPARTYSIZE)
 
 	public override def DrawText():
 		let ONE_PIXEL = GPU_MakeRect(0, 0, 1, 1)
-		i as int
-		first as bool
-		if not assigned(FItem):
-			return
-		first = false
-		for I in range(1, MAXPARTYSIZE + 1):
+		return unless assigned(FItem)
+		var first = false
+		for i in range(MAXPARTYSIZE):
 			if assigned(FParty[i]):
 				if not first:
 					first = true
@@ -383,10 +372,9 @@ class TShopCompatBox(TGameMenuBox):
 		{ InvalidateText() }.Invoke()
 
 	public override def DoSetup(value as int):
-		i as byte
 		super.DoSetup(value)
-		for I in range(1, (MAXPARTYSIZE + 1)):
-			FParty[i].Dead()
+		for i in range(MAXPARTYSIZE):
+			FParty[i].Dead() if assigned(FParty[i])
 			FParty[i] = null
 			if GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
 				FParty[i] = TCompatSprite(self.Engine, GEnvironment.value.Party[i])
@@ -396,7 +384,11 @@ class TShopCompatBox(TGameMenuBox):
 
 	public RpgItem as TRpgItem:
 		set:
-			setItem(value)
+			FItem = value
+			for i in range(MAXPARTYSIZE):
+				if assigned(FParty[i]):
+					FParty[i].Item = value
+			(FOwner cast TShopMenuPage).Quantities.RpgItem = value
 
 class TShopQuantityBox(TGameMenuBox):
 
@@ -570,8 +562,7 @@ class TShopMenuPage(TMenuPage):
 		SetVisible(true)
 
 	public override def SetupEx(data as TObject):
-		shopData as TShopData
-		shopData = (data cast TShopData)
+		var shopData = data cast TShopData
 		FInventory = shopData.Inventory
 		FStyle = shopData.ShopType
 		FFormat = shopData.MessageStyle

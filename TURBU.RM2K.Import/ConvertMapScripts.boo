@@ -373,7 +373,7 @@ class TScriptConverter:
 		items = ArrayLiteralExpression()
 		for i in range(4, ec.Data.Count):
 			items.Items.Add(Expression.Lift(ec.Data[i]))
-		return SetupMif(converter, ec, parent, [|Shop(TShopTypes.$(ReferenceExpression(Enum.GetName(TShopTypes, ec.Data[0]))), $(ec.Data[1]), $items)|])
+		return SetupMif(converter, ec, parent, [|Shop(TShopTypes.$(ReferenceExpression(Enum.GetName(TShopTypes, ec.Data[0]))), $(ec.Data[1] + 1), $items)|])
 	
 	private static def SetupMif(converter as TScriptConverter, ec as EventCommand, parent as Block, \
 										 expr as Expression) as Block:

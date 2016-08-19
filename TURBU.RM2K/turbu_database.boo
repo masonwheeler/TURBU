@@ -167,7 +167,7 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 			FBgm[i] = song
 	
 	def VocabNum(name as string, num as int) as string:
-		assert false
+		return Vocab[string.Format(name, num)]
 
 	public Vocab[key as string] as string:
 		get: return FSysVocab.Vocab[key]

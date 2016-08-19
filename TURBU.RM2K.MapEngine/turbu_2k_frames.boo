@@ -464,8 +464,8 @@ class TMenuSpriteEngine(TSpriteEngine):
 		FMenuEngine.OpenMenu(name, FMenuInt)
 		FMenuState = TMenuState.Full
 
-	public def OpenMenuEx(Name as string, data as TObject):
-		FMenuEngine.OpenMenuEx(Name, data)
+	public def OpenMenuEx(name as string, data as TObject):
+		FMenuEngine.OpenMenuEx(name, data)
 		FMenuState = TMenuState.Full
 
 	public def AddSkinNotification(obj as TObject, notify as Action of string):

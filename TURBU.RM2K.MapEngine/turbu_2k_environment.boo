@@ -299,8 +299,7 @@ class T2kEnvironment(TObject):
 		else: result = FParty.Inventory.QuantityOf(id)
 		return result
 
-	public def Shop(shopType as TShopTypes, messageSet as int, Inventory as (int)) as bool:
-		using data = TShopData(shopType, messageSet, Inventory):
+	public def Shop(shopType as TShopTypes, messageSet as int, inventory as int*) as bool:
 			GMenuEngine.Value.OpenMenuEx('Shop', data)
 		GScriptEngine.value.SetWaiting({ return GMenuEngine.Value.State == TMenuState.None })
 		GScriptEngine.value.ThreadWait()
