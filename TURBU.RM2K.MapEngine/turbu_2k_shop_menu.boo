@@ -25,10 +25,7 @@ class TShopModeBox(TGameMenuBox):
 	internal FAccessed as bool
 
 	private new def Return():
-		if (FOwner cast TShopMenuPage).TransactionComplete:
-			GMenuEngine.Value.MenuInt = 1
-		else:
-			GMenuEngine.Value.MenuInt = 0
+		GMenuEngine.Value.MenuInt = (1 if (FOwner cast TShopMenuPage).TransactionComplete else 0)
 		(FOwner cast TShopMenuPage).FOngoing = false
 		(FOwner cast TShopMenuPage).ItemMenu.Inventory = null
 		super.Return()
@@ -36,7 +33,7 @@ class TShopModeBox(TGameMenuBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
 		Array.Resize[of bool](FOptionEnabled, 4)
-		for i in range(0, 4):
+		for i in range(4):
 			FOptionEnabled[i] = true
 		FColumns = 2
 		FPromptLines = 1
@@ -45,17 +42,15 @@ class TShopModeBox(TGameMenuBox):
 		super.DoSetup(value)
 		FParsedText.Clear()
 		which as int = (FOwner cast TShopMenuPage).Format
-		if not FAccessed:
-			FParsedText.Add(GDatabase.value.VocabNum(V_SHOP_NUM_GREET, which))
-		else:
-			FParsedText.Add(GDatabase.value.VocabNum(V_SHOP_NUM_CONTINUE, which))
+		var messageKey = (V_SHOP_NUM_CONTINUE if FAccessed else V_SHOP_NUM_GREET)
+		FParsedText.Add(GDatabase.value.VocabNum(messageKey, which))
 		FParsedText.Add(GDatabase.value.VocabNum(V_SHOP_NUM_BUY, which))
 		FParsedText.Add(GDatabase.value.VocabNum(V_SHOP_NUM_SELL, which))
 		FParsedText.Add('Equipment')
 		FParsedText.Add(GDatabase.value.VocabNum(V_SHOP_NUM_LEAVE, which))
 		self.PlaceCursor(0)
 		FAccessed = true
-		for i in range(0, 4):
+		for i in range(4):
 			FOptionEnabled[i] = true
 		caseOf cast(TShopMenuPage, FOwner).Style:
 			case TShopTypes.BuySell: pass
@@ -68,15 +63,10 @@ class TShopModeBox(TGameMenuBox):
 
 	public override def DrawText():
 		let lOrigin = sgPoint(4, 2)
-		j as int
-		color as int
 		GFontEngine.DrawText(FTextTarget.RenderTarget, FParsedText[0], lOrigin.x, lOrigin.y, 0)
 		for i in range(1, FParsedText.Count):
-			j = i + 1
-			if FOptionEnabled[i - 1]:
-				color = 0
-			else:
-				color = 3
+			var j = i + 1
+			var color = (0 if FOptionEnabled[i - 1] else 3)
 			GFontEngine.DrawText(
 				FTextTarget.RenderTarget,
 				FParsedText[i],
@@ -109,16 +99,14 @@ class TShopModeBox(TGameMenuBox):
 class TStockMenu(TCustomScrollBox):
 
 	private def Update(cash as int):
-		Item as int
 		for i in range(FParsedText.Count):
-			Item = FParsedText.Objects[i] cast int
+			var item = FParsedText.Objects[i] cast int
 			FOptionEnabled[i] = \
-				(GEnvironment.value.Party.Money >= GDatabase.value.Items[Item].Cost) and \
-				(GEnvironment.value.Party.Inventory.QuantityOf(Item) < MAXITEMS)
+				(GEnvironment.value.Party.Money >= GDatabase.value.Items[item].Cost) and \
+				(GEnvironment.value.Party.Inventory.QuantityOf(item) < MAXITEMS)
 
 	protected override def DrawItem(id as int, x as int, y as int, color as int):
-		dummy as TItemTemplate
-		dummy = GDatabase.value.Items[FParsedText.Objects[id] cast int]
+		dummy as TItemTemplate = GDatabase.value.Items[FParsedText.Objects[id] cast int]
 		GFontEngine.DrawText(FTextTarget.RenderTarget, dummy.Name, x, y, color)
 		GFontEngine.DrawTextRightAligned(FTextTarget.RenderTarget, dummy.Cost.ToString(), FBounds.w - 22, y, color)
 
@@ -128,13 +116,11 @@ class TStockMenu(TCustomScrollBox):
 		FDisplayCapacity = (coords.h / 16) - 1
 
 	public override def DoSetup(value as int):
-		Inventory as (int)
-		Item as int
 		super.DoSetup(value)
-		Inventory = (FOwner cast TShopMenuPage).Inventory
+		inventory as (int) = (FOwner cast TShopMenuPage).Inventory
 		FParsedText.Clear()
-		for Item in Inventory:
-			FParsedText.AddObject(GDatabase.value.Items[Item].Name, Item)
+		for item in inventory:
+			FParsedText.AddObject(GDatabase.value.Items[item].Name, item)
 		Array.Resize[of bool](FOptionEnabled, FParsedText.Count)
 		self.Update(GEnvironment.value.Party.Money)
 		if self.Focused:
@@ -155,12 +141,11 @@ class TStockMenu(TCustomScrollBox):
 			self.FocusMenu('Transaction', 0)
 
 	public override def DoCursor(position as short):
-		Item as TRpgItem
 		super.DoCursor(position)
 		if position < FParsedText.Count:
-			Item = TRpgItem.NewItem(FParsedText.Objects[position] cast int, 1)
-			(FOwner cast TShopMenuPage).Compat.RpgItem = Item
-			(FOwner cast TShopMenuPage).DescBox.Text = Item.Desc
+			item as TRpgItem = TRpgItem.NewItem(FParsedText.Objects[position] cast int, 1)
+			(FOwner cast TShopMenuPage).Compat.RpgItem = item
+			(FOwner cast TShopMenuPage).DescBox.Text = item.Desc
 
 enum TTransactionState:
 	Off
@@ -317,29 +302,29 @@ class TCompatSprite(TSprite):
 		super(AParent)
 		FTemplate = template
 		var spriteName = template.Template.MapSprite
-		FEngine.Images.EnsureImage("Sprites\\$spriteName.png", spriteName)
+		commons.runThreadsafe(true, {FEngine.Images.EnsureImage("Sprites\\$spriteName.png", spriteName, GDatabase.value.Layout.SpriteSize)})
 		self.ImageName = spriteName
 		self.SetSpecialRender()
 
 	public override def Draw():
 		FHeartbeat = not FHeartbeat
 		++FTickCount if FHeartbeat
-		FTickCount = 0 if FTickCount == 48
-		frame as int = 7
+		FTickCount = 0 if FTickCount == 28
+		frame as int = 26
 		tSize as TSgPoint = FImage.TextureSize
-		FImage.TextureSize = (FImage.TextureSize * sgPoint(1, 2))
+		FImage.TextureSize = FImage.TextureSize * sgPoint(1, 2)
 		try:
 			if FItem.UsableByHypothetical(FTemplate.Template.ID):
-				caseOf FTickCount / 12:
+				caseOf FTickCount / 7:
 					case 0:
 						--frame
 					case 1, 3: pass
 					case 2:
 						++frame
-				imageIndex = frame
+				self.ImageIndex = frame
 				super.Draw()
 			else:
-				imageIndex = frame
+				self.ImageIndex = frame
 				DrawGrayscale()
 		ensure:
 			FImage.TextureSize = tSize
@@ -356,7 +341,7 @@ class TShopCompatBox(TGameMenuBox):
 
 	private FParty = array(TCompatSprite, MAXPARTYSIZE)
 
-	public override def DrawText():
+	protected override def DrawText():
 		let ONE_PIXEL = GPU_MakeRect(0, 0, 1, 1)
 		return unless assigned(FItem)
 		var first = false
@@ -366,16 +351,16 @@ class TShopCompatBox(TGameMenuBox):
 					first = true
 					FParty[i].Image.DrawRectTo(ONE_PIXEL, ONE_PIXEL)
 				FParty[i].Draw()
-		{ InvalidateText() }.Invoke()
+		DrawingInProgress()
 
 	public override def DoSetup(value as int):
 		super.DoSetup(value)
 		for i in range(MAXPARTYSIZE):
 			FParty[i].Dead() if assigned(FParty[i])
 			FParty[i] = null
-			if GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
-				FParty[i] = TCompatSprite(self.Engine, GEnvironment.value.Party[i])
-				FParty[i].X = (8 + ((i - 1) * 32))
+			if GEnvironment.value.Party[i + 1] != GEnvironment.value.Heroes[0]:
+				FParty[i] = TCompatSprite(self.Engine, GEnvironment.value.Party[i + 1])
+				FParty[i].X = i * 32
 				FParty[i].Y = 0
 				FParty[i].Item = self.FItem
 
@@ -423,10 +408,10 @@ class TShopItemMenu(TCustomGameItemMenu):
 			owner.DescBox.Text = Inventory[position].Desc
 
 	private def ShopSetup(position as int, theMenu as TGameMenuBox, theOwner as TMenuPage):
-		if Inventory == null:
-			return
-		for i in range(0, Inventory.Count):
-			OptionEnabled[i] = (Inventory[i].Cost > 0)
+		return if Inventory is null
+		
+		for i in range(Inventory.Count):
+			OptionEnabled[i] = Inventory[i].Cost > 0
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)

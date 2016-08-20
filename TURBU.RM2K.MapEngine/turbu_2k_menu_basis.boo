@@ -140,7 +140,7 @@ abstract class TGameMenuBox(TCustomMessageBox):
 		FCoords = sCoords
 
 	protected def GetRightSide() as int:
-		return FTextTarget.Width
+		return self.Width - BORDER_THICKNESS
 
 	public CursorPosition as short:
 		get: return FCursorPosition

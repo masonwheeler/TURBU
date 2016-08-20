@@ -172,6 +172,9 @@ class TSprite(TObject):
 
 	protected FRenderSpecial as bool
 
+	override def ToString():
+		return "$(self.GetType().Name): Image: $FImageName, Index: $FImageIndex"
+
 	protected virtual def GetDrawRect() as GPU_Rect:
 		return GPU_MakeRect(FOrigin.x, FOrigin.y, FWidth, FHeight)
 

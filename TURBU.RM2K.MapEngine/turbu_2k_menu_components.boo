@@ -68,7 +68,7 @@ abstract class TCustomScrollBox(TGameMenuBox):
 		max as int = FParsedText.Count - (FLastLineColumns + 1)
 		for i in range(FTopPosition, Math.Min(max, (FTopPosition + FDisplayCapacity) - 1) + 1):
 			j = i - FTopPosition
-			color = (1 if FOptionEnabled[i] else 4)
+			color = (0 if FOptionEnabled[i] else 3)
 			DrawItem(i, 5 + ((j % FColumns) * (ColumnWidth + SEPARATOR)), ((j / FColumns) * 15) + 4, color)
 		if FLastLineColumns > 0:
 			for i in range(max + 1, FParsedText.Count):
@@ -107,7 +107,7 @@ class TOnelineLabelBox(TCustomOnelineBox):
 
 	public override def DrawText():
 		assert FOrigin.x >= 0
-		GFontEngine.DrawText(FTextTarget.RenderTarget, FText, FOrigin.x + 2, FOrigin.y + 2, 0)
+		GFontEngine.DrawText(FTextTarget.RenderTarget, FText, 2, 2,  0)
 
 	public Text as string:
 		set:
