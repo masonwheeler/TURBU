@@ -300,6 +300,7 @@ class T2kEnvironment(TObject):
 		return result
 
 	public def Shop(shopType as TShopTypes, messageSet as int, inventory as int*) as bool:
+		using data = TShopData(shopType, messageSet, inventory.ToArray()):
 			GMenuEngine.Value.OpenMenuEx('Shop', data)
 		GScriptEngine.value.SetWaiting({ return GMenuEngine.Value.State == TMenuState.None })
 		GScriptEngine.value.ThreadWait()

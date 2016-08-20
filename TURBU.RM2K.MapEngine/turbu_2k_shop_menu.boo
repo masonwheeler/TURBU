@@ -85,9 +85,8 @@ class TShopModeBox(TGameMenuBox):
 				color)
 
 	public override def DoButton(input as TButtonCode):
-		owner as TShopMenuPage
 		super.DoButton(input)
-		owner = (FOwner cast TShopMenuPage)
+		var owner = FOwner cast TShopMenuPage
 		if (input == TButtonCode.Enter) and FOptionEnabled[FCursorPosition]:
 			caseOf FCursorPosition:
 				case 0:
@@ -297,12 +296,10 @@ class TCompatSprite(TSprite):
 	private FHeartbeat as bool
 
 	private def DrawGrayscale():
-		handle as int
-		gla as (single)
-		shaders as TdmShaders
-		shaders = GGameEngine.value.CurrentMap.ShaderEngine
+		gla = array(single, 4)
+		shaders as TdmShaders = GGameEngine.value.CurrentMap.ShaderEngine
 		try:
-			handle = shaders.ShaderProgram('default', 'tint', 'shift')
+			handle as int = shaders.ShaderProgram('default', 'tint', 'shift')
 			shaders.UseShaderProgram(handle)
 			shaders.SetUniformValue(handle, 'hShift', 0)
 			shaders.SetUniformValue(handle, 'valMult', 1.0 cast single)
@@ -529,7 +526,7 @@ class TShopMenuPage(TMenuPage):
 					FStockBox.Visible = true
 				else:
 					FTransactionBox.Visible = true
-			FPromptBox.Visible = (FCurrentMenu != FMainBox)
+			FPromptBox.Visible = FCurrentMenu != FMainBox
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, layout as string):
 		super(parent, coords, main, layout)
