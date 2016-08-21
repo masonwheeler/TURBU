@@ -18,7 +18,6 @@ import Pythia.Runtime
 import System.Collections.Generic
 import turbu.Heroes
 import turbu.mapchars
-import turbu.monsters
 import turbu.RM2K.images
 import turbu.RM2K.map.timer
 import turbu.map.sprites
@@ -307,7 +306,7 @@ class T2kEnvironment(TObject):
 		return GMenuEngine.Value.MenuInt != 0
 
 	public def Random(low as int, high as int) as int:
-		return FRand.Next(Math.Min(high, low), Math.Max(high, low))
+		return (Random(high, low) if low > high else FRand.Next(low, high))
 
 	public def EnableSave(value as bool):
 		FSaveEnabled = value
@@ -320,8 +319,7 @@ class T2kEnvironment(TObject):
 		commons.runThreadsafe(true, { GGameEngine.value.TitleScreen() })
 
 	public def DeleteObject(permanent as bool):
-		obj as TRpgCharacter
-		obj = ThisObject
+		obj as TRpgCharacter = ThisObject
 		for i in range(1, FEvents.Length, 1):
 			if FEvents[i] == obj:
 				runThreadsafe(true) do():

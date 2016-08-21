@@ -4,7 +4,6 @@ import System
 import turbu.items
 import turbu.constants
 import turbu.defs
-import TURBU.RM2K
 import turbu.RM2K.items
 import turbu.Heroes
 import turbu.RM2K.skills

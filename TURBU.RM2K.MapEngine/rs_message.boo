@@ -6,7 +6,6 @@ import Boo.Lang.Compiler.Ast
 import turbu.defs
 import turbu.script.engine
 import commons
-import turbu.constants
 import turbu.classes
 import Pythia.Runtime
 import TURBU.RM2K
