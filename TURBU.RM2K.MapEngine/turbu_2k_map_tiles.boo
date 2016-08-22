@@ -102,8 +102,7 @@ class TBorderTile(TMapTile):
 			minitiles[i].ImageName = self.ImageName
 		if Neighbors != TDirs8.None:
 			if (TDirs8.n | TDirs8.e | TDirs8.w | TDirs8.s) in FNeighbors:
-				for i in range(4):
-					minis[i] -= 24
+				minis = (of ushort: 12, 17, 42, 47)
 			elif (TDirs8.n | TDirs8.e | TDirs8.w) in FNeighbors:
 				minis[0] -= 14
 				minis[1] -= 10
