@@ -189,27 +189,20 @@ class TTransactionMenu(TGameMenuBox):
 			GMenuEngine.Value.Cursor.Layout(coords)
 
 	public override def DoButton(input as TButtonCode):
-		owner as TShopMenuPage
-		dummy as int
-		maximum as byte
-		current as byte
+		return if input in ARROW_KEYS and assigned(FButtonLock) and FButtonLock.TimeRemaining > 0
 		super.DoButton(input)
-		owner = (FOwner cast TShopMenuPage)
-		maximum = 0
+		var owner = FOwner cast TShopMenuPage
+		var maximum = 0
 		caseOf FState:
 			case TTransactionState.Off:
 				assert false
 			case TTransactionState.Buying:
-				dummy = GEnvironment.value.Party.Inventory.IndexOf(FItem.ID)
-				if dummy != -1:
-					maximum = Math.Min(
-						MAXITEMS - (GEnvironment.value.Party.Inventory[dummy] cast TRpgItem).Quantity,
-						GEnvironment.value.Money / FItem.Cost)
-				else:
-					maximum = MAXITEMS
+				var item = GEnvironment.value.Party.Inventory.GetByID(FItem.ID)
+				maximum = (MAXITEMS if item is null else MAXITEMS - item.Quantity)
+				maximum = Math.Min(maximum, GEnvironment.value.Money / FItem.Cost)
 			case TTransactionState.Selling:
 				maximum = FItem.Quantity
-		current = FExistingQuantity
+		var current = FExistingQuantity
 		caseOf input:
 			case TButtonCode.Cancel: pass
 			case TButtonCode.Enter:
@@ -224,12 +217,12 @@ class TTransactionMenu(TGameMenuBox):
 							Thread.Sleep(750)
 							GEnvironment.value.Party.Inventory.Add(FItem.ID, FExistingQuantity)
 							assert GEnvironment.value.Party.Money >= (FExistingQuantity * FItem.Cost)
-							GEnvironment.value.Party.Money = (GEnvironment.value.Party.Money - (FExistingQuantity * FItem.Cost))
+							GEnvironment.value.Party.Money = GEnvironment.value.Party.Money - (FExistingQuantity * FItem.Cost)
 						case TTransactionState.Selling:
 							owner.PromptBox.Text = GDatabase.value.VocabNum(V_SHOP_NUM_SOLD, owner.Format)
 							Thread.Sleep(750)
 							if FExistingQuantity < FItem.Quantity:
-								FItem.Quantity = (FItem.Quantity - FExistingQuantity)
+								FItem.Quantity = FItem.Quantity - FExistingQuantity
 							else:
 								GEnvironment.value.Party.Inventory.Remove(FItem.ID, FItem.Quantity)
 							GEnvironment.value.Party.Money = (GEnvironment.value.Party.Money + Math.Truncate(((FExistingQuantity * FItem.Cost) * SELLBACK_RATIO)))
@@ -244,6 +237,7 @@ class TTransactionMenu(TGameMenuBox):
 		if FExistingQuantity != current:
 			PlaySound(TSfxTypes.Cursor)
 			InvalidateText()
+			FButtonLock = timing.TRpgTimestamp(180)
 		if input in TButtonCode.Cancel | TButtonCode.Enter:
 			if FState == TTransactionState.Selling:
 				owner.State = TShopState.Selling
@@ -310,7 +304,12 @@ class TCompatSprite(TSprite):
 		FHeartbeat = not FHeartbeat
 		++FTickCount if FHeartbeat
 		FTickCount = 0 if FTickCount == 28
-		frame as int = 26
+		frame as int = 25
+		var index = FTemplate.SpriteIndex
+		if index >= 4:
+			index -= 4
+			frame += 48
+		frame += 3 * index
 		tSize as TSgPoint = FImage.TextureSize
 		FImage.TextureSize = FImage.TextureSize * sgPoint(1, 2)
 		try:

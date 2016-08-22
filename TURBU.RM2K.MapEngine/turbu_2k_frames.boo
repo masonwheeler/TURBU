@@ -863,6 +863,8 @@ abstract class TCustomMessageBox(TSysFrame):
 		ClearTarget(FTextTarget)
 		FTextColor = 1
 
+	let ARROW_KEYS = TButtonCode.Up | TButtonCode.Down | TButtonCode.Left | TButtonCode.Right
+
 	public virtual def Button(input as TButtonCode):
 		if (FCursorPosition == -1) and (input in (TButtonCode.Up, TButtonCode.Down, TButtonCode.Left, TButtonCode.Right)):
 			return
@@ -910,7 +912,7 @@ abstract class TCustomMessageBox(TSysFrame):
 					lPosition = FCursorPosition - 1
 			default:
 				pass
-		if input in (TButtonCode.Up | TButtonCode.Down | TButtonCode.Left | TButtonCode.Right) and lPosition != FCursorPosition:
+		if input in ARROW_KEYS and lPosition != FCursorPosition:
 			FButtonLock = TRpgTimestamp(180)
 			PlaceCursor(lPosition)
 			PlaySound(TSfxTypes.Cursor)

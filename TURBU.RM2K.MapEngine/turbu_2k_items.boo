@@ -178,6 +178,10 @@ class TRpgInventory(TObject):
 			return i if FList[i].Template.ID == id
 		return -1
 
+	public def GetByID(id as int) as TRpgItem:
+		var index = IndexOf(id)
+		return (null if index == -1 else FList[index])
+
 	public def QuantityOf(id as int) as int:
 		idx as int = IndexOf(id)
 		result = (0 if idx == -1 else FList[idx].Quantity)
