@@ -6,11 +6,9 @@ import Pythia.Runtime
 import System
 import System.Collections.Generic
 import System.Linq.Enumerable
-import System.Threading
 import turbu.defs
 import TURBU.DataReader
 import TURBU.EngineBasis
-import System.IO
 import Newtonsoft.Json
 import Newtonsoft.Json.Linq
 import Boo.Lang.Compiler
@@ -30,25 +28,11 @@ abstract class TRpgObject(TObject):
 		FTemplate = base
 
 abstract class TRpgDatafile(TObject, IRpgObject):
-	private static currentloader = ThreadLocal[of BinaryReader]()
-
 	[Property(Name)]
 	protected FName as string = ''
 
 	[Property(ID)]
 	protected FId as int
-
-	[Property(OnCreate)]
-	protected FOnCreate as Action of TRpgObject
-
-	[Property(OnDestroy)]
-	protected FOnDestroy as Action of TRpgObject
-
-	protected def GetID() as int:
-		return self.ID
-
-	protected def GetName() as string:
-		return self.Name
 
 	public def constructor():
 		super()
