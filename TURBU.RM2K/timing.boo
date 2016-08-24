@@ -117,22 +117,26 @@ class TRpgTimestamp(TObject):
 		get: return Math.Round(FFrameLength.Average())
 
 def MoveTowards(timer as int, ref current as double, goal as double):
-	timefactor as int = Math.Max((timer / TRpgTimestamp.FrameLength), 1)
-	diff as double = ((current - goal) cast double) / (timefactor cast double)
+	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	diff as double = (current - goal) / timefactor
 	current = current - diff
+	return diff
 
 def MoveTowards(timer as int, ref current as single, goal as single):
-	timefactor as int = Math.Max((timer / TRpgTimestamp.FrameLength), 1)
-	diff as single = ((current - goal) cast double) / (timefactor cast double)
+	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	diff as single = (current - goal) / timefactor
 	current = current - diff
+	return diff
 
 def MoveTowards(timer as int, ref current as byte, goal as byte):
-	timefactor as int = Math.Max((timer / TRpgTimestamp.FrameLength), 1)
-	diff as short = commons.round((((current - goal) cast double) / (timefactor cast double)))
+	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	diff as short = commons.round((((current - goal) cast double) / timefactor))
 	assert Math.Abs(diff) < 256
 	current = current - diff
+	return diff
 
 def MoveTowards(timer as int, ref current as int, goal as int):
-	timefactor as int = Math.Max((timer / TRpgTimestamp.FrameLength), 1)
-	diff as short = commons.round((((current - goal) cast double) / (timefactor cast double)))
+	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	diff as short = commons.round((((current - goal) cast double) / timefactor))
 	current = current - diff
+	return diff
