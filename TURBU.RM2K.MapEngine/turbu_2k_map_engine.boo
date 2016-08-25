@@ -216,7 +216,6 @@ class T2kMapEngine(TMapEngine):
 
 	private def OnTimer():
 		++FFrame
-		TRpgTimestamp.NewFrame()
 		lock FRenderPauseLock:
 			caseOf FGameState:
 				case T2kMapEngine.TGameState.Title: RenderTitle()
@@ -240,6 +239,7 @@ class T2kMapEngine(TMapEngine):
 		FImageEngine.Draw() if assigned(FImageEngine)
 
 	private def OnProcess():
+		TRpgTimestamp.NewFrame()
 		return if FSwitchState != TSwitchState.NoSwitch
 		FButtonState = ReadKeyboardState()
 		for button in FButtonState.Values():
