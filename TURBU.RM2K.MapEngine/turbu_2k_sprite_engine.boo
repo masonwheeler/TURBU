@@ -31,9 +31,9 @@ import SDL2.SDL2_GPU
 import System.Linq.Enumerable
 import TURBU.Meta
 
-let BASESPEED = 0.55
+let BASESPEED = 15.875
 let SHAKE_MAX = 23
-let MOVESPEED = (0, BASESPEED / 8, BASESPEED / 4, BASESPEED / 2, BASESPEED, BASESPEED * 2, BASESPEED * 4)
+let MOVESPEED = (0, BASESPEED / 8.0, BASESPEED / 4.0, BASESPEED / 2.0, BASESPEED, BASESPEED * 2.0, BASESPEED * 4.0)
 
 class T2kSpriteEngine(TSpriteEngine):
 
@@ -125,7 +125,7 @@ class T2kSpriteEngine(TSpriteEngine):
 	[Getter(DisplacementY)]
 	private FDisplacementY as single
 
-	private FDisplacementSpeed as single
+	private FDisplacementTime as TRpgTimestamp
 
 	private FScreenLocked as bool
 
@@ -297,20 +297,12 @@ class T2kSpriteEngine(TSpriteEngine):
 	private def CheckDisplacement():
 		delta as single
 		panned as bool = false
-		if FDispGoalX != 0:
-			delta = Math.Min(Math.Abs(FDispGoalX), FDisplacementSpeed)
-			if FDispGoalX < 0:
-				delta *= -1
-			FDispGoalX -= delta
-			FDisplacementX += delta
+		if FDispGoalX != FDisplacementX:
+			delta = MoveTowards(FDisplacementTime.TimeRemaining, FDisplacementX, FDispGoalX)
 			clamp(FDisplacementX, -FDispBaseX, (Width * TILE_SIZE.x) - Canvas.Width)
 			panned = true
-		if FDispGoalY != 0:
-			delta = Math.Min(Math.Abs(FDispGoalY), FDisplacementSpeed)
-			if FDispGoalY < 0:
-				delta *= -1
-			FDispGoalY -= delta
-			FDisplacementY += delta
+		if FDispGoalY != FDisplacementY:
+			delta = MoveTowards(FDisplacementTime.TimeRemaining, FDisplacementY, FDispGoalY)
 			clamp(FDisplacementY, -FDispBaseY, (Height * TILE_SIZE.y) - Canvas.Height)
 			panned = true
 		FDisplacing = panned
@@ -323,6 +315,9 @@ class T2kSpriteEngine(TSpriteEngine):
 		FDisplacementX = 0
 		FDestination.y += commons.round(FDisplacementY)
 		FDisplacementY = 0
+		FDispGoalX = 0
+		FDispGoalY = 0
+		FDisplacementTime = null
 		WorldX = commons.round(WorldX)
 		WorldY = commons.round(WorldY)
 		MoveTo(Math.Truncate(FCurrentParty.BaseTile.X), Math.Truncate(FCurrentParty.BaseTile.Y))
@@ -788,7 +783,11 @@ class T2kSpriteEngine(TSpriteEngine):
 
 	public def SetDispSpeed(speed as byte):
 		if speed in range(MOVESPEED.Length) and speed > 0:
-			FDisplacementSpeed = MOVESPEED[speed]
+			var xDistance = Math.Abs(FDispGoalX)
+			var yDistance = Math.Abs(FDispGoalY)
+			var distance = Math.Max(xDistance, yDistance)
+			var disptime = round(distance * MOVESPEED[speed])
+			FDisplacementTime = TRpgTimestamp(disptime)
 
 	public def ShakeScreen(power as int, Speed as int, duration as int):
 		FShakePower = power
