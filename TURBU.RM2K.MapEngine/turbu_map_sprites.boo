@@ -521,7 +521,7 @@ class TMapSprite(TObject):
 			case TMoveType.FleeHero: MoveQueue = MakeFleePath()
 			case TMoveType.ByRoute:
 				assert assigned(Data.Path)
-				MoveQueue = Path(Data.Path)
+				MoveQueue = Data.Path.Clone()
 				FCanSkip = Data.MoveIgnore
 			default : assert false
 		FMoveTime = null if Data.AnimType in (TAnimType.Sentry, TAnimType.FixedDir)

@@ -37,11 +37,11 @@ class Path:
 		except e as Exception:
 			System.Diagnostics.Debugger.Break()
 
-	public def constructor(copy as Path):
+	private def constructor(copy as Path):
 		FLoop = copy.Loop
 
 	public def Clone() as Path:
-		result = Path(self)
+		var result = Path(self)
 		result.FSteps = self.FSteps
 		result.FCursor = self.FCursor
 		result.FLooped = self.FLooped
