@@ -103,6 +103,7 @@ class TRpgTimestamp(TObject):
 			unchecked:
 				delta as int = Math.Max(DateTime.Now.Subtract(FLastFrame).TotalMilliseconds, 0)
 			FLastFrame = DateTime.Now
+			return if delta > 1000
 			if FCounter == 0:
 				if delta > 0:
 					for i in range(FFrameLength.Length):
