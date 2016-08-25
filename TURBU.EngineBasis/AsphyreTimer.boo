@@ -27,7 +27,7 @@ class TAsphyreTimer(TObject):
 
 	private PrevTime64 as long
 
-	event OnProcess as EventHandler
+	event OnProcess as Action
 
 	private Processed as bool
 
@@ -119,12 +119,11 @@ class TAsphyreTimer(TObject):
 		get: return (LatencyFP cast double) / (FixedHigh cast double)
 
 	public def Process():
-		Amount as int
 		Processed = true
-		Amount = FixedDelta / FixedHigh
+		Amount as int = FixedDelta / FixedHigh
 		return if Amount < 1
 		for i in range(Amount):
-			OnProcess(self, null)
+			OnProcess()
 		FixedDelta &= FixedHigh - 1
 
 	public def Reset():
