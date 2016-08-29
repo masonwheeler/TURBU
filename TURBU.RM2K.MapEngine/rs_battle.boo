@@ -27,16 +27,17 @@ def BattleEx(which as int, background as string, formation as TBattleFormation, 
 				background = GDatabase.value.Terrains[terrain].BattleBG
 	mParty as TRpgMonsterParty = GDatabase.value.MonsterParties[which]
 	engine as IBattleEngine = GGameEngine.value.DefaultBattleEngine
-	var conditions = TBattleConditions(background, formation, results)
-	FadeOutMusic(0)
-	PlaySystemMusic(TBgmTypes.Battle, false)
-	EraseScreenDefault(TTransitionTypes.BattleStartErase)
-	GScriptEngine.value.ThreadWait()
-	battleResult as TBattleResultData = engine.StartBattle(GEnvironment.value.Party, mParty, conditions)
-	ShowScreenDefault(TTransitionTypes.BattleEndShow)
-	GScriptEngine.value.ThreadWait()
-	FadeOutMusic(0)
-	FadeInLastMusic(0)
+	lock engine:
+		var conditions = TBattleConditions(background, formation, results)
+		FadeOutMusic(0)
+		PlaySystemMusic(TBgmTypes.Battle, false)
+		EraseScreenDefault(TTransitionTypes.BattleStartErase)
+		GScriptEngine.value.ThreadWait()
+		battleResult as TBattleResultData = engine.StartBattle(GEnvironment.value.Party, mParty, conditions)
+		ShowScreenDefault(TTransitionTypes.BattleEndShow)
+		GScriptEngine.value.ThreadWait()
+		FadeOutMusic(0)
+		FadeInLastMusic(0)
 	assert battleResult.data == null
 	return battleResult.result
 
