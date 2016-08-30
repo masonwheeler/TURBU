@@ -55,7 +55,8 @@ public def RunBake(basepath as string, TurbuPath as string, projectName as strin
 				OutputTarget : TargetType.Library,
 				ReferencesSet: $refsList,
 				Pipeline     : $pipeline,
-				Define       : $define
+				Define       : $define,
+				Debug        : true
 				).Execute()
 	|]
 	ExecuteScript(script.ToCodeString())

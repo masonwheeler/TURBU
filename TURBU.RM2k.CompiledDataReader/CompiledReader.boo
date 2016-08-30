@@ -35,7 +35,7 @@ class TDllReader(TRpgPlugBase, IDataReader):
 		path = Path.GetDirectoryName(path) //up one level
 		var pathBase = Path.GetFileName(path)
 		var filenames = Directory.EnumerateFiles(path, '*.turbu').ToArray()
-		var filename = filenames.SingleOrDefault({name | Path.GetFileName(name) == "$(pathBase).turbu"})
+		var filename = filenames.SingleOrDefault()
 		raise ArgumentException("Compiled data file \"$(pathBase).turbu\" not found") if filename is null
 		_asm = System.Reflection.Assembly.LoadFrom(filename)
 	
