@@ -33,7 +33,8 @@ class TMapTile(TTile):
 		return if bumper.Event?.Playing
 		if bumper == GEnvironment.value.Party.Sprite:
 			for mapObj in lEvent:
-				if mapObj.HasPage and (mapObj.Event.CurrentPage.Trigger in (TStartCondition.Touch, TStartCondition.Collision)):
+				if mapObj.HasPage and (mapObj.Event.CurrentPage.Trigger in (TStartCondition.Touch, TStartCondition.Collision)) \
+						and not mapObj.SlipThrough:
 					GMapObjectManager.value.RunPageScript(mapObj.Event.CurrentPage)
 		elif bumper.HasPage and (bumper.Event.CurrentPage.Trigger == TStartCondition.Collision):
 			for mapObj in lEvent:

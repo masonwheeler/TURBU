@@ -226,6 +226,7 @@ class TMapSprite(TObject):
 	[Property(MoveFreq)]
 	protected FMoveFreq as byte
 
+	[Getter(SlipThrough)]
 	protected FSlipThrough as bool
 
 	protected FAnimFix as bool
@@ -622,7 +623,7 @@ class TMapSprite(TObject):
 				else:
 					SetMovePause()
 					FJumpAnimateOverride = false
-				CurrentTile().Bump(self)
+				CurrentTile().Bump(self) unless FSlipThrough
 		unless FInitialized:
 			EnterTile()
 			FInitialized = true
