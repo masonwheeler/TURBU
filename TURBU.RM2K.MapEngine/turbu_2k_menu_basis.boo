@@ -328,6 +328,7 @@ class TMenuPage(TObject):
 		get: return FVisible
 		set: SetVisible(value)
 
+[Disposable(Destroy, true)]
 class TMenuEngine(TObject, IMenuEngine):
 
 	public struct TMenuPageData:
@@ -419,6 +420,10 @@ class TMenuEngine(TObject, IMenuEngine):
 				self,
 				pair.Value.Layout))
 		FCloseMenu = callback
+
+	private def Destroy():
+		for page in FMenus.Values:
+			page.Dispose()
 
 	public def FocusMenu(sender as TMenuPage, which as TMenuPage):
 		assert sender != which

@@ -245,7 +245,7 @@ enum TMessageBoxTypes:
 	Prompt
 	Input
 
-interface IMenuEngine:
+interface IMenuEngine(IDisposable):
 
 	def OpenMenu(name as string, cursorValue as int)
 
@@ -257,7 +257,7 @@ interface IMenuEngine:
 
 	def Draw()
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TMenuSpriteEngine(TSpriteEngine):
 
 	[Getter(SystemGraphic)]
@@ -346,7 +346,8 @@ class TMenuSpriteEngine(TSpriteEngine):
 		GFontEngine.OnGetColor = null
 		GFontEngine.OnGetDrawRect = null
 		EndMessage()
-		FMenuEngine = null
+		FMenuEngine.Dispose()
+		TSysFrame.ClearFrames()
 
 	public def SerializePortrait(writer as JsonWriter):
 		portrait as TSprite = self.Portrait
@@ -532,7 +533,7 @@ class TSysFrame(TSystemTile):
 			Cursors.Add(key, result)
 		return result
 
-	private static def ClearFrames():
+	internal static def ClearFrames():
 		for value in Frames.Values:
 			GPU_FreeImage(value)
 		Frames.Clear()
@@ -592,7 +593,7 @@ enum TMessageState:
 	Input
 	Prompt
 
-[Disposable]
+[Disposable(Destroy, true)]
 abstract class TCustomMessageBox(TSysFrame):
 
 	[Property(OnPlaySound)]
@@ -856,12 +857,16 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect):
 		let BORDER_THICKNESS = 16
+		debug "Creating $(self.GetType().Name)"
 		super(parent, commons.ORIGIN, 1, coords)
 		FColumns = 1
 		FBoxVisible = true
 		FTextTarget = TSdlRenderTarget(sgPoint(self.Width - BORDER_THICKNESS, self.Height - BORDER_THICKNESS))
 		ClearTarget(FTextTarget)
 		FTextColor = 1
+
+	private def Destroy():
+		debug "Disposing $(self.GetType().Name)"
 
 	let ARROW_KEYS = TButtonCode.Up | TButtonCode.Down | TButtonCode.Left | TButtonCode.Right
 

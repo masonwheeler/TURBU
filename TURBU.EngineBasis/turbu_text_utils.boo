@@ -12,7 +12,7 @@ import SDL2
 import SDL2.SDL2_GPU
 import commons
 
-[Disposable(Destroy, true)]
+[Disposable()]
 class TRpgFont(TObject):
 
 	[Getter(Font)]
@@ -26,9 +26,6 @@ class TRpgFont(TObject):
 		if FFont == IntPtr.Zero:
 			raise EFontError("Unable to load font \"$name\".")
 		FSize = size
-
-	private def Destroy():
-		FFont.Dispose()
 
 [Disposable(Destroy, true)]
 class TFontEngine(TObject):

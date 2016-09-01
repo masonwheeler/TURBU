@@ -70,6 +70,9 @@ class TSdlRenderTarget(TSdlRenderSurface):
 	public def DrawFull():
 		FParent.Draw(self, sgPoint(0, 0))
 
+	public override def ToString():
+		return "TSdlRenderTarget: ($(FSize.x), $(FSize.y))"
+
 class TSdlRenderTargets(List[of TSdlRenderTarget]):
 
 	public def RenderOn(index as int, Event as Action, Bkgrnd as uint, FillBk as bool, composite as bool) as bool:

@@ -137,13 +137,7 @@ Implements the IDisposable pattern for a type.
 				CreateProtectedDisposeMethodBody()
 
 	private def IsDisposable():
-		if _typeSystemServices.Map(IDisposable).IsAssignableFrom(
-			_disposableType.Entity):
-
-			return true
-
-		else:
-			return false
+		return _typeSystemServices.Map(IDisposable).IsAssignableFrom(_disposableType.Entity)
 
 	private def CreateIDisposableDerivation():
 		_disposableType.BaseTypes.Add(
@@ -180,7 +174,7 @@ Implements the IDisposable pattern for a type.
 				Name: "Dispose"),
 			BoolLiteralExpression(LexicalInfo, false))
 
-		finalizer.Body.Add(protectedDisposeInvocation)
+		finalizer.Body.Add([|raise "$(self.GetType().Name) instance was not disposed of properly! \n $(self.ToString())"|])
 
 		_disposableType.Members.Add(finalizer)
 
