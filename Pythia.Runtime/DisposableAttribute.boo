@@ -29,6 +29,7 @@
 namespace Pythia.Runtime
 
 import System
+import System.Linq.Enumerable
 import System.Threading
 import Boo.Lang.Compiler
 import Boo.Lang.Compiler.Ast
@@ -137,7 +138,8 @@ Implements the IDisposable pattern for a type.
 				CreateProtectedDisposeMethodBody()
 
 	private def IsDisposable():
-		return _typeSystemServices.Map(IDisposable).IsAssignableFrom(_disposableType.Entity)
+		var baseType = _disposableType.BaseTypes.Select({b | b.Entity}).Cast[of IType]().SingleOrDefault({e | e.IsClass})
+		return (false if baseType is null else _typeSystemServices.Map(IDisposable).IsAssignableFrom(baseType))
 
 	private def CreateIDisposableDerivation():
 		_disposableType.BaseTypes.Add(
@@ -167,13 +169,6 @@ Implements the IDisposable pattern for a type.
 
 	private def CreateDestructor():
 		finalizer = Destructor(LexicalInfo: LexicalInfo, Name: "destructor")
-		protectedDisposeInvocation = AstUtil.CreateMethodInvocationExpression(
-			LexicalInfo,
-			ReferenceExpression(
-				LexicalInfo: LexicalInfo,
-				Name: "Dispose"),
-			BoolLiteralExpression(LexicalInfo, false))
-
 		finalizer.Body.Add([|raise "$(self.GetType().Name) instance was not disposed of properly! \n $(self.ToString())"|])
 
 		_disposableType.Members.Add(finalizer)
