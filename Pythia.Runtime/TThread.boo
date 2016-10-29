@@ -34,6 +34,8 @@ class TThread:
 	internal static _currentThread = ThreadLocal[of TThread]()
 	
 	public static def Synchronize([Required] closure as Action):
+		if System.Windows.Forms.Application.OpenForms.Count == 0:
+			Abort
 		System.Windows.Forms.Application.OpenForms[0].Invoke(closure)
 	
 	public static def Queue([Required] closure as Action):

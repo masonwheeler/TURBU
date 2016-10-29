@@ -35,6 +35,7 @@ let BASESPEED = 15.875
 let SHAKE_MAX = 23
 let MOVESPEED = (0, BASESPEED / 8.0, BASESPEED / 4.0, BASESPEED / 2.0, BASESPEED, BASESPEED * 2.0, BASESPEED * 4.0)
 
+[Disposable(Destroy, true)]
 class T2kSpriteEngine(TSpriteEngine):
 
 	static final LSineTable = array(double, SHAKE_MAX)
@@ -400,7 +401,6 @@ class T2kSpriteEngine(TSpriteEngine):
 		self.VisibleWidth = Canvas.Width
 		self.VisibleHeight = Canvas.Height
 		FMapRect = GPU_MakeRect(0, 0, size.x, size.y)
-		FDisplacementSpeed = BASESPEED
 		FPanSpeed = BASESPEED
 		for i in range(FMap.TileMap.Length):
 			FTiles.Add(TMatrix[of TMapTile](size))
@@ -414,6 +414,14 @@ class T2kSpriteEngine(TSpriteEngine):
 		FSpriteLocations = TSpriteLocations()
 		for i in range(FFadeColor.Length):
 			FFadeColor[i] = 1
+
+	private new def Destroy():
+		lock FMapObjects:
+			for obj in FMapObjects:
+				obj.Dispose()
+		for layer in FTiles:
+			for tile in layer:
+				tile.Dispose() unless tile is null
 
 	public def AssignTile(x as int, y as int, layer as int, tile as TTileRef):
 		if (x >= FMap.Size.x) or (y >= FMap.Size.y):

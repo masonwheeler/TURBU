@@ -238,7 +238,7 @@ abstract class TMapEngine(TRpgPlugBase, IMapEngine):
 	def constructor():
 		super()
 
-class TMatrix[of T](TObject):
+class TMatrix[of T](TObject, IEnumerable[of T]):
 
 	private FMatrix as (T)
 
@@ -256,9 +256,14 @@ class TMatrix[of T](TObject):
 	private def SetValue(x as int, y as int, value as T):
 		FMatrix[(y * FWidth) + x] = value
 
+	def GetEnumerator():
+		return (FMatrix cast T*).GetEnumerator()
+	
+	def System.Collections.IEnumerable.GetEnumerator():
+		return FMatrix.GetEnumerator()
+
 	private def VerticalExpand(base as TMatrix[of T], position as int):
 		start as int
-		i as int
 		caseOf position / 3:
 			case 0:
 				start = 0

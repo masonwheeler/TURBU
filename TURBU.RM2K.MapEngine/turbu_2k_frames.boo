@@ -974,6 +974,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			self.Height = h
 			DoSetPosition(value)
 
+[Disposable(Destroy, true)]
 class TSystemTimer(TParentSprite):
 
 	private FTime as ushort
@@ -1025,6 +1026,10 @@ class TSystemTimer(TParentSprite):
 		FPrevTime = 0
 		Z = 12
 		FPrevState = TGameState.Map
+
+	private new def Destroy():
+		for tile in FTiles:
+			tile.Dispose()
 
 	public override def Draw():
 		FTime = FOnGetTime()

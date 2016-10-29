@@ -389,7 +389,7 @@ class T2kMapEngine(TMapEngine):
 		FSignal = null
 		FImageEngine.Dispose() if assigned(FImageEngine)
 		FWeatherEngine.Dispose()
-		FCurrentMap = null
+		FCurrentMap.Dispose()
 		FTimer.Dispose()
 		if FDatabaseOwner:
 			GEnvironment.value.Dispose()

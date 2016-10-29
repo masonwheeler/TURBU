@@ -250,7 +250,10 @@ class TSprite(TObject):
 	private def Destroy():
 		if assigned(FParent):
 			--FEngine.FAllCount
-			FParent.Remove(self)
+			try:
+				FParent.Remove(self)
+			except as ObjectDisposedException:
+				pass
 			FEngine.FDeadList.Remove(self)
 
 	public virtual def IsBackground() as bool:
@@ -665,6 +668,7 @@ class TParticleSprite(TAnimatedSprite):
 		if FLifeTime <= 0:
 			self.Dead()
 
+[Disposable(Destroy, true)]
 class TSpriteEngine(TParentSprite):
 
 	[Getter(AllCount)]
@@ -707,6 +711,9 @@ class TSpriteEngine(TParentSprite):
 		FVisibleHeight = 600
 		FCanvas = canvas
 		FEngine = self
+
+	private new def Destroy():
+		Dead()
 
 	public override def Draw():
 		return if FSpriteList == null

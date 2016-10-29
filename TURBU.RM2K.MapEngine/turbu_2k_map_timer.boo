@@ -8,6 +8,7 @@ import System
 import Newtonsoft.Json
 import Newtonsoft.Json.Linq
 
+[Disposable]
 class TRpgTimer(TObject):
 
 	private FTimerSprite as TSystemTimer

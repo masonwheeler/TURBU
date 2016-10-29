@@ -155,10 +155,8 @@ abstract class TTile(TParentSprite):
 			return 6
 		else: return 1
 
+[Disposable]
 class TEventTile(TTile, IDisposable):
-
-	def Dispose():
-		super.Dispose()
 
 	[Property(Event)]
 	private FEvent as TRpgMapObject
