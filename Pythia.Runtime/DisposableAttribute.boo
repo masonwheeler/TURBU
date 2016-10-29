@@ -58,10 +58,14 @@ Implements the IDisposable pattern for a type.
 	_unmanagedDisposeMethod as ReferenceExpression
 	_disposed as Field
 	_disposeLock as Field
+	_traceField as Field
 	_protectedDispose as Method
 	_overrideBase as bool
 	_specialMethodNames as List
 	_alwaysFullDispose as bool
+	
+	[Property(Trace)]
+	_trace = BoolLiteralExpression(false)
 
 	def constructor():
 		self(null, null, [|false|])
@@ -112,6 +116,9 @@ Implements the IDisposable pattern for a type.
 		CreateProtectedDisposeMethod()
 		CreateDestructor()
 		CreateDisposeMethod()
+		if _trace.Value:
+			CreateTraceFields()
+			TraceConstructors()
 
 		Context.Parameters.Pipeline.AfterStep += def (
 			sender as object,
@@ -145,6 +152,21 @@ Implements the IDisposable pattern for a type.
 		_disposableType.BaseTypes.Add(
 			_codeBuilder.CreateTypeReference(IDisposable))
 
+	private def CreateTraceFields():
+		var counterField = Field(
+			LexicalInfo: LexicalInfo,
+			Name: "___counter",
+			Modifiers: TypeMemberModifiers.Public | TypeMemberModifiers.Static,
+			Initializer: IntegerLiteralExpression(0))
+		_traceField = Field(
+			LexicalInfo: LexicalInfo,
+			Name: "___myCounter",
+			Modifiers: TypeMemberModifiers.Public,
+			Initializer: [|++___counter|])
+
+		_disposableType.Members.Add(counterField)
+		_disposableType.Members.Add(_traceField)
+
 	private def CreateDisposedField():
 		_disposed = Field(
 			LexicalInfo: LexicalInfo,
@@ -173,6 +195,10 @@ Implements the IDisposable pattern for a type.
 
 		_disposableType.Members.Add(finalizer)
 
+	private def TraceConstructors():
+		for cons in _disposableType.Members.OfType[of Constructor]().Where({c | (c.Modifiers & TypeMemberModifiers.Static) == 0}):
+			cons.Body.Add([|debug "Creating $(self.GetType().Name) instance $___myCounter"|])
+
 	private def CreateDisposeMethod():
 		if _disposeMethodName is not null:
 			CreateDisposeMethod(_disposeMethodName)
@@ -181,11 +207,13 @@ Implements the IDisposable pattern for a type.
 		else:
 			CreateDisposeMethod("Dispose")
 
-	private def CreateDisposeMethod(disposeMethodName):
+	private def CreateDisposeMethod(disposeMethodName as string):
 		dispose = Method(
 			LexicalInfo: LexicalInfo,
 			Name: disposeMethodName,
 			Modifiers: TypeMemberModifiers.Public)
+
+		dispose.Body.Add([|debug "Disposing $(self.GetType().Name) instance $___myCounter"|]) if _trace.Value
 
 		protectedDisposeInvocation = AstUtil.CreateMethodInvocationExpression(
 			LexicalInfo,
