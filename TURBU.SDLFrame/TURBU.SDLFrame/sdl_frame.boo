@@ -17,6 +17,7 @@ enum TRendererType:
 	rtOpenGL
 	rtD3D
 
+[Disposable(Destroy, true)]
 class TSdlFrame(Control):
 
 	[Getter(SdlWindow)]
@@ -195,9 +196,9 @@ class TSdlFrame(Control):
 		FLogicalHeight = 1
 		SDL.SDL_InitSubSystem(SDL.SDL_INIT_VIDEO) unless SDL.SDL_WasInit(SDL.SDL_INIT_VIDEO) == SDL.SDL_INIT_VIDEO
 
-	def destructor():
+	private def Destroy():
 		if FRenderer.Pointer != IntPtr.Zero:
-			DestroyWindow
+			DestroyWindow()
 		FImageManager.Dispose()
 		FTimer.Dispose()
 

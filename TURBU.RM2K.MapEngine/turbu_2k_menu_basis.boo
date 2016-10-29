@@ -149,9 +149,10 @@ abstract class TGameMenuBox(TCustomMessageBox):
 		get: return FOptionEnabled[which]
 		set: FOptionEnabled[which] = value
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TMenuPage(TObject):
 
+	[DisposeParent]
 	private FOwner as TMenuEngine
 
 	protected FVisible as bool
@@ -346,7 +347,7 @@ class TMenuEngine(TObject, IMenuEngine):
 	[Getter(Cursor)]
 	private FCursor as TSysFrame
 
-	[Getter(Parent)]
+	[Getter(Parent), DisposeParent]
 	private FParent as TMenuSpriteEngine
 
 	private FVisible as bool
@@ -416,9 +417,10 @@ class TMenuEngine(TObject, IMenuEngine):
 		for pair in FMenuLayouts:
 			FMenus.Add(
 				pair.Key,
-				pair.Value.Cls.Create(FParent, GPU_MakeRect(0, 0, FParent.Canvas.Width, FParent.Canvas.Height),
-				self,
-				pair.Value.Layout))
+				pair.Value.Cls.Create(FParent,
+					GPU_MakeRect(0, 0, FParent.Canvas.Width, FParent.Canvas.Height),
+					self,
+					pair.Value.Layout))
 		FCloseMenu = callback
 
 	private def Destroy():

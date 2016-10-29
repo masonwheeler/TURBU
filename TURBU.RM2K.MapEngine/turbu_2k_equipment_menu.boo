@@ -143,6 +143,7 @@ class TEqInventoryMenu(TCustomScrollBox):
 			stat.Active = false
 			self.Return()
 
+[Disposable]
 class TGameEquipmentMenu(TGameMenuBox):
 
 	private FPassiveCursor as TSysFrame

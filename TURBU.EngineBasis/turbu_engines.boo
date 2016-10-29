@@ -54,6 +54,3 @@ static class TTurbuEngines:
 	def CleanupEngines():
 		for list in FEngineList:
 			list.Value.Dispose()
-	
-	classDestructor:
-		CleanupEngines()

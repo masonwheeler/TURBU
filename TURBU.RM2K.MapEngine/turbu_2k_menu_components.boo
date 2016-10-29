@@ -24,6 +24,7 @@ class TGameCashMenu(TGameMenuBox):
 		xPos as single = GFontEngine.DrawTextRightAligned(target, GDatabase.value.Vocab[V_MONEY_NAME], GetRightSide(), yPos, 1).x
 		GFontEngine.DrawTextRightAligned(target, Money, xPos - 4, yPos, 0)
 
+[Disposable]
 abstract class TCustomScrollBox(TGameMenuBox):
 
 	private FNextArrow as TSystemTile

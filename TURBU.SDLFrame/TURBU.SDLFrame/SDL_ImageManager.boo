@@ -222,7 +222,7 @@ class TSdlOpaqueImage(TSdlImage):
 		SDL.SDL_SetColorKey(image, 0, 0)
 		SDL.SDL_SetSurfaceBlendMode(image, SDL.SDL_BlendMode.SDL_BLENDMODE_NONE)
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TSdlImages(object):
 
 	private FData as (TSdlImage) = (,)

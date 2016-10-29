@@ -31,6 +31,8 @@ partial class frmTURBUPlayer:
 		self.Disposed += self.Destroy
 	
 	private def Destroy(sender as object, e as EventArgs):
+		TTurbuEngines.CleanupEngines()
+
 		FMapEngine.Dispose() if FMapEngine is not null
 		//_pluginManager.Dispose()
 	

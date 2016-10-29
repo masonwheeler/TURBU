@@ -111,6 +111,7 @@ class TSaveBox(TGameMenuBox):
 			FIndex = value
 			DoSetup(FSetupValue)
 
+[Disposable(Destroy)]
 class TSaveMenuPage(TMenuPage):
 
 	private FSlots = array(TSaveBox, 3)
@@ -207,6 +208,10 @@ class TSaveMenuPage(TMenuPage):
 			RegisterComponent("Slot$i", FSlots[i])
 		FTitle = TOnelineLabelBox(parent, GPU_MakeRect(0, 0, 320, 32), main, self)
 		RegisterComponent('Title', FTitle)
+
+	private def Destroy():
+		for slot in FSlots:
+			slot.Dispose()
 
 	public def SaveData(index as int) as TSaveData:
 		return null if clamp(index, 0, FSaveData.Length - 1) != index

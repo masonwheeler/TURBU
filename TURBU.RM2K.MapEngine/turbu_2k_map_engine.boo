@@ -161,9 +161,14 @@ class T2kMapEngine(TMapEngine):
 				center.y = pred(map.Size.y - (screensize.y / 2))
 		return GPU_MakeRect(center.x, center.y, screensize.x, screensize.y)
 
-	protected def CanvasResize(sender as TSdlCanvas):
+	private def DisposeRenderTargets():
+		for target in GRenderTargets:
+			target.Dispose()
 		GRenderTargets.Clear()
-		for i in range(1, 6):
+
+	protected def CanvasResize(sender as TSdlCanvas):
+		DisposeRenderTargets
+		for i in range(6):
 			GRenderTargets.Add(TSdlRenderTarget(FCanvas.Size))
 
 	protected def LoadMapSprites(map as TRpgMap):
@@ -376,17 +381,19 @@ class T2kMapEngine(TMapEngine):
 		FInitialized = false
 		if FDatabaseOwner:
 			FObjectManager.ScriptEngine.KillAll(null) if FObjectManager is not null
-			GMenuEngine.Value = null
+			GMenuEngine.Value.Dispose()
 		FShaderEngine.Dispose() if assigned(FShaderEngine)
-		GEnvironment.value = null
 		FPartySprite = null
 		FCanvas = null
 		FImages.Dispose() if assigned(FImages)
 		FSignal = null
-		FImageEngine = null
-		FWeatherEngine = null
+		FImageEngine.Dispose() if assigned(FImageEngine)
+		FWeatherEngine.Dispose()
 		FCurrentMap = null
+		FTimer.Dispose()
 		if FDatabaseOwner:
+			GEnvironment.value.Dispose()
+			GEnvironment.value = null
 			GGameEngine.value = null
 			FDatabase = null
 			GDatabase.value = null
@@ -395,6 +402,7 @@ class T2kMapEngine(TMapEngine):
 			GMapObjectManager.value = null
 			GScriptEngine.value = null
 			GFontEngine.Dispose()
+			DisposeRenderTargets()
 		super.Cleanup()
 		GC.Collect()
 
@@ -549,7 +557,7 @@ class T2kMapEngine(TMapEngine):
 		metadata as TMapMetadata
 		try:
 			runThreadsafe(true) def ():
-				FImageEngine = null
+				FImageEngine.Dispose()
 				oldEngine as T2kSpriteEngine = FCurrentMap
 				hero as TCharSprite = FCurrentMap.CurrentParty
 				if assigned(hero):
@@ -679,14 +687,3 @@ static internal def GetAsyncKeyState(vKey as System.Windows.Forms.Keys) as short
 internal def KeyIsPressed(value as Keys) as bool:
 	result = GetAsyncKeyState(value) 
 	return result != 0
-
-/*
-private def WriteTimestamp():
-	hour as ushort
-	min as ushort
-	sec as ushort
-	msec as ushort
-	
-	decodeTime(sysUtils.GetTime, hour, min, sec, msec)
-	commons.OutputFormattedString('Frame timestamp: %d:%d:%d.%d', [hour, min, sec, msec])
-*/

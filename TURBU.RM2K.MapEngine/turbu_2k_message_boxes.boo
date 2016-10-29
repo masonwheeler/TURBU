@@ -13,12 +13,13 @@ import TURBU.RM2K
 import turbu.RM2K.environment
 import TURBU.Meta
 
+[Disposable]
 class TMessageBox(TGameMenuBox):
 
 	[Getter(Portrait)]
 	private FPortrait as TSprite
 
-	private FNextArrow as TTiledAreaSprite
+	private FNextArrow as TSystemTile
 
 	private FRightPortrait as bool
 

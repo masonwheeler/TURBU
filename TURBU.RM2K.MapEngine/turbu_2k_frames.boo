@@ -74,6 +74,7 @@ class TSystemTile(TTiledAreaSprite):
 		super(value.Parent, value.DrawRect, value.Displacement, value.SeriesLength)
 		super.Assign(value)
 
+[Disposable]
 class TSystemImages(TObject):
 
 	[Getter(Rects)]
@@ -346,6 +347,8 @@ class TMenuSpriteEngine(TSpriteEngine):
 		GFontEngine.OnGetColor = null
 		GFontEngine.OnGetDrawRect = null
 		EndMessage()
+		for box in FBoxes:
+			box.Dispose()
 		FMenuEngine.Dispose()
 		TSysFrame.ClearFrames()
 
@@ -593,7 +596,7 @@ enum TMessageState:
 	Input
 	Prompt
 
-[Disposable(Destroy, true)]
+[Disposable]
 abstract class TCustomMessageBox(TSysFrame):
 
 	[Property(OnPlaySound)]
@@ -857,16 +860,12 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect):
 		let BORDER_THICKNESS = 16
-		debug "Creating $(self.GetType().Name)"
 		super(parent, commons.ORIGIN, 1, coords)
 		FColumns = 1
 		FBoxVisible = true
 		FTextTarget = TSdlRenderTarget(sgPoint(self.Width - BORDER_THICKNESS, self.Height - BORDER_THICKNESS))
 		ClearTarget(FTextTarget)
 		FTextColor = 1
-
-	private def Destroy():
-		debug "Disposing $(self.GetType().Name)"
 
 	let ARROW_KEYS = TButtonCode.Up | TButtonCode.Down | TButtonCode.Left | TButtonCode.Right
 

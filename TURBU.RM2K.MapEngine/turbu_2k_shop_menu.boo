@@ -423,6 +423,7 @@ enum TShopState:
 	Buying
 	Transaction
 
+[Disposable]
 class TShopMenuPage(TMenuPage):
 
 	[Getter(MainBox)]
