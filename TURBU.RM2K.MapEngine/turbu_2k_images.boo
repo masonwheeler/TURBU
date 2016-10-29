@@ -214,6 +214,10 @@ class TRpgImageSprite(TSprite):
 
 	private new def Destroy():
 		FRpgImage.ClearSprite()
+		
+		//for some bizarre reason, this was failing to run automatically
+		//from the Disposable attribute
+		GC.SuppressFinalize(self)
 
 	public def ApplyImageColors(r as int, g as int, b as int, sat as int):
 		FColorTarget.R = Math.Min(r, 200)
@@ -308,6 +312,7 @@ class TRpgImage(TObject):
 
 	def Destroy():
 		runThreadsafe(true, { GEnvironment.value.RemoveImage(self) })
+		GC.SuppressFinalize(self)
 
 	[NoImport]
 	public def Serialize(writer as JsonWriter):

@@ -209,7 +209,7 @@ class TSaveMenuPage(TMenuPage):
 		FTitle = TOnelineLabelBox(parent, GPU_MakeRect(0, 0, 320, 32), main, self)
 		RegisterComponent('Title', FTitle)
 
-	private def Destroy():
+	private new def Destroy():
 		for slot in FSlots:
 			slot.Dispose()
 

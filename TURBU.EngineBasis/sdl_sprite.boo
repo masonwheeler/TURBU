@@ -677,10 +677,10 @@ class TSpriteEngine(TParentSprite):
 	internal FDeadList = List[of TSprite]()
 
 	[Property(WorldX)]
-	private FWorldX as single
+	protected FWorldX as single
 
 	[Property(WorldY)]
-	private FWorldY as single
+	protected FWorldY as single
 
 	[Property(VisibleWidth)]
 	private FVisibleWidth as int

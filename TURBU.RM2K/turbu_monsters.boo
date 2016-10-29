@@ -143,6 +143,7 @@ class TBattleEventPage(TObject):
 		super()
 		value.CheckRead('ID', FId)
 		value.CheckRead('Name', FName)
+		value.Remove('PageConditions') //implement this later
 		value.CheckEmpty()
 
 [TableName('MonsterParties')]
