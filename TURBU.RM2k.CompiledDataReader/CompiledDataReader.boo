@@ -7,3 +7,6 @@ import TURBU.PluginInterface
 class TRpgCompiledDataReader(ITurbuPlugin):
 	def ListPlugins() as TEngineData*:
 		return (TEngineData(TEngineStyle.Data, classOf(TDllReader)),)
+
+initialization:
+	Jv.PluginManager.RegisterPlugin(TRpgCompiledDataReader())

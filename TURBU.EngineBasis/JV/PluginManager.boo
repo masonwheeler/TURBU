@@ -1,17 +1,9 @@
 ﻿namespace Jv.PluginManager
 
-import System
-import System.Collections.Generic
+import Boo.Adt
+import TURBU.PluginInterface
 
-class TJvPluginManager[of T(class)]:
-	
-	[Getter(Plugins)]
-	private _plugins = List[of T]()
-	
-	def constructor():
-		assert typeof(T).IsInterface
-	
-	def LoadPlugin(plugClass as Type):
-		unless T in plugClass.GetInterfaces():
-			raise "$(plugClass.FullName) does not implement $(typeof(T).FullName)"
-		_plugins.Add(Activator.CreateInstance(plugClass) cast T)
+let GPluginManager = System.Collections.Generic.List[of TEngineData]()
+
+def RegisterPlugin(value as ITurbuPlugin):
+	GPluginManager.AddRange(value.ListPlugins())

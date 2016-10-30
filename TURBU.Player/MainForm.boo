@@ -23,8 +23,6 @@ partial class frmTURBUPlayer:
 	
 	private _projectFolder as string
 	
-	private _pluginManager = Jv.PluginManager.TJvPluginManager[of ITurbuPlugin]()
-	
 	public def constructor():
 		// The InitializeComponent() call is required for Windows Forms designer support.
 		InitializeComponent()
@@ -85,7 +83,7 @@ partial class frmTURBUPlayer:
 		else: return _args[0]
 	
 	private def LoadEngines():
-		beforeList = AppDomain.CurrentDomain.GetAssemblies()
+		var beforeList = AppDomain.CurrentDomain.GetAssemblies()
 		for filename in Directory.EnumerateFiles(_projectFolder, '*.dll')\
 				.Union(Directory.EnumerateFiles(CurrentFolder(), '*.dll'))\
 				.Where({f | not AppDomain.CurrentDomain.GetAssemblies().Select({a | a.Location}).Contains(f)}):
@@ -93,10 +91,9 @@ partial class frmTURBUPlayer:
 				Assembly.LoadFrom(filename)
 			except as BadImageFormatException: //if this is not a valid assembly, ignore it
 				pass
-		for typ in AppDomain.CurrentDomain.GetAssemblies().Except(beforeList)\
-				.SelectMany({a | a.GetTypes().Where({t | t.GetInterface('ITurbuPlugin') is not null})}):
-			_pluginManager.LoadPlugin(typ)
-		for engine in _pluginManager.Plugins.SelectMany({p | p.ListPlugins()}):
+		for module in AppDomain.CurrentDomain.GetAssemblies().Except(beforeList).SelectMany({a | a.Modules}):
+			System.Runtime.CompilerServices.RuntimeHelpers.RunModuleConstructor(module.ModuleHandle)
+		for engine in Jv.PluginManager.GPluginManager:
 			LoadEngine(engine)
 	
 	private def LoadEngine(data as TEngineData):

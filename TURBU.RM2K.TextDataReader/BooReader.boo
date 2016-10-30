@@ -15,18 +15,18 @@ import TURBU.DataReader
 class TBooReader(TRpgPlugBase, IDataReader):
 	
 	[Getter(Data)]
-	private _data as TRpgMetadata
+	private _data = TRpgMetadata('Boo Data Reader', TVersion(0, 1, 1))
 	
 	private _path as string
 	
-	private _loader = InteractiveInterpreter(/*Boo.Lang.Parser.BooParsingStep(),*/ Ducky: false, RememberLastValue: true, ReplaceSingleEmptyMacro: false)
+	private _loader as InteractiveInterpreter
 	
 	private _mapLoader as TMapLoader
 	
 	private _readers = {}
 	
-	public def constructor():
-		_data = TRpgMetadata('Boo Data Reader', TVersion(0, 1, 1))
+	private def Initialize():
+		_loader = InteractiveInterpreter(/*Boo.Lang.Parser.BooParsingStep(),*/ Ducky: false, RememberLastValue: true, ReplaceSingleEmptyMacro: false)
 		_loader.References.Add(typeof(turbu.defs.Turbu_defsModule).Assembly)
 		_loader.References.Add(typeof(SG.defs.SG_DefsModule).Assembly)
 		_loader.References.Add(typeof(IDataReader).Assembly)
@@ -44,6 +44,7 @@ import SG.defs""")
 		return _mapLoader
 	
 	def Initialize(path as string):
+		Initialize() if _loader is null
 		_path = path
 	
 	def GetReader[of T(IRpgObject)]() as IDataTypeReader[of T]:
