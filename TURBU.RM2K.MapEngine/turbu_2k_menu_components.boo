@@ -144,6 +144,7 @@ class TOnelineCharReadout(TCustomOnelineBox):
 		GFontEngine.DrawText(target, '/', 280, yPos, 0)
 		GFontEngine.DrawTextRightAligned(target, hero.MaxMp.ToString(), 304, yPos, 0)
 
+[Disposable(Destroy, true)]
 abstract class TCustomPartyPanel(TGameMenuBox):
 
 	protected FPortrait as (TSprite)
@@ -209,6 +210,10 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 			if assigned(FPortrait[i]):
 				FPortrait[i].X = 4
 				FPortrait[i].Y = i * 56
+
+	private new def Destroy():
+		for portrait in FPortrait:
+			portrait.Dispose() if portrait is not null
 
 class TCustomGameItemMenu(TCustomScrollBox):
 

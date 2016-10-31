@@ -86,7 +86,7 @@ class TMiniTile(TSprite):
 		super(AParent)
 		ImageName = tileset
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TBorderTile(TMapTile):
 
 	protected minitiles = array(TMiniTile, 4)

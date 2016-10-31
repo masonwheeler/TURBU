@@ -389,7 +389,7 @@ class T2kMapEngine(TMapEngine):
 		FSignal = null
 		FImageEngine.Dispose() if assigned(FImageEngine)
 		FWeatherEngine.Dispose()
-		FCurrentMap.Dispose()
+		FCurrentMap.Dispose() if assigned(FCurrentMap)
 		FTimer.Dispose()
 		if FDatabaseOwner:
 			GEnvironment.value.Dispose()
@@ -656,7 +656,8 @@ class T2kMapEngine(TMapEngine):
 		GMenuEngine.Value.Reset()
 		turbu.RM2K.savegames.Load(savefile, self.InitializeParty)
 		FCurrentMap.CurrentParty = (GEnvironment.value.Party.Sprite cast TCharSprite)
-		FImageEngine = TImageEngine(GSpriteEngine.value, FCanvas, FImages)
+		if FImageEngine is null:
+			FImageEngine = TImageEngine(GSpriteEngine.value, FCanvas, FImages)
 		GEnvironment.value.CreateTimers()
 		GC.Collect()
 		GMapObjectManager.value.InCutscene = false

@@ -49,6 +49,7 @@ class TSaveData(TObject):
 		FHp = HP
 		FPortraits = portraits
 
+[Disposable(Destroy, true)]
 class TSaveBox(TGameMenuBox):
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
@@ -79,6 +80,10 @@ class TSaveBox(TGameMenuBox):
 				FPortraits[i].Draw()
 		else:
 			Array.Resize[of TSprite](FPortraits, 0)
+
+	private new def Destroy():
+		for portrait in FPortraits:
+			portrait.Dispose()
 
 	protected override def DoCursor(position as short):
 		if self.Focused:

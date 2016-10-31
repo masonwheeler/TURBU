@@ -13,7 +13,7 @@ class EMissingPlugin(Exception):
 interface ITurbuEngine(IDisposable):
 	pass
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 private class TEngineDict(Dictionary[of TRpgMetadata, ITurbuEngine]):
 	
 	private def Destroy():
