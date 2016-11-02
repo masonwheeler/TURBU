@@ -213,8 +213,6 @@ Implements the IDisposable pattern for a type.
 			Name: disposeMethodName,
 			Modifiers: TypeMemberModifiers.Public)
 
-		dispose.Body.Add([|debug "Disposing $(self.GetType().Name) instance $___myCounter"|]) if _trace.Value
-
 		protectedDisposeInvocation = AstUtil.CreateMethodInvocationExpression(
 			LexicalInfo,
 			ReferenceExpression(
@@ -267,6 +265,8 @@ Implements the IDisposable pattern for a type.
 			_protectedDispose.Modifiers |= \
 				TypeMemberModifiers.Protected | TypeMemberModifiers.Virtual
 
+		if _trace.Value:
+			_protectedDispose.Body.Add([|debug "Disposing $(self.GetType().Name) instance $___myCounter"|])
 		_disposableType.Members.Add(_protectedDispose)
 
 	private def CreateProtectedDisposeMethodBody():
