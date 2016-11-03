@@ -1,9 +1,11 @@
 namespace turbu.RM2K.image.engine
 
+import Pythia.Runtime
 import sdl.sprite
 import sdl.canvas
 import SDL.ImageManager
 
+[Disposable(Destroy, true)]
 class TImageEngine(TSpriteEngine):
 
 	[Property(ParentEngine)]
@@ -19,3 +21,7 @@ class TImageEngine(TSpriteEngine):
 		WorldY = FParentEngine.WorldY
 		super.Draw()
 		self.Dead()
+
+	private new def Destroy():
+		for image in FSpriteList.ToArray():
+			image.Dispose()

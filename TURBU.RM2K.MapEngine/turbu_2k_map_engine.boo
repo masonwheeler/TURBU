@@ -557,7 +557,6 @@ class T2kMapEngine(TMapEngine):
 		metadata as TMapMetadata
 		try:
 			runThreadsafe(true) def ():
-				FImageEngine.Dispose()
 				oldEngine as T2kSpriteEngine = FCurrentMap
 				hero as TCharSprite = FCurrentMap.CurrentParty
 				if assigned(hero):

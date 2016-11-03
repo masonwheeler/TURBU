@@ -688,7 +688,7 @@ class TSpriteEngine(TParentSprite):
 	[Property(VisibleHeight)]
 	private FVisibleHeight as int
 
-	[Property(Images)]
+	[Property(Images), DisposeParent]
 	private FImages as TSdlImages
 
 	[Getter(Canvas)]
