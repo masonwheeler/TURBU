@@ -929,6 +929,10 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 	
 	def GetEnumerator():
 		return TPartyEnumerator(FParty)
+
+	public def Clear():
+		FParty = array(TRpgHero, MAXPARTYSIZE)
+		FSprite = null
 	
 	private class TPartyEnumerator(IEnumerator of TRpgHero):
 		private FHeroes as (TRpgHero)

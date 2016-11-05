@@ -23,5 +23,6 @@ class TImageEngine(TSpriteEngine):
 		self.Dead()
 
 	private new def Destroy():
-		for image in FSpriteList.ToArray():
-			image.Dispose()
+		if assigned(FSpriteList):
+			for image in FSpriteList.ToArray():
+				image.Dispose()
