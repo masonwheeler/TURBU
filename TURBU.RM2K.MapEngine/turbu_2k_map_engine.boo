@@ -383,7 +383,7 @@ class T2kMapEngine(TMapEngine):
 			FObjectManager.ScriptEngine.KillAll(null) if FObjectManager is not null
 			GMenuEngine.Value.Dispose()
 		FShaderEngine.Dispose() if assigned(FShaderEngine)
-		FPartySprite = null
+		FPartySprite.Dispose() if assigned(FPartySprite)
 		FCanvas = null
 		FImages.Dispose() if assigned(FImages)
 		FSignal = null
@@ -572,6 +572,8 @@ class T2kMapEngine(TMapEngine):
 				if assigned(hero):
 					hero.Location = newLocation
 					(hero cast THeroSprite).settleDown(FCurrentMap)
+				FImageEngine.ParentEngine = FCurrentMap
+				oldEngine.Dispose()
 				FCurrentMap.CenterOn(newLocation.x, newLocation.y)
 		ensure:
 			FTeleportThread = null

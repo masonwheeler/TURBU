@@ -73,6 +73,7 @@ class T2kSpriteEngine(TSpriteEngine):
 
 	private FSpriteLocations as TSpriteLocations
 
+	[DisposeParent]
 	private FCurrentParty as TCharSprite
 
 	[Getter(State)]
@@ -83,7 +84,7 @@ class T2kSpriteEngine(TSpriteEngine):
 	[Property(OnPartySpriteChanged)]
 	private FPartySpriteChanged as Action of TCharSprite
 
-	[Getter(ShaderEngine)]
+	[Getter(ShaderEngine), DisposeParent]
 	private FShaderEngine as TdmShaders
 
 	private FFadeColor = array(single, 4)

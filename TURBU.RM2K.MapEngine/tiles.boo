@@ -156,7 +156,7 @@ abstract class TTile(TParentSprite):
 		else: return 1
 
 [Disposable]
-class TEventTile(TTile, IDisposable):
+class TEventTile(TTile):
 
 	[Property(Event)]
 	private FEvent as TRpgMapObject

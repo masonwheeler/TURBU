@@ -9,7 +9,7 @@ import System.Text
 import SDL2.SDL2_GPU
 import TURBU.Meta
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 partial class TdmShaders(TDataModule):
 
 	public FragLibs as TJvMultiStringHolder
