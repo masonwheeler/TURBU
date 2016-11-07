@@ -178,7 +178,7 @@ class TSaveMenuPage(TMenuPage):
 
 	private def ResetSlots():
 		for i in range(FSlots.Length):
-			FSlots[i].Index = FTop + i
+			FSlots[i].Index = FTop + i + 1
 
 	private def MoveSlot(input as TButtonCode):
 		caseOf input:
@@ -238,6 +238,9 @@ class TSaveMenuPage(TMenuPage):
 
 	public override def Setup(value as int):
 		super.Setup(value)
+		FTop = 0
+		FCursorPosition = 0
+		ResetSlots()
 		FTitle.Text = (GDatabase.value.Vocab[V_SAVE_WHERE] if value == 0 else GDatabase.value.Vocab[V_LOAD_WHERE])
 
 initialization :
