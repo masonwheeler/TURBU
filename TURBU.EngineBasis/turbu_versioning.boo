@@ -13,13 +13,11 @@ struct TVersion:
 	def constructor(value as uint):
 		self.value = value
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_LessThan(a as TVersion, b as TVersion) as bool:
-		return (a.value < b.value)
+		return a.value < b.value
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_GreaterThan(a as TVersion, b as TVersion) as bool:
-		return (a.value > b.value)
+		return a.value > b.value
 
 	public Name as string:
 		get: return "$major.$minor.$build"

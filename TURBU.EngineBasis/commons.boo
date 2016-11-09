@@ -86,7 +86,6 @@ static class GCurrentFolder:
 public def syncRun(tt as TThread, AMethod as Action):
 	TThread.Synchronize(AMethod)
 
-let LFCR = '\r\n'
 let ORIGIN = sgPoint(0, 0)
 let NULLRECT = SDL2.SDL2_GPU.GPU_MakeRect(0, 0, 0, 0)
 let MULTIPLIER_31 = 8.22580645161

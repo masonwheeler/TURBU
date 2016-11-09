@@ -248,14 +248,6 @@ class TMatrix[of T](TObject, IEnumerable[of T]):
 	[Getter(Height)]
 	private FHeight as int
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	private def GetValue(x as int, y as int) as T:
-		return FMatrix[(y * FWidth) + x]
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	private def SetValue(x as int, y as int, value as T):
-		FMatrix[(y * FWidth) + x] = value
-
 	def GetEnumerator():
 		return (FMatrix cast T*).GetEnumerator()
 	
@@ -268,14 +260,14 @@ class TMatrix[of T](TObject, IEnumerable[of T]):
 			case 0:
 				start = 0
 			case 1:
-				start = ((FHeight - base.Height) / 2)
+				start = (FHeight - base.Height) / 2
 			case 2:
-				start = (FHeight - base.Height)
+				start = FHeight - base.Height
 		for i in range(0, base.Height):
 			if base.Width <= self.Width:
-				HorizontalExpand(base, i, (i + start), position)
+				HorizontalExpand(base, i, i + start, position)
 			else:
-				HorizontalContract(base, i, (i + start), position)
+				HorizontalContract(base, i, i + start, position)
 
 	private def VerticalContract(base as TMatrix[of T], position as int):
 		start as int
@@ -284,14 +276,14 @@ class TMatrix[of T](TObject, IEnumerable[of T]):
 			case 0:
 				start = 0
 			case 1:
-				start = ((base.Height - FHeight) / 2)
+				start = (base.Height - FHeight) / 2
 			case 2:
-				start = (base.Height - FHeight)
+				start = base.Height - FHeight
 		for i in range(0, FHeight):
 			if base.Width <= self.Width:
-				HorizontalExpand(base, (i + start), i, position)
+				HorizontalExpand(base, i + start, i, position)
 			else:
-				HorizontalContract(base, (i + start), i, position)
+				HorizontalContract(base, i + start, i, position)
 
 	private def HorizontalContract(base as TMatrix[of T], fromRow as int, toRow as int, position as int):
 		start as int
@@ -300,24 +292,24 @@ class TMatrix[of T](TObject, IEnumerable[of T]):
 			case 0:
 				start = 0
 			case 1:
-				start = ((base.Width - FWidth) / 2)
+				start = (base.Width - FWidth) / 2
 			case 2:
-				start = (base.Width - FWidth)
+				start = base.Width - FWidth
 		for i in range(0, FWidth):
-			self[i, toRow] = base[(i + start), fromRow]
+			self[i, toRow] = base[i + start, fromRow]
 
 	private def HorizontalExpand(base as TMatrix[of T], fromRow as int, toRow as int, position as int):
 		start as int
 		i as int
 		caseOf position % 3:
 			case 0:
-				start = (FWidth - base.Width)
+				start = FWidth - base.Width
 			case 1:
 				start = 0
 			case 2:
-				start = ((FWidth - base.Width) / 2)
+				start = (FWidth - base.Width) / 2
 		for i in range(0, base.Width):
-			self[(i + start), toRow] = base[i, fromRow]
+			self[i + start, toRow] = base[i, fromRow]
 
 	public def constructor(size as TSgPoint):
 		super()
@@ -337,9 +329,6 @@ class TMatrix[of T](TObject, IEnumerable[of T]):
 		except E as IndexOutOfRangeException:
 			raise IndexOutOfRangeException("TMatrix[of $T]: Range check error resizing a $(base.Width)X$(base.Height) matrix to $(size.x)X$(size.y), position $position", E)
 
-	public self[X as int, Y as int] as T:
-		get:
-			return GetValue(X, Y)
-		set:
-			SetValue(X, Y, value)
-
+	public self[x as int, y as int] as T:
+		get: return FMatrix[(y * FWidth) + x]
+		set: FMatrix[(y * FWidth) + x] = value
