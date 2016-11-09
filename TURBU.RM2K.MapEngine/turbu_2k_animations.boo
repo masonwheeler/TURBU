@@ -97,6 +97,8 @@ class TAnimSprite(TParentSprite):
 	private new def Destroy():
 		if assigned(FSignal):
 			FSignal.Set()
+		for sprite in self.List.ToArray():
+			sprite.Dispose()
 
 	private def Move():
 		tr as uint = FTimer.TimeRemaining

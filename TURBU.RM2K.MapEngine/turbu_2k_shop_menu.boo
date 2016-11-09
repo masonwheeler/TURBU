@@ -331,10 +331,16 @@ class TCompatSprite(TSprite):
 	public Item as TRpgItem:
 		set: FItem = value
 
+[Disposable(Destroy, true)]
 class TShopCompatBox(TGameMenuBox):
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
+
+	private new def Destroy():
+		for sprite in FParty:
+			if sprite is not null:
+				sprite.Dispose()
 
 	private FItem as TRpgItem
 
