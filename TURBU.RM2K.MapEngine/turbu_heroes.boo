@@ -886,7 +886,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 
 	public self[x as int] as TRpgHero:
 		get:
-			result = (GEnvironment.value.Heroes[0] if ((x == 0) or (x >= MAXPARTYSIZE)) or (FParty[x - 1] == null) else FParty[x - 1])
+			result = (GEnvironment.value.Heroes[0] if ((x == 0) or (x > MAXPARTYSIZE)) or (FParty[x - 1] == null) else FParty[x - 1])
 			return result
 		set:
 			return if (x == 0) or (x > MAXPARTYSIZE)
