@@ -19,15 +19,15 @@ private def CalcExp2k(currentLevel as int, stdIncrease as int, addIncrease as in
 		result += correction + Math.Truncate(standard)
 		standard *= additional
 		additional = (((currentLevel * 0.002) + 0.8) * (additional - 1)) + 1
-	result = Math.Min(result, MAXEXP2K)
+	return Math.Min(result, MAXEXP2K)
 
 [DesignName('RM2K3 level algorithm')]
 private def CalcExp2k3(level as int, primary as int, secondary as int, tertiary as int, dummy as int) as int:
-	result = 0
+	var result = 0
 	for i in range(1, level):
 		result += i
 	result = (result * secondary) + ((level - 1) * (primary + tertiary))
-	result = Math.Min(result, MAXEXP2K3)
+	return Math.Min(result, MAXEXP2K3)
 
 //these should be moved to a design-time assembly, when I can make those
 /*

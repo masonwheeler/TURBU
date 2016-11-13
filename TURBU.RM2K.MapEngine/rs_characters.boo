@@ -28,14 +28,14 @@ def HeroLeave(id as int):
 
 def AddExp(id as int, number as int, notify as bool):
 	GEnvironment.value.Party.LevelNotify = notify
-	GEnvironment.value.Party.AddExp(id, number)
+	GEnvironment.value.Heroes[id].Exp += number
 
 def RemoveExp(id as int, number as int):
-	GEnvironment.value.Party.RemoveExp(id, number)
+	GEnvironment.value.Heroes[id].Exp -= number
 
 def AddLevels(id as int, number as int, showMessage as bool):
 	GEnvironment.value.Party.LevelNotify = showMessage
-	GEnvironment.value.Party.AddLevels(id, number)
+	GEnvironment.value.Heroes[id].Level += number
 
-def RemoveLevels(hero as int, Count as int):
-	GEnvironment.value.Party.RemoveLevels(hero, Count)
+def RemoveLevels(id as int, number as int):
+	GEnvironment.value.Heroes[id].Level -= number

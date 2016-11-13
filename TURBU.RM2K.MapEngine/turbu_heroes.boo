@@ -294,17 +294,16 @@ class TRpgHero(TRpgBattleCharacter):
 
 	private def UpdateLevel(gain as bool):
 		FLevelUpdated = true
-		caseOf gain:
-			case true:
-				assert FExpTotal >= FExpTable[FLevel + 1]
-				repeat:
-					GainLevel()
-					until FExpTotal < FExpTable[FLevel + 1]
-			case false:
-				assert FExpTotal <= FExpTable[FLevel]
-				repeat:
-					LoseLevel()
-					until FExpTotal >= FExpTable[FLevel]
+		if gain:
+			assert FExpTotal >= FExpTable[FLevel + 1]
+			repeat:
+				GainLevel()
+				until FExpTotal < FExpTable[FLevel + 1]
+		else:
+			assert FExpTotal <= FExpTable[FLevel]
+			repeat:
+				LoseLevel()
+				until FExpTotal >= FExpTable[FLevel]
 
 	private def GetTemplate() as TClassTemplate:
 		return super.Template cast TClassTemplate
@@ -831,9 +830,9 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 			for i in range(1, (MAXPARTYSIZE + 1)):
 				if self[i] != GEnvironment.value.Heroes[0]:
 					hero = GEnvironment.value.Heroes[self[i].Template.ID]
-					hero.Level = (hero.Level - number)
+					hero.Level -= number
 		else:
-			self[id].Level = (self[id].Level - number)
+			self[id].Level -= number
 
 	[NoImport]
 	public def Pack():
