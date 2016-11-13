@@ -27,6 +27,9 @@ abstract class TRpgObject(TObject):
 	def constructor(base as TRpgDatafile):
 		FTemplate = base
 
+	override def ToString():
+		return "$(self.ClassName) $(FTemplate.ID): $(FTemplate.Name)"
+
 abstract class TRpgDatafile(TObject, IRpgObject):
 	[Property(Name)]
 	protected FName as string = ''
