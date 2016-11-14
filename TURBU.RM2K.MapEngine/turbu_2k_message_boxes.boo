@@ -29,24 +29,34 @@ class TMessageBox(TGameMenuBox):
 
 	private FTextRate as single
 
-	private FRemainder as single
+	private FNextCharTime as TRpgTimestamp
 
 	private FImmediate as bool
 
 	private def DrawNextChar():
-		return if FTextCounter >= FParsedText.Count
+		if FTextCounter >= FParsedText.Count:
+			FNextCharTime = null
+			return
+		return unless FNextCharTime is null or FNextCharTime.TimeRemaining == 0
 		if System.Threading.Monitor.TryEnter(self):
 			try:
-				FRemainder += TRpgTimestamp.FrameLength / 1000.0
-				while (FTextCounter < FParsedText.Count) and (FImmediate or FRemainder > FTextRate):
-					DrawChar(FParsedText[FTextCounter])
+				while (FTextCounter < FParsedText.Count):
+					var value = FParsedText[FTextCounter]
+					DrawChar(value)
 					++FTextCounter
-					FRemainder -= FTextRate unless FImmediate
+					unless FImmediate:
+						SetTimer(FTextRate)
+						break
 			ensure:
 				System.Threading.Monitor.Exit(self)
 
+	private def SetTimer(value as single):
+		var remainder = (0 if FNextCharTime is null else FNextCharTime.TimeRemaining)
+		var duration = remainder + ((value * 1000) cast int)
+		FNextCharTime = TRpgTimestamp(duration)
+
 	private def SetTextRate(value as int):
-		FTextRate = value * 0.0167
+		FTextRate = value * 0.0125
 
 	protected override def NewLine():
 		++FTextLine
@@ -63,8 +73,8 @@ class TMessageBox(TGameMenuBox):
 					case char('$'): InsertText(GEnvironment.value.Money.ToString())
 					case char('!'):
 						pass //TODO: implement this
-					case char('.'): FRemainder -= 0.25
-					case char('|'): FRemainder -= 1
+					case char('.'): SetTimer(0.25)
+					case char('|'): SetTimer(1)
 					case char('>'): FImmediate = true
 					case char('<'): FImmediate = false
 					case char('^'): EndMessage()
@@ -106,7 +116,7 @@ class TMessageBox(TGameMenuBox):
 		super.ResetText()
 		FParsedText.Clear()
 		FImmediate = false
-		FRemainder = 0
+		FNextCharTime = null
 		SetTextRate(1)
 
 	protected override def DoButton(input as TButtonCode):
