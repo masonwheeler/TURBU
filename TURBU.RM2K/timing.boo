@@ -117,6 +117,9 @@ class TRpgTimestamp(TObject):
 	public static FrameLength as int:
 		get: return Math.Round(FFrameLength.Average())
 
+	public override def ToString():
+		return TimeRemaining.ToString() + 'ms'
+
 def MoveTowards(timer as int, ref current as double, goal as double):
 	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
 	diff as double = (current - goal) / timefactor

@@ -21,10 +21,10 @@ class TMapTile(TTile):
 	
 	protected FNeighbors as TDirs8
 
-	public override def Open(exceptFor as TObject) as bool:
+	public override def Open(exceptFor as TMapSprite) as bool:
 		lEvent as TMapSprite* = self.Event
 		result = super.Open(exceptFor)
-		result = result and lEvent.All({ms | ms == exceptFor})
+		result = result and lEvent.All({ms | ms == exceptFor or ms.BaseTile is null or ms.BaseTile.Z != exceptFor.BaseTile.Z})
 		return result
 
 	public def Bump(bumper as TMapSprite):

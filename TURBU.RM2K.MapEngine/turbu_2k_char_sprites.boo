@@ -290,10 +290,10 @@ class THeroSprite(TCharSprite):
 		self.Visible = false
 		theVehicle.Launch()
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	private def QueueMove(direction as TDirections):
-		FNextMove = direction
-		FMoveQueued = true
+		unless self.HasMoveChange():
+			FNextMove = direction
+			FMoveQueued = true
 
 	private def SetMovement(direction as TDirections):
 		MoveQueue = MakeSingleStepPath(direction)
@@ -327,13 +327,12 @@ class THeroSprite(TCharSprite):
 			FParty.SetSprite(null)
 
 	public override def Action(button as TButtonCode):
-		location as TSgPoint
 		if button == TButtonCode.Enter:
 			ActivateEvents(((FEngine cast T2kSpriteEngine).Tiles[0, FLocation.x, FLocation.y]) cast TMapTile)
 			var currentTile = self.InFrontTile
 			if assigned(currentTile):
 				ActivateEvents(currentTile)
-				location = FLocation
+				var location = FLocation
 				while currentTile.Countertop:
 					currentTile = GSpriteEngine.value.TileInFrontOf(location, self.Facing)
 					if assigned(currentTile):
@@ -376,20 +375,21 @@ class THeroSprite(TCharSprite):
 				RideVehicle(vs)
 
 	public override def Move(whichDir as TDirections) as bool:
-		result = false
+		if self.HasMoveChange():
+			return false
 		if assigned(FMoveTime):
 			if (MoveFreq == 8) and (FMoveTime.TimeRemaining <= TRpgTimestamp.FrameLength):
 				QueueMove(whichDir)
-			return result
+			return false
 		if assigned(FPause):
 			if FPause.TimeRemaining <= TRpgTimestamp.FrameLength:
 				QueueMove(whichDir)
-			return result
+			return false
 		if FMoveTick:
-			result = super.Move(whichDir)
+			return super.Move(whichDir)
 		else:
 			SetMovement(whichDir)
-		return result
+			return false
 
 	public def PackUp():
 		FEngine.Remove(FTiles[0])

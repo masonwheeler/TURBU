@@ -709,6 +709,9 @@ class TMapSprite(TObject):
 		self.Facing = base.Facing if base isa TCharSprite
 		self.Location = base.Location
 
+	protected def HasMoveChange() as bool:
+		return assigned(FMoveChange)
+
 	public def MoveChange(path as Path, frequency as int, skip as bool):
 		lock self:
 			FMoveChange = TMoveChange(path, frequency, skip)

@@ -2,6 +2,7 @@ namespace tiles
 
 import commons
 import turbu.maps
+import turbu.map.sprites
 import turbu.tilesets
 import TURBU.MapObjects
 import turbu.defs
@@ -131,7 +132,7 @@ abstract class TTile(TParentSprite):
 		Z = DecodeZOrder(result) + layer
 		return result
 
-	public virtual def Open(exceptFor as TObject) as bool:
+	public virtual def Open(exceptFor as TMapSprite) as bool:
 		return self.CanEnter()
 
 	public def CanEnter() as bool:
