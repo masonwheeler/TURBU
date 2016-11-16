@@ -27,19 +27,23 @@ class TMapTile(TTile):
 		result = result and lEvent.All({ms | ms == exceptFor or ms.BaseTile is null or ms.BaseTile.Z != exceptFor.BaseTile.Z})
 		return result
 
-	public def Bump(bumper as TMapSprite):
-		return if GMapObjectManager.value.InCutscene
+	public def Bump(bumper as TMapSprite) as bool:
+		return false if GMapObjectManager.value.InCutscene
 		lEvent as TMapSprite* = self.Event
-		return if bumper.Event?.Playing
+		return false if bumper.Event?.Playing
+		var result = false 
 		if bumper == GEnvironment.value.Party.Sprite:
 			for mapObj in lEvent:
 				if mapObj.HasPage and (mapObj.Event.CurrentPage.Trigger in (TStartCondition.Touch, TStartCondition.Collision)) \
 						and not mapObj.SlipThrough:
 					GMapObjectManager.value.RunPageScript(mapObj.Event.CurrentPage)
+					result = true
 		elif bumper.HasPage and (bumper.Event.CurrentPage.Trigger == TStartCondition.Collision):
 			for mapObj in lEvent:
 				if mapObj == GEnvironment.value.Party.Sprite:
 					GMapObjectManager.value.RunPageScript(bumper.Event.CurrentPage)
+					result = true
+		return result
 
 	public Occupied as bool:
 		get: return Event.Any()

@@ -623,7 +623,10 @@ class TMapSprite(TObject):
 				else:
 					SetMovePause()
 					FJumpAnimateOverride = false
-				CurrentTile().Bump(self) unless FSlipThrough
+				unless FSlipThrough:
+					var bumped = CurrentTile().Bump(self)
+					if bumped and FPause == null: //HACK!  Fix this with async/await ASAP
+						FPause = TRpgTimestamp(TRpgTimestamp.FrameLength)
 		unless FInitialized:
 			EnterTile()
 			FInitialized = true
