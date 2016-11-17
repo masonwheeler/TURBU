@@ -348,9 +348,7 @@ class THeroSprite(TCharSprite):
 				self.Move(FNextMove)
 
 	public def BoardVehicle():
-		eventList as (TMapSprite)
-		theSprite as TMapSprite
-		eventList = ((FEngine cast T2kSpriteEngine).Tiles[0, FLocation.x, FLocation.y] cast TMapTile).Event
+		eventList as (TMapSprite) = ((FEngine cast T2kSpriteEngine).Tiles[0, FLocation.x, FLocation.y] cast TMapTile).Event
 		for theSprite in eventList:
 			if (theSprite isa TVehicleSprite) and ((theSprite as TVehicleSprite).State == TVehicleState.Empty):
 				RideVehicle(theSprite as TVehicleSprite)

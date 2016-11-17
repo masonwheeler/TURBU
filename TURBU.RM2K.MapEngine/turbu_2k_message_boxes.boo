@@ -40,7 +40,7 @@ class TMessageBox(TGameMenuBox):
 		return unless FNextCharTime is null or FNextCharTime.TimeRemaining == 0
 		if System.Threading.Monitor.TryEnter(self):
 			try:
-				while (FTextCounter < FParsedText.Count):
+				while FTextCounter < FParsedText.Count:
 					var value = FParsedText[FTextCounter]
 					DrawChar(value)
 					++FTextCounter
@@ -78,7 +78,7 @@ class TMessageBox(TGameMenuBox):
 					case char('>'): FImmediate = true
 					case char('<'): FImmediate = false
 					case char('^'): EndMessage()
-					case char('_'): FTextPosX = FTextPosX + HALF_CHAR
+					case char('_'): FTextPosX += HALF_CHAR
 					case char('E'):
 						Abort //TODO: implement error reporting
 					case char('e'):

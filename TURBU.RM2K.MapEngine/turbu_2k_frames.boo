@@ -806,7 +806,7 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	protected def ParseParamToken(input as string, ref counter as int) as string:
 		var token = char.ToUpper(input[counter])
-		result = ('\\' + token)
+		result = '\\' + token
 		caseOf token:
 			case char('C'), char('S'), char('N'), char('V'), char('T'), char('F'):
 				++counter
@@ -836,7 +836,7 @@ abstract class TCustomMessageBox(TSysFrame):
 		++counter
 		token as char = input[counter]
 		if char.IsLetter(token):
-			result =  ('$' + token)
+			result = '$' + token
 		elif token == char('$'):
 			result = '$'
 		else:

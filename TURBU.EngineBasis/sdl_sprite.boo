@@ -383,7 +383,7 @@ class TParentSprite(TSprite):
 
 	public override def Move(movecount as single):
 		super.Move(movecount)
-		for i in range(0, Count):
+		for i in range(Count):
 			self[i].Move(movecount)
 
 	public def Clear():
@@ -393,7 +393,7 @@ class TParentSprite(TSprite):
 	public override def Draw():
 		super.Draw()
 		if self.Visible and assigned(FSpriteList):
-			for i in range(0, FSpriteList.Count):
+			for i in range(FSpriteList.Count):
 				FSpriteList[i].Draw()
 
 	public def Add(Sprite as TSprite):

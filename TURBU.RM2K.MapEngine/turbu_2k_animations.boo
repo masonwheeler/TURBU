@@ -114,7 +114,7 @@ class TAnimSprite(TParentSprite):
 	private def SetupFrame(currFrame as TAnimCell):
 		var newSprite = TAnimSpriteCell(self)
 		newSprite.Pinned = true
-		newSprite.ImageName = ('Anim ' + FBase.Filename)
+		newSprite.ImageName = 'Anim ' + FBase.Filename
 		newSprite.ImageIndex = currFrame.ImageIndex
 		if FFullScreen:
 			newSprite.X = currFrame.Position.x + (Engine.Canvas.Width / 2)
