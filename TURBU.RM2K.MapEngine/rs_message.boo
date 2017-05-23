@@ -2,6 +2,8 @@ namespace TURBU.RM2K.RPGScript
 
 import System
 import System.Linq.Enumerable
+import System.Threading.Tasks
+
 import Boo.Lang.Compiler.Ast
 import turbu.defs
 import turbu.script.engine
@@ -19,16 +21,17 @@ import Newtonsoft.Json.Linq
 
 macro ShowMessage(body as ExpressionStatement*):
 	message = string.Join(Environment.NewLine, body.Select({es | (es.Expression cast StringLiteralExpression).Value}))
-	return ExpressionStatement([|ShowMessage($message)|])
+	return ExpressionStatement([|await(ShowMessage($message))|])
 
-def ShowMessage(msg as string):
+[async]
+def ShowMessage(msg as string) as Task:
 	oldValue as TMboxLocation
 	lock L.MessageLock:
 		if assigned(L.ShowMessageHandler):
 			L.ShowMessageHandler(msg)
 		else:
 			PrepareMbox(oldValue)
-			GMenuEngine.Value.ShowMessage(msg, L.MboxModal)
+			await GMenuEngine.Value.ShowMessage(msg, L.MboxModal)
 			SetMessageBoxPosition(oldValue)
 
 def SetMessageBoxPosition(position as TMboxLocation):
@@ -60,24 +63,27 @@ def SetPortrait(filename as string, index as int, rightside as bool, flipped as 
 	GMenuEngine.Value.SetPortrait(filename, index)
 	SetFlipped(flipped)
 
-def ShowChoice(msg as string, choices as (string), allowCancel as bool) as int:
+[async]
+def ShowChoice(msg as string, choices as (string), allowCancel as bool) as Task of int:
 	oldValue as TMboxLocation
 	PrepareMbox(oldValue)
-	GMenuEngine.Value.ChoiceBox(msg, choices, allowCancel, null)
+	await (GMenuEngine.Value.ChoiceBox(msg, choices, allowCancel, null))
 	SetMessageBoxPosition(oldValue)
 	return GMenuEngine.Value.MenuInt
 
-def InputNumber(msg as string, digits as int) as int:
+[async]
+def InputNumber(msg as string, digits as int) as Task of int:
 	oldValue as TMboxLocation
 	PrepareMbox(oldValue)
-	GMenuEngine.Value.InputNumber(msg, digits)
+	await GMenuEngine.Value.InputNumber(msg, digits)
 	SetMessageBoxPosition(oldValue)
 	return GMenuEngine.Value.MenuInt
 
-def Inn(messageStyle as int, Cost as int) as bool:
+[async]
+def Inn(messageStyle as int, cost as int) as Task of bool:
 	oldValue as TMboxLocation
 	PrepareMbox(oldValue)
-	GMenuEngine.Value.Inn(messageStyle, Cost)
+	await GMenuEngine.Value.Inn(messageStyle, cost)
 	SetMessageBoxPosition(oldValue)
 	if GMenuEngine.Value.MenuInt == 1:
 		result = true
@@ -85,16 +91,15 @@ def Inn(messageStyle as int, Cost as int) as bool:
 		try:
 			for i in range(1, (GEnvironment.value.HeroCount + 1)):
 				GEnvironment.value.Heroes[i].FullHeal()
-			assert GEnvironment.value.Money >= Cost
-			GEnvironment.value.Money -= Cost
+			assert GEnvironment.value.Money >= cost
+			GEnvironment.value.Money -= cost
 			GSpriteEngine.value.FadeOut(1500)
 			FadeOutMusic(1500)
-			GScriptEngine.value.ThreadSleep(1750, true)
-			PlaySystemMusic(TBgmTypes.Inn, true)
-			GScriptEngine.value.ThreadWait()
+			await GScriptEngine.value.Sleep(1750, true)
+			await PlaySystemMusicOnce(TBgmTypes.Inn)
 			GSpriteEngine.value.FadeIn(1500)
 			FadeInLastMusic(1500)
-			GScriptEngine.value.ThreadSleep(1500, true)
+			await GScriptEngine.value.Sleep(1500, true)
 		ensure:
 			GGameEngine.value.LeaveCutscene()
 	else: result = false
@@ -103,16 +108,16 @@ def Inn(messageStyle as int, Cost as int) as bool:
 def SetSkin(Name as string, tiled as bool):
 	GMenuEngine.Value.SetSkin(Name, not tiled)
 
-def OpenMenu():
+[async]
+def OpenMenu() as Task:
 	GMenuEngine.Value.OpenMenu('Main')
-	unless TThread.CurrentThread.IsMainThread:
-		GScriptEngine.value.SetWaiting(WaitForMenuClosed)
+	waitFor WaitForMenuClosed
 
-def SaveMenu():
+[async]
+def SaveMenu() as Task:
 	GMenuEngine.Value.MenuInt = 0
 	GMenuEngine.Value.OpenMenu('Save')
-	unless TThread.CurrentThread.IsMainThread:
-		GScriptEngine.value.SetWaiting(WaitForMenuClosed)
+	waitFor WaitForMenuClosed
 
 def WaitForMenuClosed() as bool:
 	return GMenuEngine.Value.State == TMenuState.None

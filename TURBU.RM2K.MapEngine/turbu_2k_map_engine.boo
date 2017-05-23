@@ -3,6 +3,7 @@ namespace TURBU.RM2K.MapEngine
 import System
 import System.IO
 import System.Threading
+import System.Threading.Tasks
 import System.Windows.Forms
 import archiveInterface
 import AsphyreTimer
@@ -68,8 +69,6 @@ class T2kMapEngine(TMapEngine):
 	private FButtonState as TButtonCode
 
 	private FSwitchState as TSwitchState
-
-	private FTeleportThread as TThread
 
 	private FGameState as TGameState
 
@@ -196,7 +195,7 @@ class T2kMapEngine(TMapEngine):
 			GEnvironment.value.CreateTimers()
 		GSpriteEngine.value = FCurrentMap
 		LoadMapSprites(FCurrentMap.MapObj)
-		FObjectManager.LoadMap(FWaitingMap, FTeleportThread)
+		FObjectManager.LoadMap(FWaitingMap)
 		FObjectManager.Tick() if FPlaying
 		FCurrentMap.Dead()
 		return FSignal.WaitOne(Timeout.Infinite)
@@ -229,6 +228,7 @@ class T2kMapEngine(TMapEngine):
 
 	private def OnTimer():
 		++FFrame
+		TRpgTimestamp.NewFrame()
 		lock FRenderPauseLock:
 			caseOf FGameState:
 				case T2kMapEngine.TGameState.Title: RenderTitle()
@@ -252,7 +252,6 @@ class T2kMapEngine(TMapEngine):
 		FImageEngine.Draw() if assigned(FImageEngine)
 
 	private def OnProcess():
-		TRpgTimestamp.NewFrame()
 		return if FSwitchState != TSwitchState.NoSwitch
 		FButtonState = ReadKeyboardState()
 		for button in FButtonState.Values():
@@ -282,7 +281,7 @@ class T2kMapEngine(TMapEngine):
 				elif (button == TButtonCode.Cancel) and GEnvironment.value.MenuEnabled:
 					FEnterLock = true
 					PlaySystemSound(TSfxTypes.Accept)
-					OpenMenu()
+					OpenMenu() //async method, not awaiting, on purpose
 				elif assigned(FPartySprite):
 					PartyButton(button)
 			case TMenuState.Shared, TMenuState.ExclusiveShared, TMenuState.Full:
@@ -384,11 +383,12 @@ class T2kMapEngine(TMapEngine):
 
 	protected FDatabaseOwner as bool
 
-	protected override def Cleanup():
+	[async]
+	protected override def Cleanup() as Task:
 		assert FInitialized
 		FInitialized = false
 		if FDatabaseOwner:
-			FObjectManager.ScriptEngine.KillAll(null) if FObjectManager is not null
+			await(FObjectManager.ScriptEngine.KillAll(null)) if FObjectManager is not null
 			GMenuEngine.Value.Dispose()
 		FShaderEngine.Dispose() if assigned(FShaderEngine)
 		FPartySprite.Dispose() if assigned(FPartySprite)
@@ -559,9 +559,7 @@ class T2kMapEngine(TMapEngine):
 		currentMap as T2kSpriteEngine = FCurrentMap
 		FSwitchState = TSwitchState.Ready
 		FObjectManager.ScriptEngine.KillAll({ currentMap = null })
-		while not FCurrentMap.Blank:
-			Thread.Sleep(10)
-		FTeleportThread = TThread.CurrentThread
+		waitFor {FCurrentMap.Blank}
 		metadata as TMapMetadata
 		try:
 			runThreadsafe(true) def ():
@@ -570,7 +568,7 @@ class T2kMapEngine(TMapEngine):
 				if assigned(hero):
 					(hero cast THeroSprite).PackUp()
 				metadata = FDatabase.MapTree[newmap]
-				GScriptEngine.value.TeleportThread = FTeleportThread cast TScriptThread
+				GScriptEngine.value.Teleporting = true
 				GC.Collect()
 				self.LoadMap(metadata)
 				unless GEnvironment.value.PreserveSpriteOnTeleport:
@@ -584,7 +582,7 @@ class T2kMapEngine(TMapEngine):
 				oldEngine.Dispose()
 				FCurrentMap.CenterOn(newLocation.x, newLocation.y)
 		ensure:
-			FTeleportThread = null
+			GScriptEngine.value.Teleporting = false
 		PlayMapMusic(metadata, false)
 		FSwitchState = TSwitchState.NoSwitch
 		FTimer.Enabled = true
@@ -603,12 +601,12 @@ class T2kMapEngine(TMapEngine):
 	public virtual def TitleScreen():
 		FGameState = T2kMapEngine.TGameState.Title
 		StopPlaying()
-		PlaySystemMusic(TBgmTypes.Title, false)
+		PlaySystemMusic(TBgmTypes.Title)
 
 	public virtual def GameOver():
 		FGameState = T2kMapEngine.TGameState.GameOver
 		StopPlaying()
-		PlaySystemMusic(TBgmTypes.GameOver, false)
+		PlaySystemMusic(TBgmTypes.GameOver)
 
 	public def EnterCutscene():
 		GMapObjectManager.value.InCutscene = true

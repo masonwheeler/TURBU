@@ -21,7 +21,7 @@ macro MapCode(id as IntegerLiteralExpression, body as TypeMemberStatement*):
 macro MapCode.PageScript(id as int, page as int):
 	var name = "Event$(id.ToString('D4'))Page$(page.ToString('D3'))"
 	var result = [|
-		internal def $name():
+		internal def $name() as System.Threading.Tasks.Task:
 			$(PageScript.Body)
 	|]
 	var scriptList = MapCode['scriptList'] cast Dictionary[of int, string]
@@ -86,15 +86,22 @@ internal def BuildScriptMap(values as Dictionary[of int, string]) as Method:
 
 class ScriptProcessor(DepthFirstTransformer):
 	
-	override def LeaveExpressionStatement(node as ExpressionStatement):
-		return if node.IsSynthetic
-		
-		var parent = node.ParentNode cast Block
-		var idx = parent.Statements.IndexOf(node)
-		var onLine = ExpressionStatement([|turbu.script.engine.TScriptEngine.Instance.OnRunLine($(node.LexicalInfo.Line))|])
-		onLine.LexicalInfo = node.LexicalInfo
-		onLine.IsSynthetic = true
-		parent.Insert(idx + 1, onLine)
+	private _seenAwait as bool
+
+	override def OnMethod(node as Method):
+		_seenAwait = false
+		super.OnMethod(node)
+		if _seenAwait:
+			node.Attributes.Add(Boo.Lang.Compiler.Ast.Attribute('async'))
+		else: node.Body.Add([|return System.Threading.Tasks.Task.FromResult(true)|])
+
+
+	override def OnMethodInvocationExpression(node as MethodInvocationExpression):
+		var target = node.Target
+		if target.NodeType == NodeType.ReferenceExpression and target.ToString().ToLower() == 'await':
+			_seenAwait = true
+		super.OnMethodInvocationExpression(node)
+	
 
 macro comment:
 	pass

@@ -50,6 +50,7 @@
     <Compile Include="EventBuilder.boo" />
     <Compile Include="repeat.boo" />
     <Compile Include="tempEdit.boo" />
+    <Compile Include="WaitForMacro.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

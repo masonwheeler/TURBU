@@ -1,5 +1,8 @@
 namespace turbu.RM2K.images
 
+import System
+import System.Threading.Tasks
+
 import turbu.defs
 import commons
 import SG.defs
@@ -11,7 +14,6 @@ import turbu.classes
 import turbu.script.engine
 import Boo.Adt
 import Pythia.Runtime
-import System
 import turbu.RM2K.environment
 import turbu.RM2K.sprite.engine
 import SDL2.SDL2_GPU
@@ -331,13 +333,15 @@ class TRpgImage(TObject):
 	public def Erase():
 		self.Dispose()
 
-	public def WaitFor():
+	[async]
+	public def WaitFor() as Task:
 		idx as int = GEnvironment.value.ImageIndex(self)
 		if idx == -1:
 			return
-		GScriptEngine.value.SetWaiting() def () as bool:
+		def cond() as bool:
 			var img = GEnvironment.value.Image[idx]
 			return (img.Timer == 0 if assigned(img) else true)
+		waitFor cond
 
 	public Zoom as int:
 		get: return FSprite.Zoom

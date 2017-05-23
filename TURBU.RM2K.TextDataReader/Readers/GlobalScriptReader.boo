@@ -8,11 +8,11 @@ import Boo.Lang.PatternMatching
 macro GlobalScripts(body as TypeMemberStatement*):
 	var result = [|
 		class GlobalScripts(TURBU.DataReader.IGlobalScriptProvider):
-			private _lookup = System.Collections.Generic.Dictionary[of int, System.Action]()
+			private _lookup = System.Collections.Generic.Dictionary[of int, System.Func[of System.Threading.Tasks.Task]]()
 			
-			public Value[x as int] as System.Action:
+			public Value[x as int] as System.Func[of System.Threading.Tasks.Task]:
 				get: 
-					result as System.Action
+					result as System.Func[of System.Threading.Tasks.Task]
 					unless _lookup.TryGetValue(x, result):
 						result = do(): pass
 					return result

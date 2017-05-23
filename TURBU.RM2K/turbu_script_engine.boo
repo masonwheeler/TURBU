@@ -4,6 +4,7 @@ import System
 import System.Collections.Generic
 import System.Linq.Enumerable
 import System.Threading
+import System.Threading.Tasks
 import Boo.Adt
 import Boo.Lang.Useful.Attributes
 import Pythia.Runtime
@@ -14,98 +15,6 @@ import turbu.containers
 import TURBU.Meta
 //import SDL2.SDL
 
-[Disposable(Destroy, true)]
-class TScriptThread(TThread):
-
-	private FPages as Stack[of TRpgEventPage]
-
-	internal FPage as TRpgEventPage
-
-	private FParent as TScriptEngine
-
-	internal FDelay as TRpgTimestamp
-
-	internal FWaiting as Func of bool
-
-	internal FSignal = System.Threading.EventWaitHandle(false, EventResetMode.ManualReset)
-
-	internal FOnCleanup as Action
-
-	internal def ScriptOnLine():
-		if (not self.Terminated) and assigned(FWaiting):
-			repeat :
-				Thread.Sleep(TRpgTimestamp.FrameLength)
-				until self.Terminated or (FWaiting() == true)
-			FWaiting = null
-		elif assigned(FDelay):
-			if FDelay.TimeRemaining > 0:
-				ThreadSleep()
-			else: FDelay = null
-		if Terminated:
-			Abort
-
-	internal def InternalThreadSleep():
-		let DELAY_SLICE = 50
-		repeat :
-			timeleft as uint = FDelay.TimeRemaining
-			var sleeptime = Math.Min(DELAY_SLICE, timeleft cast int)
-			System.Threading.Thread.Sleep(sleeptime)
-			until timeleft == sleeptime or self.Terminated
-		if Terminated:
-			Abort
-
-	private def ThreadSleep():
-		InternalThreadSleep()
-		self.ScriptOnLine()
-
-	internal def PushPage(value as TRpgEventPage):
-		FPages = Stack[of TRpgEventPage]() if FPages == null
-		FPages.Push(FPage)
-		FPage = value
-
-	internal def PopPage():
-		FPage = FPages.Pop()
-
-	protected override def Execute():
-		try:
-			while not Terminated:
-				CurrentObject.FaceHero()
-				if FPage.Trigger != TStartCondition.Parallel:
-					TScriptEngine.Instance.OnEnterCutscene()
-				try:
-					if FPage.Script is not null:
-						FParent.RunScript(FPage.Script)
-				except as EAbort:
-					pass
-				ensure:
-					Thread.Sleep(TRpgTimestamp.FrameLength)
-					FPage.Parent.Playing = false
-					if FPage.Trigger != TStartCondition.Parallel:
-						TScriptEngine.Instance.OnLeaveCutscene()
-					CurrentObject.ResumeFacing()
-					FSignal.Reset()
-					if self == FParent.TeleportThread:
-						self.Terminate()
-					elif not Terminated: 
-						FParent.SaveToPool(self)
-						FSignal.WaitOne()
-		ensure:
-			self.Dispose()
-
-	public def constructor(page as TRpgEventPage, parent as TScriptEngine):
-		super(true)
-		FPage = page
-		FParent = parent
-		parent.AddScriptThread(self)
-
-	private def Destroy():
-		FParent.ClearScriptThread(self)
-		FSignal.Dispose()
-		FOnCleanup.Invoke() if assigned(FOnCleanup)
-
-	public CurrentObject as TRpgMapObject:
-		get: return FPage.Parent
-
 [Singleton]
 class TScriptEngine(TObject):
 
@@ -113,15 +22,17 @@ class TScriptEngine(TObject):
 
 	private FCurrentProgram as Boo.Lang.Compiler.CompilerContext
 
-	private FThreads as List[of TScriptThread]
+	private FScripts = List[of TRpgEventPage]()
 
 	private FThreadLock as object
-	
+
 	private _inputId as int
 
-//	private FImports as (KeyValuePair[of string, TrsExecImportProc])
+	private _waiting = List[of KeyValuePair[of Func of bool, TaskCompletionSource of bool]]()
 
-//	private FEnvProc as TRegisterEnvironmentProc
+	private _altWaiting = List[of KeyValuePair[of Func of bool, TaskCompletionSource of bool]]()
+
+	private _cancelTokenSource = CancellationTokenSource()
 
 	[Property(OnEnterCutscene)]
 	private FEnterCutscene as Action
@@ -129,64 +40,52 @@ class TScriptEngine(TObject):
 	[Property(OnLeaveCutscene)]
 	private FLeaveCutscene as Action
 
-	private FThreadPool as Queue[of TScriptThread]
-
-	[Property(TeleportThread)]
-	private FTeleportThread as TScriptThread
+	[Property(Teleporting)]
+	private FTeleporting as bool
 
 	[Property(OnRenderUnpause)]
 	private FRenderUnpause as Action
 
 	private FAllGlobalScripts as IDictionary[of int, TRpgEventPage]
 
-	internal def AddScriptThread(thread as TScriptThread):
-		lock FThreadLock:
-			FThreads.Add(thread)
-
-	internal def ClearScriptThread(thread as TScriptThread):
-		lock FThreadLock:
-			FThreads.Remove(thread)
-			if FTeleportThread == thread:
-				FTeleportThread = null
-
-	public def OnRunLine(line as int):
-		st as TScriptThread
-		st = (TThread.CurrentThread cast TScriptThread)
-		st.ScriptOnLine()
-
-	internal def GetThread(page as TRpgEventPage) as TScriptThread:
-		lock FThreadLock:
-			if FThreadPool.Count > 0:
-				result = FThreadPool.Dequeue()
-				result.FPage = page
-				result.FSignal.Set()
-			else:
-				result = TScriptThread(page, self)
-				result.Start()
-		return result
-
-	internal def SaveToPool(thread as TScriptThread):
-		lock FThreadLock:
-			FThreadPool.Enqueue(thread)
-
 	public def constructor():
 		GScriptEngine.value = self
-		FThreads = List[of TScriptThread]()
 		FThreadLock = object()
-		FThreadPool = Queue[of TScriptThread]()
 
-	public def RunScript(script as Action):
-		script()
+	[async]
+	public def RunScript(script as Func of Task) as Task:
+		var scriptTask = script()
+		scriptTask.ConfigureAwait(true)
+		await scriptTask
 
-	public def RunObjectScript(obj as TRpgMapObject, page as int):
-		var context = TThread.CurrentThread cast TScriptThread
-		lPage as TRpgEventPage = obj.Pages[(page - 1)]
-		assert assigned(context.FPage)
-		context.PushPage(lPage)
+	[async]
+	public def RunObjectScript(obj as TRpgMapObject, page as int) as Task:
+		var context = CurrentPage
+		lPage as TRpgEventPage = obj.Pages[page - 1]
+		assert assigned(context)
 		try:
-			RunScript(lPage.Script)
+			CurrentPage = lPage
+			await RunScript(lPage.Script)
 		ensure:
-			context.PopPage()
+			CurrentPage = context
+
+	[async]
+	internal def RunPageScript(page as TRpgEventPage) as Task:
+		FScripts.Add(page)
+		CurrentPage = page
+		page.Parent.FaceHero()
+		if page.Trigger != TStartCondition.Parallel:
+			self.OnEnterCutscene()
+		try:
+			await RunScript(page.Script)
+		except as EAbort:
+			pass
+		ensure:
+			FScripts.Remove(page)
+			page.Parent.Playing = false
+			page.Parent.ResumeFacing()
+			if page.Trigger != TStartCondition.Parallel:
+				self.OnLeaveCutscene()
 
 	internal def LoadGlobals(list as TRpgMapObject*):
 		FAllGlobalScripts = list.ToDictionary({o | o.ID}, {o | o.Pages[0]})
@@ -194,71 +93,65 @@ class TScriptEngine(TObject):
 	public def CallGlobalScript(id as int):
 		page as TRpgEventPage
 		if FAllGlobalScripts.TryGetValue(id, page):
+			CurrentPage = page
 			RunScript(page.Script)
 
-	public def KillAll(Cleanup as Action):
-		return unless TThread.HasCurrentThread
-		curr as TScriptThread
-		
-		def WakeAllThreads():
-			lock FThreadLock:
-				FThreadPool.Clear()
-				for thread in FThreads:
-					if thread != curr:
-						thread.Terminate()
-						thread.FSignal.Set()
-						
-		done as bool
-		oldCleanup as Action
-		lCleanup as Action
-		curr = TThread.CurrentThread as TScriptThread
-		if assigned(Cleanup):
-			assert assigned(curr)
-			if assigned(curr.FOnCleanup):
-				oldCleanup = curr.FOnCleanup
-				lCleanup = Cleanup
-				Cleanup = def ():
-					oldCleanup()
-					lCleanup()
-			curr.FOnCleanup = Cleanup
-		WakeAllThreads()
+	private CurrentPage as TRpgEventPage:
+		get: return System.Runtime.Remoting.Messaging.CallContext.LogicalGetData('CurrentPage') cast TRpgEventPage
+		set: System.Runtime.Remoting.Messaging.CallContext.LogicalSetData('CurrentPage', value)
+
+	public CurrentObject as TRpgMapObject:
+		get: return CurrentPage.Parent
+
+	[async]
+	public def KillAll(cleanup as Action) as Task:
+		self._cancelTokenSource.Cancel(true)
+		CancelWaiting()
+		_cancelTokenSource = CancellationTokenSource()
+		var done = false
 		repeat :
-			Thread.Sleep(10)
-			WakeAllThreads()
+			await Task.Delay(10)
 			lock FThreadLock:
-				done = ((curr == null) and (FThreads.Count == 0)) or ((FThreads.Count == 1) and (FThreads[0] == curr))
-			if TThread.CurrentThread.IsMainThread:
-				System.Windows.Forms.Application.DoEvents()
+				done = ((CurrentPage == null) and (FScripts.Count == 0)) or ((FScripts.Count == 1) and (FScripts[0] == CurrentPage))
 			until done
+		cleanup() if cleanup != null
 
-	public def AbortThread():
-		curr as TThread = TThread.CurrentThread
-		if curr isa TScriptThread:
-			curr.Terminate()
-			Abort
-
-	public def ThreadSleep(time as int, block as bool):
+	[async]
+	public def Sleep(time as int, block as bool) as Task:
 		FRenderUnpause()
-		st as TScriptThread = TThread.CurrentThread cast TScriptThread
-		st.FDelay = TRpgTimestamp(time)
 		FEnterCutscene() if block
 		try:
-			st.InternalThreadSleep()
+			await(Task.Delay(Math.Max(time, TRpgTimestamp.FrameLength), _cancelTokenSource.Token))
 		ensure:
 			FLeaveCutscene() if block
 
-	public def SetWaiting(value as Func of bool):
+	[async]
+	public def FramePause() as Task:
 		FRenderUnpause()
-		st = (TThread.CurrentThread cast TScriptThread)
-		st.FWaiting = value
+		await Sleep(1, false)
 
-	public def ThreadWait():
-		FRenderUnpause()
-		st = TThread.CurrentThread cast TScriptThread
-		try:
-			st.ScriptOnLine()
-		except as Pythia.Runtime.EAbort:
-			pass
+	public def WaitTask(tcs as TaskCompletionSource of bool, cond as Func of bool) as Task:
+		_waiting.Add(KeyValuePair[of Func of bool, TaskCompletionSource of bool](cond, tcs))
+		return tcs.Task
+
+	internal def Tick():
+		assert _altWaiting.Count == 0
+		var temp = _waiting
+		_waiting = _altWaiting
+		_altWaiting = temp
+		for pair in _altWaiting:
+			try:
+				if pair.Key():
+					pair.Value.SetResult(true)
+				else: _waiting.Add(pair)
+			except e as Exception:
+				pair.Value.SetException(e)
+		_altWaiting.Clear()
+
+	private def CancelWaiting():
+		for pair in _waiting:
+			pair.Value.SetCanceled()
+		_waiting.Clear()
 
 class TMapObjectManager(TObject):
 
@@ -288,7 +181,7 @@ class TMapObjectManager(TObject):
 		FGlobalScripts.AddRange(list.Select({o | o.Pages[0]}).Where({p | p.Trigger != TStartCondition.Call}))
 		FScriptEngine.LoadGlobals(list)
 
-	public def LoadMap(map as IRpgMap, context as TThread):
+	public def LoadMap(map as IRpgMap):
 		FMapObjects.Clear()
 		FMapObjects.AddRange(map.GetMapObjects().Cast[of TRpgMapObject]())
 
@@ -306,14 +199,16 @@ class TMapObjectManager(TObject):
 				FPlaylist.Add(gPage)
 		if assigned(FOnUpdate):
 			FOnUpdate()
-		if FScriptEngine.TeleportThread == null:
+		FScriptEngine.Tick()
+		unless FScriptEngine.Teleporting:
 			for page in FPlaylist:
 				RunPageScript(page)
 
-	public def RunPageScript(page as TRpgEventPage):
+	[async]
+	public def RunPageScript(page as TRpgEventPage) as Task:
 		return if page.Parent.Playing
 		page.Parent.Playing = true
-		thread as TScriptThread = FScriptEngine.GetThread(page)
+		FScriptEngine.RunPageScript(page)
 
 static class GScriptEngine:
 	public value as TScriptEngine

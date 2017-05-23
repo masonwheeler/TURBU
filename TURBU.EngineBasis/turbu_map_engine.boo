@@ -1,9 +1,11 @@
 namespace TURBU.MapEngine
 
-import Pythia.Runtime
-import System.Collections.Generic
 import System
+import System.Collections.Generic
+import System.Drawing
+import System.Threading.Tasks
 import System.Windows.Forms
+import Pythia.Runtime
 import TURBU.PluginInterface
 import turbu.versioning
 import TURBU.BattleEngine
@@ -11,7 +13,6 @@ import TURBU.DataReader
 import TURBU.Engines
 import TURBU.MapInterface
 import SG.defs
-import System.Drawing
 import TURBU.Meta
 
 class TMapEngineData(TRpgMetadata):
@@ -183,10 +184,11 @@ abstract class TMapEngine(TRpgPlugBase, IMapEngine):
 
 	protected FInitialized as bool
 
-	protected virtual def Cleanup():
+	protected virtual def Cleanup() as Task:
 		for value in FBattleEngines.Values:
 			value.Dispose()
 		FBattleEngines.Clear()
+		return Task.FromResult(true)
 
 	def destructor():
 		assert false

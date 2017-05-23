@@ -29,7 +29,7 @@ interface IMapLoader:
 	def GetGlobals() as TURBU.MapInterface.IRpgMapObject*
 
 interface IGlobalScriptProvider:
-	Value[x as int] as System.Action:
+	Value[x as int] as System.Func[of System.Threading.Tasks.Task]:
 		get
 	
 	def GetConditions(switch as int) as System.Func[of bool]

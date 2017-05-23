@@ -129,17 +129,17 @@ class TScriptConverter:
 		0: Cleanup, 10: {return null}, 20713: {return null}, 20720: {return null}, 20730: {return null}, 
 		10110: ConvertShowMessage, 20110: {c, e, p | p.Add(Expression.Lift(e.Name))}, 10130: ConvertPortrait,
 		11410: {c, e, p | p.Add([|Wait($(e.Data[0]))|])}, 10230: ConvertTimer, 10310: ConvertMoney,
-		10150: {c, e, p | p.Add([|Ints[$(e.Data[1])] = InputNumber($(e.Name), $(e.Data[0]))|])},
+		10150: {c, e, p | p.Add([|Ints[$(e.Data[1])] = await(InputNumber($(e.Name), $(e.Data[0])))|])},
 		10410: ConvertExperience, 10420: ConvertLevel, 10500: ConvertTakeDamage, 10910: ConvertTerrainID,
 		10610: {c, e, p | p.Add([|Heroes[$(e.Data[0])].Name = $(e.Name)|])}, 10920: ConvertObjectID,
 		10620: {c, e, p | p.Add([|Heroes[$(e.Data[0])].Title = $(e.Name)|])}, 11060: ConvertPanScreen,
 		10670: {c, e, p | p.Add([|SetSystemSound(TSfxTypes.$(ReferenceExpression(Enum.GetName(TSfxTypes, e.Data[0]))), $(e.Name), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]))|])},
 		10680: {c, e, p | p.Add([|SetSkin($(e.Name), $(e.Data[0] != 0))|])}, 10840: {c, e, p | p.Add([|RideVehicle()|])},
 		10820: {c, e, p | p.Add([|MemorizeLocation($(e.Data[0]), $(e.Data[1]), $(e.Data[2]))|])},
-		10830: {c, e, p | p.Add([|Teleport(Ints[$(e.Data[0])], Ints[$(e.Data[1])], Ints[$(e.Data[2])])|])},
-		11030: {c, e, p | p.Add([|TintScreen($(e.Data[0]), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]), $(e.Data[4]), $(e.Data[5] != 0))|])},
+		10830: {c, e, p | p.Add([| await(Teleport(Ints[$(e.Data[0])], Ints[$(e.Data[1])], Ints[$(e.Data[2])])) |])},
+		11030: ConvertTintScreen,
 		11070: {c, e, p | p.Add([|SetWeather(TWeatherEffects.$(ReferenceExpression(Enum.GetName(TWeatherEffects, e.Data[0]))), $(e.Data[1]))|])},
-		11340: {c, e, p | p.Add([|WaitUntilMoved()|])}, 11350: {c, e, p | p.Add([|StopMoveScripts()|])},
+		11340: {c, e, p | p.Add([|await(WaitUntilMoved())|])}, 11350: {c, e, p | p.Add([|StopMoveScripts()|])},
 		11510: {c, e, p | p.Add([|PlayMusic($(e.Name), $(e.Data[0]), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]))|])},
 		11520: {c, e, p | p.Add([|FadeOutMusic($(e.Data[0]))|])}, 11560: ConvertPlayMovie, 11610: ConvertInput,
 		11530: {c, e, p | p.Add([|MemorizeBGM()|])}, 11540: {c, e, p | p.Add([|PlayMemorizedBGM()|])},
@@ -148,8 +148,8 @@ class TScriptConverter:
 		11130: {c, e, p | p.Add([|Image[$(e.Data[0])].Erase()|])}, 11830: ConvertEscapeLoc, 10490: ConvertFullHeal,
 		11750: {c, e, p | p.Add([|SubstituteTiles($(e.Data[0] + 1), $(e.Data[1]), $(e.Data[2]))|])},
 		11820: {c, e, p | p.Add([|EnableTeleport($(e.Data[0] != 0))|])}, 1006: ConvertForceFlee,
-		11840: {c, e, p | p.Add([|EnableEscape($(e.Data[0] != 0))|])}, 11910: {c, e, p | p.Add([|SaveMenu()|])},
-		11930: {c, e, p | p.Add([|EnableSave($(e.Data[0] != 0))|])}, 11950: {c, e, p | p.Add([|OpenMenu()|])},
+		11840: {c, e, p | p.Add([|EnableEscape($(e.Data[0] != 0))|])}, 11910: {c, e, p | p.Add([|await(SaveMenu())|])},
+		11930: {c, e, p | p.Add([|EnableSave($(e.Data[0] != 0))|])}, 11950: {c, e, p | p.Add([|await(OpenMenu())|])},
 		11960: {c, e, p | p.Add([|MenuEnabled = $(e.Data[0] != 0)|])}, 12310: {c, e, p | p.Add(ReturnStatement())},
 		12410: ConvertComment, 22410: {c, e, p | p.Add(Expression.Lift(e.Name))}, 10210: ConvertSwitch,
 		12420: {c, e, p | p.Add([|GameOver()|])}, 12510: {c, e, p | p.Add([|TitleScreen()|])}, 10220: ConvertVar,
@@ -163,13 +163,12 @@ class TScriptConverter:
 		10640: {c, e, p | p.Add([|Heroes[$(e.Data[0])].SetPortrait($(e.Name), $(e.Data[1] + 1))|])},
 		10650: {c, e, p | p.Add([|Vehicles[$(e.Data[0])].SetSprite(e.Name, $(e.Data[1] != 0))|])},
 		10720: ConvertShop, 20721: ConvertIfElse, 20722: ConvertEndIf, 20731: ConvertIfElse, 20732: ConvertEndIf,
-		10730: {c, e, p | return SetupMif(c, e, p, [|Inn($(e.Data[0]), $(e.Data[1]))|])}, 11110: ConvertNewImage,
+		10730: {c, e, p | return SetupMif(c, e, p, [|await(Inn($(e.Data[0]), $(e.Data[1])))|])}, 11110: ConvertNewImage,
 		10850: ConvertTeleportVehicle, 10860: ConvertTeleportEvent, 11040: ConvertFlashScreen, 10630: ConvertSprite,
 		10870: {c, e, p | p.Add([|SwapMapObjects($(EventDeref(e.Data[0])), $(EventDeref(e.Data[1])))|])},
 		11120: ConvertMoveImage, 11210: ConvertShowAnim, 11330: ConvertMove, 12210: ConvertWhileLoop,
 		11310: {c, e, p | p.Add([|Party.Translucency = $(30 if e.Data[0] == 0 else 0)|])}, 22210: ConvertLoopEnd,
-		11320: {c, e, p | p.Add([|$(EventDeref(e.Data[0])).Flash($(RGB32(e.Data[1])), $(RGB32(e.Data[2])), \
-											$(RGB32(e.Data[3])), $(RGB32(e.Data[4])), $(e.Data[5]), $(e.Data[6] != 0))|])},
+		11320: ConvertCharacterFlash,
 		11740: {c, e, p | p.Add([|SetEncounterRate(1, $(e.Data[0]))|])}, 1008: ConvertClassChange,
 		12220: {c, e, p | p.Add((BreakStatement() if c.LoopDepth > 0 else ReturnStatement()))},
 		12320: {c, e, p | p.Add([|DeleteObject(false)|])}, 1009: ConvertBattleCommand, 10660: ConvertSysBGM,
@@ -177,8 +176,8 @@ class TScriptConverter:
 		13130: {c, e, p | p.Add([|Monster[$(e.Data[0] + 1)].Condition[$(e.Data[2])] = $(e.Data[1] == 0)|])},
 		13150: {c, e, p | p.Add([|Monster[$(e.Data[0] + 1)].Show()|])}, 23310: ConvertIfElse, 23311: ConvertEndIf,
 		1005: {c, e, p | p.Add([|CallGlobalScript($(e.Data[0]))|])}, 10740: ConvertInputHeroName,
-		11010: {c, e, p | p.Add([|EraseScreen(TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[0] + 1))))|])},
-		11020: {c, e, p | p.Add([|ShowScreen(TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[0] + 1))))|])},
+		11010: {c, e, p | p.Add([| await(EraseScreen(TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[0] + 1))))) |])},
+		11020: {c, e, p | p.Add([| await(ShowScreen(TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[0] + 1))))) |])},
 		10690: {c, e, p | p.Add([|SetTransition(TTransitionTypes.$(ReferenceExpression(Enum.GetName(TTransitionTypes, e.Data[0]))), TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[1] + 1))))|])},
 		12110: {c, e, p | p.Add(LabelStatement(LexicalInfo.Empty, "L$(e.Data[0])"))}, 10810: ConvertTeleport,
 		12120: {c, e, p | p.Add(GotoStatement(LexicalInfo.Empty, ReferenceExpression("L$(e.Data[0])")))}, 12330: ConvertCallEvent
@@ -203,7 +202,7 @@ class TScriptConverter:
 	simpleConverter ConvertTeleport:
 		if values.Count == 3:
 			values.Add(0)
-		result = [|Teleport($(values[0]), $(values[1]), $(values[2]), $(values[3]))|]
+		result = [|await(Teleport($(values[0]), $(values[1]), $(values[2]), $(values[3])))|]
 	
 	simpleConverter ConvertInputHeroName:
 		result = [|Heroes[$(values[0])].Name = InputText($name, $(values[0]))|]
@@ -256,7 +255,10 @@ class TScriptConverter:
 		else:
 			if values.Count == 4:
 				values.Add(0)
-			result = [|ShakeScreen($(values[0]), $(values[1]), $(values[2]), $(values[3] != 0), $(values[4] != 0))|]
+			if values[3] == 0:
+				result = [|ShakeScreen($(values[0]), $(values[1]), $(values[2]), $(values[4] != 0))|]
+			else:
+				result = [|await(ShakeScreenAndWait($(values[0]), $(values[1]), $(values[2])))|]
 	
 	simpleConverter ConvertSysBGM:
 		caseOf values[0]:
@@ -307,11 +309,15 @@ class TScriptConverter:
 	
 	simpleConverter ConvertShowAnim:
 		a2 as Expression = (EventDeref(values[1]) if values[3] == 0 else [|null|])
-		result = [|ShowBattleAnim($(values[0]), $a2, $(values[2] != 0), $(values[3] != 0))|]
+		if (values[2] == 0):
+			result = [|ShowBattleAnim($(values[0]), $a2, $(values[3] != 0))|]
+		else: result = [|await(ShowBattleAnimAndWait($(values[0]), $a2, $(values[3] != 0)))|]
 	
 	simpleConverter ConvertShowAnimBattle:
 		a2 as Expression = ([| Monster[$(values[1])] |] if values[1] != 0 else [|null|])
-		result = [| ShowBattleAnimB($(values[0]), $a2, $(values[2] != 0), $(values[1] != 0)) |]
+		if (values[2] == 0):
+			result = [| ShowBattleAnimB($(values[0]), $a2, $(values[1] != 0)) |]
+		else: result = [| await(ShowBattleAnimBAndWait($(values[0]), $a2, $(values[1] != 0))) |]
 	
 	simpleConverter ConvertMoveImage:
 		assert values[4] == 0
@@ -323,7 +329,7 @@ class TScriptConverter:
 		blk.Add(sub)
 		ProcessImageBlock(blk, values)
 		if values[15] != 0:
-			blk.Add([|Image[$(values[0])].WaitFor()|])
+			blk.Add([|await(Image[$(values[0])].WaitFor())|])
 		parent.Add(blk)
 	
 	simpleConverter ConvertNewImage:
@@ -352,11 +358,26 @@ class TScriptConverter:
 		if values.Count == 7 and values[6] == 2:
 			result = [|EndFlashScreen()|]
 		else:
-			result = [|FlashScreen($(RGB32(values[0])), $(RGB32(values[1])), $(RGB32(values[2])), \
-										  $(RGB32(values[3])), $(values[4]), $(values[5] != 0))|]
-			if values.Count == 7:
-				(result cast MethodInvocationExpression).Arguments.Add([|$(values[6] != 0)|])
-			else: (result cast MethodInvocationExpression).Arguments.Add([|false|])
+			if values[5] == 0:
+				result = [|FlashScreen($(RGB32(values[0])), $(RGB32(values[1])), $(RGB32(values[2])), \
+										$(RGB32(values[3])), $(values[4]))|]
+				if values.Count == 7:
+					(result cast MethodInvocationExpression).Arguments.Add([|$(values[6] != 0)|])
+				else: (result cast MethodInvocationExpression).Arguments.Add([|false|])
+			else result = [|await(FlashScreenAndWait($(RGB32(values[0])), $(RGB32(values[1])), $(RGB32(values[2])), \
+													$(RGB32(values[3])), $(values[4])))|]
+	
+	simpleConverter ConvertTintScreen:
+		if values[5] == 0:
+			result = [|TintScreen($(values[0]), $(values[1]), $(values[2]), $(values[3]), $(values[4]))|]
+		else: result = [|await(TintScreenAndWait($(values[0]), $(values[1]), $(values[2]), $(values[3]), $(values[4])))|]
+	
+	simpleConverter ConvertCharacterFlash:
+		if values[6] == 0:
+			result = [|$(EventDeref(values[0])).Flash($(RGB32(values[1])), $(RGB32(values[2])), \
+						$(RGB32(values[3])), $(RGB32(values[4])), $(values[5]))|]
+		else: result = [| await($(EventDeref(values[0])).FlashAndWait($(RGB32(values[1])), $(RGB32(values[2])), \
+						$(RGB32(values[3])), $(RGB32(values[4])), $(values[5]))) |]
 	
 	private static def RGB32(value as int) as int:
 		return round(value * (255.0 / 31.0))
@@ -373,7 +394,7 @@ class TScriptConverter:
 		items = ArrayLiteralExpression()
 		for i in range(4, ec.Data.Count):
 			items.Items.Add(Expression.Lift(ec.Data[i]))
-		return SetupMif(converter, ec, parent, [|Shop(TShopTypes.$(ReferenceExpression(Enum.GetName(TShopTypes, ec.Data[0]))), $(ec.Data[1] + 1), $items)|])
+		return SetupMif(converter, ec, parent, [|await(Shop(TShopTypes.$(ReferenceExpression(Enum.GetName(TShopTypes, ec.Data[0]))), $(ec.Data[1] + 1), $items))|])
 	
 	private static def SetupMif(converter as TScriptConverter, ec as EventCommand, parent as Block, \
 										 expr as Expression) as Block:
@@ -562,20 +583,21 @@ class TScriptConverter:
 			battleResult = [|$battleResult | TBattleResult.$value|]
 
 		bx = ec.Data.Count > 6
-		result = ([|BattleEx()|] if bx else [|Battle()|])
-		result.Arguments.AddRange((GetIntScript(ec.Data[0], ec.Data[1]), [|$(ec.Name if ec.Data[2] == 1 else '')|]))
-		result.Arguments.Add(([|TBattleFormation.$(ReferenceExpression(Enum.GetName(TBattleFormation, ec.Data[2])))|] if bx else [|$(ec.Data[5] != 0)|]))
+		result = ([|await(BattleEx())|] if bx else [|await(Battle())|])
+		var battleCmd = result.Arguments[0] cast MethodInvocationExpression
+		battleCmd.Arguments.AddRange((GetIntScript(ec.Data[0], ec.Data[1]), [|$(ec.Name if ec.Data[2] == 1 else '')|]))
+		battleCmd.Arguments.Add(([|TBattleFormation.$(ReferenceExpression(Enum.GetName(TBattleFormation, ec.Data[2])))|] if bx else [|$(ec.Data[5] != 0)|]))
 		if bx:
 			if ec.Data[5] == 1:
-				result.Arguments.Add([|5|])
-			else: result.Arguments.Add([|$(ec.Data[6])|])
+				battleCmd.Arguments.Add([|5|])
+			else: battleCmd.Arguments.Add([|$(ec.Data[6])|])
 			caseOf ec.Data[2]:
-				case 0: result.Arguments.Add([|0|])
-				case 1: result.Arguments.Add([|$(ec.Data[7] - 1)|])
-				case 2: result.Arguments.Add([|$(ec.Data[8])|])
+				case 0: battleCmd.Arguments.Add([|0|])
+				case 1: battleCmd.Arguments.Add([|$(ec.Data[7] - 1)|])
+				case 2: battleCmd.Arguments.Add([|$(ec.Data[8])|])
 		AddBattleResult([|Escaped|]) if ec.Data[3] != 0
 		AddBattleResult([|Defeated|]) if ec.Data[4] != 0
-		result.Arguments.Add(battleResult)
+		battleCmd.Arguments.Add(battleResult)
 		
 		if ec.Data[3] != 0 or ec.Data[4] != 0:
 			cb = [|
@@ -698,7 +720,7 @@ class TScriptConverter:
 			values.RemoveAt(0)
 		choices.Items.AddRange(values.Select({c | Expression.Lift(c)}))
 		result = [|
-			caseOf ShowChoice("", $choices, $(values[0] != 0)):
+			caseOf await(ShowChoice("", $choices, $(values[0] != 0))):
 				pass
 		|]
 		converter.BlockStack.Push(0)
@@ -750,7 +772,7 @@ class TScriptConverter:
 			AddMask([|Dirs|]) if values[2] != 0
 			AddMask([|Enter|]) if values[3] != 0
 			AddMask([|Cancel|]) if values[4] != 0
-		result = [|Ints[$(values[0])] = KeyScan($mask, $(values[1] != 0))|]
+		result = [|Ints[$(values[0])] = await(KeyScan($mask, $(values[1] != 0)))|]
 		//TODO: This should support more input, for RM2K3
 	
 	simpleConverter ConvertPlayMovie:
@@ -762,9 +784,17 @@ class TScriptConverter:
 		caseOf values[0]:
 			case 0: result = [|LockScreen()|]
 			case 1: result = [|UnlockScreen()|]
-			case 2: result = [|PanScreen(TFacing.$(ReferenceExpression(Enum.GetName(TDirections, values[1]))), \
-													$(values[2]), $(values[3]), $(values[4] != 0))|]
-			case 3: result = [|ReturnScreen($(values[3]), $(values[4] != 0))|]
+			case 2:
+				if values[4] == 0:
+					result = [|PanScreen(TFacing.$(ReferenceExpression(Enum.GetName(TDirections, values[1]))), \
+													$(values[2]), $(values[3]))|]
+				else:
+					result = [|await(PanScreenAndWait(TFacing.$(ReferenceExpression(Enum.GetName(TDirections, values[1]))), \
+													$(values[2]), $(values[3])))|]
+			case 3:
+				if values[4] == 0:
+					result = [|ReturnScreen($(values[3]))|]
+				else result = [|await(ReturnScreenAndWait($(values[3])))|]
 	
 	simpleConverter ConvertObjectID:
 		if values[0] == 0:

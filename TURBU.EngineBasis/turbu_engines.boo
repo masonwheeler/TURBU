@@ -24,6 +24,11 @@ static class TTurbuEngines:
 
 	private FEngineList = Dictionary[of TEngineStyle, TEngineDict]()
 
+	private FMetadataList = List[of TRpgMetadata]()
+
+	def RegisterEngine(value as TRpgMetadata):
+		FMetadataList.Add(value)
+
 	def AddEngine(slot as TEngineStyle, value as TRpgMetadata, engine as ITurbuEngine):
 		unless FEngineList.ContainsKey(slot):
 			FEngineList[slot] = TEngineDict()
@@ -50,6 +55,20 @@ static class TTurbuEngines:
 	
 	def RetrieveEngine(slot as TEngineStyle, value as TRpgMetadata) as ITurbuEngine:
 		return FEngineList[slot][value]
+/*	
+	private def LoadEngine(data as TEngineData):
+		base = data.Engine.Create()
+		if data.Style == TEngineStyle.Map:
+			mapEngine = base cast IMapEngine
+			TTurbuEngines.AddEngine(data.Style, mapEngine.Data, mapEngine)
+		elif data.Style == TEngineStyle.Battle:
+			battleEngine = base cast IBattleEngine
+			TTurbuEngines.AddEngine(data.Style, battleEngine.Data, battleEngine)
+		elif data.Style == TEngineStyle.Data:
+			dataEngine = base cast IDataReader
+			TTurbuEngines.AddEngine(data.Style, dataEngine.Data, dataEngine)
+		else: raise "Engine style '$(Enum.GetName(TEngineStyle, data.Style))' is not supported yet."
+*/
 	
 	def CleanupEngines():
 		for list in FEngineList:

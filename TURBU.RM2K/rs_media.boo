@@ -1,5 +1,7 @@
 namespace TURBU.RM2K.RPGScript
 
+import System
+import System.Threading.Tasks
 import turbu.script.engine
 import commons
 import archiveInterface
@@ -9,7 +11,6 @@ import Pythia.Runtime
 import turbu.sounds
 import turbu.defs
 import turbu.classes
-import System
 import TURBU.RM2K
 import Newtonsoft.Json
 import Newtonsoft.Json.Linq
@@ -46,10 +47,13 @@ def PlaySoundData(sound as TRpgSound):
 def PlaySystemSound(sound as TSfxTypes):
 	PlaySoundData(L.SystemSounds[sound])
 
-def PlaySystemMusic(music as TBgmTypes, once as bool):
+def PlaySystemMusic(music as TBgmTypes):
 	PlayMusicData(L.SystemMusic[music])
-	if once:
-		TScriptEngine.Instance.SetWaiting(WaitForMusicPlayed)
+
+[async]
+def PlaySystemMusicOnce(music as TBgmTypes) as Task:
+	PlaySystemMusic(music)
+	waitFor WaitForMusicPlayed
 
 def FadeOutMusic(time as int):
 	commons.runThreadsafe(false) def ():

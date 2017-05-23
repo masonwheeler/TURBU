@@ -1,6 +1,7 @@
 namespace TURBU.MapObjects
 
 import System.Linq.Enumerable
+import System.Threading.Tasks
 import Newtonsoft.Json.Linq
 
 import turbu.containers
@@ -252,7 +253,7 @@ class TRpgEventPage(TRpgDatafile):
 	protected FParent as TRpgMapObject
 
 	[Property(Script)]
-	protected FScript as Action
+	protected FScript as Func of Task
 
 	public def constructor(id as int):
 		FId = id

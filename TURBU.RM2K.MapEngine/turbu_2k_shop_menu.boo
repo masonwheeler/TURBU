@@ -19,6 +19,7 @@ import TURBU.RM2K.MapEngine
 import turbu.RM2K.environment
 import SDL2.SDL2_GPU
 import System.Threading
+import turbu.script.engine
 
 class TShopModeBox(TGameMenuBox):
 
@@ -214,13 +215,13 @@ class TTransactionMenu(TGameMenuBox):
 							assert false
 						case TTransactionState.Buying:
 							owner.PromptBox.Text = GDatabase.value.VocabNum(V_SHOP_NUM_BOUGHT, owner.Format)
-							Thread.Sleep(750)
+							GScriptEngine.value.Sleep(750, false)
 							GEnvironment.value.Party.Inventory.Add(FItem.ID, FExistingQuantity)
 							assert GEnvironment.value.Party.Money >= (FExistingQuantity * FItem.Cost)
 							GEnvironment.value.Party.Money = GEnvironment.value.Party.Money - (FExistingQuantity * FItem.Cost)
 						case TTransactionState.Selling:
 							owner.PromptBox.Text = GDatabase.value.VocabNum(V_SHOP_NUM_SOLD, owner.Format)
-							Thread.Sleep(750)
+							GScriptEngine.value.Sleep(750, false)
 							if FExistingQuantity < FItem.Quantity:
 								FItem.Quantity = FItem.Quantity - FExistingQuantity
 							else:

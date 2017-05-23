@@ -1,6 +1,7 @@
 namespace turbu.mapchars
 
 import System
+import System.Threading.Tasks
 
 import ArchiveUtils
 import commons
@@ -42,10 +43,15 @@ class TRpgCharacter(TObject):
 	protected virtual def SetTranslucency(value as int):
 		Base.Translucency = value
 
-	public def Flash(r as int, g as int, b as int, power as int, time as int, wait as bool):
+	public def Flash(r as int, g as int, b as int, power as int, time as int):
 		lock self:
 			DoFlash(r, g, b, power, time)
-			GScriptEngine.value.ThreadSleep(time * 100, true) if wait
+
+	[async]
+	public def FlashAndWait(r as int, g as int, b as int, power as int, time as int) as Task:
+		lock self:
+			DoFlash(r, g, b, power, time)
+			await GScriptEngine.value.Sleep(time * 100, true)
 
 	public def Move(frequency as int, skip as bool, path as Func[of Path, Func[of TObject, bool]*]):
 		return unless assigned(self.Base)

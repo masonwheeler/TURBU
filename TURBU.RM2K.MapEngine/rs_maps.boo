@@ -1,5 +1,10 @@
 namespace TURBU.RM2K.RPGScript
 
+import System
+import System.Drawing
+import System.Threading
+import System.Threading.Tasks
+
 import turbu.defs
 import turbu.script.engine
 import commons
@@ -17,31 +22,29 @@ import Pythia.Runtime
 import turbu.mapchars
 import turbu.RM2K.images
 import turbu.RM2K.animations
-import System
 import turbu.RM2K.environment
 import turbu.RM2K.sprite.engine
 import TURBU.RM2K.MapEngine
 import turbu.RM2K.CharSprites
 import turbu.map.sprites
 import turbu.RM2K.transitions
-import System.Drawing
-import System.Threading
 import Newtonsoft.Json
 import Newtonsoft.Json.Linq
 
-def Teleport(mapID as int, x as int, y as int):
-	Teleport(mapID, x, y, 0)
+[async]
+def Teleport(mapID as int, x as int, y as int) as Task:
+	await Teleport(mapID, x, y, 0)
 
-def Teleport(mapID as int, x as int, y as int, facing as int):
-	newpoint as TSgPoint
+[async]
+def Teleport(mapID as int, x as int, y as int, facing as int) as Task:
 	unless Monitor.TryEnter(LTeleportLock):
-		GScriptEngine.value.AbortThread()
+		Abort
 	try:
-		EraseScreen(TTransitions.Default)
+		await EraseScreen(TTransitions.Default)
 		while GSpriteEngine.value.State == TGameState.Fading:
-			Thread.Sleep(TRpgTimestamp.FrameLength)
+			await GScriptEngine.value.FramePause()
 		if mapID == GSpriteEngine.value.MapID:
-			newpoint = sgPoint(x, y)
+			var newpoint = sgPoint(x, y)
 			if GSpriteEngine.value.OnMap(newpoint):
 				runThreadsafe(true) def ():
 					unless GEnvironment.value.PreserveSpriteOnTeleport:
@@ -50,7 +53,7 @@ def Teleport(mapID as int, x as int, y as int, facing as int):
 					GEnvironment.value.Party.Sprite.Location = newpoint
 					GSpriteEngine.value.CenterOn(x, y)
 		else: GGameEngine.value.ChangeMaps(mapID, sgPoint(x, y))
-		ShowScreen(TTransitions.Default)
+		await ShowScreen(TTransitions.Default)
 	ensure:
 		System.Threading.Monitor.Exit(LTeleportLock)
 
@@ -118,31 +121,31 @@ def SetTransition(which as TTransitionTypes, newTransition as TTransitions):
 		return
 	LDefaultTransitions[which] = newTransition
 
-def EraseScreen(whichTransition as TTransitions):
+[async]
+def EraseScreen(whichTransition as TTransitions) as Task:
 	if whichTransition == TTransitions.Default:
 		turbu.RM2K.transitions.erase(LDefaultTransitions[TTransitionTypes.MapExit])
 	else:
 		turbu.RM2K.transitions.erase(whichTransition)
-	GScriptEngine.value.SetWaiting(WaitForBlank)
+	waitFor WaitForBlank
 
-def ShowScreen(whichTransition as TTransitions):
+[async]
+def ShowScreen(whichTransition as TTransitions) as Task:
 	if whichTransition == TTransitions.Default:
 		turbu.RM2K.transitions.show(LDefaultTransitions[TTransitionTypes.MapEnter])
 	else:
 		turbu.RM2K.transitions.show(whichTransition)
-	GScriptEngine.value.SetWaiting(WaitForFadeEnd)
+	waitFor WaitForFadeEnd
 
-def EraseScreenDefault(whichTransition as TTransitionTypes):
-	EraseScreen(LDefaultTransitions[whichTransition])
-	unless TThread.CurrentThread.IsMainThread:
-		GScriptEngine.value.ThreadWait()
+[async]
+def EraseScreenDefault(whichTransition as TTransitionTypes) as Task:
+	await EraseScreen(LDefaultTransitions[whichTransition])
 
-def ShowScreenDefault(whichTransition as TTransitionTypes):
-	ShowScreen(LDefaultTransitions[whichTransition])
-	unless TThread.CurrentThread.IsMainThread:
-		GScriptEngine.value.ThreadWait()
+[async]
+def ShowScreenDefault(whichTransition as TTransitionTypes) as Task:
+	await ShowScreen(LDefaultTransitions[whichTransition])
 
-def TintScreen(r as int, g as int, b as int, sat as int, duration as int, wait as bool):
+def TintScreen(r as int, g as int, b as int, sat as int, duration as int):
 	def convert(number as int) as int:
 		return round(clamp(number, 0, 200) * 2.55)
 	
@@ -151,23 +154,34 @@ def TintScreen(r as int, g as int, b as int, sat as int, duration as int, wait a
 	b2 as int = convert(b)
 	s2 as int = convert(sat)
 	GSpriteEngine.value.FadeTo(r2, g2, b2, s2, duration)
-	if wait:
-		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
 
-def FlashScreen(r as int, g as int, b as int, power as int, duration as int, wait as bool, continuous as bool):
+[async]
+def TintScreenAndWait(r as int, g as int, b as int, sat as int, duration as int) as Task:
+	TintScreen(r, g, b, sat, duration)
+	await GScriptEngine.value.Sleep(duration * 100, true)
+
+def FlashScreen(r as int, g as int, b as int, power as int, duration as int, continuous as bool):
 	GSpriteEngine.value.FlashScreen(r, g, b, power, duration)
-	if wait:
-		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
 	if continuous:
 		pass //TODO: Implement this
+
+[async]
+def FlashScreenAndWait(r as int, g as int, b as int, power as int, duration as int) as Task:
+	FlashScreen(r, g, b, power, duration, false)
+	await GScriptEngine.value.Sleep(duration * 100, true)
 
 def EndFlashScreen():
 	GSpriteEngine.value.FlashScreen(0, 0, 0, 0, 0)
 
-def ShakeScreen(power as int, Speed as int, duration as int, wait as bool, continuous as bool):
-	GSpriteEngine.value.ShakeScreen(power, Speed, duration * 100)
-	if wait:
-		GScriptEngine.value.ThreadSleep(Math.Max(duration * 100, TRpgTimestamp.FrameLength), true)
+def ShakeScreen(power as int, speed as int, duration as int, continuous as bool):
+	GSpriteEngine.value.ShakeScreen(power, speed, duration * 100)
+	if continuous:
+		pass //TODO: Implement this
+
+[async]
+def ShakeScreenAndWait(power as int, speed as int, duration as int) as Task:
+	ShakeScreen(power, speed, duration, false)
+	await GScriptEngine.value.Sleep(duration * 100, true)
 
 def EndShakeScreen():
 	GSpriteEngine.value.ShakeScreen(0, 0, 0)
@@ -178,7 +192,7 @@ def LockScreen():
 def UnlockScreen():
 	GSpriteEngine.value.ScreenLocked = false
 
-def PanScreen(direction as TFacing, distance as int, speed as int, wait as bool):
+def PanScreen(direction as TFacing, distance as int, speed as int):
 	halfwidth as int = GSpriteEngine.value.Canvas.Width / 2
 	halfheight as int = GSpriteEngine.value.Canvas.Height / 2
 	x as int = Math.Truncate((GSpriteEngine.value.WorldX + halfwidth) / TILE_SIZE.x)
@@ -192,17 +206,29 @@ def PanScreen(direction as TFacing, distance as int, speed as int, wait as bool)
 			y += distance
 		case TFacing.Left:
 			x -= distance
-	PanScreenTo(x, y, speed, wait)
 
-def PanScreenTo(x as int, y as int, speed as int, wait as bool):
+[async]
+def PanScreenAndWait(direction as TFacing, distance as int, speed as int) as Task:
+	PanScreen(direction, distance, speed)
+	waitFor WaitForPanEnd
+
+def PanScreenTo(x as int, y as int, speed as int):
 	GSpriteEngine.value.DisplaceTo(x * TILE_SIZE.x, y * TILE_SIZE.y)
 	GSpriteEngine.value.SetDispSpeed(speed)
-	if wait:
-		GScriptEngine.value.SetWaiting(WaitForPanEnd)
 
-def ReturnScreen(speed as int, wait as bool):
+[async]
+def PanScreenToAndWait(x as int, y as int, speed as int) as Task:
+	PanScreenTo(x, y, speed)
+	waitFor WaitForPanEnd
+
+def ReturnScreen(speed as int):
 	GSpriteEngine.value.Returning = true
-	PanScreenTo(GEnvironment.value.Party.XPos, GEnvironment.value.Party.YPos, speed, wait)
+	PanScreenTo(GEnvironment.value.Party.XPos, GEnvironment.value.Party.YPos, speed)
+
+[async]
+def ReturnScreenAndWait(speed as int) as Task:
+	ReturnScreen(speed)
+	waitFor WaitForPanEnd
 
 def SetWeather(effect as TWeatherEffects, severity as int):
 	GGameEngine.value.WeatherEngine.WeatherType = effect
@@ -230,25 +256,23 @@ def NewImage(Name as string, x as int, y as int, zoom as int, transparency as in
 def SetBGImage(Name as string, scrollX as int, scrollY as int, autoX as TMapScrollType, autoY as TMapScrollType):
 	commons.runThreadsafe(false, { GSpriteEngine.value.SetBG(Name, scrollX, scrollY, autoX, autoY) })
 
-def ShowBattleAnim(which as int, target as TRpgCharacter, wait as bool, fullscreen as bool):
-	signal as EventWaitHandle
-	if wait:
-		signal = EventWaitHandle(false, EventResetMode.ManualReset)
-	else:
-		signal = null
-	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, signal) })
-	if wait:
-		GScriptEngine.value.SetWaiting({ signal.WaitOne(0) })
+def ShowBattleAnim(which as int, target as TRpgCharacter, fullscreen as bool):
+	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, null) })
 
-def ShowBattleAnimB(which as int, target as IAnimTarget, wait as bool, fullscreen as bool):
-	signal as EventWaitHandle
-	if wait:
-		signal = EventWaitHandle(false, EventResetMode.ManualReset)
-	else:
-		signal = null
+[async]
+def ShowBattleAnimAndWait(which as int, target as TRpgCharacter, fullscreen as bool) as Task:
+	var signal = EventWaitHandle(false, EventResetMode.ManualReset)
+	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, signal) })
+	waitFor { signal.WaitOne(0) }
+
+def ShowBattleAnimB(which as int, target as IAnimTarget, fullscreen as bool):
+	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, null) })
+
+[async]
+def ShowBattleAnimBAndWait(which as int, target as IAnimTarget, fullscreen as bool) as Task:
+	var signal = EventWaitHandle(false, EventResetMode.ManualReset)
 	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, signal) })
-	if wait:
-		GScriptEngine.value.SetWaiting({ signal.WaitOne(0) })
+	waitFor { signal.WaitOne(0) }
 
 def ShowBattleAnimT(engine as TSpriteEngine, which as int, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
 	template as TAnimTemplate = GDatabase.value.Anim[which]
@@ -259,12 +283,13 @@ def ShowBattleAnimT(engine as TSpriteEngine, which as int, target as IAnimTarget
 		return
 	TAnimSprite(engine, template, target, fullscreen, signal)
 
-def WaitUntilMoved():
+[async]
+def WaitUntilMoved() as Task:
 	GEnvironment.value.Party.Sprite.CheckMoveChange()
 	for i in range(1, GEnvironment.value.MapObjectCount + 1):
 		if assigned(GEnvironment.value.MapObject[i]):
 			GEnvironment.value.MapObject[i].Base.CheckMoveChange()
-	GScriptEngine.value.SetWaiting(AllMoved)
+	waitFor AllMoved
 
 def StopMoveScripts():
 	for i in range(1, (GEnvironment.value.MapObjectCount + 1)):
@@ -322,7 +347,7 @@ private class TCharacterTarget(TObject, IAnimTarget):
 		return result
 
 	def Flash(r as int, g as int, b as int, power as int, time as int):
-		FTarget.Flash(r, g, b, power, time, false)
+		FTarget.Flash(r, g, b, power, time)
 
 	public def constructor(target as TRpgCharacter):
 		FTarget = target

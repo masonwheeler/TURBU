@@ -158,10 +158,10 @@ class TAnimSprite(TParentSprite):
 					ExtractColors(currEffect, r, g, b, a)
 					if assigned(FTarget):
 						FTarget.Flash(r, g, b, a, 2)
-					else: FlashScreen(r, g, b, a, 2, false, false)
+					else: FlashScreen(r, g, b, a, 2, false)
 				case TFlashTarget.Screen:
 					ExtractColors(currEffect, r, g, b, a)
-					FlashScreen(r, g, b, a, 2, false, false)
+					FlashScreen(r, g, b, a, 2, false)
 				default : assert false
 			++FLastEffect
 

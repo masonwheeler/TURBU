@@ -1,5 +1,10 @@
 namespace TURBU.RM2K.Menus
 
+import System
+import System.Collections.Generic
+import System.Threading
+import System.Threading.Tasks
+
 import Boo.Adt
 import turbu.defs
 import timing
@@ -15,15 +20,12 @@ import turbu.classes
 import turbu.script.engine
 import TURBU.RM2K.RPGScript
 import Pythia.Runtime
-import System
-import System.Collections.Generic
 import SDL2.SDL2_GPU
 import turbu.RM2K.environment
 import TURBU.RM2K.Menus
 import turbu.RM2K.sprite.engine
 import Newtonsoft.Json
 import Newtonsoft.Json.Linq
-import System.Threading
 
 enum TSystemRects:
 	Wallpaper
@@ -289,9 +291,9 @@ class TMenuSpriteEngine(TSpriteEngine):
 
 	private FEnding as bool
 
-	private def WaitForCurrentBox():
-		GScriptEngine.value.SetWaiting({ return FCurrentBox == null or FCurrentBox.Signal.WaitOne(0) })
-		GScriptEngine.value.ThreadWait()
+	[async]
+	private def WaitForCurrentBox() as Task:
+		waitFor { return FCurrentBox == null or FCurrentBox.Signal.WaitOne(0) }
 
 	private def NotifySystemGraphicChanged(Name as string):
 		notify as Action of string
@@ -388,27 +390,30 @@ class TMenuSpriteEngine(TSpriteEngine):
 				FMenuEngine.Draw()
 			default: raise "Unknown menu state: $FMenuState"
 
-	public def ShowMessage(msg as string, modal as bool):
-		Thread.Sleep(TRpgTimestamp.FrameLength) while GSpriteEngine.value.State == TGameState.Fading
+	[async]
+	public def ShowMessage(msg as string, modal as bool) as Task:
+		waitFor {GSpriteEngine.value.State != TGameState.Fading}
 		box as TCustomMessageBox = FBoxes[TMessageBoxTypes.Message]
 		box.Text = msg
 		box.Visible = true
 		FCurrentBox = box
 		try:
 			FMenuState = (TMenuState.ExclusiveShared if modal else TMenuState.Shared)
-			WaitForCurrentBox()
+			await WaitForCurrentBox()
 		ensure:
 			EndMessage()
 
-	public def Inn(style as int, cost as int):
+	[async]
+	public def Inn(style as int, cost as int) as Task:
 		greet1 as string = InnVocab(style, 'Greet', cost)
 		choices as (string) = (InnVocab(style, 'Stay', 0), InnVocab(style, 'Cancel', 0))
-		ChoiceBox(greet1, choices, true) def (line as string) as bool:
+		cbTask as Task = ChoiceBox(greet1, choices, true) def (line as string) as bool:
 			return ((GEnvironment.value.Money >= cost) if line == choices[0] else true)
+		await cbTask
 
-	public def ChoiceBox(msg as string, responses as (string), allowCancel as bool, OnValidate as Func[of string, bool]):
-		while GSpriteEngine.value.State == TGameState.Fading:
-			Thread.Sleep(TRpgTimestamp.FrameLength)
+	[async]
+	public def ChoiceBox(msg as string, responses as (string), allowCancel as bool, OnValidate as Func[of string, bool]) as Task:
+		waitFor {GSpriteEngine.value.State != TGameState.Fading}
 		var box = FBoxes[TMessageBoxTypes.Choice] cast TChoiceBox
 		box.Text = msg
 		box.SetChoices(responses)
@@ -419,11 +424,12 @@ class TMenuSpriteEngine(TSpriteEngine):
 		FCurrentBox = box
 		try:
 			FMenuState = TMenuState.ExclusiveShared
-			WaitForCurrentBox()
+			await WaitForCurrentBox()
 		ensure:
 			EndMessage()
 
-	public def InputNumber(msg as string, digits as int):
+	[async]
+	public def InputNumber(msg as string, digits as int) as Task:
 		FCurrentBox = FBoxes[TMessageBoxTypes.Input]
 		FCurrentBox.Text = msg
 		var box = FCurrentBox cast TValueInputBox
@@ -433,7 +439,7 @@ class TMenuSpriteEngine(TSpriteEngine):
 		FBoxes[TMessageBoxTypes.Input].Visible = true
 		try:
 			FMenuState = TMenuState.ExclusiveShared
-			WaitForCurrentBox()
+			await WaitForCurrentBox()
 		ensure:
 			EndMessage()
 

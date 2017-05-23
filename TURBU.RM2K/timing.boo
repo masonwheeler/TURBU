@@ -115,7 +115,11 @@ class TRpgTimestamp(TObject):
 				FFrameLength[FCounter] = delta
 
 	public static FrameLength as int:
-		get: return Math.Round(FFrameLength.Average())
+		get:
+			var total = 0
+			for value in FFrameLength:
+				total += value
+			return total / FFrameLength.Length
 
 	public override def ToString():
 		return TimeRemaining.ToString() + 'ms'

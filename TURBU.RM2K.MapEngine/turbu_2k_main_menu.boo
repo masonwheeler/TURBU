@@ -120,7 +120,7 @@ End Game"""
 					self.FocusMenu('Party', 2)
 				case 3:
 					if OptionEnabled[3]:
-						SaveMenu()
+						SaveMenu() //async method, deliberately not awaiting
 				case 4:
 					self.Return()
 					GEnvironment.value.TitleScreen()

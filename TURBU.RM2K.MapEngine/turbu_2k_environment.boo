@@ -3,6 +3,7 @@ namespace turbu.RM2K.environment
 import System
 import System.Linq.Enumerable
 import System.Threading
+import System.Threading.Tasks
 import turbu.defs
 import TURBU.Meta
 import TURBU.RM2K
@@ -258,33 +259,30 @@ class T2kEnvironment(TObject):
 			FTimer = TRpgTimer(TSystemTimer(GGameEngine.value.ImageEngine))
 			FTimer2 = TRpgTimer(TSystemTimer(GGameEngine.value.ImageEngine))
 
-	public def KeyScan(mask as TButtonCode, wait as bool) as int:
-		assert not TThread.CurrentThread.IsMainThread
-		thread as TScriptThread = (TThread.CurrentThread cast TScriptThread)
+	[async]
+	public def KeyScan(mask as TButtonCode, wait as bool) as Task of int:
 		while wait and FKeyLock:
-			if thread.Terminated:
-				Abort
-			GScriptEngine.value.ThreadWait()
+			await GScriptEngine.value.FramePause()
 		scan as TButtonCode = GGameEngine.value.ReadKeyboardState()
-		Thread.Sleep(TRpgTimestamp.FrameLength)
+		await GScriptEngine.value.FramePause()
 		scan = scan | GGameEngine.value.ReadKeyboardState()
 		scan = scan & mask
 		if wait and (scan == TButtonCode.None):
-			GScriptEngine.value.SetWaiting(WaitForKeyPress)
+			waitFor WaitForKeyPress
 			repeat :
-				GScriptEngine.value.ThreadWait()
+				await GScriptEngine.value.FramePause()
 				scan = (GGameEngine.value.ReadKeyboardState() & mask)
-				until scan != TButtonCode.None or thread.Terminated
+				until scan != TButtonCode.None
 			FKeyLock = true
-		result = 0
 		if scan == TButtonCode.None:
-			return result
+			return 0
 		else:
 			for btn in scan.Values():
 				return (Math.Log(ord(btn), 2) + 1) cast int //return lowest value found in set
 
-	public def Wait(duration as int):
-		GScriptEngine.value.ThreadSleep(duration * 100, false)
+	[async]
+	public def Wait(duration as int) as Task:
+		await GScriptEngine.value.Sleep(duration * 100, false)
 
 	public def HasItem(id as int):
 		return HeldItems(id, false) > 0
@@ -298,11 +296,11 @@ class T2kEnvironment(TObject):
 		else: result = FParty.Inventory.QuantityOf(id)
 		return result
 
-	public def Shop(shopType as TShopTypes, messageSet as int, inventory as int*) as bool:
+	[async]
+	public def Shop(shopType as TShopTypes, messageSet as int, inventory as int*) as Task of bool:
 		using data = TShopData(shopType, messageSet, inventory.ToArray()):
 			GMenuEngine.Value.OpenMenuEx('Shop', data)
-		GScriptEngine.value.SetWaiting({ return GMenuEngine.Value.State == TMenuState.None })
-		GScriptEngine.value.ThreadWait()
+		waitFor { return GMenuEngine.Value.State == TMenuState.None }
 		return GMenuEngine.Value.MenuInt != 0
 
 	public def Random(low as int, high as int) as int:
@@ -314,9 +312,10 @@ class T2kEnvironment(TObject):
 	public def GameOver():
 		GGameEngine.value.GameOver()
 
+	[async]
 	public def TitleScreen():
-		GScriptEngine.value.KillAll(null)
-		commons.runThreadsafe(true, { GGameEngine.value.TitleScreen() })
+		await GScriptEngine.value.KillAll(null)
+		GGameEngine.value.TitleScreen()
 
 	public def DeleteObject(permanent as bool):
 		obj as TRpgCharacter = ThisObject
@@ -504,10 +503,9 @@ class T2kEnvironment(TObject):
 
 	public ThisObject as TRpgEvent:
 		get:
-			obj as TRpgMapObject
-			obj = (TThread.CurrentThread cast TScriptThread).CurrentObject
+			obj as TRpgMapObject = GScriptEngine.value.CurrentObject
 			return FEventMap[obj]
-			
+	
 	private static def WaitForKeyPress() as bool:
 		return GGameEngine.value.ReadKeyboardState() != TButtonCode.None
 

@@ -78,7 +78,7 @@ static class TSysDataConverter:
 					Handler $(base.DeathEventHandler)
 			|]
 			if base.TeleportOnDeath:
-				deathEvent.Body.Add([|Teleport $(base.EscapeMap), $(base.EscapeX), $(base.EscapeY), $(base.EscapeFacing)|])
+				deathEvent.Body.Add([|await(Teleport($(base.EscapeMap), $(base.EscapeX), $(base.EscapeY), $(base.EscapeFacing)))|])
 			result.Body.Add(deathEvent)
 		return result
 

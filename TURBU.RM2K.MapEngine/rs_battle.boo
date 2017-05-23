@@ -1,5 +1,6 @@
 namespace TURBU.RM2K.RPGScript
 
+import System.Threading.Tasks
 import turbu.defs
 import turbu.script.engine
 import TURBU.RM2K
@@ -14,11 +15,13 @@ import turbu.RM2K.environment
 import turbu.RM2K.sprite.engine
 import TURBU.RM2K.RPGScript
 
-def Battle(which as int, background as string, firstStrike as bool, results as TBattleResult) as TBattleResult:
+[async]
+def Battle(which as int, background as string, firstStrike as bool, results as TBattleResult) as Task of TBattleResult:
 	var formation = (TBattleFormation.FirstStrike if firstStrike else TBattleFormation.Normal)
-	return BattleEx(which, background, formation, results, 0, 0)
+	return await(BattleEx(which, background, formation, results, 0, 0))
 
-def BattleEx(which as int, background as string, formation as TBattleFormation, bgMode as int, terrain as int, results as TBattleResult) as TBattleResult:
+[async]
+def BattleEx(which as int, background as string, formation as TBattleFormation, bgMode as int, terrain as int, results as TBattleResult) as Task of TBattleResult:
 	if background == '':
 		caseOf bgMode:
 			case 0, 1:
@@ -30,12 +33,10 @@ def BattleEx(which as int, background as string, formation as TBattleFormation, 
 	lock engine:
 		var conditions = TBattleConditions(background, formation, results)
 		FadeOutMusic(0)
-		PlaySystemMusic(TBgmTypes.Battle, false)
-		EraseScreenDefault(TTransitionTypes.BattleStartErase)
-		GScriptEngine.value.ThreadWait()
+		PlaySystemMusic(TBgmTypes.Battle)
+		await EraseScreenDefault(TTransitionTypes.BattleStartErase)
 		battleResult as TBattleResultData = engine.StartBattle(GEnvironment.value.Party, mParty, conditions)
-		ShowScreenDefault(TTransitionTypes.BattleEndShow)
-		GScriptEngine.value.ThreadWait()
+		await ShowScreenDefault(TTransitionTypes.BattleEndShow)
 		FadeOutMusic(0)
 		FadeInLastMusic(0)
 	assert battleResult.data == null
