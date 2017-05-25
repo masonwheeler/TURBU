@@ -8,3 +8,7 @@ macro waitFor(cond as Expression):
 		var $tcsName = System.Threading.Tasks.TaskCompletionSource[of bool]()
 		await GScriptEngine.value.WaitTask($tcsName, $cond)
 	|]
+
+[Meta]
+def Wait(duration as Expression) as MethodInvocationExpression:
+	return [|await(Sleep($duration))|]

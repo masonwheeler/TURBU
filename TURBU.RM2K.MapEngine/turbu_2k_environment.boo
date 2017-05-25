@@ -281,7 +281,7 @@ class T2kEnvironment(TObject):
 				return (Math.Log(ord(btn), 2) + 1) cast int //return lowest value found in set
 
 	[async]
-	public def Wait(duration as int) as Task:
+	public def Sleep(duration as int) as Task:
 		await GScriptEngine.value.Sleep(duration * 100, false)
 
 	public def HasItem(id as int):
