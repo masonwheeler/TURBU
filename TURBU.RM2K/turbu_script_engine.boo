@@ -134,8 +134,13 @@ class TScriptEngine(TObject):
 		_waiting.Add(KeyValuePair[of Func of bool, TaskCompletionSource of bool](cond, tcs))
 		return tcs.Task
 
+	private _ticking as bool //teleporting can cause reentrancy here
+	
 	internal def Tick():
+		return if _ticking
+		
 		assert _altWaiting.Count == 0
+		_ticking = true
 		var temp = _waiting
 		_waiting = _altWaiting
 		_altWaiting = temp
@@ -147,6 +152,7 @@ class TScriptEngine(TObject):
 			except e as Exception:
 				pair.Value.SetException(e)
 		_altWaiting.Clear()
+		_ticking = false
 
 	private def CancelWaiting():
 		for pair in _waiting:
