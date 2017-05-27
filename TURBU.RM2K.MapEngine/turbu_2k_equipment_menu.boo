@@ -1,5 +1,8 @@
 namespace TURBU.RM2K.Menus
 
+import System
+import System.Linq.Enumerable
+
 import turbu.defs
 import turbu.items
 import SG.defs
@@ -9,7 +12,6 @@ import TURBU.Meta
 import TURBU.TextUtils
 import TURBU.RM2K
 import Pythia.Runtime
-import System
 import turbu.Heroes
 import turbu.RM2K.items
 import turbu.RM2K.Item.types
@@ -72,6 +74,11 @@ class TCharStatBox(TGameMenuBox):
 				for i in range(1, 5):
 					FPotential[i - 1] = FChar.PotentialStat(0, i, FCurrentSlot)
 
+	internal CurrentSlot as TSlot:
+		set:
+			FCurrentSlot = value;
+			InvalidateText()
+
 class TEqInventoryMenu(TCustomScrollBox):
 
 	private FCurrentItem as TRpgItem
@@ -95,12 +102,11 @@ class TEqInventoryMenu(TCustomScrollBox):
 		FDisplayCapacity = 12
 
 	public def Show(slot as TSlot):
-		Item as TRpgItem
 		FParsedText.Clear()
-		for i in range(0, GEnvironment.value.Party.Inventory.Count):
-			Item = GEnvironment.value.Party.Inventory[i]
-			if (Item isa TEquipment) and (Item.Template cast TEquipmentTemplate).Slot == slot and Item.UsableBy(FChar.Template.ID):
-				FParsedText.AddObject(Item.Template.Name, Item)
+		for item in GEnvironment.value.Party.Inventory \
+				.OfType[of TEquipment]() \
+				.Where({eq | (eq.Template cast TEquipmentTemplate).Slot == slot and eq.UsableBy(FChar.Template.ID)}):
+			FParsedText.AddObject(item.Template.Name, item)
 		FParsedText.AddObject('', null)
 		Array.Resize[of bool](FOptionEnabled, FParsedText.Count)
 		for i in range(FOptionEnabled.Length):
@@ -128,6 +134,7 @@ class TEqInventoryMenu(TCustomScrollBox):
 		stat = (FOwner.Menu('Stat') cast TCharStatBox)
 		stat.PotentialItem = FCurrentItem
 		stat.Active = true
+		FOwner.Menu('Desc').Text = (FCurrentItem.Desc if FCurrentItem != null else '')
 
 	public override def DoButton(input as TButtonCode):
 		stat as TCharStatBox
@@ -166,7 +173,7 @@ class TGameEquipmentMenu(TGameMenuBox):
 		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_HELMET], lOrigin.x + 6, lOrigin.y + 50, 1)
 		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_ACCESSORY], lOrigin.x + 6, lOrigin.y + 66, 1)
 		for i in range(0, 5):
-			GFontEngine.DrawText(target, FParsedText[i], lOrigin.x + 68, lOrigin.y + (i * 16) + 2, 1)
+			GFontEngine.DrawText(target, FParsedText[i], lOrigin.x + 68, lOrigin.y + (i * 16) + 2, 0)
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
@@ -204,7 +211,7 @@ class TGameEquipmentMenu(TGameMenuBox):
 				inv.Show(TSlot.Weapon)
 			else:
 				inv.Show(position)
-			(FOwner.Menu('Stat') cast TCharStatBox).FCurrentSlot = position
+			(FOwner.Menu('Stat') cast TCharStatBox).CurrentSlot = position
 		ensure:
 			FPlacingCursor = false
 

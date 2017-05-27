@@ -69,6 +69,7 @@ static class TItemConverter:
 			Animation $(base.WeaponAnimation)
 			Trajectory $(base.RangedTrajectory)
 			Target $(base.RangedTarget)
+			Stats 0, 0, $(base.AttackModify), $(base.DefenseModify), $(base.MindModify), $(base.SpeedModify)
 		|]
 		result.Body.Add(props)
 		attrs = (base.Attributes cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).Select({i | Expression.Lift(i)}).ToArray()
@@ -92,6 +93,7 @@ static class TItemConverter:
 			MpReduction $((50 if base.HalfMP else 0))
 			NoTerrainDamage $(base.NoTerrainDamage)
 			Slot $(ReferenceExpression(Enum.GetName(turbu.defs.TSlot, base.ItemType - 1)))
+			Stats 0, 0, $(base.AttackModify), $(base.DefenseModify), $(base.MindModify), $(base.SpeedModify)
 		|]
 		result.Body.Add(props)
 		attrs = (base.Attributes cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).Select({i | Expression.Lift(i)}).ToArray()

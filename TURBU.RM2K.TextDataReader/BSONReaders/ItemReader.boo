@@ -44,6 +44,12 @@ macro Items.ArmorItem(index as int, body as Statement*):
 	result['ItemType'] = 'Armor'
 	AddResource('Items', result)
 
+macro Items.ArmorItem.Stats(values as IntegerLiteralExpression*):
+	var statArr = ArrayLiteralExpression()
+	statArr.Items.AddRange(values)
+	result = [|Stats($statArr)|]
+	return ExpressionStatement(result)
+
 macro Items.WeaponItem(index as int, body as Statement*):
 	var result = PropertyList(index, body)
 	result['ItemType'] = 'Weapon'
@@ -55,6 +61,12 @@ macro Items.WeaponItem.Animations(body as JsonStatement*):
 	
 	result = MakeListValue('AnimData', body)
 	return result
+
+macro Items.WeaponItem.Stats(values as IntegerLiteralExpression*):
+	var statArr = ArrayLiteralExpression()
+	statArr.Items.AddRange(values)
+	result = [|Stats($statArr)|]
+	return ExpressionStatement(result)
 
 macro Items.SkillItem(index as int, body as Statement*):
 	var result = PropertyList(index, body)

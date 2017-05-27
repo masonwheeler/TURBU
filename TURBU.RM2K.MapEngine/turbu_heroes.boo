@@ -461,21 +461,18 @@ class TRpgHero(TRpgBattleCharacter):
 		FLevelScripts.Add(Name, routine)
 
 	public def Equip([Lookup('Items')] id as int):
-		theItem as TRpgItem
-		dummy as TItemType
-		slot as TSlot
 		return unless IsBetween(id, 0, GDatabase.value.Items.Count)
-		theItem = TRpgItem.NewItem(id, 1)
-		template = theItem.Template as TEquipmentTemplate
+		theItem as TRpgItem = TRpgItem.NewItem(id, 1)
+		var template = theItem.Template as TEquipmentTemplate
 		return unless assigned(template) and (Template.ID in template.UsableByHero)
-		dummy = theItem.Template.ItemType
-		if (dummy == TItemType.Weapon) and (theItem.Template cast TWeaponTemplate).TwoHanded:
+		var itemType = theItem.Template.ItemType
+		if (itemType == TItemType.Weapon) and (theItem.Template cast TWeaponTemplate).TwoHanded:
 			Unequip(TSlot.Weapon)
 			Unequip(TSlot.Shield)
 			FEquipment[TSlot.Weapon] = theItem
 			FEquipment[TSlot.Shield] = theItem
 		else:
-			slot = template.Slot
+			slot as TSlot = template.Slot
 			Unequip(slot)
 			FEquipment[slot] = theItem
 		FParty.Inventory.Remove(id, 1)

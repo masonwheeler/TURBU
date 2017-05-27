@@ -91,7 +91,7 @@ class TRpgItem(TObject):
 	public UsableOnField as bool:
 		get: return GetOnField()
 
-class TRpgInventory(TObject):
+class TRpgInventory(TObject, IEnumerable[of TRpgItem]):
 
 	private FSorted as bool
 
@@ -163,14 +163,14 @@ class TRpgInventory(TObject):
 			if FList[i].Template == value.Template:
 				Item = FList[i]
 			++i
-			if Item == null:
-				FList.Add(value)
-				FSorted = false
-			else:
-				total = value.Quantity + Item.Quantity
-				if total > MAXITEMS:
-					value.Quantity -= total - MAXITEMS
-				Item.Quantity += value.Quantity
+		if Item == null:
+			FList.Add(value)
+			FSorted = false
+		else:
+			total = value.Quantity + Item.Quantity
+			if total > MAXITEMS:
+				value.Quantity -= total - MAXITEMS
+			Item.Quantity += value.Quantity
 
 	public def IndexOf(id as int) as int:
 		return -1 unless IsBetween(id, 1, GDatabase.value.Items.Count)
@@ -216,6 +216,12 @@ class TRpgInventory(TObject):
 	public self[id as int] as TRpgItem:
 		get:
 			return GetItem(id)
+
+	def GetEnumerator() as IEnumerator[of TRpgItem]:
+		return FList.GetEnumerator()
+
+	def System.Collections.IEnumerable.GetEnumerator() as System.Collections.IEnumerator:
+		return FList.GetEnumerator()
 
 	private static def ItemSortCompare(item1 as TRpgItem, item2 as TRpgItem) as int:
 		return item1.Template.ID - item2.Template.ID
