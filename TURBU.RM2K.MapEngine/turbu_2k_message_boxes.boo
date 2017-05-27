@@ -155,8 +155,8 @@ class TMessageBox(TGameMenuBox):
 		FPortrait.ImageName = image.Name
 		FPortrait.ImageIndex = index
 
-	public def DoneWriting() as bool:
-		return FTextCounter >= FParsedText.Count
+	private DoneWriting as bool:
+		get: return FTextCounter >= FParsedText.Count
 
 	public Rightside as bool:
 		get: return FRightPortrait
