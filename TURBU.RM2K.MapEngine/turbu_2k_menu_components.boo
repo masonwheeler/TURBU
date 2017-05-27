@@ -248,7 +248,7 @@ class TCustomGameItemMenu(TCustomScrollBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		assert coords.h % 16 == 0
 		super(parent, coords, main, owner)
-		FDisplayCapacity = Math.Truncate((coords.y - 16) / 8.0)
+		FDisplayCapacity = Math.Truncate((coords.h - 16) / 8.0)
 		FColumns = 2
 
 	public Inventory as TRpgInventory:
