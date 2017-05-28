@@ -12,8 +12,7 @@ import SDL2.SDL2_GPU
 class TGameItemMenu(TCustomGameItemMenu):
 
 	private def ItemButton(which as TButtonCode, theMenu as TGameMenuBox, theOwner as TMenuPage):
-		if Inventory.Count == 0:
-			return
+		return if Inventory.Count == 0
 		if (which == TButtonCode.Enter) and OptionEnabled[CursorPosition]:
 			if Inventory[CursorPosition] isa TAppliedItem:
 				FocusPage('PartyTarget', (CursorPosition * -1))
@@ -25,12 +24,11 @@ class TGameItemMenu(TCustomGameItemMenu):
 				(Inventory[CursorPosition] cast TSwitchItem).Use()
 				MenuEngine.Leave(false)
 
-	private def itemCursor(position as short, theMenu as TGameMenuBox, theOwner as TMenuPage):
+	private def ItemCursor(position as short, theMenu as TGameMenuBox, theOwner as TMenuPage):
 		if Inventory.Count > 0:
 			(theOwner.Menu('Desc') cast TOnelineLabelBox).Text = Inventory[position].Desc
 
-	private def itemSetup(position as int, theMenu as TGameMenuBox, theOwner as TMenuPage):
-		i as int
+	private def ItemSetup(position as int, theMenu as TGameMenuBox, theOwner as TMenuPage):
 		for i in range(0, Inventory.Count):
 			OptionEnabled[i] = Inventory[i].UsableOnField
 
@@ -41,8 +39,8 @@ class TGameItemMenu(TCustomGameItemMenu):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
 		self.OnButton = ItemButton
-		self.OnCursor = itemCursor
-		self.OnSetup = itemSetup
+		self.OnCursor = ItemCursor
+		self.OnSetup = ItemSetup
 
 let INVENTORY_LAYOUT = """
 	[{"Name": "Inventory", "Class": "TGameItemMenu",    "Coords": [0, 32, 320, 240]},

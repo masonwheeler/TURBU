@@ -1,7 +1,6 @@
 namespace timing
 
 import System
-import System.Linq.Enumerable
 import Pythia.Runtime
 
 class TRpgTimestamp(TObject):

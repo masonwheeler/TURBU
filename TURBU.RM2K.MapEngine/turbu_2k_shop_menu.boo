@@ -18,7 +18,6 @@ import turbu.Heroes
 import TURBU.RM2K.MapEngine
 import turbu.RM2K.environment
 import SDL2.SDL2_GPU
-import System.Threading
 import turbu.script.engine
 
 class TShopModeBox(TGameMenuBox):

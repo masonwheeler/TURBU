@@ -25,8 +25,8 @@ partial class MainForm:
 	
 	private def BtnProcessClick(sender as object, e as System.EventArgs):
 		unless string.IsNullOrEmpty(txtRMProject.Text):
-			converter = RMProjectConverterForm()
-			converter.Convert(Path.GetDirectoryName(txtRMProject.Text), txtTurbuProject.Text)
+			using converter = RMProjectConverterForm():
+				converter.Convert(Path.GetDirectoryName(txtRMProject.Text), txtTurbuProject.Text)
 	
 [STAThread]
 public def Main(argv as (string)) as void:

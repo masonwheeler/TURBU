@@ -226,7 +226,6 @@ class TCustomGameItemMenu(TCustomScrollBox):
 		GFontEngine.DrawTextRightAligned(target, FInventory[id].Quantity.ToString(), x + 136, y, color)
 
 	protected override def DoSetup(value as int):
-		i as int
 		super.DoSetup(value)
 		FParsedText.Clear()
 		if assigned(FInventory):

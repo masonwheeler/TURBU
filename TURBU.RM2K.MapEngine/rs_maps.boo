@@ -15,7 +15,6 @@ import TURBU.RM2K
 import turbu.animations
 import turbu.maps
 import turbu.pathing
-import timing
 import SG.defs
 import Boo.Adt
 import Pythia.Runtime

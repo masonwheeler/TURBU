@@ -2,7 +2,6 @@ namespace TURBU.RM2K.RPGScript
 
 import System.Threading.Tasks
 import turbu.defs
-import turbu.script.engine
 import TURBU.RM2K
 import turbu.monsters
 import turbu.battles
@@ -90,6 +89,22 @@ internal class T2kMonster(turbu.Heroes.TRpgBattleCharacter, turbu.RM2K.animation
 
 	def Flee(force as bool, ignoreIfSurrounded as bool):
 		raise "Not implemented yet"
+
+	def Position(sign as int) as TSgPoint:
+		raise "Not implemented yet"
+
+	def Flash(r as int, g as int, b as int, power as int, time as int):
+		raise "Not implemented yet"
+
+	public override def Retarget() as turbu.Heroes.TRpgBattleCharacter:
+		raise "Not implemented yet"
+
+	protected override def SetHP(value as int):
+		raise "Not implemented yet"
+
+	protected override def SetMP(value as int):
+		raise "Not implemented yet"
+
 
 static class BattleState:
 	def TurnsMatch(multiple as int, offset as int) as bool:
