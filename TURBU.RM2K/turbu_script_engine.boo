@@ -5,7 +5,6 @@ import System.Collections.Generic
 import System.Linq.Enumerable
 import System.Threading
 import System.Threading.Tasks
-import Boo.Adt
 import Boo.Lang.Useful.Attributes
 import Pythia.Runtime
 import timing
@@ -13,12 +12,9 @@ import TURBU.MapInterface
 import TURBU.MapObjects
 import turbu.containers
 import TURBU.Meta
-//import SDL2.SDL
 
 [Singleton]
 class TScriptEngine(TObject):
-
-//	private FCompiler as TrsCompiler
 
 	private FCurrentProgram as Boo.Lang.Compiler.CompilerContext
 
@@ -31,8 +27,6 @@ class TScriptEngine(TObject):
 	private _waiting = List[of KeyValuePair[of Func of bool, TaskCompletionSource of bool]]()
 
 	private _altWaiting = List[of KeyValuePair[of Func of bool, TaskCompletionSource of bool]]()
-
-	private _cancelTokenSource = CancellationTokenSource()
 
 	[Property(OnEnterCutscene)]
 	private FEnterCutscene as Action
@@ -101,13 +95,13 @@ class TScriptEngine(TObject):
 		set: System.Runtime.Remoting.Messaging.CallContext.LogicalSetData('CurrentPage', value)
 
 	public CurrentObject as TRpgMapObject:
-		get: return CurrentPage.Parent
+		get: return CurrentPage?.Parent
 
 	[async]
 	public def KillAll(cleanup as Action) as Task:
-		self._cancelTokenSource.Cancel(true)
-		CancelWaiting()
-		_cancelTokenSource = CancellationTokenSource()
+		for pair in _waiting:
+			pair.Value.SetCanceled()
+		_waiting.Clear()
 		var done = false
 		repeat :
 			await Task.Delay(10)
@@ -121,7 +115,9 @@ class TScriptEngine(TObject):
 		FRenderUnpause()
 		FEnterCutscene() if block
 		try:
-			await(Task.Delay(Math.Max(time, TRpgTimestamp.FrameLength), _cancelTokenSource.Token))
+			time = Math.Max(time, TRpgTimestamp.FrameLength)
+			var ts = TRpgTimestamp(time)
+			waitFor {ts.TimeRemaining == 0}
 		ensure:
 			FLeaveCutscene() if block
 
@@ -136,7 +132,7 @@ class TScriptEngine(TObject):
 
 	private _ticking as bool //teleporting can cause reentrancy here
 	
-	internal def Tick():
+	internal def Tick(killSet as HashSet[of TRpgMapObject]):
 		return if _ticking
 		
 		assert _altWaiting.Count == 0
@@ -144,6 +140,11 @@ class TScriptEngine(TObject):
 		var temp = _waiting
 		_waiting = _altWaiting
 		_altWaiting = temp
+		if killSet.Count > 0:
+			for pair in _altWaiting.ToArray():
+				if killSet.Contains(pair.Value.Task.AsyncState cast TRpgMapObject):
+					pair.Value.SetCanceled()
+					_altWaiting.Remove(pair)
 		for pair in _altWaiting:
 			try:
 				if pair.Key():
@@ -154,10 +155,6 @@ class TScriptEngine(TObject):
 		_altWaiting.Clear()
 		_ticking = false
 
-	private def CancelWaiting():
-		for pair in _waiting:
-			pair.Value.SetCanceled()
-		_waiting.Clear()
 
 class TMapObjectManager(TObject):
 
@@ -169,6 +166,8 @@ class TMapObjectManager(TObject):
 	private FScriptEngine as TScriptEngine
 
 	private FPlaylist = List[of TRpgEventPage]()
+
+	private FKillSet = HashSet[of TRpgMapObject]()
 
 	[Property(OnUpdate)]
 	private FOnUpdate as Action
@@ -193,19 +192,22 @@ class TMapObjectManager(TObject):
 
 	public def Tick():
 		FPlaylist.Clear()
+		FKillSet.Clear()
 		for obj in FMapObjects:
-			unless obj.Locked or obj.Playing:
+			unless obj.Locked:
 				obj.UpdateCurrentPage()
 				if assigned(obj.CurrentPage) and (obj.CurrentPage.HasScript) \
 						and (obj.CurrentPage.Trigger in (TStartCondition.Automatic, TStartCondition.Parallel)):
 					FPlaylist.Add(obj.CurrentPage)
+				if obj.Playing and obj.Updated:
+					FKillSet.Add(obj)
 		for gPage in FGlobalScripts:
 			gObj = gPage.Parent
 			if (not (gObj.Locked or gObj.Playing)) and gPage.Valid:
 				FPlaylist.Add(gPage)
 		if assigned(FOnUpdate):
 			FOnUpdate()
-		FScriptEngine.Tick()
+		FScriptEngine.Tick(FKillSet)
 		unless FScriptEngine.Teleporting:
 			for page in FPlaylist:
 				RunPageScript(page)
@@ -214,7 +216,7 @@ class TMapObjectManager(TObject):
 	public def RunPageScript(page as TRpgEventPage) as Task:
 		return if page.Parent.Playing
 		page.Parent.Playing = true
-		FScriptEngine.RunPageScript(page)
+		await FScriptEngine.RunPageScript(page)
 
 static class GScriptEngine:
 	public value as TScriptEngine

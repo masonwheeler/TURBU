@@ -5,7 +5,7 @@ macro waitFor(cond as Expression):
 	var cc = CompilerContext.Current
 	var tcsName = ReferenceExpression(cc.GetUniqueName('tcs'))
 	return [|
-		var $tcsName = System.Threading.Tasks.TaskCompletionSource[of bool]()
+		var $tcsName = System.Threading.Tasks.TaskCompletionSource[of bool](GScriptEngine.value.CurrentObject)
 		await GScriptEngine.value.WaitTask($tcsName, $cond)
 	|]
 
