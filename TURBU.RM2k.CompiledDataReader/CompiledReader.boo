@@ -78,12 +78,16 @@ private class TDllValueReader[of T(IRpgObject)](IDataTypeReader[of T]):
 			_cache.Add(index, result)
 			return result
 	
+	private _keyList as List of int
+	
 	private def Keys() as int*:
-		using dict = _reader.GetEnumerator():
-			var result = List[of int]()
-			while dict.MoveNext():
-				result.Add(int.Parse(dict.Key.ToString()))
-			return result
+		if _keyList is null:
+			using dict = _reader.GetEnumerator():
+				var result = List[of int]()
+				while dict.MoveNext():
+					result.Add(int.Parse(dict.Key.ToString()))
+				_keyList = result
+		return _keyList
 	
 	def GetAll() as T*:
 		lock _cache:
