@@ -633,7 +633,8 @@ class TMapSprite(TObject):
 
 	public InFront as TSgPoint:
 		get:
-			caseOf FFacing:
+			var direction = (FMoveDir if self.DirLocked else FFacing)
+			caseOf direction:
 				case TDirections.Up: result = sgPoint(FLocation.x, FLocation.y - 1)
 				case TDirections.Right: result = sgPoint(FLocation.x + 1, FLocation.y)
 				case TDirections.Down: result = sgPoint(FLocation.x, FLocation.y + 1)
