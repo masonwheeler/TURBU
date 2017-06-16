@@ -97,6 +97,10 @@ class TScriptEngine(TObject):
 	public CurrentObject as TRpgMapObject:
 		get: return CurrentPage?.Parent
 
+	public IsTeleportScript as bool:
+		get: return System.Runtime.Remoting.Messaging.CallContext.LogicalGetData('IsTeleportScript') cast bool
+		set: System.Runtime.Remoting.Messaging.CallContext.LogicalSetData('IsTeleportScript', value)
+
 	[async]
 	public def KillAll(cleanup as Action) as Task:
 		for pair in _waiting:
@@ -175,9 +179,12 @@ class TMapObjectManager(TObject):
 	[Property(InCutscene)]
 	private FInCutscene as bool
 
-	public def constructor():
+	private _doneTeleportScript as Action
+
+	public def constructor([Required] onTeleportDone as Action):
 		FScriptEngine = TScriptEngine.Instance
 		GMapObjectManager.value = self
+		_doneTeleportScript = onTeleportDone
 
 	public def LoadGlobalScripts(list as TRpgObjectList[of TRpgMapObject]):
 		assert FGlobalScripts.Count == 0
@@ -216,7 +223,10 @@ class TMapObjectManager(TObject):
 	public def RunPageScript(page as TRpgEventPage) as Task:
 		return if page.Parent.Playing
 		page.Parent.Playing = true
+		FScriptEngine.IsTeleportScript = false
 		await FScriptEngine.RunPageScript(page)
+		if FScriptEngine.IsTeleportScript:
+			self._doneTeleportScript()
 
 static class GScriptEngine:
 	public value as TScriptEngine

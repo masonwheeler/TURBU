@@ -1,6 +1,7 @@
 namespace TURBU.RM2K.MapEngine
 
 import System
+import System.Collections.Generic
 import System.IO
 import System.Threading
 import System.Threading.Tasks
@@ -79,6 +80,8 @@ class T2kMapEngine(TMapEngine):
 	private FRenderPause as TRpgTimestamp
 
 	private FRenderPauseLock as object
+
+	private FHeldMaps = Dictionary[of int, TRpgMap]()
 
 	private def UpdatePartySprite(value as TCharSprite):
 		if assigned(value):
@@ -206,7 +209,8 @@ class T2kMapEngine(TMapEngine):
 		GEnvironment.value.ClearEvents()
 		var map = data as TMapMetadata
 		raise ERpgPlugin('Incompatible metadata object.') unless assigned(map)
-		FWaitingMap = dmDatabase.value.LoadMap(data)
+		unless FHeldMaps.TryGetValue(data.ID, FWaitingMap):
+			FWaitingMap = dmDatabase.value.LoadMap(data)
 		FScrollPosition = map.ScrollPosition
 
 	protected def InitializeParty():
@@ -451,7 +455,7 @@ class T2kMapEngine(TMapEngine):
 				GDatabase.value = FDatabase
 				unless assigned(FDatabase):
 					raise ERpgPlugin('Incompatible project database')
-				FObjectManager = TMapObjectManager()
+				FObjectManager = TMapObjectManager({self.ClearHeldMaps})
 				GScriptEngine.value.OnEnterCutscene = self.EnterCutscene
 				GScriptEngine.value.OnLeaveCutscene = self.LeaveCutscene
 				GScriptEngine.value.OnRenderUnpause = self.RenderUnpause
@@ -503,6 +507,11 @@ class T2kMapEngine(TMapEngine):
 		failure:
 			Cleanup()
 		return window
+
+	private def ClearHeldMaps():
+		for map in FHeldMaps.Values:
+			(map cast IDisposable).Dispose()
+		FHeldMaps.Clear()
 
 	public override def LoadMap(map as IMapMetadata):
 		FCurrentMap = null
@@ -558,6 +567,8 @@ class T2kMapEngine(TMapEngine):
 		assert newmap != FCurrentMap.MapID
 		currentMap as T2kSpriteEngine = FCurrentMap
 		FSwitchState = TSwitchState.Ready
+		self.FHeldMaps[currentMap.MapObj.ID] = currentMap.MapObj
+		currentMap.ReleaseMap()
 		FObjectManager.ScriptEngine.KillAll({ currentMap = null })
 		waitFor {FCurrentMap.Blank}
 		metadata as TMapMetadata

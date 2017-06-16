@@ -811,6 +811,9 @@ class T2kSpriteEngine(TSpriteEngine):
 	public def Wake():
 		FGameState = TGameState.Map
 
+	internal def ReleaseMap():
+		FMap = null
+
 	public Viewport as GPU_Rect:
 		get: return FViewport
 		set: SetViewport(value)
