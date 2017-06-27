@@ -1,35 +1,36 @@
 namespace turbu.RM2K.sprite.engine
 
-import commons
-import timing
-import dm.shaders
-import turbu.containers
-import turbu.maps
-import turbu.tilesets
-import TURBU.MapObjects
-import turbu.defs
-import sdl.sprite
-import sdl.canvas
-import SDL.ImageManager
-import SG.defs
-import turbu.constants
-import charset.data
-import Boo.Adt
-import Pythia.Runtime
 import System
 import System.Collections.Generic
-import tiles
-import turbu.RM2K.sprite.list
-import TURBU.RM2K.Menus
-import TURBU.MapEngine
-import turbu.RM2K.map.tiles
-import turbu.map.sprites
 import System.Math
-import turbu.RM2K.environment
+import System.Linq.Enumerable
+
+import Boo.Adt
+import charset.data
+import commons
+import dm.shaders
+import Pythia.Runtime
 import SDL2
 import SDL2.SDL2_GPU
-import System.Linq.Enumerable
+import sdl.canvas
+import SDL.ImageManager
+import sdl.sprite
+import SG.defs
+import tiles
+import timing
+import turbu.constants
+import turbu.containers
+import turbu.defs
+import TURBU.MapEngine
+import TURBU.MapObjects
+import turbu.maps
+import turbu.map.sprites
 import TURBU.Meta
+import turbu.RM2K.environment
+import turbu.RM2K.map.tiles
+import TURBU.RM2K.Menus
+import turbu.RM2K.sprite.list
+import turbu.tilesets
 
 let BASESPEED = 15.875
 let SHAKE_MAX = 23
@@ -624,12 +625,12 @@ class T2kSpriteEngine(TSpriteEngine):
 			case TGameState.Menu, TGameState.Battle, TGameState.Minigame, TGameState.Sleeping:
 				raise 'Unsupported game State'
 
-	public def CanExit(x as int, y as int, direction as TDirections, Character as TMapSprite) as bool:
+	public def CanExit(x as int, y as int, direction as TDirections, character as TMapSprite) as bool:
 		result = false
-		if Passable(sgPoint(x, y), direction, Character):
+		if Passable(sgPoint(x, y), direction, character):
 			if EdgeCheck(x, y, direction):
 				opposite as TDirections = opposite_facing(direction)
-				result = Passable(Character.InFront, opposite, Character)
+				result = Passable(character.InFront, opposite, character)
 		return result
 
 	public def SpritesAt(location as TSgPoint, exceptFor as TMapSprite) as TMapSprite*:
