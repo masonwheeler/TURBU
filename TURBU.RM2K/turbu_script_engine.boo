@@ -77,6 +77,7 @@ class TScriptEngine(TObject):
 		ensure:
 			FScripts.Remove(page)
 			page.Parent.Playing = false
+			page.Parent.Locked = true
 			page.Parent.ResumeFacing()
 			if page.Trigger != TStartCondition.Parallel:
 				self.OnLeaveCutscene()
@@ -201,12 +202,13 @@ class TMapObjectManager(TObject):
 		FPlaylist.Clear()
 		FKillSet.Clear()
 		for obj in FMapObjects:
-			unless obj.Locked:
+			var isParallel = (obj.Playing and obj.CurrentPage.Trigger == TStartCondition.Parallel)
+			if (not obj.Locked) and (isParallel or not obj.Playing):
 				obj.UpdateCurrentPage()
 				if assigned(obj.CurrentPage) and (obj.CurrentPage.HasScript) \
 						and (obj.CurrentPage.Trigger in (TStartCondition.Automatic, TStartCondition.Parallel)):
-					FPlaylist.Add(obj.CurrentPage)
-				if obj.Playing and obj.Updated:
+					FPlaylist.Add(obj.CurrentPage) unless (isParallel and not obj.UpdatedFromParallel)
+				if obj.Playing and obj.UpdatedFromParallel:
 					FKillSet.Add(obj)
 		for gPage in FGlobalScripts:
 			gObj = gPage.Parent

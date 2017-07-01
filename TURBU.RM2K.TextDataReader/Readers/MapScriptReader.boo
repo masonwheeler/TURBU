@@ -98,7 +98,7 @@ class ScriptProcessor(DepthFirstTransformer):
 
 	override def OnMethodInvocationExpression(node as MethodInvocationExpression):
 		var target = node.Target
-		if target.NodeType == NodeType.ReferenceExpression and target.ToString().ToLower() == 'await':
+		if target.NodeType == NodeType.ReferenceExpression and target.ToString() in ('await', 'Wait'):
 			_seenAwait = true
 		super.OnMethodInvocationExpression(node)
 	

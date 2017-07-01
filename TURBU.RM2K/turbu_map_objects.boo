@@ -342,6 +342,9 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 	[Getter(Updated)]
 	private FPageChanged as bool
 
+	[Getter(UpdatedFromParallel)]
+	private FPageChangedFromPP as bool
+
 	[Property(Locked)]
 	private FLocked as bool
 
@@ -403,6 +406,7 @@ class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 		else:
 			current = null
 		FPageChanged = FCurrentPage != current
+		FPageChangedFromPP = FPageChanged and FCurrentPage != null and FCurrentPage.Trigger == TStartCondition.Parallel
 		if FPageChanged and assigned(current):
 			current.DoOverrideSprite = false
 		FCurrentPage = current
