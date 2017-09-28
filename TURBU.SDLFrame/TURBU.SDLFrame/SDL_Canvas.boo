@@ -75,14 +75,14 @@ class TSdlRenderTarget(TSdlRenderSurface):
 
 class TSdlRenderTargets(List[of TSdlRenderTarget]):
 
-	public def RenderOn(index as int, Event as Action, Bkgrnd as uint, FillBk as bool, composite as bool) as bool:
+	public def RenderOn(index as int, Event as Action, bkgrnd as uint, fillBk as bool, composite as bool) as bool:
 		return false  unless (index >= 0) and (index < Count)
 		target as TSdlRenderTarget = self[index]
 		currentRenderTarget().Parent.PushRenderTarget()
 		try:
 			target.SetRenderer()
-			if FillBk:
-				var color = Bkgrnd cast TSgColor
+			if fillBk:
+				var color = TSgColor(bkgrnd)
 				color.Rgba[4] = (0 if composite else 255)
 				target.Parent.Clear(color, 0xFF)
 			Event() unless Event is null

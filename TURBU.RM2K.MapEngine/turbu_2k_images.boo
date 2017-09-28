@@ -117,7 +117,7 @@ class TRpgImageSprite(TSprite):
 		else:
 			shaders.UseShaderProgram(shaders.ShaderProgram('default', 'noAlpha'))
 		var currentColor = GPU_GetColor(self.Image.Surface)
-		GPU_SetRGBA(self.Image.Surface, self.Red, self.Green, self.Blue, FSaturation)
+		GPU_SetRGBA(self.Image.Surface, self.Red, self.Green, self.Blue, /*FSaturation*/ self.Alpha)
 		if Pinned:
 			cx = (FCenterX + Engine.WorldX) - FBaseWX
 			cy = (FCenterY + Engine.WorldY) - FBaseWY
@@ -216,10 +216,6 @@ class TRpgImageSprite(TSprite):
 
 	private new def Destroy():
 		FRpgImage.ClearSprite()
-		
-		//for some bizarre reason, this was failing to run automatically
-		//from the Disposable attribute
-		GC.SuppressFinalize(self)
 
 	public def ApplyImageColors(r as int, g as int, b as int, sat as int):
 		FColorTarget.R = Math.Min(r, 200)
@@ -313,8 +309,7 @@ class TRpgImage(TObject):
 		obj.CheckEmpty()
 
 	def Destroy():
-		runThreadsafe(true, { GEnvironment.value.RemoveImage(self) })
-		GC.SuppressFinalize(self)
+		GEnvironment.value.RemoveImage(self)
 
 	[NoImport]
 	public def Serialize(writer as JsonWriter):

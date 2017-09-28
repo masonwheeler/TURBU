@@ -123,17 +123,17 @@ def SetTransition(which as TTransitionTypes, newTransition as TTransitions):
 [async]
 def EraseScreen(whichTransition as TTransitions) as Task:
 	if whichTransition == TTransitions.Default:
-		turbu.RM2K.transitions.erase(LDefaultTransitions[TTransitionTypes.MapExit])
+		turbu.RM2K.transitions.Erase(LDefaultTransitions[TTransitionTypes.MapExit])
 	else:
-		turbu.RM2K.transitions.erase(whichTransition)
+		turbu.RM2K.transitions.Erase(whichTransition)
 	waitFor WaitForBlank
 
 [async]
 def ShowScreen(whichTransition as TTransitions) as Task:
 	if whichTransition == TTransitions.Default:
-		turbu.RM2K.transitions.show(LDefaultTransitions[TTransitionTypes.MapEnter])
+		turbu.RM2K.transitions.Show(LDefaultTransitions[TTransitionTypes.MapEnter])
 	else:
-		turbu.RM2K.transitions.show(whichTransition)
+		turbu.RM2K.transitions.Show(whichTransition)
 	waitFor WaitForFadeEnd
 
 [async]
@@ -241,15 +241,15 @@ def DecreaseWeather():
 	if GGameEngine.value.WeatherEngine.Intensity > 0:
 		SetWeather(GGameEngine.value.WeatherEngine.WeatherType, (GGameEngine.value.WeatherEngine.Intensity - 1))
 
-def NewImage(Name as string, x as int, y as int, zoom as int, transparency as int, pinned as bool, mask as bool) as TRpgImage:
+def NewImage(name as string, x as int, y as int, zoom as int, transparency as int, pinned as bool, mask as bool) as TRpgImage:
 	image as TRpgImage
-	runThreadsafe(true) def():
-		try:
-			GGameEngine.value.LoadRpgImage(Name, mask)
-			image = TRpgImage(GGameEngine.value.ImageEngine, Name, x, y, GSpriteEngine.value.WorldX, GSpriteEngine.value.WorldY, zoom, pinned, mask)
-			image.Opacity = (100 - Math.Min(transparency, 100))
-		except:
-			image = TRpgImage(GSpriteEngine.value, '', 0, 0, 0, 0, 0, false, false)
+	try:
+		GGameEngine.value.LoadRpgImage(name, mask)
+		var se = GSpriteEngine.value
+		image = TRpgImage(GGameEngine.value.ImageEngine, name, x, y, se.WorldX, se.WorldY, zoom, pinned, mask)
+		image.Opacity = 100 - Math.Min(transparency, 100)
+	except:
+		image = TRpgImage(GSpriteEngine.value, '', 0, 0, 0, 0, 0, false, false)
 	return image
 
 def SetBGImage(Name as string, scrollX as int, scrollY as int, autoX as TMapScrollType, autoY as TMapScrollType):
@@ -302,6 +302,10 @@ def ChangeTileset(which as int):
 	runThreadsafe(true) def ():
 		if GGameEngine.value.EnsureTileset(which):
 			GSpriteEngine.value.ChangeTileset(GDatabase.value.Tileset[which])
+
+macro RenderPause(body as Boo.Lang.Compiler.Ast.Statement*):
+	yield [|TURBU.RM2K.RPGScript.RenderPause()|]
+	yieldAll body
 
 def RenderPause():
 	GGameEngine.value.RenderPause()

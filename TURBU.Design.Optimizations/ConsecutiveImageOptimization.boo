@@ -7,6 +7,14 @@ import Boo.Lang.PatternMatching
 
 class ConsecutiveImageOptimization(FastDepthFirstVisitor):
 	
+	private def IsFadeIn(node as Statement) as bool:
+		es = node as ExpressionStatement
+		return false if es is null
+		match es.Expression:
+			case [|await(ShowScreen($_))|]:
+				return true
+			otherwise: return false
+	
 	private def IsImage(node as Statement) as bool:
 		es = node as ExpressionStatement
 		return false if es is null
@@ -20,9 +28,10 @@ class ConsecutiveImageOptimization(FastDepthFirstVisitor):
 		repeat:
 			loop = false
 			for i as int, child as Statement in enumerate(node.Statements.ToArray()[:-1]):
-				if IsImage(child) and IsImage(node.Statements[i + 1]):
+				if IsImage(child) and IsImage(node.Statements[i + 1]) or IsFadeIn(node.Statements[i + 1]):
 					j = i + 2
 					++j while j < node.Statements.Count and IsImage(node.Statements[j])
+					++j if j < node.Statements.Count and IsFadeIn(node.Statements[j])
 					pause = MacroStatement('RenderPause')
 					for iter in range(i, j):
 						pause.Body.Add(node.Statements[i])
@@ -31,3 +40,8 @@ class ConsecutiveImageOptimization(FastDepthFirstVisitor):
 					loop = true
 					break
 			until loop == false
+		super.OnBlock(node)
+	
+	override def OnExpressionStatement(node as ExpressionStatement):
+		node.Expression.Accept(self) if node.Expression.NodeType == NodeType.BlockExpression
+		//otherwise, don't bother

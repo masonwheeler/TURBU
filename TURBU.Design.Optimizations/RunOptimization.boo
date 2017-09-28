@@ -9,6 +9,7 @@ public def RunOptimization(value as Node):
 	value.Accept(RemoveEmptyElseBlocks())
 	value.Accept(IfFalseFlipper())
 	value.Accept(NestedIfOptimization())
+	value.Accept(ConsecutiveImageOptimization())
 
 [Extension]
 def ToScriptString(value as Node):

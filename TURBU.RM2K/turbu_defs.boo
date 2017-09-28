@@ -79,7 +79,7 @@ enum TTransitionTypes:
 
 enum TTransitions:
 	Default
-	FadeOut
+	Fade
 	Blocks
 	BlockUp
 	BlockDn

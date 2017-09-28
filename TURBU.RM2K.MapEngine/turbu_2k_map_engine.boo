@@ -333,6 +333,9 @@ class T2kMapEngine(TMapEngine):
 		GPU_SetColor(target.Image, color)
 		GPU_DeactivateShaderProgram()
 
+	private def CopyMain():
+		DrawRenderTarget(GRenderTargets[RENDERER_MAIN], true)
+
 	private def RenderFrame():
 		GRenderTargets.RenderOn(RENDERER_MAP, StandardRender, 0, true, false)
 		DrawRenderTarget(GRenderTargets[RENDERER_MAP], true)
@@ -348,11 +351,10 @@ class T2kMapEngine(TMapEngine):
 		FWeatherEngine.Draw()
 
 	private def RenderGameOver():
-		imagename as string
 		image as TSdlImage
 		preserving FImages.SpriteClass:
 			FImages.SpriteClass = classOf(TSdlOpaqueImage)
-			imagename = "Special Images\\$(GDatabase.value.Layout.GameOverScreen).png"
+			var imagename = "Special Images\\$(GDatabase.value.Layout.GameOverScreen).png"
 			image = FImages.EnsureImage(imagename, '*GameOver', sgPoint(GDatabase.value.Layout.Width, GDatabase.value.Layout.Height))
 		GPU_SetBlending(image.Surface, 0)
 		image.Draw()
@@ -364,14 +366,17 @@ class T2kMapEngine(TMapEngine):
 			FRenderPause = null
 		if FRenderPause == null:
 			FCanvas.Clear()
+			var valid = true
 			if assigned(FTransition):
+				valid = false
 				unless FTransitionFirstFrameDrawn:
 					GRenderTargets.RenderOn(RENDERER_ALT, RenderFrame, 0, true, false)
 					FTransitionFirstFrameDrawn = true
 				unless FTransition.Draw():
 					FTransitionFirstFrameDrawn = false
 					FTransition = null
-			else:
+					valid = true
+			if valid:
 				if FCurrentMap.Blank:
 					GRenderTargets.RenderOn(RENDERER_MAIN, null, 0, true, false)
 				else: GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)

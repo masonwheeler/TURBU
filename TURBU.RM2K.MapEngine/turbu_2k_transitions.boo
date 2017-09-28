@@ -1,7 +1,6 @@
 namespace turbu.RM2K.transitions
 
 import turbu.defs
-import commons
 import Boo.Adt
 import turbu.RM2K.sprite.engine
 import turbu.RM2K.transitions.graphics
@@ -14,14 +13,14 @@ enum TBlockStyle:
 	FromTop
 	FromBottom
 
-def erase(which as TTransitions):
+def Erase(which as TTransitions):
 	tran as ITransition
 	if (GSpriteEngine.value.State == TGameState.Fading) or GSpriteEngine.value.Blank:
 		return
 	caseOf which:
 		case TTransitions.Default:
 			assert false
-		case TTransitions.FadeOut:
+		case TTransitions.Fade:
 			tran = turbu.RM2K.transitions.graphics.fadeOut()
 		case TTransitions.Blocks:
 			tran = turbu.RM2K.transitions.graphics.blocks(TDirectionWipe.Random)
@@ -64,17 +63,16 @@ def erase(which as TTransitions):
 			return
 		default :
 			assert false
-	runThreadsafe(true) def ():
-		tran.Setup(false, GSpriteEngine.value.EndErase)
-		GSpriteEngine.value.BeginTransition(true)
-		GGameEngine.value.Transition = tran
+	tran.Setup(false, GSpriteEngine.value.EndErase)
+	GSpriteEngine.value.BeginTransition(true)
+	GGameEngine.value.Transition = tran
 
-def show(which as TTransitions):
+def Show(which as TTransitions):
 	tran as ITransition
 	caseOf which:
 		case TTransitions.Default:
 			assert false
-		case TTransitions.FadeOut:
+		case TTransitions.Fade:
 			tran = turbu.RM2K.transitions.graphics.fadeIn()
 		case TTransitions.Blocks:
 			tran = turbu.RM2K.transitions.graphics.blocks(TDirectionWipe.Random)
@@ -117,10 +115,9 @@ def show(which as TTransitions):
 			return
 		default :
 			assert false
-	runThreadsafe(true) def ():
-		tran.Setup(true, GSpriteEngine.value.EndShow)
-		GSpriteEngine.value.BeginTransition(false)
-		GGameEngine.value.Transition = tran
+	tran.Setup(true, GSpriteEngine.value.EndShow)
+	GSpriteEngine.value.BeginTransition(false)
+	GGameEngine.value.Transition = tran
 
 let STRIPESIZE = 4
 let WAVESIZE = 100

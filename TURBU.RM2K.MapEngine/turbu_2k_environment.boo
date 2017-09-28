@@ -457,13 +457,12 @@ class T2kEnvironment(TObject):
 				FImages[i] = TRpgImage(GSpriteEngine.value, '', 0, 0, 0, 0, 0, false, false)
 			return FImages[i]
 		set:
-			commons.runThreadsafe(true) def ():
-				i = clamp(i, 0, 250)
-				if i >= FImages.Length:
-					Array.Resize[of TRpgImage](FImages, i + 1)
-				else:
-					FImages[i].Dispose() if assigned(FImages[i])
-				FImages[i] = value
+			i = clamp(i, 0, 250)
+			if i >= FImages.Length:
+				Array.Resize[of TRpgImage](FImages, i + 1)
+			else:
+				FImages[i].Dispose() if assigned(FImages[i])
+			FImages[i] = value
 
 	public ImageCount as int:
 		get: return FImages.Length - 1
