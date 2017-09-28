@@ -1,60 +1,32 @@
 namespace timing
 
 import System
-import Pythia.Runtime
+from System.Diagnostics import Stopwatch
 
-class TRpgTimestamp(TObject):
+class TRpgTimestamp:
 
-	private static FLastFrame as DateTime
+	private static _timer = Stopwatch()
 
-	private static FCounter as int
+	private static _lastFrame as long
 
-	private static FFrameLength = array(int, 10)
+	private static _counter as int
+
+	private static _frameLength = array(int, 10)
 
 	private static def constructor():
-		for i in range(FFrameLength.Length):
-			FFrameLength[i] = 16
+		for i in range(_frameLength.Length):
+			_frameLength[i] = 16
+		_timer.Start()
 
-	private FHour as ushort
+	private _goal as long
 
-	private FMin as ushort
+	private _pauseTime as int
 
-	private FSec as ushort
-
-	private FMsec as ushort
-
-	private FPauseTime as int
-
-	private FPaused as bool
+	private _paused as bool
 
 	private def Setup(length as int):
-		try:
-			n = DateTime.Now
-			FHour = n.Hour
-			FMin = n.Minute
-			FSec = n.Second
-			FMsec = n.Millisecond
-			FMsec += length % 1000
-			if FMsec >= 1000:
-				++FSec
-				FMsec -= 1000
-			length /= 1000
-			return if length == 0
-			FSec += length % 60
-			while FSec >= 60:
-				++FMin
-				FSec -= 60
-			length /= 60
-			return if length == 0
-			FMin += length % 60
-			while FMin >= 60:
-				++FHour
-				FMin -= 60
-			length /= 60
-			assert length == 0
-		ensure:
-			if FHour == 0:
-				FHour = 24
+		var n = _timer.ElapsedMilliseconds
+		_goal = n + length
 
 	public def constructor(length as int):
 		super()
@@ -62,63 +34,42 @@ class TRpgTimestamp(TObject):
 
 	public TimeRemaining as int:
 		get:
-			return FPauseTime if FPaused
-			n = DateTime.Now
-			theHour as int = n.Hour
-			min as int = n.Minute
-			sec as int = n.Second
-			msec as int = n.Millisecond
-			hour = (24 if theHour == 0 else theHour)
-			hour = FHour - hour
-			min = FMin - min
-			sec = FSec - sec
-			msec = FMsec - msec
-			while msec < 0:
-				--sec
-				msec += 1000
-			while sec < 0:
-				--min
-				sec += 60
-			while min < 0:
-				--hour
-				min += 60
-			return ((min * 60000) + (sec * 1000) + msec if hour == 0 else 0)
+			return Math.Max(_goal - _timer.ElapsedMilliseconds, 0)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	public def Pause():
-		if not FPaused:
-			FPauseTime = self.TimeRemaining
-			FPaused = true
+		if not _paused:
+			_pauseTime = self.TimeRemaining
+			_paused = true
 
 	public def Resume():
-		if FPaused:
-			self.Setup(FPauseTime)
-			FPaused = false
+		if _paused:
+			self.Setup(_pauseTime)
+			_paused = false
 
 	public static def NewFrame():
-		if FLastFrame == 0:
-			FLastFrame = DateTime.Now
+		if _lastFrame == 0:
+			_lastFrame = _timer.ElapsedMilliseconds
 		else:
 			unchecked:
-				delta as int = Math.Max(DateTime.Now.Subtract(FLastFrame).TotalMilliseconds, 0)
-			FLastFrame = DateTime.Now
+				delta as int = Math.Max(_timer.ElapsedMilliseconds - _lastFrame, 0)
+			_lastFrame = _timer.ElapsedMilliseconds
 			return if delta > 1000
-			if FCounter == 0:
+			if _counter == 0:
 				if delta > 0:
-					for i in range(FFrameLength.Length):
-						FFrameLength[i] = delta
-					++FCounter
+					for i in range(_frameLength.Length):
+						_frameLength[i] = delta
+					++_counter
 			else:
-				++FCounter
-				FCounter = 0 if FCounter >= FFrameLength.Length
-				FFrameLength[FCounter] = delta
+				++_counter
+				_counter = 0 if _counter >= _frameLength.Length
+				_frameLength[_counter] = delta
 
 	public static FrameLength as int:
 		get:
 			var total = 0
-			for value in FFrameLength:
+			for value in _frameLength:
 				total += value
-			return total / FFrameLength.Length
+			return total / _frameLength.Length
 
 	public override def ToString():
 		return TimeRemaining.ToString() + 'ms'
