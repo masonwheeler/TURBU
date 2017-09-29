@@ -575,30 +575,25 @@ class T2kMapEngine(TMapEngine):
 		self.FHeldMaps[currentMap.MapObj.ID] = currentMap.MapObj
 		currentMap.ReleaseMap()
 		FObjectManager.ScriptEngine.KillAll({ currentMap = null })
-		waitFor {FCurrentMap.Blank}
+		assert FCurrentMap.Blank
 		metadata as TMapMetadata
-		try:
-			runThreadsafe(true) def ():
-				oldEngine as T2kSpriteEngine = FCurrentMap
-				hero as TCharSprite = FCurrentMap.CurrentParty
-				if assigned(hero):
-					(hero cast THeroSprite).PackUp()
-				metadata = FDatabase.MapTree[newmap]
-				GScriptEngine.value.Teleporting = true
-				GC.Collect()
-				self.LoadMap(metadata)
-				unless GEnvironment.value.PreserveSpriteOnTeleport:
-					GEnvironment.value.Party.ResetSprite()
-				FCurrentMap.CurrentParty = hero
-				FCurrentMap.CopyState(oldEngine)
-				if assigned(hero):
-					hero.Location = newLocation
-					(hero cast THeroSprite).settleDown(FCurrentMap)
-				FImageEngine.ParentEngine = FCurrentMap
-				oldEngine.Dispose()
-				FCurrentMap.CenterOn(newLocation.x, newLocation.y)
-		ensure:
-			GScriptEngine.value.Teleporting = false
+		oldEngine as T2kSpriteEngine = FCurrentMap
+		hero as TCharSprite = FCurrentMap.CurrentParty
+		if assigned(hero):
+			(hero cast THeroSprite).PackUp()
+		metadata = FDatabase.MapTree[newmap]
+		GC.Collect()
+		self.LoadMap(metadata)
+		unless GEnvironment.value.PreserveSpriteOnTeleport:
+			GEnvironment.value.Party.ResetSprite()
+		FCurrentMap.CurrentParty = hero
+		FCurrentMap.CopyState(oldEngine)
+		if assigned(hero):
+			hero.Location = newLocation
+			(hero cast THeroSprite).settleDown(FCurrentMap)
+		FImageEngine.ParentEngine = FCurrentMap
+		oldEngine.Dispose()
+		FCurrentMap.CenterOn(newLocation.x, newLocation.y)
 		PlayMapMusic(metadata, false)
 		FSwitchState = TSwitchState.NoSwitch
 		FTimer.Enabled = true

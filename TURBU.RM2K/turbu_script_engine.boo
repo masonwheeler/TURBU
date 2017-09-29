@@ -34,8 +34,15 @@ class TScriptEngine(TObject):
 	[Property(OnLeaveCutscene)]
 	private FLeaveCutscene as Action
 
-	[Property(Teleporting)]
-	private FTeleporting as bool
+	[Getter(Teleporting)]
+	private _teleporting as bool
+
+	// This is important, a way to give teleport scripts that continue after the teleport command
+	// a chance to proceed, and potentially alter game state, before the new map's events fire based
+	// on that game state.  Necessary for RM2K compatibility.  See Love and War, Legislature Cutscene
+	// (map 83) for an example
+	[Getter(Teleported)]
+	private _teleported as bool
 
 	[Property(OnRenderUnpause)]
 	private FRenderUnpause as Action
@@ -45,6 +52,16 @@ class TScriptEngine(TObject):
 	public def constructor():
 		GScriptEngine.value = self
 		FThreadLock = object()
+
+	public def BeginTeleport():
+		_teleporting = true
+
+	public def EndTeleport():
+		_teleporting = false
+		_teleported = true
+
+	internal def ResetTeleport():
+		_teleported = false
 
 	[async]
 	public def RunScript(script as Func of Task) as Task:
@@ -217,9 +234,12 @@ class TMapObjectManager(TObject):
 		if assigned(FOnUpdate):
 			FOnUpdate()
 		FScriptEngine.Tick(FKillSet)
-		unless FScriptEngine.Teleporting:
-			for page in FPlaylist:
-				RunPageScript(page)
+		if FScriptEngine.Teleported:
+			FScriptEngine.ResetTeleport()
+		else:
+			unless FScriptEngine.Teleporting:
+				for page in FPlaylist:
+					RunPageScript(page)
 
 	[async]
 	public def RunPageScript(page as TRpgEventPage) as Task:

@@ -39,22 +39,24 @@ def Teleport(mapID as int, x as int, y as int, facing as int) as Task:
 	unless Monitor.TryEnter(LTeleportLock):
 		Abort
 	try:
+		GScriptEngine.value.BeginTeleport()
 		await EraseScreen(TTransitions.Default)
 		while GSpriteEngine.value.State == TGameState.Fading:
 			await GScriptEngine.value.FramePause()
 		if mapID == GSpriteEngine.value.MapID:
 			var newpoint = sgPoint(x, y)
 			if GSpriteEngine.value.OnMap(newpoint):
-				runThreadsafe(true) def ():
-					unless GEnvironment.value.PreserveSpriteOnTeleport:
-						GEnvironment.value.Party.ResetSprite()
-					GEnvironment.value.Party.Sprite.LeaveTile()
-					GEnvironment.value.Party.Sprite.Location = newpoint
-					GSpriteEngine.value.CenterOn(x, y)
-		else: GGameEngine.value.ChangeMaps(mapID, sgPoint(x, y))
+				unless GEnvironment.value.PreserveSpriteOnTeleport:
+					GEnvironment.value.Party.ResetSprite()
+				GEnvironment.value.Party.Sprite.LeaveTile()
+				GEnvironment.value.Party.Sprite.Location = newpoint
+				GSpriteEngine.value.CenterOn(x, y)
+		else:
+			GGameEngine.value.ChangeMaps(mapID, sgPoint(x, y))
 		await ShowScreen(TTransitions.Default)
 	ensure:
 		System.Threading.Monitor.Exit(LTeleportLock)
+		GScriptEngine.value.EndTeleport()
 
 def TeleportVehicle(which as TRpgVehicle, map as int, x as int, y as int):
 	newpoint as Point
