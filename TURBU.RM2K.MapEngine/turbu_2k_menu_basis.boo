@@ -26,6 +26,8 @@ enum TMenuShowState:
 
 abstract class TGameMenuBox(TCustomMessageBox):
 
+	let BORDER_SIZE = sgPoint(8, 8)
+
 	[Property(OnButton)]
 	private FOnButton as Action[of TButtonCode, TGameMenuBox, TMenuPage]
 

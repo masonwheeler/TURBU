@@ -35,7 +35,7 @@ class TShopModeBox(TGameMenuBox):
 		Array.Resize[of bool](FOptionEnabled, 4)
 		for i in range(4):
 			FOptionEnabled[i] = true
-		FColumns = 2
+		self.Columns = 2
 		FPromptLines = 1
 
 	public override def DoSetup(value as int):
@@ -60,6 +60,7 @@ class TShopModeBox(TGameMenuBox):
 				FOptionEnabled[0] = false
 			default :
 				raise Exception('Bad shop style!')
+		InvalidateText()
 
 	public override def DrawText():
 		let lOrigin = sgPoint(4, 2)
@@ -70,7 +71,7 @@ class TShopModeBox(TGameMenuBox):
 			GFontEngine.DrawText(
 				FTextTarget.RenderTarget,
 				FParsedText[i],
-				lOrigin.x + ((j % FColumns) * (ColumnWidth + SEPARATOR)),
+				lOrigin.x + ((j % self.Columns) * (ColumnWidth + SEPARATOR)),
 				((j / 2) * 15) + lOrigin.y,
 				color)
 
@@ -112,8 +113,7 @@ class TStockMenu(TCustomScrollBox):
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
-		FColumns = 1
-		FDisplayCapacity = (coords.h / 16) - 1
+		self.Columns = 1
 
 	public override def DoSetup(value as int):
 		super.DoSetup(value)

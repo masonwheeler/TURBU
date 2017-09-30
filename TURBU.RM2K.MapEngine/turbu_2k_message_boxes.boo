@@ -335,7 +335,7 @@ class TValueInputBox(TInputBox):
 		coords.h += coords.y
 		coords.w += coords.x
 		if FCursorPosition > max:
-			coords.y += (FCursorPosition / FColumns) * 15
+			coords.y += (FCursorPosition / self.Columns) * 15
 		FCursorPosition = position
 		cursor as TMenuCursor = (FEngine cast TMenuSpriteEngine).Cursor
 		cursor.Visible = true

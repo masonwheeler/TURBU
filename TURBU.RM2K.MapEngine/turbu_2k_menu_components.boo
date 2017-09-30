@@ -1,16 +1,18 @@
 namespace TURBU.RM2K.Menus
 
-import sdl.sprite
-import TURBU.TextUtils
-import TURBU.RM2K
-import turbu.constants
-import turbu.characters
-import SG.defs
-import Pythia.Runtime
 import System
-import turbu.RM2K.items
-import turbu.RM2K.environment
+import Boo.Adt
+
+import Pythia.Runtime
+import sdl.sprite
 import SDL2.SDL2_GPU
+import SG.defs
+import turbu.characters
+import turbu.constants
+import TURBU.RM2K
+import turbu.RM2K.environment
+import turbu.RM2K.items
+import TURBU.TextUtils
 
 class TGameCashMenu(TGameMenuBox):
 
@@ -26,6 +28,8 @@ class TGameCashMenu(TGameMenuBox):
 
 [Disposable]
 abstract class TCustomScrollBox(TGameMenuBox):
+
+	let ROW_HEIGHT = 15
 
 	private FNextArrow as TSystemTile
 
@@ -46,9 +50,11 @@ abstract class TCustomScrollBox(TGameMenuBox):
 		elif position >= FParsedText.Count:
 			position = FParsedText.Count - 1
 		if position < FTopPosition:
-			FTopPosition = position - (position % FColumns)
+			FTopPosition = position - (position % self.Columns)
+			InvalidateText()
 		elif position >= FTopPosition + FDisplayCapacity:
-			FTopPosition = ((position - (position % FColumns)) + FColumns) - FDisplayCapacity
+			FTopPosition = ((position - (position % self.Columns)) + self.Columns) - FDisplayCapacity
+			InvalidateText()
 		super.DoCursor(position - FTopPosition)
 		FCursorPosition = position
 		FPrevArrow.Visible = FTopPosition > 0
@@ -70,7 +76,7 @@ abstract class TCustomScrollBox(TGameMenuBox):
 		for i in range(FTopPosition, Math.Min(max, (FTopPosition + FDisplayCapacity) - 1) + 1):
 			j = i - FTopPosition
 			color = (0 if FOptionEnabled[i] else 3)
-			DrawItem(i, 5 + ((j % FColumns) * (ColumnWidth + SEPARATOR)), ((j / FColumns) * 15) + 4, color)
+			DrawItem(i, 5 + ((j % self.Columns) * (ColumnWidth + SEPARATOR)), ((j / self.Columns) * ROW_HEIGHT) + 4, color)
 		if FLastLineColumns > 0:
 			for i in range(max + 1, FParsedText.Count):
 				j = i - (max + 1)
@@ -79,7 +85,7 @@ abstract class TCustomScrollBox(TGameMenuBox):
 					FTextTarget.RenderTarget,
 					FParsedText[i],
 					13 + ((j % FLastLineColumns) * (LastColumnWidth + SEPARATOR)),
-					(((j / FLastLineColumns) + (i / FColumns)) * 15) + 12,
+					(((j / FLastLineColumns) + (i / self.Columns)) * 15) + 12,
 					color,
 					LastColumnWidth)
 		++FTimer
@@ -94,6 +100,9 @@ abstract class TCustomScrollBox(TGameMenuBox):
 		FPrevArrow.X = (FBounds.x + Math.Truncate(FBounds.w / 2.0)) - Math.Truncate(FPrevArrow.PatternWidth / 2.0)
 		FNextArrow.Y = (FBounds.x + FBounds.h) - 8
 		FNextArrow.X = FPrevArrow.X
+
+	public override def Reflow():
+		FDisplayCapacity = (((FCoords.h - BORDER_SIZE.y) / ROW_HEIGHT) - 1) * self.Columns
 
 abstract class TCustomOnelineBox(TGameMenuBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
@@ -247,8 +256,7 @@ class TCustomGameItemMenu(TCustomScrollBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		assert coords.h % 16 == 0
 		super(parent, coords, main, owner)
-		FDisplayCapacity = Math.Truncate((coords.h - 16) / 8.0)
-		FColumns = 2
+		self.Columns = 2
 
 	public Inventory as TRpgInventory:
 		get: return FInventory

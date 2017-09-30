@@ -584,6 +584,10 @@ class TSysFrame(TSystemTile):
 		self.Width = coords.w cast int
 		self.Height = coords.h cast int
 		FBounds = coords
+		Reflow()
+
+	protected virtual def Reflow():
+		pass
 
 class TMenuCursor(TSysFrame):
 	public def constructor(parent as TMenuSpriteEngine, displacement as TSgPoint, length as int, coords as GPU_Rect):
@@ -634,7 +638,7 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	protected FOptionEnabled = array(bool, 5)
 
-	protected FColumns as byte
+	private FColumns as byte
 
 	protected FDontChangeCursor as bool
 
@@ -679,6 +683,12 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	protected LastColumnWidth as ushort:
 		get: return ((self.FBounds.w - 8) / FLastLineColumns) - SEPARATOR
+
+	protected Columns as byte:
+		get: return FColumns
+		set:
+			FColumns = value
+			Reflow()
 
 	protected def PlaySound(which as TSfxTypes):
 		if assigned(FPlaySound):

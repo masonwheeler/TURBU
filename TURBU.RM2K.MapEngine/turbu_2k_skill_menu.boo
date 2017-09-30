@@ -26,7 +26,7 @@ class TGameSkillMenu(TCustomScrollBox):
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
-		FColumns = 2
+		self.Columns = 2
 		FDisplayCapacity = 20
 
 	public override def DoSetup(value as int):

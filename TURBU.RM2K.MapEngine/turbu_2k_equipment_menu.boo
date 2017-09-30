@@ -98,7 +98,7 @@ class TEqInventoryMenu(TCustomScrollBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
 		FOwner = owner
-		FColumns = 2
+		self.Columns = 2
 		FDisplayCapacity = 12
 
 	public def Show(slot as TSlot):
@@ -121,9 +121,9 @@ class TEqInventoryMenu(TCustomScrollBox):
 		if (position cast ushort) >= FParsedText.Count:
 			position = FParsedText.Count - 1
 		if position < FTopPosition:
-			FTopPosition = position - (position % FColumns)
+			FTopPosition = position - (position % self.Columns)
 		elif position > FTopPosition + FDisplayCapacity:
-			FTopPosition = ((position - (position % FColumns)) + FColumns) - FDisplayCapacity
+			FTopPosition = ((position - (position % self.Columns)) + self.Columns) - FDisplayCapacity
 		coords = GPU_MakeRect(6 + ((position % 2) * 156), (((position / 2) * 15) + FOrigin.y) + 8, 150, 18)
 		FMenuEngine.Cursor.Layout(coords)
 		FCursorPosition = position
