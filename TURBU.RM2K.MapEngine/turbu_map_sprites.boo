@@ -703,6 +703,8 @@ class TMapSprite(TObject):
 		if assigned(base.FMoveAssignment):
 			FMoveAssignment = base.FMoveAssignment.Clone()
 			FMoveFreq = base.FMoveFreq
+		if assigned(base.FMoveChange):
+			FMoveChange = base.FMoveChange
 		FMoveReversed = base.FMoveReversed
 		FMoveOpen = base.FMoveOpen
 		FMoveDir = base.FMoveDir
