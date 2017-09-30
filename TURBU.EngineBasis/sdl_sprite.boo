@@ -55,7 +55,7 @@ class TFastSpriteList(List[of TSprite]):
 		assert assigned(FSprites[ASprite.Z])
 		FSprites[ASprite.Z].Remove(ASprite)
 		result = super.IndexOf(ASprite)
-		super.Remove(ASprite)
+		super.RemoveAt(result) if result >= 0
 		return result
 
 	public new def IndexOf(value as TSprite) as int:
