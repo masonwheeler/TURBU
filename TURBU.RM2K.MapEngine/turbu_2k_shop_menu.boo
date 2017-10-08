@@ -296,7 +296,7 @@ class TCompatSprite(TSprite):
 		super(AParent)
 		FTemplate = template
 		var spriteName = template.Template.MapSprite
-		commons.runThreadsafe(true, {FEngine.Images.EnsureImage("Sprites\\$spriteName.png", spriteName, GDatabase.value.Layout.SpriteSize)})
+		FEngine.Images.EnsureImage("Sprites\\$spriteName.png", spriteName, GDatabase.value.Layout.SpriteSize)
 		self.ImageName = spriteName
 		self.SetSpecialRender()
 

@@ -850,7 +850,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 
 	public def ResetSprite():
 		h1 as TRpgHero = self.First()
-		commons.runThreadsafe(true, { self.ChangeSprite(h1.Sprite, h1.Transparent, h1.SpriteIndex) })
+		self.ChangeSprite(h1.Sprite, h1.Transparent, h1.SpriteIndex)
 
 	public def TakeDamage(power as int, pDefense as int, mDefense as int, Variance as int) as int:
 		result = 0

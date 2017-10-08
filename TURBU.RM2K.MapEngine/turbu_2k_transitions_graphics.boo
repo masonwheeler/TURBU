@@ -43,6 +43,11 @@ class TTransition(TObject, ITransition):
 
 	protected FProgress as int
 
+	protected static def swap(ref x as int, ref y as int):
+		dummy as int = x
+		x = y
+		y = dummy
+
 	virtual def Setup(showing as bool, OnFinished as Action):
 		FShowing = showing
 		FOnFinished = OnFinished
@@ -53,7 +58,7 @@ class TTransition(TObject, ITransition):
 	def Draw() as bool:
 		result = InternalDraw()
 		if not result:
-			FOnFinished
+			FOnFinished()
 		return result
 
 class TMaskTransition(TTransition):
@@ -85,12 +90,11 @@ class TMaskTransition(TTransition):
 
 	public override def Setup(showing as bool, OnFinished as Action):
 		super.Setup(showing, OnFinished)
-		runThreadsafe(true) def ():
-			GSpriteEngine.value.Canvas.PushRenderTarget()
-			tranTarget as TSdlRenderTarget = GRenderTargets[RENDERER_TRAN]
-			tranTarget.SetRenderer()
-			tranTarget.Parent.Clear(SDL_BLACK)
-			tranTarget.Parent.PopRenderTarget()
+		GSpriteEngine.value.Canvas.PushRenderTarget()
+		tranTarget as TSdlRenderTarget = GRenderTargets[RENDERER_TRAN]
+		tranTarget.SetRenderer()
+		tranTarget.Parent.Clear(SDL_BLACK)
+		tranTarget.Parent.PopRenderTarget()
 
 class TFadeTransition(TMaskTransition):
 
@@ -218,10 +222,8 @@ class TStripeTransition(TMaskTransition):
 			until i >= FStripeArray.Length or j < 0
 
 	protected override def DoDraw() as bool:
-		i as int
-		workload as int
 		corner as TSgPoint
-		workload = (FStripeArray.Length - 1) / (FADETIME[1] / TRpgTimestamp.FrameLength)
+		var workload = (FStripeArray.Length - 1) / (FADETIME[1] / TRpgTimestamp.FrameLength)
 		for i in range(FProgress, Math.Min(FProgress + workload, FStripeArray.Length - 1) + 1):
 			if FVertical:
 				corner = sgPoint(FStripeArray[i] * STRIPESIZE, 0)
@@ -252,14 +254,11 @@ class TRectIrisTransition(TMaskTransition):
 	private FInOut as bool
 
 	protected override def DoDraw() as bool:
-		i as int
-		workload as int
-		ratio as single
 		mask as GPU_Rect
 		GSpriteEngine.value.Canvas.Clear(FEraseColor)
-		workload = (GSpriteEngine.value.Canvas.Height / 2) / Math.Max(FADETIME[0] / TRpgTimestamp.FrameLength, 1)
-		ratio = (GSpriteEngine.value.Canvas.Width cast double) / (GSpriteEngine.value.Canvas.Height cast double)
-		i = Math.Min(FProgress + workload, (GSpriteEngine.value.Canvas.Height / 2))
+		var workload = (GSpriteEngine.value.Canvas.Height / 2) / Math.Max(FADETIME[0] / TRpgTimestamp.FrameLength, 1)
+		var ratio = (GSpriteEngine.value.Canvas.Width cast double) / (GSpriteEngine.value.Canvas.Height cast double)
+		var i = Math.Min(FProgress + workload, (GSpriteEngine.value.Canvas.Height / 2))
 		
 		if FInOut:
 			mask.x = FCenter.x - round(i * ratio)
@@ -292,17 +291,12 @@ class TRectIrisTransition(TMaskTransition):
 class TBof2Transition(TMaskTransition):
 
 	protected override def DoDraw() as bool:
-		i as int
-		j as int
-		width as int
-		workload as int
-		endpoint as int
-		width = GSpriteEngine.value.Canvas.Width
-		endpoint = (width * 4) + GSpriteEngine.value.Canvas.Height
-		workload = endpoint / (FADETIME[1] / TRpgTimestamp.FrameLength)
+		var width = GSpriteEngine.value.Canvas.Width
+		var endpoint = (width * 4) + GSpriteEngine.value.Canvas.Height
+		var workload = endpoint / (FADETIME[1] / TRpgTimestamp.FrameLength)
 		FProgress += workload
-		j = FProgress / 4
-		i = 0
+		var j = FProgress / 4
+		var i = 0
 		repeat :
 			if j <= width:
 				if (i % 2) == 0:
@@ -323,14 +317,9 @@ class TScrollTransition(TTransition):
 
 	protected override def InternalDraw() as bool:
 		workload as int
-		timeslice as int
-		i as int
-		dst as TSgPoint
-		dst2 as TSgPoint
-		Canvas as TSdlCanvas
-		Canvas = GSpriteEngine.value.Canvas
-		Canvas.Clear(SDL_BLACK)
-		timeslice = Math.Max((FADETIME[0] / TRpgTimestamp.FrameLength), 1)
+		var canvas = GSpriteEngine.value.Canvas
+		canvas.Clear(SDL_BLACK)
+		var timeslice = Math.Max((FADETIME[0] / TRpgTimestamp.FrameLength), 1)
 		caseOf FDirection:
 			case TFacing.Up, TFacing.Down:
 				workload = (GSpriteEngine.value.Canvas.Height / timeslice)
@@ -338,21 +327,21 @@ class TScrollTransition(TTransition):
 				workload = (GSpriteEngine.value.Canvas.Width / timeslice)
 			default :
 				raise Exception('Invalid direction')
-		i = FProgress + workload
+		var i = FProgress + workload
 		i *= -1 if FDirection in (TFacing.Up, TFacing.Left)
-		dst = (sgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else sgPoint(i, 0))
+		var dst = (sgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else sgPoint(i, 0))
 		caseOf FDirection:
 			case TFacing.Up:
-				i += Canvas.Height
+				i += canvas.Height
 			case TFacing.Left:
-				i += Canvas.Width
+				i += canvas.Width
 			case TFacing.Down:
-				i -= Canvas.Height
+				i -= canvas.Height
 			case TFacing.Right:
-				i -= Canvas.Width
-		dst2 = (sgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else sgPoint(i, 0))
-		Canvas.Draw(GRenderTargets[RENDERER_MAIN], dst)
-		Canvas.Draw(GRenderTargets[RENDERER_ALT], dst2)
+				i -= canvas.Width
+		var dst2 = (sgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else sgPoint(i, 0))
+		canvas.Draw(GRenderTargets[RENDERER_MAIN], dst)
+		canvas.Draw(GRenderTargets[RENDERER_ALT], dst2)
 		FProgress += workload
 		return FProgress < FBoundary
 
@@ -556,7 +545,7 @@ class TZoomTransition(TTransition):
 
 class TMosaicTransition(TTransition):
 
-	public static final MIN_RESOLUTION = 8
+	private static final MIN_RESOLUTION = 8
 
 	private FBlockSize as single
 
@@ -565,20 +554,17 @@ class TMosaicTransition(TTransition):
 	private FTarget as int
 
 	protected override def InternalDraw() as bool:
-		workload as single
-		mosaicProg as int
-		shaders as TdmShaders
 		canvas = GSpriteEngine.value.Canvas
-		workload = (canvas.Width cast double) / Math.Max((FADETIME[2] cast double) / (TRpgTimestamp.FrameLength cast double), 1.0)
+		var workload = (canvas.Width cast double) / Math.Max((FADETIME[2] cast double) / (TRpgTimestamp.FrameLength cast double), 1.0)
 		FBlockSize = ( (FBlockSize - workload) if FShowing else (FBlockSize + workload) )
 		clamp(FBlockSize, 1, FMaxSize)
-		shaders = GSpriteEngine.value.ShaderEngine
-		mosaicProg = shaders.ShaderProgram('default', 'mosaic')
+		var shaders = GSpriteEngine.value.ShaderEngine
+		var mosaicProg = shaders.ShaderProgram('default', 'mosaic')
 		shaders.UseShaderProgram(mosaicProg)
 		shaders.SetUniformValue(mosaicProg, 'blockSize', FBlockSize)
 		GRenderTargets[FTarget].DrawFull()
 		GPU_DeactivateShaderProgram()
-		result = ( (FBlockSize > 1) if FShowing else (FBlockSize < FMaxSize) )
+		result = ( FBlockSize > 1 if FShowing else FBlockSize < FMaxSize )
 		return result
 
 	public override def Setup(showing as bool, OnFinished as Action):

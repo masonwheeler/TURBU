@@ -255,24 +255,24 @@ def NewImage(name as string, x as int, y as int, zoom as int, transparency as in
 	return image
 
 def SetBGImage(Name as string, scrollX as int, scrollY as int, autoX as TMapScrollType, autoY as TMapScrollType):
-	commons.runThreadsafe(false, { GSpriteEngine.value.SetBG(Name, scrollX, scrollY, autoX, autoY) })
+	GSpriteEngine.value.SetBG(Name, scrollX, scrollY, autoX, autoY)
 
 def ShowBattleAnim(which as int, target as TRpgCharacter, fullscreen as bool):
-	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, null) })
+	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, null)
 
 [async]
 def ShowBattleAnimAndWait(which as int, target as TRpgCharacter, fullscreen as bool) as Task:
 	var signal = EventWaitHandle(false, EventResetMode.ManualReset)
-	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, signal) })
+	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, signal)
 	waitFor { signal.WaitOne(0) }
 
 def ShowBattleAnimB(which as int, target as IAnimTarget, fullscreen as bool):
-	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, null) })
+	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, null)
 
 [async]
 def ShowBattleAnimBAndWait(which as int, target as IAnimTarget, fullscreen as bool) as Task:
 	var signal = EventWaitHandle(false, EventResetMode.ManualReset)
-	commons.runThreadsafe(true, { ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, signal) })
+	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, signal)
 	waitFor { signal.WaitOne(0) }
 
 def ShowBattleAnimT(engine as TSpriteEngine, which as int, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
@@ -301,9 +301,8 @@ def StopMoveScripts():
 	GEnvironment.value.Party.Base.Stop()
 
 def ChangeTileset(which as int):
-	runThreadsafe(true) def ():
-		if GGameEngine.value.EnsureTileset(which):
-			GSpriteEngine.value.ChangeTileset(GDatabase.value.Tileset[which])
+	if GGameEngine.value.EnsureTileset(which):
+		GSpriteEngine.value.ChangeTileset(GDatabase.value.Tileset[which])
 
 macro RenderPause(body as Boo.Lang.Compiler.Ast.Statement*):
 	yield [|TURBU.RM2K.RPGScript.RenderPause()|]

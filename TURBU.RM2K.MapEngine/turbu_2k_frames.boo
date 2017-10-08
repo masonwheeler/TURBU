@@ -459,13 +459,12 @@ class TMenuSpriteEngine(TSpriteEngine):
 	public def SetSkin(Name as string, stretch as bool):
 		return if Name == FSystemGraphic.Filename
 		
-		runThreadsafe(true) def ():
-			newPaper as TSystemImages
-			unless FWallpapers.TryGetValue(Name, newPaper):
-				newPaper = TSystemImages(self.Images, Name, stretch, FSystemGraphic.Translucent)
-				FWallpapers.Add(Name, newPaper)
-			FSystemGraphic = newPaper
-			NotifySystemGraphicChanged(Name)
+		newPaper as TSystemImages
+		unless FWallpapers.TryGetValue(Name, newPaper):
+			newPaper = TSystemImages(self.Images, Name, stretch, FSystemGraphic.Translucent)
+			FWallpapers.Add(Name, newPaper)
+		FSystemGraphic = newPaper
+		NotifySystemGraphicChanged(Name)
 
 	public def Reset():
 		FMenuEngine.CloseMenu()
@@ -801,7 +800,7 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	protected virtual def ResetText():
 		FSignal.Reset()
-		runThreadsafe(true, { ClearTarget(FTextTarget) })
+		ClearTarget(FTextTarget)
 		FTextCounter = 0
 		FTextLine = -1
 		NewLine()

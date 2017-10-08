@@ -319,8 +319,7 @@ class T2kEnvironment(TObject):
 		obj as TRpgCharacter = ThisObject
 		for i in range(1, FEvents.Length, 1):
 			if FEvents[i] == obj:
-				runThreadsafe(true) do():
-					FEvents[i] = null
+				FEvents[i] = null
 				break
 		if permanent:
 			pass //TODO: implement this

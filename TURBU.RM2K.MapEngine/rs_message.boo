@@ -55,9 +55,8 @@ def ClearPortrait():
 def SetPortrait(filename as string, index as int, rightside as bool, flipped as bool):
 	valid as bool
 	return unless ArchiveUtils.GraphicExists(filename, 'Portraits')
-	commons.runThreadsafe(true) def ():
-		path as string = 'Portraits\\' + filename
-		valid = clamp(index, 0, (GSpriteEngine.value.Images.EnsureImage(path, filename, GDatabase.value.Layout.PortraitSize).Count - 1)) == index
+	var path = 'Portraits\\' + filename
+	valid = clamp(index, 0, (GSpriteEngine.value.Images.EnsureImage(path, filename, GDatabase.value.Layout.PortraitSize).Count - 1)) == index
 	return unless valid
 	SetRightside(rightside)
 	GMenuEngine.Value.SetPortrait(filename, index)

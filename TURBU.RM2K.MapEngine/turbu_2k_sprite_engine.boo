@@ -648,12 +648,13 @@ class T2kSpriteEngine(TSpriteEngine):
 		if FSpriteLocations.KeyHasValue(position, Character):
 			FSpriteLocations.RemovePair(position, Character)
 
+	private static def SafeMod(big as int, small as int) as int:
+		return ((big % small) + small) % small
+
 	public def NormalizePoint(ref x as int, ref y as int) as bool:
-		newX as int
-		newY as int
-		result = true
-		newX = safeMod(x, FTiles[0].Width)
-		newY = safeMod(y, FTiles[0].Height)
+		var result = true
+		var newX = SafeMod(x, FTiles[0].Width)
+		var newY = SafeMod(y, FTiles[0].Height)
 		result = result and ((newX == x) or (TWraparound.Horizontal in FMap.Wraparound))
 		result = result and ((newY == y) or (TWraparound.Vertical in FMap.Wraparound))
 		x = newX

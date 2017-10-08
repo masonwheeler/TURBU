@@ -84,6 +84,10 @@ class TMapSprite(TObject):
 
 	protected FForceTurn as bool
 
+	protected static def PointInRect(thePoint as TSgPoint, theRect as SDL2.SDL.SDL_Rect) as bool:
+		return IsBetween(thePoint.x, theRect.x, theRect.x + theRect.w) and \
+				IsBetween(thePoint.y, theRect.y, theRect.y + theRect.h)
+
 	private def TryMove(where as TDirections) as bool:
 		FMoveOpen = self.Move(where)
 		return FMoveOpen or CanSkip
@@ -789,7 +793,7 @@ class TCharSprite(TMapSprite):
 	private FAnimTimer as TRpgTimestamp
 
 	private def LoadCharset(filename as string):
-		commons.runThreadsafe(true, { FEngine.Images.EnsureImage(("Sprites\\$filename.png"), filename, SPRITE_SIZE) })
+		FEngine.Images.EnsureImage(("Sprites\\$filename.png"), filename, SPRITE_SIZE)
 
 	private def UpdateFrame():
 		ANIM_DELAY = (208, 125, 104, 78, 57, 42)

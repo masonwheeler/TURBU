@@ -89,19 +89,18 @@ class T2kMapEngine(TMapEngine):
 
 	private def StopPlaying():
 		FPlaying = false
-		runThreadsafe(true) def ():
-			if assigned(FPartySprite):
-				FPartySprite.Dispose()
-				FPartySprite = null
-			GEnvironment.value.ClearVehicles()
-			GEnvironment.value.Party.Clear()
-			if assigned(FCurrentMap):
-				FCurrentMap.Dispose()
-				FCurrentMap = null
-			if assigned(FImageEngine):
-				FImageEngine.Dispose()
-				FImageEngine = null
-			FCanvas.DrawBox(GPU_MakeRect(0, 0, 1, 1), SDL_WHITE, 255)
+		if assigned(FPartySprite):
+			FPartySprite.Dispose()
+			FPartySprite = null
+		GEnvironment.value.ClearVehicles()
+		GEnvironment.value.Party.Clear()
+		if assigned(FCurrentMap):
+			FCurrentMap.Dispose()
+			FCurrentMap = null
+		if assigned(FImageEngine):
+			FImageEngine.Dispose()
+			FImageEngine = null
+		FCanvas.DrawBox(GPU_MakeRect(0, 0, 1, 1), SDL_WHITE, 255)
 
 	protected FDatabase as TRpgDatabase
 

@@ -21,21 +21,20 @@ def PlaySound(name as string, volume as int, tempo as int, balance as int):
 		LoadDisharmony().PlaySoundEx(name, volume, tempo, balance)
 
 def StopMusic():
-	commons.runThreadsafe(false, { LoadDisharmony().StopMusic })
+	LoadDisharmony().StopMusic()
 
 def PlayMusic(name as string, time as int, volume as int, tempo as int, balance as int):
 	if ArchiveUtils.MusicExists(name) or (name == '(OFF)'):
-		commons.runThreadsafe(true) def ():
-			LoadDisharmony().PlayMusic((IncludeTrailingPathDelimiter(GArchives[MUSIC_ARCHIVE].Root) + name))
-			LoadDisharmony().FadeInMusic(time)
-			LoadDisharmony().SetMusicVolume(volume)
-			LoadDisharmony().SetMusicSpeed(tempo)
-			LoadDisharmony().SetMusicPanpot(cast(uint, balance * 0.64))
-			L.LastMusic = name
-			L.LastTime = time
-			L.LastVolume = volume
-			L.LastTempo = tempo
-			L.LastBalance = balance
+		LoadDisharmony().PlayMusic((IncludeTrailingPathDelimiter(GArchives[MUSIC_ARCHIVE].Root) + name))
+		LoadDisharmony().FadeInMusic(time)
+		LoadDisharmony().SetMusicVolume(volume)
+		LoadDisharmony().SetMusicSpeed(tempo)
+		LoadDisharmony().SetMusicPanpot(cast(uint, balance * 0.64))
+		L.LastMusic = name
+		L.LastTime = time
+		L.LastVolume = volume
+		L.LastTempo = tempo
+		L.LastBalance = balance
 
 def PlayMusicData(music as TRpgMusic):
 	PlayMusic(music.Filename, music.FadeIn, music.Volume, music.Tempo, music.Balance)
@@ -56,9 +55,8 @@ def PlaySystemMusicOnce(music as TBgmTypes) as Task:
 	waitFor WaitForMusicPlayed
 
 def FadeOutMusic(time as int):
-	commons.runThreadsafe(false) def ():
-		LoadDisharmony().FadeOutMusic(time)
-		MemorizeMusic(L.FadedBGM)
+	LoadDisharmony().FadeOutMusic(time)
+	MemorizeMusic(L.FadedBGM)
 
 def FadeInLastMusic(time as int):
 	if assigned(L.FadedBGM):
@@ -66,7 +64,7 @@ def FadeInLastMusic(time as int):
 		PlayMusicData(L.FadedBGM)
 
 def MemorizeBGM():
-	commons.runThreadsafe(true, { MemorizeMusic(L.MemorizedBGM) })
+	MemorizeMusic(L.MemorizedBGM)
 
 def PlayMemorizedBGM():
 	if assigned(L.MemorizedBGM):
@@ -74,27 +72,25 @@ def PlayMemorizedBGM():
 
 def SetSystemSound(style as TSfxTypes, filename as string, volume as int, tempo as int, balance as int):
 	newSound as TRpgSound
-	runThreadsafe(true) def ():
-		newSound = TRpgSound()
-		newSound.Filename = filename
-		newSound.Volume = volume
-		newSound.Tempo = tempo
-		newSound.Balance = balance
-		L.SystemSounds[style] = newSound
+	newSound = TRpgSound()
+	newSound.Filename = filename
+	newSound.Volume = volume
+	newSound.Tempo = tempo
+	newSound.Balance = balance
+	L.SystemSounds[style] = newSound
 
 def SetSystemSoundData(style as TSfxTypes, sound as TRpgSound):
 	SetSystemSound(style, sound.Filename, sound.Volume, sound.Tempo, sound.Balance)
 
 def SetSystemMusic(style as TBgmTypes, filename as string, fadeIn as int, volume as int, tempo as int, balance as int):
 	newMusic as TRpgMusic
-	runThreadsafe(true) def():
-		newMusic = TRpgMusic()
-		newMusic.Filename = filename
-		newMusic.Volume = volume
-		newMusic.Tempo = tempo
-		newMusic.Balance = balance
-		newMusic.FadeIn = fadeIn
-		L.SystemMusic[style] = newMusic
+	newMusic = TRpgMusic()
+	newMusic.Filename = filename
+	newMusic.Volume = volume
+	newMusic.Tempo = tempo
+	newMusic.Balance = balance
+	newMusic.FadeIn = fadeIn
+	L.SystemMusic[style] = newMusic
 
 def SetSystemMusicData(style as TBgmTypes, music as TRpgMusic):
 	SetSystemMusic(style, music.Filename, music.FadeIn, music.Volume, music.Tempo, music.Balance)
