@@ -305,6 +305,8 @@ class TScriptConverter:
 		ConvertMoveOrders(orders, blk, converter.MakeWarning)
 		moveScript = ArrayLiteralExpression()
 		moveScript.Items.AddRange(blk.Statements.Cast[of ExpressionStatement]().Select({es | es.Expression}))
+		if moveScript.Items.Count == 0:
+			converter.MakeWarning('Move command contains no movements')
 		result = [|MoveMapObject($(EventDeref(values[0])), $(values[1]), $(values[2] != 0), $(values[3] != 0), $moveScript)|]
 	
 	simpleConverter ConvertShowAnim:

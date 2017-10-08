@@ -42,7 +42,9 @@ private def DoBuildSteps(loop as BoolLiteralExpression, path as ArrayLiteralExpr
 				steps.Body.Add([| yield {m | return $mie} |])
 			case ReferenceExpression():
 				steps.Body.Add([| yield {m | return (m cast turbu.map.sprites.TMapSprite).$step()} |])
-	if loop.Value:
+	if steps.Body.IsEmpty:
+		steps.Body.Add([|return System.Linq.Enumerable.Empty[of System.Func[of Pythia.Runtime.TObject, bool]]()|])
+	elif loop.Value:
 		var body = steps.Body
 		steps.Body = Block()
 		var infLoop = [|
