@@ -3,10 +3,10 @@
 import System
 
 partial class TdmShaders:
-	override def Initialize():
-		FragLibs = TJvMultiStringHolder()
-		Vertex = TJvMultiStringHolder()
-		Fragment = TJvMultiStringHolder()
+	private def Initialize():
+		FragLibs = Dictionary[of string, string]()
+		Vertex = Dictionary[of string, string]()
+		Fragment = Dictionary[of string, string]()
 
 		self.FragLibs.Add('shift',
 """
