@@ -3,8 +3,11 @@
 import System
 import System.IO
 import System.Linq.Enumerable
+import System.Threading
+import System.Threading.Tasks
 import System.Windows.Forms
 import Pythia.Runtime
+import TURBU.RM2K.Import
 
 partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 	private _outputPath as string
@@ -14,7 +17,8 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 	private _paused as bool
 	private _finished as bool
 	private _conversionReport = List[of string]()
-	private _thread as TThread
+	private _task as Task
+	private _tokenSource as CancellationTokenSource
 	
 	public def constructor():
 		// The InitializeComponent() call is required for Windows Forms designer support.
@@ -40,7 +44,7 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 			Directory.Delete(_outputPath, true)
 			Directory.CreateDirectory(_outputPath)
 		Directory.CreateDirectory(_outputPath)
-		RMProjectConverter(_projectFolder, _outputPath, self)
+		RMProjectConverter(_projectFolder, _outputPath, self).GetTask()
 	
 	private def ValidateProjectFolder() as bool:
 	"""Checks that the directory contains a project map tree, database, and at least one map file"""
@@ -92,12 +96,13 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 	def ResumeSteps():
 		_paused = false
 	
-	def Initialize(thread as TThread, tasks as int):
-		_thread = thread
+	def Initialize(taskSource as ITaskSource, tasks as int):
+		_tokenSource = taskSource.TokenSource
 		self.Invoke() do:
 			prgConversion.Maximum = tasks
 			prgConversion.Value = 0
 			_running = false
+		_task = taskSource.GetTask()
 	
 	def Fatal(errorMessage as string):
 		MakeError(errorMessage, 9999)
@@ -119,7 +124,7 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 		self.Invoke({lblWarnings.Text = (int.Parse(lblWarnings.Text) + 1).ToString()})
 	
 	private def BtnDoneClick(sender as object, e as System.EventArgs):
-		_thread.Terminate() if assigned(_thread) and not _finished
+		_tokenSource.Cancel() if assigned(_tokenSource) and not _finished
 	
 	override def ToString():
 		return 'RM Project Converter'

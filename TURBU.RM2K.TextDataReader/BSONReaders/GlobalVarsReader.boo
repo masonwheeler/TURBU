@@ -10,10 +10,12 @@ macro GlobalVars(body as Statement*):
 	AddResource('Variables', result)
 
 macro GlobalVars.Switches(body as ExpressionStatement*):
-	return JsonStatement(JProperty('Switches', MaxGlobalValue(body)))
+	if body.Count > 0:
+		return JsonStatement(JProperty('Switches', MaxGlobalValue(body)))
 	
 macro GlobalVars.Variables(body as ExpressionStatement*):
-	return JsonStatement(JProperty('Variables', MaxGlobalValue(body)))
+	if body.Count > 0:
+		return JsonStatement(JProperty('Variables', MaxGlobalValue(body)))
 
 internal def MaxGlobalValue(values as ExpressionStatement*):
 	return values.Select({es | ((es.Expression cast BinaryExpression).Left cast IntegerLiteralExpression).Value}).Max()

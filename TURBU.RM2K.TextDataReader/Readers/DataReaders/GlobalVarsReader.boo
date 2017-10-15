@@ -16,10 +16,12 @@ macro GlobalVars(body as ExpressionStatement*):
 	yield [|import TURBU.RM2K|]
 
 macro GlobalVars.Switches(body as ExpressionStatement*):
-	return ListReader(body, 'Switches')
+	if body.Count > 0:
+		return ListReader(body, 'Switches')
 	
 macro GlobalVars.Variables(body as ExpressionStatement*):
-	return ListReader(body, 'Variables')
+	if body.Count > 0:
+		return ListReader(body, 'Variables')
 
 internal def ListReader(body as ExpressionStatement*, name as string) as ExpressionStatement:
 	var max = body.Select({e | e.Expression}).OfType[of BinaryExpression]().Select({b | b.Left}).OfType[of IntegerLiteralExpression]()\

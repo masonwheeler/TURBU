@@ -67,7 +67,6 @@
     <Compile Include="TDataModule.boo" />
     <Compile Include="TObject.boo" />
     <Compile Include="TStrings.boo" />
-    <Compile Include="TThread.boo" />
     <Compile Include="UpdateMacro.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />

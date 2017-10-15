@@ -1,10 +1,17 @@
 ﻿namespace TURBU.RM2K.Import
 
 import System
-import Pythia.Runtime
+import System.Threading
+import System.Threading.Tasks
+
+interface ITaskSource:
+	def GetTask() as Task
+	
+	TokenSource as CancellationTokenSource:
+		get
 
 interface IConversionReport:
-	def Initialize(thread as TThread, tasks as int)
+	def Initialize(taskSource as ITaskSource, tasks as int)
 	def SetCurrentTask(name as string)
 	def SetCurrentTask(name as string, steps as int)
 	def NewStep(name as string)

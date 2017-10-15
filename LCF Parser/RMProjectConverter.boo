@@ -4,6 +4,8 @@ import System
 import System.Collections.Generic
 import System.IO
 import System.Linq
+import System.Threading
+import System.Threading.Tasks
 import Boo.Adt
 import Boo.Lang.Compiler.Ast
 import commons
@@ -15,8 +17,7 @@ import TURBU.Meta
 import TURBU.RM2K.Import
 import TURBU.RM2K.Import.LCF
 
-[Disposable(Destroy)]
-class RMProjectConverter(TThread):
+class RMProjectConverter(ITaskSource):
 	private _outputPath as string
 	private _projectFolder as string
 	private _rtpLocation as string
@@ -28,6 +29,11 @@ class RMProjectConverter(TThread):
 	private _database as string
 	private _everything = Block()
 
+	[Getter(TokenSource)]
+	private _tokenSource = CancellationTokenSource()
+	private _token = _tokenSource.Token
+	private _task as Task
+
 	public def constructor(rmProject as string, outputPath as string, progress as IConversionReport):
 		_projectFolder = rmProject
 		_outputPath = outputPath
@@ -36,7 +42,7 @@ class RMProjectConverter(TThread):
 		SDL_Init(SDL_INIT_NOPARACHUTE)
 		IMG_Init(IMG_InitFlags.IMG_INIT_PNG)
 	
-	private def Destroy():
+	def destructor():
 		IMG_Quit()
 		SDL_Quit()
 	
@@ -68,7 +74,7 @@ class RMProjectConverter(TThread):
 			Directory.CreateDirectory(maps)
 			let invalidChars = Path.GetInvalidFileNameChars()
 			for filename in Directory.EnumerateFiles(_projectFolder, '*.lmu'):
-				break if self.Terminated
+				_token.ThrowIfCancellationRequested()
 				_report.NewStep(Path.GetFileName(filename))
 				using fs = FileStream(filename, FileMode.Open):
 					lmu = LMU(fs)
@@ -79,7 +85,7 @@ class RMProjectConverter(TThread):
 						_everything.Add(MapResources(map cast MacroStatement))
 		
 		task "Converting Database", TDatabaseConverter.STEPS:
-			TDatabaseConverter.Convert(_ldb, _database, _scripts, _everything, _report, _2k3, {return self.Terminated},
+			TDatabaseConverter.Convert(_ldb, _database, _scripts, _everything, _report, _2k3, {self._token.ThrowIfCancellationRequested(); return false},
 												self.ScanScriptForResources)
 		
 		task "Copying Resources":
@@ -238,6 +244,12 @@ class RMProjectConverter(TThread):
 		filename = Path.GetFileNameWithoutExtension(filename)
 		num = filename[-4:]
 		return int.Parse(num)
+
+	def GetTask() as Task:
+		if _task is null:
+			_task = Task.Run(self.Execute)
+		return _task
+
 	
 macro converter:
 	macro task(name as string, init as Expression*):
@@ -261,19 +273,21 @@ macro converter:
 	
 	tasks = converter['tasks'] as List[of Method]
 	result = [|
-		override protected def Execute():
+		private def Execute():
 			_report.Initialize(self, $(tasks.Count))
 	|]
 	tryBlock = [|
 		try:
 			pass
+		except as OperationCanceledException:
+			_report.MakeError('Conversion canceled by user', 999)
 		except e as Exception:
 			_report.Fatal(e)
 	|]
 	for task in tasks:
 		yield task
 		tryBlock.ProtectedBlock.Add([|$task()|])
-		tryBlock.ProtectedBlock.Add([|return if self.Terminated|])
+		tryBlock.ProtectedBlock.Add([|self._token.ThrowIfCancellationRequested() |])
 	result.Body.Add(tryBlock)
 	result.Body.Add([|_report.MakeReport('Conversion Log.txt')|])
 	yield result
