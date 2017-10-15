@@ -12,11 +12,11 @@ import TURBU.Meta
 [Disposable(Destroy, true)]
 partial class TdmShaders():
 
-	public FragLibs as TJvMultiStringHolder
+	public FragLibs as Dictionary[of string, string]
 
-	public Vertex as TJvMultiStringHolder
+	public Vertex as Dictionary[of string, string]
 
-	public Fragment as TJvMultiStringHolder
+	public Fragment as Dictionary[of string, string]
 
 	public def Destroy():
 		for handle in FPrograms.Values:
@@ -65,16 +65,16 @@ partial class TdmShaders():
 		try:
 			super()
 			Initialize()
-			for name in FragLibs.MultipleStrings.Keys:
+			for name in FragLibs.Keys:
 				self.GetShader(name, FragLibs)
-			for name in Vertex.MultipleStrings.Keys:
+			for name in Vertex.Keys:
 				self.GetShader(name, Vertex)
-			for name in Fragment.MultipleStrings.Keys:
+			for name in Fragment.Keys:
 				self.GetShader(name, Fragment)
 		failure:
 			self.Dispose()
 
-	private def GetShader(name as string, container as TJvMultiStringHolder) as int:
+	private def GetShader(name as string, container as Dictionary[of string, string]) as int:
 		shaderText as string
 		strShaderType as string
 		result as int
@@ -82,7 +82,7 @@ partial class TdmShaders():
 			if name[0] == '#':
 				shaderText = name
 			else:
-				shaderText = container.StringsByName[name]
+				shaderText = container[name]
 			result = GPU_CompileShader(GetShaderType(container), shaderText)
 			if result == 0:
 				caseOf GetShaderType(container):
@@ -96,7 +96,7 @@ partial class TdmShaders():
 			FMap.Add(name, result)
 		return result
 
-	private def GetShaderType(container as TJvMultiStringHolder) as GPU_ShaderEnum:
+	private def GetShaderType(container as Dictionary[of string, string]) as GPU_ShaderEnum:
 		if container == Vertex:
 			return GPU_ShaderEnum.GPU_VERTEX_SHADER
 		elif (container == Fragment) or (container == FragLibs):

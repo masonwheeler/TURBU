@@ -70,7 +70,6 @@
       <DependentUpon>dm_shaders.boo</DependentUpon>
     </Compile>
     <Compile Include="JV\PluginManager.boo" />
-    <Compile Include="JV\StringHolder.boo" />
     <Compile Include="project_folder.boo" />
     <Compile Include="sdl.sprite.Meta.boo" />
     <Compile Include="sdlstreams.boo" />
