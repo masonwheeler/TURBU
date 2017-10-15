@@ -39,7 +39,7 @@ class TGameSkillMenu(TCustomScrollBox):
 		FMenuEngine.CurrentHero = ourHero
 		(FOwner.Menu('CharData') cast TOnelineCharReadout).Character = FWhichHero
 		Array.Resize[of bool](FOptionEnabled, ourHero.Skills)
-		FParsedText.Clear()
+		ClearText()
 		Array.Resize[of ushort](FSkillIndex, ourHero.Skills)
 		index = 0
 		for i in range(1, GDatabase.value.Skill.Count):

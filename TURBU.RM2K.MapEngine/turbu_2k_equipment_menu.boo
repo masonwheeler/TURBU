@@ -93,7 +93,7 @@ class TEqInventoryMenu(TCustomScrollBox):
 		if id < (FParsedText.Count - 1):
 			target = FTextTarget.RenderTarget
 			GFontEngine.DrawText(target, FParsedText[id], x, y, color)
-			GFontEngine.DrawTextRightAligned(target, (FParsedText.Objects[id] cast TEquipment).Quantity.ToString(), x + 140, y, color)
+			GFontEngine.DrawTextRightAligned(target, (self.Objects[id] cast TEquipment).Quantity.ToString(), x + 140, y, color)
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
@@ -102,12 +102,12 @@ class TEqInventoryMenu(TCustomScrollBox):
 		FDisplayCapacity = 12
 
 	public def Show(slot as TSlot):
-		FParsedText.Clear()
+		ClearText()
 		for item in GEnvironment.value.Party.Inventory \
 				.OfType[of TEquipment]() \
 				.Where({eq | (eq.Template cast TEquipmentTemplate).Slot == slot and eq.UsableBy(FChar.Template.ID)}):
-			FParsedText.AddObject(item.Template.Name, item)
-		FParsedText.AddObject('', null)
+			self.AddObject(item.Template.Name, item)
+		self.AddObject('', null)
 		Array.Resize[of bool](FOptionEnabled, FParsedText.Count)
 		for i in range(FOptionEnabled.Length):
 			FOptionEnabled[i] = true
@@ -128,7 +128,7 @@ class TEqInventoryMenu(TCustomScrollBox):
 		FMenuEngine.Cursor.Layout(coords)
 		FCursorPosition = position
 		if position < (FParsedText.Count - 1):
-			FCurrentItem = (FParsedText.Objects[position] cast TEquipment)
+			FCurrentItem = (self.Objects[position] cast TEquipment)
 		else:
 			FCurrentItem = null
 		stat = (FOwner.Menu('Stat') cast TCharStatBox)
@@ -140,10 +140,10 @@ class TEqInventoryMenu(TCustomScrollBox):
 		stat as TCharStatBox
 		super.DoButton(input)
 		if input == TButtonCode.Enter:
-			if FParsedText.Objects[FCursorPosition] == null:
+			if self.Objects[FCursorPosition] == null:
 				FChar.Unequip(FCurrentSlot)
 			else:
-				FChar.Equip((FParsedText.Objects[FCursorPosition] cast TEquipment).Template.ID)
+				FChar.Equip((self.Objects[FCursorPosition] cast TEquipment).Template.ID)
 			self.Show(FCurrentSlot)
 			stat = FOwner.Menu('Stat') cast TCharStatBox
 			stat.PotentialItem = null

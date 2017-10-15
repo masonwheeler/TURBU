@@ -114,7 +114,7 @@ class TMessageBox(TGameMenuBox):
 
 	protected override def ResetText():
 		super.ResetText()
-		FParsedText.Clear()
+		ClearText()
 		FImmediate = false
 		FNextCharTime = null
 		SetTextRate(1)
@@ -219,7 +219,7 @@ class TChoiceBox(TInputBox):
 			for i in range(FChoices.Length):
 				value = FChoices[i]
 				FOptionEnabled[i] = Validate(value)
-				FParsedText.Clear()
+				ClearText()
 				DoParseText(value, FParsedText)
 				for value in FParsedText:
 					DrawChar(value)

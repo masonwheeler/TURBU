@@ -164,7 +164,7 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 		template as TClassTemplate
 		super.DoSetup(value)
 		var i = 1
-		FParsedText.Clear()
+		ClearText()
 		Array.Resize[of bool](FOptionEnabled, GEnvironment.value.Party.Size)
 		while GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
 			template = GEnvironment.value.Party[i].Template
@@ -236,7 +236,7 @@ class TCustomGameItemMenu(TCustomScrollBox):
 
 	protected override def DoSetup(value as int):
 		super.DoSetup(value)
-		FParsedText.Clear()
+		ClearText()
 		if assigned(FInventory):
 			Array.Resize[of bool](FOptionEnabled, FInventory.Count)
 			FInventory.Sort()

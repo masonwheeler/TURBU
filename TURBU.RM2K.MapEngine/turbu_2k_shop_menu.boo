@@ -40,7 +40,7 @@ class TShopModeBox(TGameMenuBox):
 
 	public override def DoSetup(value as int):
 		super.DoSetup(value)
-		FParsedText.Clear()
+		ClearText()
 		which as int = (FOwner cast TShopMenuPage).Format
 		var messageKey = (V_SHOP_NUM_CONTINUE if FAccessed else V_SHOP_NUM_GREET)
 		FParsedText.Add(GDatabase.value.VocabNum(messageKey, which))
@@ -101,13 +101,13 @@ class TStockMenu(TCustomScrollBox):
 
 	private def Update(cash as int):
 		for i in range(FParsedText.Count):
-			var item = FParsedText.Objects[i] cast int
+			var item = self.Objects[i] cast int
 			FOptionEnabled[i] = \
 				(GEnvironment.value.Party.Money >= GDatabase.value.Items[item].Cost) and \
 				(GEnvironment.value.Party.Inventory.QuantityOf(item) < MAXITEMS)
 
 	protected override def DrawItem(id as int, x as int, y as int, color as int):
-		dummy as TItemTemplate = GDatabase.value.Items[FParsedText.Objects[id] cast int]
+		dummy as TItemTemplate = GDatabase.value.Items[self.Objects[id] cast int]
 		GFontEngine.DrawText(FTextTarget.RenderTarget, dummy.Name, x, y, color)
 		GFontEngine.DrawTextRightAligned(FTextTarget.RenderTarget, dummy.Cost.ToString(), FBounds.w - 22, y, color)
 
@@ -118,9 +118,9 @@ class TStockMenu(TCustomScrollBox):
 	public override def DoSetup(value as int):
 		super.DoSetup(value)
 		inventory as (int) = (FOwner cast TShopMenuPage).Inventory
-		FParsedText.Clear()
+		ClearText()
 		for item in inventory:
-			FParsedText.AddObject(GDatabase.value.Items[item].Name, item)
+			self.AddObject(GDatabase.value.Items[item].Name, item)
 		Array.Resize[of bool](FOptionEnabled, FParsedText.Count)
 		self.Update(GEnvironment.value.Party.Money)
 		if self.Focused:
@@ -136,14 +136,14 @@ class TStockMenu(TCustomScrollBox):
 			owner.DescBox.Text = ''
 		elif (input == TButtonCode.Enter) and FOptionEnabled[FCursorPosition]:
 			owner.TransactionBox.State = TTransactionState.Buying
-			owner.TransactionBox.RpgItem = TRpgItem.NewItem(FParsedText.Objects[FCursorPosition] cast int, 1)
+			owner.TransactionBox.RpgItem = TRpgItem.NewItem(self.Objects[FCursorPosition] cast int, 1)
 			owner.State = TShopState.Transaction
 			self.FocusMenu('Transaction', 0)
 
 	public override def DoCursor(position as short):
 		super.DoCursor(position)
 		if position < FParsedText.Count:
-			item as TRpgItem = TRpgItem.NewItem(FParsedText.Objects[position] cast int, 1)
+			item as TRpgItem = TRpgItem.NewItem(self.Objects[position] cast int, 1)
 			(FOwner cast TShopMenuPage).Compat.RpgItem = item
 			(FOwner cast TShopMenuPage).DescBox.Text = item.Desc
 

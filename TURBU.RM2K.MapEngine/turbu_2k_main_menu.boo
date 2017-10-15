@@ -79,7 +79,7 @@ class TGamePartyPanel(TCustomPartyPanel):
 class TGameMainMenu(TGameMenuBox):
 
 	protected override def ParseText(input as string):
-		FParsedText.Text = input
+		SetText(input)
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		let MENUTEXT = """Item

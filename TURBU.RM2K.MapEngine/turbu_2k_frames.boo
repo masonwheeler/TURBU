@@ -633,7 +633,9 @@ abstract class TCustomMessageBox(TSysFrame):
 	[Getter(Signal)]
 	protected FSignal = EventWaitHandle(false, EventResetMode.ManualReset)
 
-	protected FParsedText = TStringList()
+	protected FParsedText = List[of string]()
+
+	private _associatedObjects = Dictionary[of int, object]()
 
 	protected FOptionEnabled = array(bool, 5)
 
@@ -695,7 +697,7 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	protected virtual def ParseText(input as string):
 		lock self:
-			FParsedText.Clear()
+			ClearText()
 			ResetText()
 			DoParseText(input, FParsedText)
 			InvalidateText()
@@ -859,7 +861,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			--counter
 		return result
 
-	protected def DoParseText(input as string, list as TStringList):
+	protected def DoParseText(input as string, list as List[of string]):
 		counter as int = 0
 		while counter < input.Length:
 			if input[counter] == char('\r'):
@@ -989,6 +991,22 @@ abstract class TCustomMessageBox(TSysFrame):
 			self.Height = h
 			DoSetPosition(value)
 
+	protected def ClearText():
+		FParsedText.Clear()
+		_associatedObjects.Clear()
+
+	protected def SetText(value as string):
+		ClearText()
+		FParsedText.AddRange(value.Split((Environment.NewLine,), StringSplitOptions.None))
+
+	protected def AddObject(value as string, obj as object):
+		FParsedText.Add(value)
+		_associatedObjects.Add(FParsedText.Count - 1, obj)
+
+	protected Objects[i as int] as object:
+		get: return _associatedObjects[i]
+
+
 [Disposable(Destroy, true)]
 class TSystemTimer(TParentSprite):
 
@@ -1057,6 +1075,7 @@ class TSystemTimer(TParentSprite):
 			UpdatePosition(sgPoint(Math.Round(X), Math.Round(Y)))
 		for i in range(1, 6):
 			FTiles[i].Draw()
+
 
 def SetX(sprite as TTiledAreaSprite, x as int):
 	sprite.FillArea.x = x
