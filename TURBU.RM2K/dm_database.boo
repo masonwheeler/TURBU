@@ -7,16 +7,13 @@ import TURBU.MapInterface
 
 let BAD_LOOKUP = ''
 
-class TdmDatabase(TDataModule):
+class TdmDatabase():
 	
 	[Getter(Reader)]
 	private _reader as IDataReader
 	
 	[Getter(MapLoader)]
 	private _mapLoader as IMapLoader
-	
-	override def Initialize():
-		pass
 	
 	def NameLookup(name as string, id as int) as string:
 		assert false

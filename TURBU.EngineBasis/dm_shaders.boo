@@ -10,7 +10,7 @@ import SDL2.SDL2_GPU
 import TURBU.Meta
 
 [Disposable(Destroy, true)]
-partial class TdmShaders(TDataModule):
+partial class TdmShaders():
 
 	public FragLibs as TJvMultiStringHolder
 
@@ -64,6 +64,7 @@ partial class TdmShaders(TDataModule):
 	def constructor():
 		try:
 			super()
+			Initialize()
 			for name in FragLibs.MultipleStrings.Keys:
 				self.GetShader(name, FragLibs)
 			for name in Vertex.MultipleStrings.Keys:

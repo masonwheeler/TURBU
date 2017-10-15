@@ -320,7 +320,7 @@ class TMenuSpriteEngine(TSpriteEngine):
 		if result == '':
 			key = "Inn1-$name"
 			result = GDatabase.value.InterpolateVocab(key, name)
-		return StringReplace(result, '?$', value.ToString(), [rfReplaceAll])
+		return result.Replace('?$', value.ToString())
 
 	public def constructor(graphic as TSystemImages, Canvas as TSdlCanvas, images as TSdlImages):
 		assert GMenuEngine.Value == null

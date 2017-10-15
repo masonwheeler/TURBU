@@ -55,16 +55,12 @@
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="assigned.boo" />
     <Compile Include="classDestructor.boo" />
-    <Compile Include="DBCtrls.boo" />
     <Compile Include="DisposableAttribute.boo" />
     <Compile Include="EnumSet.boo" />
     <Compile Include="finalization.boo" />
     <Compile Include="MetaclassAttribute.boo" />
     <Compile Include="ord.boo" />
     <Compile Include="PredSucc.boo" />
-    <Compile Include="RadioListBox.boo" />
-    <Compile Include="String Formatting.boo" />
-    <Compile Include="TDataModule.boo" />
     <Compile Include="TObject.boo" />
     <Compile Include="UpdateMacro.boo" />
   </ItemGroup>
