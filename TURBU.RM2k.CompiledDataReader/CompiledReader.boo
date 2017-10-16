@@ -6,6 +6,7 @@ import System.IO
 import System.Linq.Enumerable
 import System.Reflection
 import System.Resources
+import System.Threading.Tasks
 import Newtonsoft.Json.Bson
 import Newtonsoft.Json.Linq
 import turbu.defs
@@ -51,8 +52,9 @@ class TDllReader(TRpgPlugBase, IDataReader):
 		_readers.Add(TType, result)
 		return result
 	
-	def Dispose():
+	def Dispose() as Task:
 		_readers = null
+		return Task.FromResult(true)
 	
 private class TDllValueReader[of T(IRpgObject)](IDataTypeReader[of T]):
 	

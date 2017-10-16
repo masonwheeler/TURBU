@@ -22,5 +22,3 @@ class T2kBattleEngine(TBattleEngine):
 	protected override def Cleanup():
 		pass
 	
-	def Dispose():
-		pass

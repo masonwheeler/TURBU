@@ -340,7 +340,7 @@ class TShopCompatBox(TGameMenuBox):
 	private new def Destroy():
 		for sprite in FParty:
 			if sprite is not null:
-				sprite.Dispose()
+				sprite.Dead()
 
 	private FItem as TRpgItem
 

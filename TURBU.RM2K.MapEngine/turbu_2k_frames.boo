@@ -1062,7 +1062,7 @@ class TSystemTimer(TParentSprite):
 
 	private new def Destroy():
 		for tile in FTiles:
-			tile.Dispose()
+			tile.Dead()
 
 	public override def Draw():
 		FTime = FOnGetTime()

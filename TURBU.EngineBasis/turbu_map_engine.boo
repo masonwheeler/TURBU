@@ -169,8 +169,9 @@ interface IDesignMapEngine(IMapEngine):
 
 abstract class TMapEngine(TRpgPlugBase, IMapEngine):
 
-	def Dispose():
-		self.Cleanup() if FInitialized
+	[Async]
+	def Dispose() as Task:
+		await(self.Cleanup()) if FInitialized
 		GC.SuppressFinalize(self)
 
 	private FData as TMapEngineData

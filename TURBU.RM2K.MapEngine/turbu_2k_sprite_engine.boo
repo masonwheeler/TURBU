@@ -421,9 +421,11 @@ class T2kSpriteEngine(TSpriteEngine):
 		lock FMapObjects:
 			for obj in FMapObjects:
 				obj.Dispose()
+		/*
 		for layer in FTiles:
 			for tile in layer:
 				tile.Dispose() unless tile is null
+		*/
 
 	public def AssignTile(x as int, y as int, layer as int, tile as TTileRef):
 		if (x >= FMap.Size.x) or (y >= FMap.Size.y):
@@ -705,7 +707,6 @@ class T2kSpriteEngine(TSpriteEngine):
 	public def ChangeTileset(value as TTileSet):
 		if value == FTileset:
 			return
-		assert TThread.CurrentThread.IsMainThread
 		FTileset = value
 		FTiles = List[of TMatrix[of TMapTile]]()
 		size as TSgPoint = FMap.Size

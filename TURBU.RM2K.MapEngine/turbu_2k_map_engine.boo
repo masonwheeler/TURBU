@@ -8,7 +8,6 @@ import System.Threading.Tasks
 import System.Windows.Forms
 import archiveInterface
 import AsphyreTimer
-import commons
 import dm.shaders
 import project.folder
 import Pythia.Runtime
@@ -60,6 +59,7 @@ class T2kMapEngine(TMapEngine):
 		Title
 		Playing
 		GameOver
+		Cleanup
 
 	private FRenderer as GPU_Target_PTR
 
@@ -216,6 +216,7 @@ class T2kMapEngine(TMapEngine):
 		party as TRpgParty = GEnvironment.value.Party
 		for i in range(FDatabase.Layout.StartingHeroes.Length):
 			party[i + 1] = GEnvironment.value.Heroes[FDatabase.Layout.StartingHero[i + 1]]
+		FPartySprite.Dispose() if FPartySprite is not null
 		FPartySprite = THeroSprite(FCurrentMap, party[1], party)
 
 	private FFrame as int
@@ -230,6 +231,7 @@ class T2kMapEngine(TMapEngine):
 	private FCutscene as int
 
 	private def OnTimer():
+		return if FGameState == TGameState.Cleanup
 		++FFrame
 		TRpgTimestamp.NewFrame()
 		lock FRenderPauseLock:
@@ -270,7 +272,7 @@ class T2kMapEngine(TMapEngine):
 				FSaveLock = true
 		if FGameState == T2kMapEngine.TGameState.Playing:
 			GMapObjectManager.value.Tick()
-			FCurrentMap.Process()
+			FCurrentMap.Process() if FPlaying
 
 	private def PressButton(button as TButtonCode):
 		return if FEnterLock and (button in (TButtonCode.Enter, TButtonCode.Cancel))
@@ -395,6 +397,7 @@ class T2kMapEngine(TMapEngine):
 	protected override def Cleanup() as Task:
 		assert FInitialized
 		FInitialized = false
+		FGameState = TGameState.Cleanup
 		if FDatabaseOwner:
 			await(FObjectManager.ScriptEngine.KillAll(null)) if FObjectManager is not null
 			GMenuEngine.Value.Dispose()
@@ -617,6 +620,7 @@ class T2kMapEngine(TMapEngine):
 		FGameState = T2kMapEngine.TGameState.GameOver
 		StopPlaying()
 		PlaySystemMusic(TBgmTypes.GameOver)
+		Abort
 
 	public def EnterCutscene():
 		GMapObjectManager.value.InCutscene = true
@@ -663,18 +667,21 @@ class T2kMapEngine(TMapEngine):
 		GScriptEngine.value.KillAll(null)
 #		GEnvironment.value.Dispose()
 #		GEnvironment.value = null
-		FPartySprite = null
 		GSpriteEngine.value = null
 #		GEnvironment.value = T2kEnvironment(FDatabase)
 #		dmDatabase.value.RegisterEnvironment(GEnvironment.value)
 #		FObjectManager.OnUpdate = GEnvironment.value.UpdateEvents
 		FPlaying = false
+		var oldMap = FCurrentMap
 		FCurrentMap = null
 		GMenuEngine.Value.Reset()
 		turbu.RM2K.savegames.Load(savefile, self.InitializeParty)
 		FCurrentMap.CurrentParty = (GEnvironment.value.Party.Sprite cast TCharSprite)
+		if oldMap is not null:
+			oldMap.Dispose()
 		if FImageEngine is null:
 			FImageEngine = TImageEngine(GSpriteEngine.value, FCanvas, FImages)
+		else: FImageEngine.ParentEngine = FCurrentMap
 		GEnvironment.value.CreateTimers()
 		GC.Collect()
 		GMapObjectManager.value.InCutscene = false

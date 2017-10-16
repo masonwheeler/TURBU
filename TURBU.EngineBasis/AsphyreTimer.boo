@@ -6,7 +6,7 @@ import TURBU.Meta
 import System
 import System.Windows.Forms
 
-[Disposable(Destroy)]
+[Disposable(Destroy, true)]
 class TAsphyreTimer(TObject):
 	let FixedHigh = 0x100000
 	let DeltaLimit = 3 * FixedHigh
@@ -76,6 +76,7 @@ class TAsphyreTimer(TObject):
 
 	private def Destroy():
 		Application.Idle -= AppIdle
+		FEnabled = false
 
 	private def RetrieveLatency() as long:
 		CurTime64 as long
@@ -110,7 +111,7 @@ class TAsphyreTimer(TObject):
 				FixedDelta += DeltaFP
 				Processed = false
 			OnTimer()
-			until NativeMethods.PeekMessage(msg, IntPtr.Zero, 0, 0, 0)
+			until NativeMethods.PeekMessage(msg, IntPtr.Zero, 0, 0, 0) or (FEnabled == false)
 
 	public Delta as double:
 		get: return (DeltaFP cast double) / (FixedHigh cast double)

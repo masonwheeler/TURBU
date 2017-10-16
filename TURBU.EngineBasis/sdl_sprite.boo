@@ -64,7 +64,6 @@ class TFastSpriteList(List[of TSprite]):
 			FSorted = true
 		return self.BinarySearch(value)
 
-[Disposable(Destroy, true)]
 class TSprite(TObject):
 
 	protected FDead as bool
@@ -247,6 +246,7 @@ class TSprite(TObject):
 			++FEngine.FAllCount
 		FVisible = true
 
+/*
 	private def Destroy():
 		if assigned(FParent):
 			--FEngine.FAllCount
@@ -255,6 +255,7 @@ class TSprite(TObject):
 			except as ObjectDisposedException:
 				pass
 			FEngine.FDeadList.Remove(self)
+*/
 
 	public virtual def IsBackground() as bool:
 		return false
@@ -356,7 +357,7 @@ class TSprite(TObject):
 		get: return GetDrawRect()
 		set: SetDrawRect(value)
 
-[Disposable(Destroy, true)]
+//[Disposable(Destroy, true)]
 class TParentSprite(TSprite):
 
 	internal def UnDraw(sprite as TSprite):
@@ -377,10 +378,10 @@ class TParentSprite(TSprite):
 		if assigned(FSpriteList):
 			FSpriteList.Clear()
 		else: FSpriteList = TFastSpriteList()
-
+/*
 	private new def Destroy():
-		self.Clear()
-
+		Clear()
+*/
 	public override def Move(movecount as single):
 		super.Move(movecount)
 		for i in range(Count):
@@ -726,7 +727,10 @@ class TSpriteEngine(TParentSprite):
 
 	public def Dead():
 		for sprite in FDeadList.ToArray():
-			sprite.Dispose()
+			var disp = sprite as IDisposable
+			if disp is not null:
+				disp.Dispose()
+			sprite.FParent.Remove(sprite)
 		FDeadList.Clear()
 
 	public override Width as int:

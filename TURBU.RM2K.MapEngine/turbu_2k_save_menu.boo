@@ -83,7 +83,7 @@ class TSaveBox(TGameMenuBox):
 
 	private new def Destroy():
 		for portrait in FPortraits:
-			portrait.Dispose()
+			portrait.Dead()
 
 	protected override def DoCursor(position as short):
 		if self.Focused:

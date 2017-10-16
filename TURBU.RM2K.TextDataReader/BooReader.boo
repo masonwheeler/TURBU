@@ -2,8 +2,9 @@
 
 import System
 import System.Collections.Generic
-import System.Linq.Enumerable
 import System.IO
+import System.Linq.Enumerable
+import System.Threading.Tasks
 import Boo.Lang.Interpreter
 import turbu.defs
 import turbu.versioning
@@ -60,8 +61,9 @@ import SG.defs""")
 		_readers.Add(TType, result)
 		return result
 	
-	def Dispose():
+	def Dispose() as Task:
 		_loader = null
+		return Task.FromResult(true)
 
 private class TDataFileReader[of T(IRpgObject)](IDataTypeReader[of T]):
 	

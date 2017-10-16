@@ -23,20 +23,31 @@ partial class frmTURBUPlayer:
 	
 	private _projectFolder as string
 	
+	private _destroyed as bool
+	
 	public def constructor():
 		// The InitializeComponent() call is required for Windows Forms designer support.
 		InitializeComponent()
-		self.Disposed += self.Destroy
-	
-	private def Destroy(sender as object, e as EventArgs):
-		TTurbuEngines.CleanupEngines()
 
-		FMapEngine.Dispose() if FMapEngine is not null
+	[Async]
+	private def Destroy() as System.Threading.Tasks.Task:
+		await TTurbuEngines.CleanupEngines()
+		_destroyed = true
+
+		//FMapEngine.Dispose() if FMapEngine is not null
 		//_pluginManager.Dispose()
 	
 	private def FrmTURBUPlayerLoad(sender as object, e as System.EventArgs):
 		self.ClientSize = System.Drawing.Size(960, 720)
 		self.imgGame.OnAvailable = self.GameAvailable
+	
+	[Async]
+	private def FrmTURBUPlayerClosing(sender as object, e as System.Windows.Forms.FormClosingEventArgs) as void:
+		if not _destroyed:
+			self.Hide()
+			e.Cancel = true;
+			await self.Destroy()
+			self.Close()
 	
 	private def GameAvailable(sender as object, e as System.EventArgs):
 		self.BeginInvoke(self.Available)

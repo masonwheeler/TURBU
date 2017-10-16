@@ -8,7 +8,6 @@ import turbu.maps
 import TURBU.MapObjects
 import turbu.defs
 import turbu.script.engine
-import Pythia.Runtime
 import tiles
 import turbu.map.sprites
 import turbu.RM2K.sprite.engine
@@ -86,7 +85,6 @@ class TMiniTile(TSprite):
 		super(AParent)
 		ImageName = tileset
 
-[Disposable(Destroy, true)]
 class TBorderTile(TMapTile):
 
 	protected minitiles = array(TMiniTile, 4)
@@ -231,10 +229,6 @@ class TBorderTile(TMapTile):
 			minitiles[i] = TMiniTile(self, tileset)
 			minitiles[i].Width = TILE_SIZE.x / 2
 			minitiles[i].Height = TILE_SIZE.y / 2
-	
-	private new def Destroy():
-		for m in minitiles:
-			m.Dispose()
 
 	public override def Place(xCoord as int, yCoord as int, layer as int, tileData as TTileRef, tileset as TTileSet) as TTileAttribute:
 		tileRef as TTileRef

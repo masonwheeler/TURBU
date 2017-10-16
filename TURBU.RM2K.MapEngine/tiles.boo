@@ -156,7 +156,6 @@ abstract class TTile(TParentSprite):
 			return 6
 		else: return 1
 
-[Disposable]
 class TEventTile(TTile):
 
 	[Property(Event)]

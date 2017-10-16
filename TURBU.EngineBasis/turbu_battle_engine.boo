@@ -1,6 +1,7 @@
 namespace TURBU.BattleEngine
 
 import System
+import System.Threading.Tasks
 import Boo.Adt
 import Pythia.Runtime
 import TURBU.PluginInterface
@@ -85,5 +86,9 @@ abstract class TBattleEngine(TRpgPlugBase, IBattleEngine):
 
 	def constructor():
 		super()
+
+	def Dispose() as Task:
+		return Task.FromResult(true)
+
 
 let NEED_BATTLE_SPRITES = (TBattleView.Side or TBattleView.Top)

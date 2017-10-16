@@ -1,24 +1,25 @@
 namespace TURBU.Engines
 
-import Pythia.Runtime
 import System
+import System.Collections.Generic
+import System.Threading.Tasks
+import Pythia.Runtime
 import TURBU.PluginInterface
 import turbu.versioning
-import System.Collections.Generic
 
 class EMissingPlugin(Exception):
 	def constructor(message as string):
 		super(message)
 
-interface ITurbuEngine(IDisposable):
-	pass
+interface ITurbuEngine:
+	def Dispose() as Task
 
-[Disposable(Destroy, true)]
 private class TEngineDict(Dictionary[of TRpgMetadata, ITurbuEngine]):
 	
-	private def Destroy():
-		for engine in self:
-			engine.Value.Dispose()
+	[Async]
+	internal def Destroy() as Task:
+		for engine in self.Values:
+			await engine.Dispose()
 
 static class TTurbuEngines:
 
@@ -70,6 +71,7 @@ static class TTurbuEngines:
 		else: raise "Engine style '$(Enum.GetName(TEngineStyle, data.Style))' is not supported yet."
 */
 	
-	def CleanupEngines():
+	[Async]
+	def CleanupEngines() as Task:
 		for list in FEngineList:
-			list.Value.Dispose()
+			await list.Value.Destroy()

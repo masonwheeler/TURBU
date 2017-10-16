@@ -222,7 +222,7 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 
 	private new def Destroy():
 		for portrait in FPortrait:
-			portrait.Dispose() if portrait is not null
+			portrait.Dead() if portrait is not null
 
 class TCustomGameItemMenu(TCustomScrollBox):
 

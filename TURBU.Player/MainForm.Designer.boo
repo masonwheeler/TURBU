@@ -44,6 +44,7 @@ partial class frmTURBUPlayer(System.Windows.Forms.Form):
 		self.Text = "TURBU Player"
 		self.Load += self.FrmTURBUPlayerLoad as System.EventHandler
 		self.ResumeLayout(false)
+		self.FormClosing += self.FrmTURBUPlayerClosing as System.Windows.Forms.FormClosingEventHandler
 		
 	private imgGame as sdl.frame.TSdlFrame
 	

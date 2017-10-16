@@ -98,7 +98,8 @@ class TAnimSprite(TParentSprite):
 		if assigned(FSignal):
 			FSignal.Set()
 		for sprite in self.List.ToArray():
-			sprite.Dispose()
+			sprite.Dead()
+		FEngine.Dead()
 
 	private def Move():
 		tr as uint = FTimer.TimeRemaining
