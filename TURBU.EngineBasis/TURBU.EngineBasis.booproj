@@ -43,9 +43,6 @@
     <Reference Include="Boo.Lang.Useful">
       <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
     </Reference>
-    <Reference Include="HighEnergy.Tree">
-      <HintPath>..\..\HighEnergy.Tree\bin\Debug\HighEnergy.Tree.dll</HintPath>
-    </Reference>
     <Reference Include="SDL2-CS">
       <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
     </Reference>
@@ -69,6 +66,7 @@
     <Compile Include="dm_shaders.design.boo">
       <DependentUpon>dm_shaders.boo</DependentUpon>
     </Compile>
+    <Compile Include="HierarchyTree.boo" />
     <Compile Include="JV\PluginManager.boo" />
     <Compile Include="project_folder.boo" />
     <Compile Include="sdl.sprite.Meta.boo" />
