@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abort.boo" />
-    <Compile Include="ArrayToSet.boo" />
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="assigned.boo" />
     <Compile Include="classDestructor.boo" />

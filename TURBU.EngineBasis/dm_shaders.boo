@@ -1,6 +1,5 @@
 namespace dm.shaders
 
-import Jv.StringHolder
 import Pythia.Runtime
 import System
 import System.Collections.Generic

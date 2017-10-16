@@ -6,12 +6,12 @@ import System.IO
 import System.Linq.Enumerable
 
 import Boo.Adt
-import HighEnergy.Collections
 import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import SG.defs
 import turbu.classes
 import turbu.defs
+import TURBU.EngineBasis
 import TURBU.MapInterface
 import turbu.sounds
 
@@ -248,11 +248,9 @@ class TMapTree(TRpgDatafile, IMapTree):
 		return FTranslationTable.ContainsKey(id)
 
 	public def ChildrenOf(id as short) as List[of TMapMetadata]:
-		node as TreeNode[of TMapMetadata]
-		list as TreeNodeList[of TMapMetadata]
-		node = FTranslationTable[id]
+		node as TreeNode[of TMapMetadata] = FTranslationTable[id]
 		result = List[of TMapMetadata]()
-		list = node.Children
+		var list = node.Children
 		result.Capacity = list.Count
 		for node in list:
 			result.Add(node.Value)

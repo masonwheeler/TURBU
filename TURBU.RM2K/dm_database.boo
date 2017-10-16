@@ -1,7 +1,6 @@
 ﻿namespace TURBU.RM2K
 
 import Boo.Adt
-import Pythia.Runtime
 import TURBU.DataReader
 import TURBU.MapInterface
 

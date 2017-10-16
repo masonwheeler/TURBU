@@ -2,7 +2,6 @@
 
 import Boo.Adt
 import Boo.Lang.Compiler.Ast
-import Pythia.Runtime
 import System
 import System.Collections.Generic
 import System.IO

@@ -4,7 +4,6 @@ import System
 import System.IO
 import Microsoft.Win32
 import Boo.Adt
-import Pythia.Runtime
 import SG.defs
 
 class EFatalError(Exception):

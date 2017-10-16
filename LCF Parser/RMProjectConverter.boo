@@ -9,7 +9,6 @@ import System.Threading.Tasks
 import Boo.Adt
 import Boo.Lang.Compiler.Ast
 import commons
-import Pythia.Runtime
 import SDL2.SDL
 import SDL2.SDL_image
 import TURBU.Design.Optimizations
