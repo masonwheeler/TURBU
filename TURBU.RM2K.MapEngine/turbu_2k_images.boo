@@ -119,8 +119,8 @@ class TRpgImageSprite(TSprite):
 		var currentColor = GPU_GetColor(self.Image.Surface)
 		GPU_SetRGBA(self.Image.Surface, self.Red, self.Green, self.Blue, /*FSaturation*/ self.Alpha)
 		if Pinned:
-			cx = (FCenterX + Engine.WorldX) - FBaseWX
-			cy = (FCenterY + Engine.WorldY) - FBaseWY
+			cx = (FCenterX + Engine.Viewport.WorldX) - FBaseWX
+			cy = (FCenterY + Engine.Viewport.WorldY) - FBaseWY
 		else:
 			cx = FCenterX
 			cy = FCenterY

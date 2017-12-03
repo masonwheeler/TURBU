@@ -532,8 +532,8 @@ class TZoomTransition(TTransition):
 		FRatio = (canvas.Width cast double) / (canvas.Height cast double)
 		base = GSpriteEngine.value.CurrentParty.BaseTile
 		FCenter = sgPoint(Math.Truncate(base.X) + 8, Math.Truncate(base.Y) + 8)
-		FCenter.x -= Math.Round(GSpriteEngine.value.WorldX)
-		FCenter.y -= Math.Round(GSpriteEngine.value.WorldY)
+		FCenter.x -= Math.Round(GSpriteEngine.value.Viewport.WorldX)
+		FCenter.y -= Math.Round(GSpriteEngine.value.Viewport.WorldY)
 		if zoomIn:
 			FCurrentX = 0
 			FCurrentY = 0

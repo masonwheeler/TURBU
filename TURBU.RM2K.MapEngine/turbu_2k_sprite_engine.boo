@@ -60,6 +60,8 @@ class T2kSpriteEngine(SpriteEngine):
 
 	private FViewport as GPU_Rect
 
+	private final _tileViewport as CompositeViewport
+
 	[Getter(MapRect)]
 	private FMapRect as GPU_Rect
 
@@ -147,11 +149,12 @@ class T2kSpriteEngine(SpriteEngine):
 	private FShakeTime as int
 
 	private def SetViewport(viewport as GPU_Rect):
+		SetViewport(viewport, viewport.x * TILE_SIZE.x, viewport.y * TILE_SIZE.y)
+
+	private def SetViewport(viewport as GPU_Rect, pixelX as int, pixelY as int):
 		assert assigned(FMap)
-		return if viewport == FViewport
+		return if viewport == FViewport and self.Viewport.WorldX == pixelX and self.Viewport.WorldY == pixelY
 		FViewport = viewport
-		self.WorldX = viewport.x * TILE_SIZE.x
-		self.WorldY = viewport.y * TILE_SIZE.y
 		for i in range(FMap.TileMap.Length):
 			LoadTileMatrix(FMap.TileMap[i], i, viewport)
 		FOverlapping = TFacing.None
@@ -163,30 +166,37 @@ class T2kSpriteEngine(SpriteEngine):
 			FOverlapping |= TFacing.Up
 		elif viewport.h > self.Height:
 			FOverlapping |= TFacing.Down
+		var scaledViewport = GPU_MakeRect(
+				pixelX,
+				pixelY,
+				viewport.w * TILE_SIZE.x,
+				viewport.h * TILE_SIZE.y)
+		_tileViewport.SetView(scaledViewport)
+		self.Viewport.WorldX = pixelX
+		self.Viewport.WorldY = pixelY
 		ResizeCanvas()
 
+	private static def NormalizeCoords(x as int, y as int, size as TSgPoint, ref equivX as int, ref equivY as int):
+		adjustedCoords as TSgPoint = sgPoint(x, y)
+		while (adjustedCoords.x < 0) or (adjustedCoords.y < 0):
+			adjustedCoords = adjustedCoords + size
+		adjustedCoords = adjustedCoords % size
+		equivX = adjustedCoords.x
+		equivY = adjustedCoords.y
+
+	private static def GetIndex(x as int, y as int, size as TSgPoint) as int:
+		return (y * size.x) + x
+
 	private def LoadTileMatrix(value as (TTileRef), index as int, viewport as GPU_Rect):
-		size as TSgPoint
-		def EquivalizeCoords(x as int, y as int, ref equivX as int, ref equivY as int):
-			adjustedCoords as TSgPoint = sgPoint(x, y)
-			while (adjustedCoords.x < 0) or (adjustedCoords.y < 0):
-				adjustedCoords = adjustedCoords + size
-			adjustedCoords = adjustedCoords % size
-			equivX = adjustedCoords.x
-			equivY = adjustedCoords.y
-		
-		def GetIndex(x as int, y as int) as int:
-			return (y * size.x) + x
-		
 		equivX as int
 		equivY as int
 		matrix as TMatrix[of TMapTile] = FTiles[index]
-		size = FMap.Size
-		for y in range(viewport.y - 1, viewport.y + viewport.h - 1):
-			for x in range(viewport.x - 1, viewport.x + viewport.w):
-				EquivalizeCoords(x, y, equivX, equivY)
+		size as TSgPoint = FMap.Size
+		for y in range(viewport.y - 1, viewport.y + viewport.h + 1):
+			for x in range(viewport.x - 1, viewport.x + viewport.w + 1):
+				NormalizeCoords(x, y, size, equivX, equivY)
 				continue if assigned(matrix[equivX, equivY])
-				tileRef as TTileRef = value[GetIndex(equivX, equivY)]
+				tileRef as TTileRef = value[GetIndex(equivX, equivY, size)]
 				newTile as TMapTile = CreateNewTile(tileRef)
 				matrix[equivX, equivY] = newTile
 				if assigned(newTile):
@@ -226,17 +236,17 @@ class T2kSpriteEngine(SpriteEngine):
 
 	private def DrawBG():
 		FBgImage.Scroll()
-		FBgImage.X = WorldX
+		FBgImage.X = Viewport.WorldX
 		repeat :
-			FBgImage.Y = WorldY
+			FBgImage.Y = Viewport.WorldY
 			repeat :
 				FRenderer.Reset()
 				FBgImage.Draw()
 				FRenderer.Render(FEngine.Canvas.RenderTarget)
 				FBgImage.Y += FBgImage.PatternHeight
-				until FBgImage.Y + FBgImage.OffsetY > WorldY + Canvas.Height
+				until FBgImage.Y + FBgImage.OffsetY > Viewport.WorldY + Canvas.Height
 			FBgImage.X += FBgImage.PatternWidth
-			until FBgImage.X + FBgImage.OffsetX > WorldX + Canvas.Width
+			until FBgImage.X + FBgImage.OffsetX > Viewport.WorldX + Canvas.Width
 
 	private def GetMapID() as int:
 		return MapObj.ID
@@ -261,14 +271,16 @@ class T2kSpriteEngine(SpriteEngine):
 		halfheight as int = Math.Min(round(Canvas.Height / 2.0), (Height + 1) * 8)
 		maxwidth as int = ((Width + 1) * TILE_SIZE.x) - halfwidth
 		maxheight as int = ((Height + 1) * TILE_SIZE.y) - halfheight
-		if x < halfwidth:
-			x = halfwidth
-		if y < halfheight:
-			y = halfheight
-		if x > maxwidth:
-			x = maxwidth
-		if y > maxheight:
-			y = maxheight
+		unless (TWraparound.Horizontal in FMap.Wraparound):
+			if x < halfwidth:
+				x = halfwidth
+			if x > maxwidth:
+				x = maxwidth
+		unless (TWraparound.Vertical in FMap.Wraparound):
+			if y < halfheight:
+				y = halfheight
+			if y > maxheight:
+				y = maxheight
 		x -= halfwidth
 		x -= halfwidth % TILE_SIZE.x
 		y -= halfheight
@@ -321,8 +333,8 @@ class T2kSpriteEngine(SpriteEngine):
 		FDispGoalX = 0
 		FDispGoalY = 0
 		FDisplacementTime = null
-		WorldX = commons.round(WorldX)
-		WorldY = commons.round(WorldY)
+		Viewport.WorldX = commons.round(Viewport.WorldX)
+		Viewport.WorldY = commons.round(Viewport.WorldY)
 		MoveTo(Math.Truncate(FCurrentParty.BaseTile.X), Math.Truncate(FCurrentParty.BaseTile.Y))
 
 	private def ApplyDisplacement():
@@ -334,20 +346,20 @@ class T2kSpriteEngine(SpriteEngine):
 			FShakeTime -= FShakeTime / i
 		else:
 			shakeBias = 0
-		WorldX = (WorldX + FDisplacementX) - shakeBias
+		Viewport.WorldX = (Viewport.WorldX + FDisplacementX) - shakeBias
 		unless TWraparound.Horizontal in FMap.Wraparound:
-			WorldX = clamp(Math.Round(WorldX), 0, (Width * TILE_SIZE.x) - Canvas.Width)
-		WorldY = WorldY + FDisplacementY
+			Viewport.WorldX = clamp(Math.Round(Viewport.WorldX), 0, (Width * TILE_SIZE.x) - Canvas.Width)
+		Viewport.WorldY = Viewport.WorldY + FDisplacementY
 		unless TWraparound.Vertical in FMap.Wraparound:
-			WorldY = clamp(Math.Round(WorldY), 0, (Height * TILE_SIZE.y) - Canvas.Height)
+			Viewport.WorldY = clamp(Math.Round(Viewport.WorldY), 0, (Height * TILE_SIZE.y) - Canvas.Height)
 		if ((FDisplacementX - shakeBias) != 0) or (FDisplacementY != 0):
 			for i in range(FMap.TileMap.Length):
 				LoadTileMatrix(FMap.TileMap[i], i,
 					GPU_MakeRect(
-						Math.Truncate(WorldX / TILE_SIZE.x),
-						Math.Truncate(WorldY / TILE_SIZE.y),
-						FViewport.h, //TODO: H/W reversed. Is this right? The original Delphi TURBU code was like this
-						FViewport.w))
+						Math.Truncate(Viewport.WorldX / TILE_SIZE.x),
+						Math.Truncate(Viewport.WorldY / TILE_SIZE.y),
+						FViewport.w,
+						FViewport.h))
 
 	private def InternalCenterOn(px as int, py as int):
 		AdjustCoords(px, py)
@@ -355,35 +367,29 @@ class T2kSpriteEngine(SpriteEngine):
 		FDestination.y = py
 		aX as int = px / TILE_SIZE.x
 		aY as int = py / TILE_SIZE.y
-		self.SetViewport(GPU_MakeRect(aX, aY, aX + (Canvas.Width / TILE_SIZE.x), aY + (Canvas.Height / TILE_SIZE.y)))
-		self.WorldX = px
-		self.WorldY = py
-		FDispBaseX = WorldX
-		FDispBaseY = WorldY
+		self.SetViewport(GPU_MakeRect(aX, aY, Canvas.Width / TILE_SIZE.x, Canvas.Height / TILE_SIZE.y), px, py)
+		FDispBaseX = Viewport.WorldX
+		FDispBaseY = Viewport.WorldY
 
 	private def SetScreenLocked(value as bool):
 		halfWidth as int = Math.Min(round(Canvas.Width / 2.0), (Width + 1) * 8)
 		halfHeight as int = Math.Min(round(Canvas.Height / 2.0), (Height + 1) * 8)
 		FScreenLocked = value
 		if value:
-			FCenter = sgPoint(round(WorldX - FDisplacementX) + halfWidth, round(WorldY - FDisplacementY) + halfHeight)
+			FCenter = sgPoint(round(Viewport.WorldX - FDisplacementX) + halfWidth, round(Viewport.WorldY - FDisplacementY) + halfHeight)
 
 	private def DrawNormal():
-		//FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
-		try:
-			if assigned(FCurrentParty) and not FScreenLocked:
-				centerTile as TTile = FCurrentParty.Tiles[1]
-				CenterOnWorldCoords(centerTile.X + ((centerTile.Width + TILE_SIZE.x) / 2), centerTile.Y + TILE_SIZE.y)
-			elif FScreenLocked:
-				CenterOnWorldCoords(FCenter.x, FCenter.y)
-			ApplyDisplacement()
-			if assigned(FBgImage):
-				DrawBG()
-			super.Draw()
-			if assigned(FOnDrawWeather):
-				FOnDrawWeather()
-		ensure:
-			GPU_DeactivateShaderProgram()
+		if assigned(FCurrentParty) and not FScreenLocked:
+			centerTile as TTile = FCurrentParty.Tiles[1]
+			CenterOnWorldCoords(centerTile.X + ((centerTile.Width + TILE_SIZE.x) / 2), centerTile.Y + TILE_SIZE.y)
+		elif FScreenLocked:
+			CenterOnWorldCoords(FCenter.x, FCenter.y)
+		ApplyDisplacement()
+		if assigned(FBgImage):
+			DrawBG()
+		super.Draw()
+		if assigned(FOnDrawWeather):
+			FOnDrawWeather()
 
 	protected override def GetHeight() as int:
 		return MapObj.Size.y
@@ -391,17 +397,19 @@ class T2kSpriteEngine(SpriteEngine):
 	protected override def GetWidth() as int:
 		return MapObj.Size.x
 
+	protected override def CreateViewport() as Viewport:
+		return CompositeViewport(self.Canvas.Width, self.Canvas.Height, FMap.Size.x * TILE_SIZE.x, FMap.Size.y * TILE_SIZE.y)
+
 	public def constructor(map as TRpgMap, viewport as GPU_Rect, shaderEngine as TdmShaders, Canvas as TSdlCanvas, \
 			tileset as TTileSet, images as TSdlImages):
+		FMap = map
 		super(null, Canvas)
 		FShaderEngine = shaderEngine
 		self.Images = images
 		FTiles = List[of TMatrix[of TMapTile]]()
 		FTileset = tileset
-		FMap = map
 		size as TSgPoint = FMap.Size
-		self.VisibleWidth = Canvas.Width
-		self.VisibleHeight = Canvas.Height
+		_tileViewport = _viewport
 		FMapRect = GPU_MakeRect(0, 0, size.x, size.y)
 		FPanSpeed = BASESPEED
 		for i in range(FMap.TileMap.Length):
@@ -487,7 +495,7 @@ class T2kSpriteEngine(SpriteEngine):
 
 	public def IsHeroIn(location as TMboxLocation) as bool:
 		third as int = Canvas.Height / 3
-		yPos as int = (FCurrentParty.Location.y * TILE_SIZE.y) - Math.Truncate(WorldY)
+		yPos as int = (FCurrentParty.Location.y * TILE_SIZE.y) - Math.Truncate(Viewport.WorldY)
 		caseOf location:
 			case TMboxLocation.Top: result = yPos <= third + TILE_SIZE.y
 			case TMboxLocation.Middle: result = (yPos <= (third * 2) + TILE_SIZE.y) and (yPos > third)
@@ -665,8 +673,8 @@ class T2kSpriteEngine(SpriteEngine):
 
 	public def ResizeCanvas():
 		self.Canvas.Resize()
-		self.VisibleWidth = Canvas.Width
-		self.VisibleHeight = Canvas.Height
+		self.Viewport.VisibleWidth = Canvas.Width
+		self.Viewport.VisibleHeight = Canvas.Height
 
 	public def OnMap(where as TSgPoint) as bool:
 		return (clamp(where.x, 0, Width) == where.x) and (clamp(where.y, 0, Height) == where.y)
@@ -681,9 +689,9 @@ class T2kSpriteEngine(SpriteEngine):
 
 	public def ScrollMap(newPosition as TSgPoint):
 		reducedPosition as TSgPoint = newPosition / TILE_SIZE
-		self.Viewport = GPU_MakeRect(reducedPosition.x, reducedPosition.y, self.Viewport.w, self.Viewport.h)
-		self.WorldX = newPosition.x
-		self.WorldY = newPosition.y
+		FViewport = GPU_MakeRect(reducedPosition.x, reducedPosition.y, FViewport.w, FViewport.h)
+		self.Viewport.WorldX = newPosition.x
+		self.Viewport.WorldY = newPosition.y
 
 	public def SetBG(name as string, x as int, y as int, scrollX as TMapScrollType, scrollY as TMapScrollType):
 		bgName as string = 'Background ' + name
@@ -698,10 +706,10 @@ class T2kSpriteEngine(SpriteEngine):
 			self.Images.EnsureBGImage('Backgrounds\\' + filename, bgName)
 			FBgImage = TBackgroundSprite(FEngine, x, y, scrollX, scrollY)
 		else:
-			FBgImage.scrollData.X = x
-			FBgImage.scrollData.Y = y
-			FBgImage.scrollData.ScrollX = scrollX
-			FBgImage.scrollData.ScrollY = scrollY
+			FBgImage.ScrollData.X = x
+			FBgImage.ScrollData.Y = y
+			FBgImage.ScrollData.ScrollX = scrollX
+			FBgImage.ScrollData.ScrollY = scrollY
 		FBgImage.ImageName = bgName
 
 	public def ChangeTileset(value as TTileSet):
@@ -789,8 +797,8 @@ class T2kSpriteEngine(SpriteEngine):
 
 	public def DisplaceTo(x as int, y as int):
 		AdjustCoordsForDisplacement(x, y)
-		FDispGoalX = (FDispGoalX + x) - WorldX
-		FDispGoalY = (FDispGoalY + y) - WorldY
+		FDispGoalX = (FDispGoalX + x) - Viewport.WorldX
+		FDispGoalY = (FDispGoalY + y) - Viewport.WorldY
 		FDisplacing = true
 
 	public def SetDispSpeed(speed as byte):
@@ -814,13 +822,16 @@ class T2kSpriteEngine(SpriteEngine):
 	public def Wake():
 		FGameState = TGameState.Map
 
+	public def TileInViewport(tile as TTile):
+		return self._tileViewport.SpriteInViewport(tile)
+
 	internal def ReleaseMap():
 		FMap = null
-
+/*
 	public Viewport as GPU_Rect:
 		get: return FViewport
 		set: SetViewport(value)
-
+*/
 	public MaxLayer as int:
 		get: return GetMaxLayer()
 

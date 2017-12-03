@@ -93,6 +93,7 @@
     <Compile Include="turbu_sdl_image.boo" />
     <Compile Include="turbu_text_utils.boo" />
     <Compile Include="turbu_versioning.boo" />
+    <Compile Include="viewports.boo" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="JV" />

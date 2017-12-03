@@ -196,8 +196,9 @@ def UnlockScreen():
 def PanScreen(direction as TFacing, distance as int, speed as int):
 	halfwidth as int = GSpriteEngine.value.Canvas.Width / 2
 	halfheight as int = GSpriteEngine.value.Canvas.Height / 2
-	x as int = Math.Truncate((GSpriteEngine.value.WorldX + halfwidth) / TILE_SIZE.x)
-	y as int = commons.round((GSpriteEngine.value.WorldY + halfheight) / TILE_SIZE.y)
+	var vp = GSpriteEngine.value.Viewport
+	x as int = Math.Truncate((vp.WorldX + halfwidth) / TILE_SIZE.x)
+	y as int = commons.round((vp.WorldY + halfheight) / TILE_SIZE.y)
 	caseOf direction:
 		case TFacing.Up:
 			y -= distance
@@ -248,7 +249,7 @@ def NewImage(name as string, x as int, y as int, zoom as int, transparency as in
 	try:
 		GGameEngine.value.LoadRpgImage(name, mask)
 		var se = GSpriteEngine.value
-		image = TRpgImage(GGameEngine.value.ImageEngine, name, x, y, se.WorldX, se.WorldY, zoom, pinned, mask)
+		image = TRpgImage(GGameEngine.value.ImageEngine, name, x, y, se.Viewport.WorldX, se.Viewport.WorldY, zoom, pinned, mask)
 		image.Opacity = 100 - Math.Min(transparency, 100)
 	except:
 		image = TRpgImage(GSpriteEngine.value, '', 0, 0, 0, 0, 0, false, false)
@@ -275,7 +276,7 @@ def ShowBattleAnimBAndWait(which as int, target as IAnimTarget, fullscreen as bo
 	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, signal)
 	waitFor { signal.WaitOne(0) }
 
-def ShowBattleAnimT(engine as TSpriteEngine, which as int, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
+def ShowBattleAnimT(engine as SpriteEngine, which as int, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
 	template as TAnimTemplate = GDatabase.value.Anim[which]
 	return if template == null
 	try:

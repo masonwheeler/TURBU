@@ -226,17 +226,16 @@ class TGameEquipmentMenu(TGameMenuBox):
 			index = (GEnvironment.value.Party.Size if charIndex == 1 else charIndex - 1)
 			return GEnvironment.value.Party[index]
 		
-		dummy as GPU_Rect
 		newChar as TRpgHero
 		super.DoButton(input)
 		if input == TButtonCode.Enter:
-			dummy = GMenuEngine.Value.Cursor.Bounds
-			dummy = GPU_MakeRect(
-				dummy.x - Math.Round(FEngine.WorldX),
-				dummy.y - Math.Round(FEngine.WorldY),
-				dummy.w,
-				dummy.h)
-			FPassiveCursor.Layout(dummy)
+			var bounds = GMenuEngine.Value.Cursor.Bounds
+			bounds = GPU_MakeRect(
+				bounds.x - Math.Round(FEngine.Viewport.WorldX),
+				bounds.y - Math.Round(FEngine.Viewport.WorldY),
+				bounds.w,
+				bounds.h)
+			FPassiveCursor.Layout(bounds)
 			self.FocusMenu('Inventory', 0)
 		elif (input in (TButtonCode.Left, TButtonCode.Right)) and (GEnvironment.value.Party.Size > 1):
 			newChar = (PrevChar() if input == TButtonCode.Left else NextChar())

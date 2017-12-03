@@ -67,10 +67,10 @@ class TRpgCharacter(TObject):
 		pass
 
 	public ScreenX as int:
-		get: return GetX() - round(GSpriteEngine.value.WorldX / TILE_SIZE.x )
+		get: return GetX() - round(GSpriteEngine.value.Viewport.WorldX / TILE_SIZE.x )
 
 	public ScreenY as int:
-		get: return GetY() - round(GSpriteEngine.value.WorldY / TILE_SIZE.y )
+		get: return GetY() - round(GSpriteEngine.value.Viewport.WorldY / TILE_SIZE.y )
 
 	public ScreenXP as int:
 		get: return self.ScreenX * TILE_SIZE.x

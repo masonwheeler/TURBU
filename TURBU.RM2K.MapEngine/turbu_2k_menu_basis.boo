@@ -473,7 +473,7 @@ class TMenuEngine(TObject, IMenuEngine):
 	public def Activate():
 		assert FState == TMenuShowState.Fading
 		FState = TMenuShowState.Main
-		FOrigin = sgPoint(Math.Round(FParent.WorldX), Math.Round(FParent.WorldY))
+		FOrigin = sgPoint(Math.Round(FParent.Viewport.WorldX), Math.Round(FParent.Viewport.WorldY))
 
 	public def Shutdown():
 		assert FState == TMenuShowState.Fading

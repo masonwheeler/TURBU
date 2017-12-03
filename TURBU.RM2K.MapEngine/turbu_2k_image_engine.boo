@@ -17,8 +17,8 @@ class TImageEngine(SpriteEngine):
 		self.Images = images
 
 	public override def Draw():
-		WorldX = FParentEngine.WorldX
-		WorldY = FParentEngine.WorldY
+		Viewport.WorldX = FParentEngine.Viewport.WorldX
+		Viewport.WorldY = FParentEngine.Viewport.WorldY
 		super.Draw()
 		self.Dead()
 

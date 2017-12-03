@@ -10,7 +10,6 @@ import sdl.canvas
 import SG.defs
 import SDL2
 import SDL2.SDL2_GPU
-import System.Drawing
 import System.Linq.Enumerable
 
 enum TImageType:
@@ -139,9 +138,6 @@ class TSprite(TObject):
 	[Property(Angle)]
 	protected FAngle as single
 
-	[Property(DrawFx)]
-	protected FDrawFX as int
-
 	[Property(ScaleX)]
 	protected FScaleX as single
 
@@ -160,9 +156,6 @@ class TSprite(TObject):
 	[Property(Pinned)]
 	protected FPinned as bool
 
-	[Property(VisibleArea)]
-	protected FVisibleArea as Rectangle
-
 	[Property(Engine), DisposeParent]
 	protected FEngine as SpriteEngine
 
@@ -170,6 +163,11 @@ class TSprite(TObject):
 	protected FParent as TParentSprite
 
 	protected FRenderSpecial as bool
+
+	protected _viewport as IViewport
+
+	protected internal virtual def SetViewport(value as IViewport):
+		_viewport = value
 
 	override def ToString():
 		return "$(self.GetType().Name): Image: $FImageName, Index: $FImageIndex"
@@ -190,9 +188,11 @@ class TSprite(TObject):
 			followX = 0
 			followY = 0
 		else:
-			followX = FEngine.WorldX
-			followY = FEngine.WorldY
-		var topleft = sgPoint(Math.Truncate(FX + FOffsetX - followX), Math.Truncate(FY + FOffsetY - followY))
+			followX = _viewport.WorldX
+			followY = _viewport.WorldY
+		var topleft = sgPoint(
+				Math.Truncate(FX + _viewport.OffsetX + FOffsetX - followX),
+				Math.Truncate(FY + _viewport.OffsetY + FOffsetY - followY))
 		flip as SDL.SDL_RendererFlip = SDL.SDL_RendererFlip.SDL_FLIP_NONE
 		flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL if MirrorX
 		flip |= SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL if MirrorY
@@ -233,23 +233,21 @@ class TSprite(TObject):
 				System.Diagnostics.Debugger.Break()
 
 	protected virtual def InVisibleRect() as bool:
-		return X > FEngine.WorldX - (Width * 2) and \
-		       Y > FEngine.WorldY - (Height * 2) and \
-		       X < FEngine.WorldX + FEngine.VisibleWidth and \
-		       Y < FEngine.WorldY + FEngine.VisibleHeight
+		return X > _viewport.WorldX - (Width * 2) and \
+		       Y > _viewport.WorldY - (Height * 2) and \
+		       X < _viewport.WorldX + _viewport.VisibleWidth and \
+		       Y < _viewport.WorldY + _viewport.VisibleHeight
 
 	public def constructor(AParent as TParentSprite):
 		if assigned(AParent):
 			FParent = AParent
 			FParent.Add(self)
-			FEngine = ((AParent cast TSpriteEngine) if AParent isa TSpriteEngine else AParent.Engine)
-			++FEngine.FAllCount
+			FEngine = (AParent cast SpriteEngine if AParent isa SpriteEngine else AParent.Engine)
 		FVisible = true
 
 /*
 	private def Destroy():
 		if assigned(FParent):
-			--FEngine.FAllCount
 			try:
 				FParent.Remove(self)
 			except as ObjectDisposedException:
@@ -670,24 +668,9 @@ class TParticleSprite(TAnimatedSprite):
 			self.Dead()
 
 [Disposable(Destroy, true)]
-
-	[Getter(AllCount)]
-	internal FAllCount as int
 class SpriteEngine(TParentSprite):
 
 	internal FDeadList = List[of TSprite]()
-
-	[Property(WorldX)]
-	protected FWorldX as single
-
-	[Property(WorldY)]
-	protected FWorldY as single
-
-	[Property(VisibleWidth)]
-	private FVisibleWidth as int
-
-	[Property(VisibleHeight)]
-	private FVisibleHeight as int
 
 	[Property(Images), DisposeParent]
 	private FImages as TSdlImages
@@ -700,18 +683,24 @@ class SpriteEngine(TParentSprite):
 	internal Renderer:
 		get: return FRenderer
 
+	[Getter(Viewport)]
+	private _engineViewport as Viewport
+
 	protected virtual def GetHeight() as int:
 		return super.Height
 
 	protected virtual def GetWidth() as int:
 		return super.Width
 
+	protected virtual def CreateViewport() as Viewport:
+		return Viewport(self.Canvas.Width, self.Canvas.Height)
+
 	public def constructor(parent as SpriteEngine, canvas as TSdlCanvas):
 		super(parent)
-		FVisibleWidth = 800
-		FVisibleHeight = 600
 		FCanvas = canvas
 		FEngine = self
+		_engineViewport = CreateViewport()
+		_viewport = _engineViewport
 
 	private new def Destroy():
 		Dead()
@@ -733,11 +722,20 @@ class SpriteEngine(TParentSprite):
 			sprite.FParent.Remove(sprite)
 		FDeadList.Clear()
 
+	public override def Add(sprite as TSprite):
+		super(sprite)
+		SetViewport(sprite)
+
+	protected def SetViewport(sprite as TSprite):
+		sprite._viewport = self._viewport
+
 	public override Width as int:
 		get: return GetWidth()
 
 	public override Height as int:
 		get: return GetHeight()
+		set: 
+			super.Height = value
 
 class SpriteRenderer:
 	private FLastZ as int
@@ -746,10 +744,7 @@ class SpriteRenderer:
 
 	private FDrawMap = Dictionary[of int, TMultimap[of TSdlImage, TSprite]]()
 
-	private FEngine as TSpriteEngine
-
-	public def constructor(engine as TSpriteEngine):
-		FEngine = engine
+	public def constructor():
 		FLastZ = -1
 
 	public def Draw(sprite as TSprite):
@@ -758,10 +753,7 @@ class SpriteRenderer:
 			map = FLastMap
 		else:
 			System.Diagnostics.Debugger.Break() if sprite.Z == 0 and not sprite.IsBackground()
-			//manual TryGetValue.  Replace once https://github.com/boo-lang/boo/issues/133 is fixed
-			if FDrawMap.ContainsKey(sprite.Z):
-				map = FDrawMap[sprite.Z]
-			else:
+			if not FDrawMap.TryGetValue(sprite.Z, map):
 				map = TMultimap[of TSdlImage, TSprite]()
 				FDrawMap.Add(sprite.Z, map)
 			FLastZ = sprite.Z

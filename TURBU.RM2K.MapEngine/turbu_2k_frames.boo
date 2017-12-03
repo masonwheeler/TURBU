@@ -1069,9 +1069,10 @@ class TSystemTimer(TParentSprite):
 		return if FTime == 0
 		UpdateTime() if FTime != FPrevTime
 		FPrevTime = FTime
-		if (Engine.WorldX != X) or (Engine.WorldY != Y) or ((Engine cast T2kSpriteEngine).State != FPrevState):
-			X = Engine.WorldX
-			Y = Engine.WorldY
+		var vp = Engine.Viewport
+		if (vp.WorldX != X) or (vp.WorldY != Y) or ((Engine cast T2kSpriteEngine).State != FPrevState):
+			X = vp.WorldX
+			Y = vp.WorldY
 			UpdatePosition(sgPoint(Math.Round(X), Math.Round(Y)))
 		for i in range(1, 6):
 			FTiles[i].Draw()

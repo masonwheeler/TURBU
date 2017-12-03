@@ -81,13 +81,19 @@ class TAnimTile(TMapTile):
 
 class TMiniTile(TSprite):
 
-	public def constructor(AParent as TBorderTile, tileset as string):
+	public def constructor(AParent as TBorderTile, tileset as string, viewport as IViewport):
 		super(AParent)
 		ImageName = tileset
+		_viewport = viewport
 
 class TBorderTile(TMapTile):
 
 	protected minitiles = array(TMiniTile, 4)
+
+	protected internal override def SetViewport(value as IViewport):
+		super(value)
+		for mini in minitiles:
+			mini.SetViewport(value)
 
 	protected virtual def DoPlace():
 		minis = array(ushort, 4)
@@ -206,27 +212,13 @@ class TBorderTile(TMapTile):
 			minitiles[i].Engine = newEngine
 
 	protected override def DoDraw():
-		i as int
-		lX as single
-		lY as single
-		overlap as TFacing
-		overlap = (FEngine cast T2kSpriteEngine).Overlapping
-		if overlap != TFacing.None:
-			lX = self.X
-			lY = self.Y
-			AdjustOverlap(overlap)
-			self.SetMinisPosition()
 		for i in range(4):
 			minitiles[i].DoDraw()
-		if overlap != TFacing.None:
-			self.X = lX
-			self.Y = lY
-			self.SetMinisPosition()
 
 	public def constructor(AParent as SpriteEngine, tileset as string):
 		super(AParent, tileset)
 		for i in range(4):
-			minitiles[i] = TMiniTile(self, tileset)
+			minitiles[i] = TMiniTile(self, tileset, _viewport)
 			minitiles[i].Width = TILE_SIZE.x / 2
 			minitiles[i].Height = TILE_SIZE.y / 2
 

@@ -42,65 +42,13 @@ abstract class TTile(TParentSprite):
 	[Property(ID)]
 	protected FTileID as ushort
 
+	private _basePosition as TSgFloatPoint
+
 	protected override def InVisibleRect() as bool:
-		def NormalizePoint(aPoint as TSgPoint, aRect as GPU_Rect) as TSgPoint:
-			right as int = aRect.x + aRect.w
-			bottom as int = aRect.y + aRect.h
-			if aPoint.x < aRect.x:
-				aPoint.x += aRect.w
-			elif aPoint.x >= right:
-				aPoint.x -= aRect.w
-			if aPoint.y < aRect.y:
-				aPoint.y += aRect.h
-			elif aPoint.y >= bottom:
-				aPoint.y -= aRect.h
-			return aPoint
-		
-		corrected as TSgPoint
-		if (FEngine cast T2kSpriteEngine).Overlapping == TFacing.None:
-			result = super.InVisibleRect()
-		else:
-			corrected = NormalizePoint(FGridLoc, (FEngine cast T2kSpriteEngine).MapRect) * TILE_SIZE
-			result = corrected.x >= FEngine.WorldX - (Width * 2) and \
-					corrected.y >= FEngine.WorldY - (Height * 2) and \
-					corrected.x < FEngine.WorldX + FEngine.VisibleWidth + Width and \
-					corrected.y < FEngine.WorldY + FEngine.VisibleHeight + Height
+		var result = (FEngine cast T2kSpriteEngine).TileInViewport(self)
 		return result
 
-	protected override def DoDraw():
-		lX as single
-		lY as single
-		overlap as TFacing
-		overlap = (FEngine cast T2kSpriteEngine).Overlapping
-		if overlap != TFacing.None:
-			lX = self.X
-			lY = self.Y
-			AdjustOverlap(overlap)
-		super.DoDraw()
-		if overlap != TFacing.None:
-			self.X = lX
-			self.Y = lY
-
-	protected def AdjustOverlap(overlap as TFacing):
-		viewport as GPU_Rect
-		mapSize as TSgFloatPoint
-		viewport = (FEngine cast T2kSpriteEngine).Viewport
-		mr = (FEngine cast T2kSpriteEngine).MapRect
-		mapSize = sgPoint(mr.h, mr.w) * TILE_SIZE
-		if TFacing.Left in overlap:
-			if FGridLoc.x > viewport.x + viewport.w:
-				self.X = (self.X - mapSize.x)
-		elif TFacing.Right in overlap:
-			if FGridLoc.x < viewport.x:
-				self.X = (self.X + mapSize.x)
-		if TFacing.Up in overlap:
-			if FGridLoc.y > viewport.y + viewport.h:
-				self.Y = (self.Y - mapSize.y)
-		elif TFacing.Down in overlap:
-			if FGridLoc.y < viewport.y:
-				self.Y = (self.Y + mapSize.y)
-
-	protected virtual def SetEngine(newEngine as TSpriteEngine):
+	protected virtual def SetEngine(newEngine as SpriteEngine):
 		FEngine = newEngine
 
 	public def constructor(AParent as SpriteEngine, tileset as string):
@@ -249,7 +197,7 @@ class TScrollData(TObject):
 
 class TBackgroundSprite(TSprite):
 
-	[Property(scrollData)]
+	[Property(ScrollData)]
 	private FScroll as TScrollData
 
 	private FSavedOrigin as TSgFloatPoint
@@ -269,15 +217,15 @@ class TBackgroundSprite(TSprite):
 		return true
 
 	public def Scroll():
-		if (FScroll.ScrollX == TMapScrollType.Autoscroll) and (Engine.WorldX != FSavedOrigin.x):
-			self.OffsetX += (Engine.WorldX - FSavedOrigin.x) / 2.0
+		if (FScroll.ScrollX == TMapScrollType.Autoscroll) and (Engine.Viewport.WorldX != FSavedOrigin.x):
+			self.OffsetX += (Engine.Viewport.WorldX - FSavedOrigin.x) / 2.0
 		elif FScroll.ScrollX != TMapScrollType.None:
 			self.OffsetX += FScroll.X * BG_SCROLL_RATE
-		if (FScroll.ScrollY == TMapScrollType.Autoscroll) and (Engine.WorldY != FSavedOrigin.y):
-			self.OffsetY += (Engine.WorldY - FSavedOrigin.y) / 2.0
+		if (FScroll.ScrollY == TMapScrollType.Autoscroll) and (Engine.Viewport.WorldY != FSavedOrigin.y):
+			self.OffsetY += (Engine.Viewport.WorldY - FSavedOrigin.y) / 2.0
 		elif FScroll.ScrollY != TMapScrollType.None:
 			self.OffsetY += FScroll.Y * BG_SCROLL_RATE
-		FSavedOrigin = sgPointF(Engine.WorldX, Engine.WorldY)
+		FSavedOrigin = sgPointF(Engine.Viewport.WorldX, Engine.Viewport.WorldY)
 		while self.OffsetX > 0:
 			self.OffsetX -= self.PatternWidth
 		or:
