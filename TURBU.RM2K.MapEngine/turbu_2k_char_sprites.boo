@@ -50,7 +50,7 @@ class TVehicleTile(TEventTile):
 			self.Y = (self.Y + displacement)
 		FOwner.ReportState(State) if (FOffset.x == offset.x) and (FOffset.y == offset.y)
 
-	public def constructor(base as TEventTile, parent as TSpriteEngine, onCleanup as Action):
+	public def constructor(base as TEventTile, parent as SpriteEngine, onCleanup as Action):
 		super(base.Event, parent cast T2kSpriteEngine)
 		self.Z = 3
 		self.Assign(base)
@@ -186,7 +186,7 @@ class TVehicleSprite(TCharSprite):
 		else:
 			super.SetTarget(value)
 
-	public def constructor(parent as TSpriteEngine, whichVehicle as TRpgVehicle, cleanup as Action):
+	public def constructor(parent as SpriteEngine, whichVehicle as TRpgVehicle, cleanup as Action):
 		newTile as TVehicleTile
 		super(null, parent)
 		self.OnChangeSprite = whichVehicle.ChangeSprite
@@ -307,7 +307,7 @@ class THeroSprite(TCharSprite):
 	protected override def GetCanSkip() as bool:
 		return true
 
-	public def constructor(parent as TSpriteEngine, whichHero as TRpgHero, party as TRpgParty):
+	public def constructor(parent as SpriteEngine, whichHero as TRpgHero, party as TRpgParty):
 		super(null, parent)
 		FTiles[1].Z = 5
 		FTiles[0].Z = 4
@@ -394,7 +394,7 @@ class THeroSprite(TCharSprite):
 		FEngine.Remove(FTiles[1])
 		(FEngine cast T2kSpriteEngine).LeaveLocation(FLocation, self)
 
-	public def settleDown(engine as TSpriteEngine):
+	public def settleDown(engine as SpriteEngine):
 		FEngine = engine
 
 let AIRSHIP_OFFSET = TSgPoint(x: 0, y: -16)

@@ -37,7 +37,7 @@ let SHAKE_MAX = 23
 let MOVESPEED = (0, BASESPEED / 8.0, BASESPEED / 4.0, BASESPEED / 2.0, BASESPEED, BASESPEED * 2.0, BASESPEED * 4.0)
 
 [Disposable(Destroy, true)]
-class T2kSpriteEngine(TSpriteEngine):
+class T2kSpriteEngine(SpriteEngine):
 
 	static final LSineTable = array(double, SHAKE_MAX)
 

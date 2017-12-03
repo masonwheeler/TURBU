@@ -192,7 +192,7 @@ class TRpgImageSprite(TSprite):
 	protected override def InVisibleRect() as bool:
 		return true
 
-	public def constructor(engine as TSpriteEngine, image as TRpgImage, Name as string, x as int, y as int, baseWX as single, baseWY as single, zoom as int, pinned as bool, masked as bool):
+	public def constructor(engine as SpriteEngine, image as TRpgImage, Name as string, x as int, y as int, baseWX as single, baseWY as single, zoom as int, pinned as bool, masked as bool):
 		super(engine)
 		ImageName = Name
 		self.Pinned = pinned
@@ -283,11 +283,11 @@ class TRpgImage(TObject):
 		FSprite = null
 
 	[NoImport]
-	public def constructor(engine as TSpriteEngine, Name as string, x as int, y as int, baseWX as single, baseWY as single, zoom as int, pinned as bool, masked as bool):
+	public def constructor(engine as SpriteEngine, Name as string, x as int, y as int, baseWX as single, baseWY as single, zoom as int, pinned as bool, masked as bool):
 		FSprite = TRpgImageSprite(engine, self, Name, x, y, baseWX, baseWY, zoom, pinned, masked)
 
 	[NoImport]
-	public def constructor(engine as TSpriteEngine, obj as JObject):
+	public def constructor(engine as SpriteEngine, obj as JObject):
 		name as string = ''
 		wx as single
 		wy as single

@@ -223,15 +223,12 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		return FTileMap[layer][(y * FSize.x) + x]
 
 	public def AdjustSize(size as TSgPoint, position as byte):
-		gridSize as TSgPoint
 		grid as (((TTileRef)))
-		list as (TTileRef)
-		delta as Rectangle
 		assert position in range(1, 10)
 		return if size == FSize
 		--position
-		gridSize = sgPoint(Math.Min(FSize.x, size.x), Math.Min(FSize.y, size.y))
-		delta = CalcGridDelta(size, position)
+		var gridSize = sgPoint(Math.Min(FSize.x, size.x), Math.Min(FSize.y, size.y))
+		delta as Rectangle = CalcGridDelta(size, position)
 		Array.Resize[of ((TTileRef))](grid, self.FDepth)
 		for i in range(grid.Length):
 			layer = grid[i]

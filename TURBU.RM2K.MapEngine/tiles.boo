@@ -103,7 +103,7 @@ abstract class TTile(TParentSprite):
 	protected virtual def SetEngine(newEngine as TSpriteEngine):
 		FEngine = newEngine
 
-	public def constructor(AParent as TSpriteEngine, tileset as string):
+	public def constructor(AParent as SpriteEngine, tileset as string):
 		assert AParent isa T2kSpriteEngine
 		super(AParent)
 		ImageName = tileset
@@ -181,7 +181,7 @@ class TEventTile(TTile):
 	private MustFlash as bool:
 		get: return (assigned(FOnMustFlash) and assigned(FOnGetFlashColor)) and FOnMustFlash()
 
-	public def constructor(baseEvent as TRpgMapObject, aParent as TSpriteEngine):
+	public def constructor(baseEvent as TRpgMapObject, aParent as SpriteEngine):
 		super(aParent, '')
 		if assigned(baseEvent):
 			self.X = baseEvent.Location.x * TILE_SIZE.x
@@ -257,11 +257,11 @@ class TBackgroundSprite(TSprite):
 	protected override def InVisibleRect() as bool:
 		return true
 
-	public def constructor(parent as TSpriteEngine, input as TRpgMap):
+	public def constructor(parent as SpriteEngine, input as TRpgMap):
 		super(parent)
 		FScroll = TScrollData(input)
 
-	public def constructor(parent as TSpriteEngine, x as int, y as int, autoX as TMapScrollType, autoY as TMapScrollType):
+	public def constructor(parent as SpriteEngine, x as int, y as int, autoX as TMapScrollType, autoY as TMapScrollType):
 		super(parent)
 		FScroll = TScrollData(x, y, autoX, autoY)
 

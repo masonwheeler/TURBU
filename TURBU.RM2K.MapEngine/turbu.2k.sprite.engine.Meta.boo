@@ -4,6 +4,6 @@ import Pythia.Runtime
 import sdl.sprite
 
 [Metaclass(T2kSpriteEngine)]
-class T2kSpriteEngineClass(TSpriteEngineClass):
+class T2kSpriteEngineClass(SpriteEngineClass):
 	pass
 

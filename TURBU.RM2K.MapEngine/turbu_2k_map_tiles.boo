@@ -15,7 +15,7 @@ import turbu.RM2K.environment
 
 class TMapTile(TTile):
 	
-	public def constructor(AParent as TSpriteEngine, tileset as string):
+	public def constructor(AParent as SpriteEngine, tileset as string):
 		super(AParent, tileset)
 	
 	protected FNeighbors as TDirs8
@@ -51,7 +51,7 @@ class TMapTile(TTile):
 
 class TAnimTile(TMapTile):
 
-	public def constructor(AParent as TSpriteEngine, tileset as string):
+	public def constructor(AParent as SpriteEngine, tileset as string):
 		super(AParent, tileset)
 
 	private static FDisplacement as ushort
@@ -200,7 +200,7 @@ class TBorderTile(TMapTile):
 		minitiles[3].Y = self.Y + (self.Height / 2)
 		minitiles[3].Z = self.Z
 
-	protected override def SetEngine(newEngine as TSpriteEngine):
+	protected override def SetEngine(newEngine as SpriteEngine):
 		super.SetEngine(newEngine)
 		for i in range(4):
 			minitiles[i].Engine = newEngine
@@ -223,7 +223,7 @@ class TBorderTile(TMapTile):
 			self.Y = lY
 			self.SetMinisPosition()
 
-	public def constructor(AParent as TSpriteEngine, tileset as string):
+	public def constructor(AParent as SpriteEngine, tileset as string):
 		super(AParent, tileset)
 		for i in range(4):
 			minitiles[i] = TMiniTile(self, tileset)
@@ -247,7 +247,7 @@ class TBorderTile(TMapTile):
 
 abstract class TWaterTile(TBorderTile):
 
-	public def constructor(AParent as TSpriteEngine, tileset as string):
+	public def constructor(AParent as SpriteEngine, tileset as string):
 		super(AParent, tileset)
 	
 	private static FDisplacement as ushort
@@ -282,7 +282,7 @@ abstract class TWaterTile(TBorderTile):
 
 class TShoreTile(TWaterTile):
 
-	public def constructor(AParent as TSpriteEngine, tileset as string):
+	public def constructor(AParent as SpriteEngine, tileset as string):
 		super(AParent, tileset)
 	
 	protected override def DoPlace():
@@ -396,7 +396,7 @@ class TShoreTile(TWaterTile):
 
 class TOceanTile(TWaterTile):
 
-	public def constructor(AParent as TSpriteEngine, tileset as string):
+	public def constructor(AParent as SpriteEngine, tileset as string):
 		super(AParent, tileset)
 	
 	protected override def DoPlace():

@@ -268,7 +268,7 @@ class TCustomGameItemMenu(TCustomScrollBox):
 def LoadPortrait(filename as string, index as byte) as TSprite:
 	return null unless ArchiveUtils.GraphicExists(filename, 'portraits')
 	
-	engine as TSpriteEngine = GMenuEngine.Value
+	engine as SpriteEngine = GMenuEngine.Value
 	engine.Images.EnsureImage("portraits\\$filename", filename, GDatabase.value.Layout.PortraitSize)
 	result = TSprite(engine)
 	result.Visible = true

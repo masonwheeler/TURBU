@@ -44,7 +44,7 @@ class TWeatherSprite(TParticleSprite):
 		if self.Alpha == 0 or not self.InVisibleRect():
 			self.Dead()
 
-class TWeatherSystem(TSpriteEngine):
+class TWeatherSystem(SpriteEngine):
 
 	private FSize as int
 
@@ -206,12 +206,10 @@ class TWeatherSystem(TSpriteEngine):
 		img = TSdlImage(surface, Name, self.Images)
 		if addblend:
 			GPU_SetBlendMode(img.Surface, GPU_BlendPresetEnum.GPU_BLEND_NORMAL_ADD_ALPHA)
-			//SDL.SDL_SetTextureBlendMode(img.Surface, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND | SDL.SDL_BlendMode.SDL_BLENDMODE_ADD)
 		else:
 			GPU_SetBlendMode(img.Surface, GPU_BlendPresetEnum.GPU_BLEND_NORMAL)
-			//SDL.SDL_SetTextureBlendMode(img.Surface, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND)
 
-	public def constructor(parent as TSpriteEngine, images as TSdlImages, canvas as TSdlCanvas):
+	public def constructor(parent as SpriteEngine, images as TSdlImages, canvas as TSdlCanvas):
 		super(parent, canvas)
 		self.Z = 21
 		self.Images = images

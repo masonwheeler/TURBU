@@ -222,7 +222,7 @@ class TMapSprite(TObject):
 	protected FTiles = array(TEventTile, 2)
 
 	[DisposeParent]
-	protected FEngine as TSpriteEngine
+	protected FEngine as SpriteEngine
 
 	[Property(MoveRate)]
 	protected FMoveRate as byte
@@ -549,7 +549,7 @@ class TMapSprite(TObject):
 		set: FMoveQueue = value
 
 	[NoImport]
-	public def constructor(base as TRpgMapObject, parent as TSpriteEngine):
+	public def constructor(base as TRpgMapObject, parent as SpriteEngine):
 		FMapObj = base
 		FEngine = parent cast T2kSpriteEngine
 		FMoveRate = 4
@@ -772,7 +772,7 @@ class TEventSprite(TMapSprite):
 		FTiles[0].Update(Data)
 		UpdateMove(Data)
 
-	public def constructor(base as TRpgMapObject, parent as TSpriteEngine):
+	public def constructor(base as TRpgMapObject, parent as SpriteEngine):
 		super(base, parent)
 		FTiles[0] = TEventTile(Event, parent)
 		FTiles[1] = null
@@ -881,7 +881,7 @@ class TCharSprite(TMapSprite):
 			FTiles[1].Z = FTiles[0].Z + 1
 		self.Visible = assigned(Data)
 
-	public def constructor(base as TRpgMapObject, parent as TSpriteEngine):
+	public def constructor(base as TRpgMapObject, parent as SpriteEngine):
 		super(base, parent)
 		FUnderConstruction = true
 		FWhichFrame = -1

@@ -83,7 +83,7 @@ class TAnimSprite(TParentSprite):
 	[DisposeParent]
 	private FSignal as EventWaitHandle
 
-	public def constructor(parent as TSpriteEngine, base as TAnimTemplate, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
+	public def constructor(parent as SpriteEngine, base as TAnimTemplate, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
 		super(parent)
 		FBase = base
 		self.Z = 19

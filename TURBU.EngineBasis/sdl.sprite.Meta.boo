@@ -41,9 +41,9 @@ class TParticleSpriteClass(TAnimatedSpriteClass):
 	override def Create(AParent as TParentSprite):
 		return sdl.sprite.TParticleSprite(AParent)
 
-[Metaclass(TSpriteEngine)]
-class TSpriteEngineClass(TParentSpriteClass):
+[Metaclass(SpriteEngine)]
+class SpriteEngineClass(TParentSpriteClass):
 
-	virtual def Create(AParent as TSpriteEngine, ACanvas as TSdlCanvas) as sdl.sprite.TSpriteEngine:
-		return sdl.sprite.TSpriteEngine(AParent, ACanvas)
+	virtual def Create(AParent as SpriteEngine, ACanvas as TSdlCanvas) as sdl.sprite.SpriteEngine:
+		return sdl.sprite.SpriteEngine(AParent, ACanvas)
 

@@ -261,7 +261,7 @@ interface IMenuEngine(IDisposable):
 	def Draw()
 
 [Disposable(Destroy, true)]
-class TMenuSpriteEngine(TSpriteEngine):
+class TMenuSpriteEngine(SpriteEngine):
 
 	[Getter(SystemGraphic)]
 	private FSystemGraphic as TSystemImages
@@ -528,7 +528,7 @@ class TSysFrame(TSystemTile):
 			Frames.Add(key, result)
 		return result
 
-	protected static def GetCursor(w as int, h as int, engine as TSpriteEngine) as TSdlImage:
+	protected static def GetCursor(w as int, h as int, engine as SpriteEngine) as TSdlImage:
 		return null if w <= 0 or h <= 0
 		result as TSdlImage
 		var key = FrameDesc(w, h)
@@ -1047,7 +1047,7 @@ class TSystemTimer(TParentSprite):
 			FTiles[i].X = location.x + (i * 9)
 			FTiles[i].Y = location.y
 
-	public def constructor(parent as TSpriteEngine):
+	public def constructor(parent as SpriteEngine):
 		super(parent)
 		for i in range(FTiles.Length):
 			FTiles[i] = TSprite(self)

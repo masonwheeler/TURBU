@@ -8,6 +8,6 @@ class TWeatherSpriteClass(TParticleSpriteClass):
 	pass
 
 [Metaclass(TWeatherSystem)]
-class TWeatherSystemClass(TSpriteEngineClass):
+class TWeatherSystemClass(SpriteEngineClass):
 	pass
 

@@ -6,12 +6,12 @@ import sdl.canvas
 import SDL.ImageManager
 
 [Disposable(Destroy, true)]
-class TImageEngine(TSpriteEngine):
+class TImageEngine(SpriteEngine):
 
 	[Property(ParentEngine)]
-	private FParentEngine as TSpriteEngine
+	private FParentEngine as SpriteEngine
 
-	public def constructor(parent as TSpriteEngine, canvas as TSdlCanvas, images as TSdlImages):
+	public def constructor(parent as SpriteEngine, canvas as TSdlCanvas, images as TSdlImages):
 		super(null, canvas)
 		FParentEngine = parent
 		self.Images = images

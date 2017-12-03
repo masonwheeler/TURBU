@@ -164,7 +164,7 @@ class TSprite(TObject):
 	protected FVisibleArea as Rectangle
 
 	[Property(Engine), DisposeParent]
-	protected FEngine as TSpriteEngine
+	protected FEngine as SpriteEngine
 
 	[DisposeParent]
 	protected FParent as TParentSprite
@@ -397,20 +397,20 @@ class TParentSprite(TSprite):
 			for i in range(FSpriteList.Count):
 				FSpriteList[i].Draw()
 
-	public def Add(Sprite as TSprite):
+	public virtual def Add(sprite as TSprite):
 		if FList == null:
 			FList = List[of TSprite]()
-		FList.Add(Sprite)
-		if Sprite.Z != 0:
+		FList.Add(sprite)
+		if sprite.Z != 0:
 			if FSpriteList == null:
 				FSpriteList = TFastSpriteList()
-			FSpriteList.Add(Sprite)
+			FSpriteList.Add(sprite)
 
-	public def Remove(Sprite as TSprite):
+	public def Remove(sprite as TSprite):
 		if assigned(FList):
-			FList.Remove(Sprite)
+			FList.Remove(sprite)
 			if assigned(FSpriteList):
-				FSpriteList.Remove(Sprite)
+				FSpriteList.Remove(sprite)
 				if FSpriteList.Count == 0:
 					FSpriteList = null
 
@@ -670,10 +670,10 @@ class TParticleSprite(TAnimatedSprite):
 			self.Dead()
 
 [Disposable(Destroy, true)]
-class TSpriteEngine(TParentSprite):
 
 	[Getter(AllCount)]
 	internal FAllCount as int
+class SpriteEngine(TParentSprite):
 
 	internal FDeadList = List[of TSprite]()
 
@@ -695,7 +695,7 @@ class TSpriteEngine(TParentSprite):
 	[Getter(Canvas)]
 	private FCanvas as TSdlCanvas
 
-	protected FRenderer = TSpriteRenderer(self)
+	protected FRenderer = SpriteRenderer()
 
 	internal Renderer:
 		get: return FRenderer
@@ -706,7 +706,7 @@ class TSpriteEngine(TParentSprite):
 	protected virtual def GetWidth() as int:
 		return super.Width
 
-	public def constructor(parent as TSpriteEngine, canvas as TSdlCanvas):
+	public def constructor(parent as SpriteEngine, canvas as TSdlCanvas):
 		super(parent)
 		FVisibleWidth = 800
 		FVisibleHeight = 600
@@ -739,7 +739,7 @@ class TSpriteEngine(TParentSprite):
 	public override Height as int:
 		get: return GetHeight()
 
-class TSpriteRenderer:
+class SpriteRenderer:
 	private FLastZ as int
 
 	private FLastMap as TMultimap[of TSdlImage, TSprite]

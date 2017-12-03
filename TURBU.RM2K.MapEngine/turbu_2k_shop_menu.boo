@@ -292,7 +292,7 @@ class TCompatSprite(TSprite):
 		ensure:
 			GPU_DeactivateShaderProgram()
 
-	public def constructor(AParent as TSpriteEngine, template as TRpgHero):
+	public def constructor(AParent as SpriteEngine, template as TRpgHero):
 		super(AParent)
 		FTemplate = template
 		var spriteName = template.Template.MapSprite

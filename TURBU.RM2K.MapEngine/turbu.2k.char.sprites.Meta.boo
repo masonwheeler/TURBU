@@ -15,12 +15,12 @@ class TVehicleTileClass(TEventTileClass):
 [Metaclass(TVehicleSprite)]
 class TVehicleSpriteClass(TCharSpriteClass):
 
-	virtual def Create(parent as TSpriteEngine, whichVehicle as TRpgVehicle, cleanup as Action) as turbu.RM2K.CharSprites.TVehicleSprite:
+	virtual def Create(parent as SpriteEngine, whichVehicle as TRpgVehicle, cleanup as Action) as turbu.RM2K.CharSprites.TVehicleSprite:
 		return turbu.RM2K.CharSprites.TVehicleSprite(parent, whichVehicle, cleanup)
 
 [Metaclass(THeroSprite)]
 class THeroSpriteClass(TCharSpriteClass):
 
-	virtual def create(AParent as TSpriteEngine, whichHero as TRpgHero, party as TRpgParty) as turbu.RM2K.CharSprites.THeroSprite:
+	virtual def create(AParent as SpriteEngine, whichHero as TRpgHero, party as TRpgParty) as turbu.RM2K.CharSprites.THeroSprite:
 		return turbu.RM2K.CharSprites.THeroSprite(AParent, whichHero, party)
 
