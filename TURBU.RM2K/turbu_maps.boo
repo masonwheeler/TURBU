@@ -183,8 +183,9 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 			FTileMap[i] = (tm[i] cast JArray).Select({e | TTileRef(e cast int)}).ToArray()
 		var mo = obj['MapObjects'] cast JArray
 		obj.Remove('MapObjects')
-		for value in mo.Cast[of JObject]():
-			FMapObjects.Add(TRpgMapObject(value, self.MapObjectValidPage))
+		if mo is not null:
+			for value in mo.Cast[of JObject]():
+				FMapObjects.Add(TRpgMapObject(value, self.MapObjectValidPage))
 		obj.CheckRead('HasBackground', FHasBG)
 		obj.CheckRead('BgName', FBgName)
 		obj.CheckReadEnum('HScroll', FHScroll)
