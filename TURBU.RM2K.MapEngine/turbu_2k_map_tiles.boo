@@ -438,7 +438,7 @@ class TOceanTile(TWaterTile):
 				for i in range(3):
 					changed[i] = true
 				if TDirs8.se in FNeighbors:
-					minis[3] += 36)
+					minis[3] += 36
 					changed[3] = true
 			elif Neighbors & (TDirs8.n | TDirs8.e) == (TDirs8.n | TDirs8.e):
 				minis[0] += 24
@@ -447,7 +447,7 @@ class TOceanTile(TWaterTile):
 				minis[3] += 12
 				changed[3] = true
 				if TDirs8.sw in FNeighbors:
-					minis[2] += 36)
+					minis[2] += 36
 					changed[2] = true
 			elif Neighbors & (TDirs8.s | TDirs8.e) == (TDirs8.s | TDirs8.e):
 				minis[1] += 12
@@ -465,7 +465,7 @@ class TOceanTile(TWaterTile):
 				changed[3] = true
 				if TDirs8.ne in FNeighbors:
 					minis[1] += 36
-					changed[1] = true
+					changed[0] = true
 			else:
 				for i in range(4):
 					base[i] = minis[i]
