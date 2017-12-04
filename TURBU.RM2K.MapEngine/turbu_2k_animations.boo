@@ -99,7 +99,6 @@ class TAnimSprite(TParentSprite):
 			FSignal.Set()
 		for sprite in self.List.ToArray():
 			sprite.Dead()
-		FEngine.Dead()
 
 	private def Move():
 		tr as uint = FTimer.TimeRemaining
@@ -117,6 +116,7 @@ class TAnimSprite(TParentSprite):
 		newSprite.Pinned = true
 		newSprite.ImageName = 'Anim ' + FBase.Filename
 		newSprite.ImageIndex = currFrame.ImageIndex
+		newSprite.SetViewport(self._viewport)
 		if FFullScreen:
 			newSprite.X = currFrame.Position.x + (Engine.Canvas.Width / 2)
 			newSprite.Y = currFrame.Position.y + (Engine.Canvas.Height / 2)

@@ -243,6 +243,7 @@ class T2kMapEngine(TMapEngine):
 			FCurrentMap.AdvanceFrame() if assigned(FCurrentMap)
 			FFrame = 0
 		FTimer.Process()
+		FCurrentMap.Dead() if assigned(FCurrentMap)
 
 	private def StandardRender():
 		return if FSwitchState == TSwitchState.Switching
