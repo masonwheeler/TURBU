@@ -115,6 +115,7 @@ abstract class TGameMenuBox(TCustomMessageBox):
 		DoSetup(value)
 		if assigned(FOnSetup):
 			FOnSetup(value, self, FOwner)
+		self.InvalidateText()
 
 	public override def Button(input as TButtonCode):
 		self.DoButton(input)
@@ -303,12 +304,10 @@ class TMenuPage(TObject):
 		FCurrentMenu.PlaceCursor(value)
 
 	public virtual def Setup(value as int):
-		frame as TGameMenuBox
 		lock FSetupDrawLock:
 			FCurrentMenu = FMainMenu
 			for frame in FComponents.Values:
-				if frame isa TGameMenuBox:
-					(frame cast TGameMenuBox).Setup(value)
+				frame.Setup(value)
 			self.Move()
 
 	public virtual def SetupEx(data as TObject):
