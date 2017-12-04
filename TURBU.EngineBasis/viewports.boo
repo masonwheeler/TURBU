@@ -106,27 +106,34 @@ class CompositeViewport(Viewport):
 	private def SetupLRView(rect as GPU_Rect):
 		_subViews[0].Offset(0, 0)
 		if rect.x < 0:
-			_subViews[0].SetView(GPU_Rect(x: _maxWidth + rect.x, y: rect.y, w: -rect.x,         h: rect.h))
-			_subViews[1].SetView(GPU_Rect(x: 0,                  y: rect.y, w: rect.w + rect.x, h: rect.h))
+			_subViews[0].SetView(GPU_MakeRect(_maxWidth + rect.x, rect.y, -rect.x,         rect.h))
+			_subViews[1].SetView(GPU_MakeRect(0,                  rect.y, rect.w + rect.x, rect.h))
 			_subViews[1].Offset(-rect.x, 0)
 		else:
-			_subViews[0].SetView(GPU_Rect(x: rect.x, y: rect.y, w: _maxWidth - rect.x,            h: rect.h))
-			_subViews[1].SetView(GPU_Rect(x: 0,      y: rect.y, w: rect.w - (_maxWidth - rect.x), h: rect.h))
+			_subViews[0].SetView(GPU_MakeRect(rect.x, rect.y, _maxWidth - rect.x,            rect.h))
+			_subViews[1].SetView(GPU_MakeRect(0,      rect.y, rect.w - (_maxWidth - rect.x), rect.h))
 			_subViews[1].Offset(_maxWidth - rect.x, 0)
 
 	private def SetupUDView(rect as GPU_Rect):
 		_subViews[0].Offset(0, 0)
 		if rect.y < 0:
-			_subViews[0].SetView(GPU_Rect(x: rect.x, y: _maxHeight + rect.y, w: rect.w, h: -rect.y))
-			_subViews[1].SetView(GPU_Rect(x: rect.x, y: 0,                   w: rect.w, h: rect.h + rect.y))
+			_subViews[0].SetView(GPU_MakeRect(rect.x, _maxHeight + rect.y, rect.w, -rect.y))
+			_subViews[1].SetView(GPU_MakeRect(rect.x, 0,                   rect.w, rect.h + rect.y))
 			_subViews[1].Offset(0, -rect.y)
 		else:
-			_subViews[0].SetView(GPU_Rect(x: rect.x, y: rect.y, w: rect.w, h: _maxHeight - rect.y))
-			_subViews[1].SetView(GPU_Rect(x: rect.x, y: 0,      w: rect.w, h: rect.h - (_maxHeight - rect.y)))
+			_subViews[0].SetView(GPU_MakeRect(rect.x, rect.y, rect.w, _maxHeight - rect.y))
+			_subViews[1].SetView(GPU_MakeRect(rect.x, 0,      rect.w, rect.h - (_maxHeight - rect.y)))
 			_subViews[1].Offset(0, _maxHeight - rect.y)
 
 	private def SetupQuadView(rect as GPU_Rect):
-		assert false, "Not supported yet"
+		_subViews[0].SetView(GPU_MakeRect(_maxWidth + rect.x, _maxHeight + rect.y, -rect.x,         -rect.y))
+		_subViews[0].Offset(0, 0)
+		_subViews[1].SetView(GPU_MakeRect(0,                  _maxHeight + rect.y, rect.w + rect.x, -rect.y))
+		_subViews[1].Offset(-rect.x, 0)
+		_subViews[2].SetView(GPU_MakeRect(_maxWidth + rect.x, 0,                   -rect.x,         rect.h + rect.y))
+		_subViews[2].Offset(0, -rect.y)
+		_subViews[3].SetView(GPU_MakeRect(0,                  0,                   rect.w + rect.x, rect.h + rect.y))
+		_subViews[3].Offset(-rect.x, -rect.y)
 
 	override def SetView(rect as GPU_Rect):
 		super(rect)
