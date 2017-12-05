@@ -117,6 +117,7 @@ class TFontEngine(TObject):
 		glCheckError()
 		RenderChar(text)
 		GPU_FlushBlitBuffer()
+		DrawTargetPass1(target, x + 1, y + 1)
 		DrawTargetPass2(target, x, y, colorIndex)
 		GPU_DeactivateShaderProgram()
 		return sgPointF(x + TEXT_WIDTH, y)
