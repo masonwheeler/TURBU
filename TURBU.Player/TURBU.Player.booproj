@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="Boot.boo" />
+    <Compile Include="IsAssemblyHelper.boo" />
     <Compile Include="MainForm.boo" />
     <Compile Include="MainForm.Designer.boo">
       <DependentUpon>MainForm.boo</DependentUpon>

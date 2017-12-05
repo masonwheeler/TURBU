@@ -97,6 +97,7 @@ partial class frmTURBUPlayer:
 		var beforeList = AppDomain.CurrentDomain.GetAssemblies()
 		for filename in Directory.EnumerateFiles(_projectFolder, '*.dll')\
 				.Union(Directory.EnumerateFiles(CurrentFolder(), '*.dll'))\
+				.Where({f | IsDotNetAssembly(f)})\
 				.Where({f | not AppDomain.CurrentDomain.GetAssemblies().Select({a | a.Location}).Contains(f)}):
 			try:
 				Assembly.LoadFrom(filename)
