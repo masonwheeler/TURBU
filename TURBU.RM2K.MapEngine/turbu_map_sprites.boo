@@ -866,6 +866,7 @@ class TCharSprite(TMapSprite):
 			if mapObj == null:
 				sprite.Bump(self)
 			elif (mapObj.CurrentPage?.HasScript) and (mapObj.CurrentPage.Trigger == TStartCondition.Key):
+				ClearPortrait() //This seems to be the rule RM2K follows
 				GMapObjectManager.value.RunPageScript(mapObj.CurrentPage)
 
 	protected override def DoUpdatePage(Data as TRpgEventPage):
