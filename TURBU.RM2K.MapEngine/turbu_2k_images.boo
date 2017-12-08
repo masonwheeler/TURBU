@@ -216,6 +216,7 @@ class TRpgImageSprite(TSprite):
 
 	private new def Destroy():
 		FRpgImage.ClearSprite()
+		self.Dead()
 
 	public def ApplyImageColors(r as int, g as int, b as int, sat as int):
 		FColorTarget.R = Math.Min(r, 200)
@@ -309,6 +310,7 @@ class TRpgImage(TObject):
 		obj.CheckEmpty()
 
 	def Destroy():
+		FSprite.Dispose()
 		GEnvironment.value.RemoveImage(self)
 
 	[NoImport]

@@ -247,9 +247,11 @@ class T2kEnvironment(TObject):
 		TRpgEventConditions.OnEval = self.EvalConditions
 		FEventMap = Dictionary[of TRpgMapObject, TRpgEvent]()
 
-	private def Destroy():
-		for image in FImages:
+	internal def CleanupImages():
+		for image in FImages.Reverse():
 			image.Dispose() if assigned(image)
+
+	private def Destroy():
 		GEnvironment.value = null
 
 	internal def CreateTimers():

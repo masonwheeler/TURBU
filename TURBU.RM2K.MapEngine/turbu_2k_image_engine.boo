@@ -9,6 +9,7 @@ import SDL.ImageManager
 class TImageEngine(SpriteEngine):
 
 	[Property(ParentEngine)]
+	[DisposeParent]
 	private FParentEngine as SpriteEngine
 
 	public def constructor(parent as SpriteEngine, canvas as TSdlCanvas, images as TSdlImages):
@@ -19,8 +20,8 @@ class TImageEngine(SpriteEngine):
 	public override def Draw():
 		Viewport.WorldX = FParentEngine.Viewport.WorldX
 		Viewport.WorldY = FParentEngine.Viewport.WorldY
-		super.Draw()
 		self.Dead()
+		super.Draw()
 
 	private new def Destroy():
 		if assigned(FSpriteList):

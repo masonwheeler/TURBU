@@ -353,6 +353,8 @@ class TMenuSpriteEngine(SpriteEngine):
 			box.Dispose()
 		FMenuEngine.Dispose()
 		TSysFrame.ClearFrames()
+		for paper in FWallpapers.Values:
+			paper.Dispose()
 
 	public def SerializePortrait(writer as JsonWriter):
 		portrait as TSprite = self.Portrait
