@@ -264,8 +264,9 @@ class T2kEnvironment(TObject):
 		while wait and FKeyLock:
 			await GScriptEngine.value.FramePause()
 		scan as TButtonCode = GGameEngine.value.ReadKeyboardState()
-		await GScriptEngine.value.FramePause()
-		scan = scan | GGameEngine.value.ReadKeyboardState()
+		if wait:
+			await GScriptEngine.value.FramePause()
+			scan = scan | GGameEngine.value.ReadKeyboardState()
 		scan = scan & mask
 		if wait and (scan == TButtonCode.None):
 			waitFor WaitForKeyPress
