@@ -265,14 +265,13 @@ void main()
 
 		self.Fragment.Add('textShadow',
 """
-#version 130
-in vec2 texCoord;
+#version 110
+varying vec2 texCoord;
 uniform float strength;
 uniform sampler2D texAlpha;
-float alpha;
 void main(void)
 {
-	alpha = texture2D(texAlpha, texCoord).a;
+	float alpha = texture2D(texAlpha, texCoord).a;
 	if (alpha < 0.1)
 		discard;
 	gl_FragColor = vec4(0, 0, 0, alpha * strength);
@@ -306,9 +305,9 @@ void main(void)
 		self.Fragment.Add('noAlpha',
 """
 #version 110
+varying vec4 v_color;
 varying vec2 texture_coordinate;
 uniform sampler2D baseTexture;
-varying vec4 v_color;
 
 void MixChannel(inout float channel, float modifier, float alpha, float gray)
 {

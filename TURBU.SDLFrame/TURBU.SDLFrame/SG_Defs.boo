@@ -19,55 +19,42 @@ struct TSgPoint:
 	override def ToString():
 		return "TSgPoint: x: $x, y: $y"
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Equality(a as TSgPoint, b as TSgPoint) as bool:
 		return (a.x == b.x) and (a.y == b.y)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Inequality(a as TSgPoint, b as TSgPoint) as bool:
 		return not (a == b)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Multiply(a as TSgPoint, b as int) as TSgPoint:
 		return TSgPoint(a.x * b, a.y * b)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Multiply(a as TSgPoint, b as TSgPoint) as TSgPoint:
 		return TSgPoint(a.x * b.x, a.y * b.y)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Multiply(a as TSgPoint, b as double) as TSgPoint:
 		return TSgPoint(Round(a.x * b), Round(a.y * b))
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Division(a as TSgPoint, b as int) as TSgPoint:
 		return TSgPoint(a.x / b, a.y / b)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Division(a as TSgPoint, b as TSgPoint) as TSgPoint:
 		return TSgPoint(a.x / b.x, a.y / b.y)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Division(a as TSgPoint, b as double) as TSgPoint:
 		return TSgPoint(Round((a.x cast double) / (b cast double)), Round((a.y cast double) / (b cast double)))
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Modulus(a as TSgPoint, b as TSgPoint) as TSgPoint:
 		return TSgPoint(a.x % b.x, a.y % b.y)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Addition(a as TSgPoint, b as TSgPoint) as TSgPoint:
 		return TSgPoint(a.x + b.x, a.y + b.y)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Subtraction(a as TSgPoint, b as TSgPoint) as TSgPoint:
 		return TSgPoint(a.x - b.x, a.y - b.y)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Implicit(a as Point) as TSgPoint:
 		return TSgPoint(a.X, a.Y)
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Implicit(a as TSgPoint) as Point:
 		result as Point
 		result.X = a.x
@@ -147,16 +134,6 @@ struct TSgColor:
 	def constructor(color as uint):
 		Color = color
 
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Implicit(a as uint) as TSgColor:
-		return TSgColor(a)
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Implicit(a as TSgColor) as uint:
-		result = a.Color
-		return result
-
-	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 	static def op_Implicit(a as TSgColor) as SDL_Color:
 		result = SDL_Color(r: a.R, g: a.G, b: a.B, a: a.A)
 		return result
