@@ -62,7 +62,7 @@ class TMapMetadata(TMapRegion, IMapMetadata):
 	private FParent as int
 
 	[Property(ScrollPosition)]
-	private FScrollPosition as TSgPoint
+	private FScrollPosition as SgPoint
 
 	[Property(TreeOpen)]
 	private FTreeOpen as bool

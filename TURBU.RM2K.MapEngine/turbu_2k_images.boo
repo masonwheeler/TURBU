@@ -24,15 +24,15 @@ import TURBU.Meta
 [Disposable(Destroy, true)]
 class TRpgImageSprite(TSprite):
 
-	private FRefPoint as TSgFloatPoint
+	private FRefPoint as SgFloatPoint
 
-	private FRefTarget as TSgFloatPoint
+	private FRefTarget as SgFloatPoint
 
 	private FAlphaTarget as int
 
 	private FSaturation as int
 
-	private FTransitionTimer as TRpgTimestamp
+	private FTransitionTimer as Timestamp
 
 	private FColor as TSgColor
 
@@ -180,7 +180,7 @@ class TRpgImageSprite(TSprite):
 		obj.CheckRead('WaveTarget', FWaveTarget)
 		obj.CheckRead('Tag', FTag)
 		if obj.TryGetValue('Transition', Item):
-			FTransitionTimer = TRpgTimestamp(Item cast int)
+			FTransitionTimer = Timestamp(Item cast int)
 			Item.Remove()
 
 	protected override def Render():
@@ -272,7 +272,7 @@ class TRpgImageSprite(TSprite):
 			else:
 				result = 0
 			return result
-		set: FTransitionTimer = TRpgTimestamp(value)
+		set: FTransitionTimer = Timestamp(value)
 
 [Disposable(Destroy, true)]
 class TRpgImage(TObject):

@@ -65,7 +65,7 @@ class TRpgSkill(TRpgObject):
 		return result
 
 	public Template as TSkillTemplate:
-		get: return super.Template cast TSkillTemplate
+		new get: return super.Template cast TSkillTemplate
 
 	public FirstSound as TRpgSound:
 		get: return Template.FirstSound

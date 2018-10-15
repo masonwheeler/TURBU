@@ -1,138 +1,139 @@
 namespace TURBU.RM2K.MapEngine
 
-import System
-import System.Collections.Generic
-import System.IO
-import System.Threading
-import System.Threading.Tasks
-import System.Windows.Forms
-import archiveInterface
-import AsphyreTimer
-import dm.shaders
-import project.folder
-import Pythia.Runtime
-import TURBU.RM2K.RPGScript
-import sdl.canvas
-import SDL.ImageManager
+from System import Exception, GC, IDisposable, IntPtr
+from System.Collections.Generic import Dictionary
+from System.IO import File, Path
+from System.Threading import EventResetMode, EventWaitHandle, Timeout
+from System.Threading.Tasks import Task
+from System.Windows.Forms import Keys
+
+from archiveInterface import GArchives, IMAGE_ARCHIVE
+from AsphyreTimer import AsphyreTimer
+from dm.shaders import TdmShaders, glCheckError
+from project.folder import GProjectFolder
+from Pythia.Runtime import AbortMacro, assigned, classOf, EAbort, TClass
+
+from sdl.canvas import SdlCanvas, SdlRenderTarget
+from SDL.ImageManager import SdlImages, TSdlImage, TSdlImageClass, TSdlOpaqueImageClass
 import SDL2
 import SDL2.SDL2_GPU
-import SG.defs
-import timing
-import TURBU.BattleEngine
-import TURBU.DataReader
-import TURBU.MapEngine
-import TURBU.MapInterface
-import TURBU.MapObjects
+from SG.defs import SgFloatPoint, SgPoint, SDL_WHITE
+from timing import Timestamp
+from TURBU.DataReader import IDataReader
+from TURBU.MapEngine import TMapEngine, TMapEngineData
+from TURBU.MapInterface import IMapMetadata, IMapTree
 import TURBU.Meta
-import TURBU.RM2K
-import TURBU.RM2K.GameData
-import TURBU.RM2K.Menus
-import TURBU.PluginInterface
-import TURBU.TextUtils
-import TURBU.TransitionInterface
+from TURBU.RM2K import dmDatabase, GDatabase, TdmDatabase, TRpgDatabase
+from TURBU.RM2K.GameData import TGameLayout
+from TURBU.RM2K.Menus import GMenuEngine, TMenuSpriteEngine, TMenuState, TSystemImages
+from TURBU.RM2K.RPGScript import FadeOutMusic, OpenMenu, PlayMusicData, PlaySystemSound, PlaySystemMusic, \
+								 SetSystemSoundData, SetSystemMusicData, StopMusic
+from TURBU.PluginInterface import RpgPluginException
+from TURBU.TextUtils import GFontEngine, TRpgFont
+from TURBU.TransitionInterface import ITransition
 import turbu.constants
 import turbu.defs
 import turbu.Heroes
 import turbu.map.metadata
 import turbu.map.sprites
 import turbu.maps
-import turbu.RM2K.CharSprites
-import turbu.RM2K.environment
-import turbu.RM2K.image.engine
+from turbu.RM2K.CharSprites import THeroSprite
+from turbu.RM2K.environment import GEnvironment, T2kEnvironment
+from turbu.RM2K.image.engine import TImageEngine
 import turbu.RM2K.map.locks
-import turbu.RM2K.sprite.engine
+from turbu.RM2K.sprite.engine import GSpriteEngine, T2kSpriteEngine
 import turbu.RM2K.transitions.graphics
-import turbu.RM2K.weather
-import turbu.script.engine
-import turbu.sdl.image
-import turbu.tilesets
-import turbu.versioning
-
-enum TSwitchState:
-	NoSwitch
-	Ready
-	Switching
+from turbu.RM2K.weather import TWeatherSystem
+from turbu.script.engine import GMapObjectManager, GScriptEngine, TMapObjectManager
+from turbu.sdl.image import TRpgSdlImageClass
+from turbu.tilesets import TTileSet
+from turbu.versioning import TVersion
 
 class T2kMapEngine(TMapEngine):
 
-	public enum TGameState:
+	private enum SwitchState:
+		NoSwitch
+		Ready
+		Switching
+
+	protected enum TGameState:
 		Title
 		Playing
 		GameOver
 		Cleanup
 
-	private FRenderer as GPU_Target_PTR
+	private _renderer as GPU_Target_PTR
 
-	private FStretchRatio as TSgFloatPoint
+	private _stretchRatio as SgFloatPoint
 
-	private FSignal as EventWaitHandle
+	private _signal as EventWaitHandle
 
-	private FButtonState as TButtonCode
+	private _buttonState as TButtonCode
 
-	private FSwitchState as TSwitchState
+	private _switchState as SwitchState
 
-	private FGameState as TGameState
+	private _gameState as TGameState
 
-	private FTransition as ITransition
+	private _transition as ITransition
 
-	private FTransitionFirstFrameDrawn as bool
+	private _transitionFirstFrameDrawn as bool
 
-	private FRenderPause as TRpgTimestamp
+	private _renderPause as Timestamp
 
-	private FRenderPauseLock as object
+	private _renderPauseLock = object()
 
-	private FHeldMaps = Dictionary[of int, TRpgMap]()
+	private _heldMaps = Dictionary[of int, TRpgMap]()
 
 	private def UpdatePartySprite(value as TCharSprite):
 		if assigned(value):
-			FPartySprite = value
+			_partySprite = value
 
 	private def StopPlaying():
-		FPlaying = false
-		if assigned(FPartySprite):
-			FPartySprite.Dispose()
-			FPartySprite = null
+		_playing = false
+		if assigned(_partySprite):
+			_partySprite.Dispose()
+			_partySprite = null
 		GEnvironment.value.ClearVehicles()
 		GEnvironment.value.Party.Clear()
-		if assigned(FCurrentMap):
-			FCurrentMap.Dispose()
-			FCurrentMap = null
-		if assigned(FImageEngine):
-			FImageEngine.Dispose()
-			FImageEngine = null
-		FCanvas.DrawBox(GPU_MakeRect(0, 0, 1, 1), SDL_WHITE, 255)
+		if assigned(_currentMap):
+			_currentMap.Dispose()
+			_currentMap = null
+		if assigned(_imageEngine):
+			_imageEngine.Dispose()
+			_imageEngine = null
+		_canvas.DrawBox(GPU_MakeRect(0, 0, 1, 1), SDL_WHITE, 255)
 
-	protected FDatabase as TRpgDatabase
+	protected _database as TRpgDatabase
 
-	protected FCanvas as TSdlCanvas
+	protected _canvas as SdlCanvas
 
 	[Getter(CurrentMap)]
-	protected FCurrentMap as T2kSpriteEngine
+	protected _currentMap as T2kSpriteEngine
 
-	protected FWaitingMap as TRpgMap
+	protected _waitingMap as TRpgMap
 
-	protected FWaitingMapEngine as T2kSpriteEngine
+	protected _waitingMapEngine as T2kSpriteEngine
 
-	protected FImages as TSdlImages
+	protected _images as SdlImages
 
-	protected FScrollPosition as TSgPoint
+	protected _scrollPosition as SgPoint
 
-	protected FTimer as TAsphyreTimer
+	protected _timer as AsphyreTimer
 
 	[Getter(PartySprite)]
-	protected FPartySprite as TCharSprite
+	protected _partySprite as TCharSprite
 
-	protected FObjectManager as TMapObjectManager
+	protected _objectManager as TMapObjectManager
 
-	protected FShaderEngine as TdmShaders
+	protected _shaderEngine as TdmShaders
 
 	[Getter(ImageEngine)]
-	protected FImageEngine as TImageEngine
+	protected _imageEngine as TImageEngine
 
 	[Getter(WeatherEngine)]
-	protected FWeatherEngine as TWeatherSystem
+	protected _weatherEngine as TWeatherSystem
 
-	protected FPlaying as bool
+	protected _playing as bool
 	
 	private _reader as IDataReader
 
@@ -140,34 +141,34 @@ class T2kMapEngine(TMapEngine):
 		GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)
 		DrawRenderTarget(GRenderTargets[RENDERER_MAIN], false)
 		self.AfterPaint()
-		FCanvas.Flip()
+		_canvas.Flip()
 
 	protected def LoadTileset(value as TTileSet):
 		for input in value.Records:
 			continue if string.IsNullOrEmpty(input.Group.Filename)
-			filename as string = "Tilesets\\$(input.Group.Filename).png"
-			unless FImages.Contains(filename):
-				FImages.AddSpriteFromArchive(filename, input.Group.Filename, input.Group.Dimensions, null)
+			var filename = "Tilesets\\${input.Group.Filename}.png"
+			unless _images.Contains(filename):
+				_images.AddSpriteFromArchive(filename, input.Group.Filename, input.Group.Dimensions, null)
 
 	protected def LoadSprite(filename as string):
 		return if filename.StartsWith('*')
-		lName as string = "Sprites\\$filename.png"
-		unless FImages.Contains(filename):
-			FImages.AddSpriteFromArchive(lName, filename, SPRITE_SIZE, null)
+		var lName = "Sprites\\$filename.png"
+		unless _images.Contains(filename):
+			_images.AddSpriteFromArchive(lName, filename, SPRITE_SIZE, null)
 
-	protected def CreateViewport(map as TRpgMap, center as TSgPoint) as GPU_Rect:
-		screensize as TSgPoint = FCanvas.Size / TILE_SIZE
+	protected def CreateViewport(map as TRpgMap, center as SgPoint) as GPU_Rect:
+		screensize as SgPoint = _canvas.Size / TILE_SIZE
 		center = (center / TILE_SIZE) - (screensize / 2.0)
 		unless (TWraparound.Horizontal in map.Wraparound):
 			if center.x < 0:
 				center.x = 0
 			elif (center.x + screensize.x) >= map.Size.x:
-				center.x = pred(map.Size.x - (screensize.x / 2))
+				center.x = (map.Size.x - (screensize.x / 2)) - 1
 		unless (TWraparound.Vertical in map.Wraparound):
 			if center.y < 0:
 				center.y = 0
 			elif (center.y + screensize.y) >= map.Size.y:
-				center.y = pred(map.Size.y - (screensize.y / 2))
+				center.y = (map.Size.y - (screensize.y / 2)) - 1
 		return GPU_MakeRect(center.x, center.y, screensize.x, screensize.y)
 
 	private def DisposeRenderTargets():
@@ -175,10 +176,10 @@ class T2kMapEngine(TMapEngine):
 			target.Dispose()
 		GRenderTargets.Clear()
 
-	protected def CanvasResize(sender as TSdlCanvas):
+	protected def CanvasResize(sender as SdlCanvas):
 		DisposeRenderTargets
 		for i in range(6):
-			GRenderTargets.Add(TSdlRenderTarget(FCanvas.Size))
+			GRenderTargets.Add(SdlRenderTarget(_canvas.Size))
 
 	protected def LoadMapSprites(map as TRpgMap):
 		for mapObj in map.MapObjects:
@@ -188,148 +189,148 @@ class T2kMapEngine(TMapEngine):
 		GEnvironment.value.CheckVehicles()
 
 	protected def DoneLoadingMap() as bool:
-		FCurrentMap = FWaitingMapEngine
-		FWaitingMapEngine = null
-		FCurrentMap.OnPartySpriteChanged = self.UpdatePartySprite
-		FCurrentMap.OnDrawWeather = self.DrawWeather
-		if FImageEngine == null:
-			FImageEngine = TImageEngine(FCurrentMap, FCanvas, FImages)
+		_currentMap = _waitingMapEngine
+		_waitingMapEngine = null
+		_currentMap.OnPartySpriteChanged = self.UpdatePartySprite
+		_currentMap.OnDrawWeather = self.DrawWeather
+		if _imageEngine == null:
+			_imageEngine = TImageEngine(_currentMap, _canvas, _images)
 			GEnvironment.value.CreateTimers()
-		GSpriteEngine.value = FCurrentMap
-		LoadMapSprites(FCurrentMap.MapObj)
-		FObjectManager.LoadMap(FWaitingMap)
-		FObjectManager.Tick() if FPlaying
-		FCurrentMap.Dead()
-		return FSignal.WaitOne(Timeout.Infinite)
+		GSpriteEngine.value = _currentMap
+		LoadMapSprites(_currentMap.MapObj)
+		_objectManager.LoadMap(_waitingMap)
+		_objectManager.Tick() if _playing
+		_currentMap.Dead()
+		return _signal.WaitOne(Timeout.Infinite)
 
 	protected def PrepareMap(data as IMapMetadata):
-		FTimer.Enabled = false
-		raise ERpgPlugin("Can't load a map on an uninitialized map engine.") unless FInitialized
+		_timer.Enabled = false
+		raise RpgPluginException("Can't load a map on an uninitialized map engine.") unless FInitialized
 		GEnvironment.value.ClearEvents()
 		var map = data as TMapMetadata
-		raise ERpgPlugin('Incompatible metadata object.') unless assigned(map)
-		unless FHeldMaps.TryGetValue(data.ID, FWaitingMap):
-			FWaitingMap = dmDatabase.value.LoadMap(data)
-		FScrollPosition = map.ScrollPosition
+		raise RpgPluginException('Incompatible metadata object.') unless assigned(map)
+		unless _heldMaps.TryGetValue(data.ID, _waitingMap):
+			_waitingMap = dmDatabase.value.LoadMap(data)
+		_scrollPosition = map.ScrollPosition
 
 	protected def InitializeParty():
 		party as TRpgParty = GEnvironment.value.Party
-		for i in range(FDatabase.Layout.StartingHeroes.Length):
-			party[i + 1] = GEnvironment.value.Heroes[FDatabase.Layout.StartingHero[i + 1]]
-		FPartySprite.Dispose() if FPartySprite is not null
-		FPartySprite = THeroSprite(FCurrentMap, party[1], party)
+		for i in range(_database.Layout.StartingHeroes.Length):
+			party[i + 1] = GEnvironment.value.Heroes[_database.Layout.StartingHero[i + 1]]
+		_partySprite.Dispose() if _partySprite is not null
+		_partySprite = THeroSprite(_currentMap, party[1], party)
 
-	private FFrame as int
+	private _frame as int
 
-	private FHeartbeat as int
+	private _heartbeat as int
 
 	[Property(EnterLock)]
-	private FEnterLock as bool
+	private _enterLock as bool
 
-	private FSaveLock as bool
+	private _saveLock as bool
 
-	private FCutscene as int
+	private _cutscene as int
 
 	private def OnTimer():
-		return if FGameState == TGameState.Cleanup
-		++FFrame
-		TRpgTimestamp.NewFrame()
-		lock FRenderPauseLock:
-			caseOf FGameState:
+		return if _gameState == TGameState.Cleanup
+		++_frame
+		Timestamp.NewFrame()
+		lock _renderPauseLock:
+			caseOf _gameState:
 				case T2kMapEngine.TGameState.Title: RenderTitle()
 				case T2kMapEngine.TGameState.Playing: RenderPlaying()
 				case T2kMapEngine.TGameState.GameOver: RenderGameOver()
-		if FFrame > FHeartbeat:
-			FCurrentMap.AdvanceFrame() if assigned(FCurrentMap)
-			FFrame = 0
-		FTimer.Process()
-		FCurrentMap.Dead() if assigned(FCurrentMap)
+		if _frame > _heartbeat:
+			_currentMap.AdvanceFrame() if assigned(_currentMap)
+			_frame = 0
+		_timer.Process()
+		_currentMap.Dead() if assigned(_currentMap)
 
 	private def StandardRender():
-		return if FSwitchState == TSwitchState.Switching
+		return if _switchState == SwitchState.Switching
 		caseOf GMenuEngine.Value.State:
-			case TMenuState.None, TMenuState.Shared, TMenuState.ExclusiveShared: FCurrentMap.Draw()
+			case TMenuState.None, TMenuState.Shared, TMenuState.ExclusiveShared: _currentMap.Draw()
 			case TMenuState.Full:
 				pass
-		FSwitchState = TSwitchState.Switching if FSwitchState == TSwitchState.Ready
+		_switchState = SwitchState.Switching if _switchState == SwitchState.Ready
 			
 
-	private def RenderImages(sender as TObject):
-		FImageEngine.Draw() if assigned(FImageEngine)
+	private def RenderImages():
+		_imageEngine.Draw() if assigned(_imageEngine)
 
 	private def OnProcess():
-		return if FSwitchState != TSwitchState.NoSwitch
-		FButtonState = ReadKeyboardState()
-		for button in FButtonState.Values():
+		return if _switchState != SwitchState.NoSwitch
+		_buttonState = ReadKeyboardState()
+		for button in _buttonState.Values():
 			PressButton(button)
-		if FSaveLock:
-			FSaveLock = KeyIsPressed(Keys.F2) or KeyIsPressed(Keys.F6)
+		if _saveLock:
+			_saveLock = KeyIsPressed(Keys.F2) or KeyIsPressed(Keys.F6)
 		else:
 			if KeyIsPressed(Keys.F2):
 				Quicksave()
-				FSaveLock = true
+				_saveLock = true
 			elif KeyIsPressed(Keys.F6):
 				Quickload()
-				FSaveLock = true
-		if FGameState == T2kMapEngine.TGameState.Playing:
+				_saveLock = true
+		if _gameState == T2kMapEngine.TGameState.Playing:
 			GMapObjectManager.value.Tick()
-			FCurrentMap.Process() if FPlaying
+			_currentMap.Process() if _playing
 
 	private def PressButton(button as TButtonCode):
-		return if FEnterLock and (button in (TButtonCode.Enter, TButtonCode.Cancel))
-		if FGameState == T2kMapEngine.TGameState.GameOver:
+		return if _enterLock and (button in (TButtonCode.Enter, TButtonCode.Cancel))
+		if _gameState == T2kMapEngine.TGameState.GameOver:
 			TitleScreen() if button == TButtonCode.Enter
 			return
 		caseOf GMenuEngine.Value.State:
 			case TMenuState.None:
-				if FCutscene > 0:
+				if _cutscene > 0:
 					return
 				elif (button == TButtonCode.Cancel) and GEnvironment.value.MenuEnabled:
-					FEnterLock = true
+					_enterLock = true
 					PlaySystemSound(TSfxTypes.Accept)
 					OpenMenu() //async method, not awaiting, on purpose
-				elif assigned(FPartySprite):
+				elif assigned(_partySprite):
 					PartyButton(button)
 			case TMenuState.Shared, TMenuState.ExclusiveShared, TMenuState.Full:
 				GMenuEngine.Value.Button(button)
-				FEnterLock = true
+				_enterLock = true
 
 	private def PartyButton(Button as TButtonCode):
 		System.Threading.Monitor.Enter(GMoveLock) if Button in (TButtonCode.Up, TButtonCode.Right, TButtonCode.Down, TButtonCode.Left)
 		try:
 			caseOf Button:
 				case TButtonCode.Enter:
-					FEnterLock = true
+					_enterLock = true
 					lock GEventLock:
-						FPartySprite.Action(TButtonCode.Enter)
-				case TButtonCode.Up: FPartySprite.Move(TDirections.Up)
-				case TButtonCode.Down: FPartySprite.Move(TDirections.Down)
-				case TButtonCode.Left: FPartySprite.Move(TDirections.Left)
-				case TButtonCode.Right: FPartySprite.Move(TDirections.Right)
+						_partySprite.Action(TButtonCode.Enter)
+				case TButtonCode.Up: _partySprite.Move(TDirections.Up)
+				case TButtonCode.Down: _partySprite.Move(TDirections.Down)
+				case TButtonCode.Left: _partySprite.Move(TDirections.Left)
+				case TButtonCode.Right: _partySprite.Move(TDirections.Right)
 		ensure:
 			System.Threading.Monitor.Exit(GMoveLock) if Button in (TButtonCode.Up, TButtonCode.Right, TButtonCode.Down, TButtonCode.Left)
 
 	private def PlayMapMusic(metadata as TMapMetadata, Clear as bool):
-		id as short = metadata.ID
+		var id = metadata.ID
 		caseOf metadata.BgmState:
 			case TInheritedDecision.Parent:
 				repeat:
-					id = FDatabase.MapTree[id].Parent
-					until id == 0 or (FDatabase.MapTree[id] cast TMapMetadata).BgmState != TInheritedDecision.Parent
+					id = _database.MapTree[id].Parent
+					until id == 0 or (_database.MapTree[id] cast TMapMetadata).BgmState != TInheritedDecision.Parent
 				if id == 0:
 					StopMusic()
-				elif (FDatabase.MapTree[id] cast TMapMetadata).BgmState == TInheritedDecision.Yes:
-					PlayMusicData((FDatabase.MapTree[id] cast TMapMetadata).BgmData)
+				elif (_database.MapTree[id] cast TMapMetadata).BgmState == TInheritedDecision.Yes:
+					PlayMusicData((_database.MapTree[id] cast TMapMetadata).BgmData)
 			case TInheritedDecision.No:
 				FadeOutMusic(1000) if Clear
-			case TInheritedDecision.Yes: PlayMusicData((FDatabase.MapTree[id] cast TMapMetadata).BgmData)
+			case TInheritedDecision.Yes: PlayMusicData((_database.MapTree[id] cast TMapMetadata).BgmData)
 
-	private def DrawRenderTarget(target as TSdlRenderTarget, canTint as bool):
+	private def DrawRenderTarget(target as SdlRenderTarget, canTint as bool):
 		glCheckError()
 		color = GPU_GetColor(target.Image)
 		GPU_SetRGBA(target.Image, 255, 255, 255, 255)
-		unless (canTint and FCurrentMap.Fade()):
-			//FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
+		unless (canTint and _currentMap.Fade()):
+			//_shaderEngine.UseShaderProgram(_shaderEngine.ShaderProgram('default', 'defaultF'))
 			GPU_DeactivateShaderProgram()
 		target.DrawFull()
 		GPU_SetColor(target.Image, color)
@@ -341,86 +342,86 @@ class T2kMapEngine(TMapEngine):
 	private def RenderFrame():
 		GRenderTargets.RenderOn(RENDERER_MAP, StandardRender, 0, true, false)
 		DrawRenderTarget(GRenderTargets[RENDERER_MAP], true)
-		//FShaderEngine.UseShaderProgram(FShaderEngine.ShaderProgram('default', 'defaultF'))
+		//_shaderEngine.UseShaderProgram(_shaderEngine.ShaderProgram('default', 'defaultF'))
 		GPU_DeactivateShaderProgram()
-		RenderImages(self)
-		FCurrentMap.DrawFlash()
+		RenderImages()
+		_currentMap.DrawFlash()
 		if GMenuEngine.Value.State != TMenuState.None:
 			GMenuEngine.Value.Draw()
 		GPU_DeactivateShaderProgram()
 
 	private def DrawWeather():
-		FWeatherEngine.Draw()
+		_weatherEngine.Draw()
 
 	private def RenderGameOver():
 		image as TSdlImage
-		preserving FImages.SpriteClass:
-			FImages.SpriteClass = classOf(TSdlOpaqueImage)
+		preserving _images.SpriteClass:
+			_images.SpriteClass = classOf(TSdlOpaqueImage)
 			var imagename = "Special Images\\$(GDatabase.value.Layout.GameOverScreen).png"
-			image = FImages.EnsureImage(imagename, '*GameOver', sgPoint(GDatabase.value.Layout.Width, GDatabase.value.Layout.Height))
+			image = _images.EnsureImage(imagename, '*GameOver', SgPoint(GDatabase.value.Layout.Width, GDatabase.value.Layout.Height))
 		GPU_SetBlending(image.Surface, 0)
 		image.Draw()
-		FCanvas.Flip()
-		FTimer.Process()
+		_canvas.Flip()
+		_timer.Process()
 
 	private def RenderPlaying():
-		if assigned(FRenderPause) and (FRenderPause.TimeRemaining == 0):
-			FRenderPause = null
-		if FRenderPause == null:
-			FCanvas.Clear()
+		if _renderPause?.TimeRemaining == 0:
+			_renderPause = null
+		if _renderPause == null:
+			_canvas.Clear()
 			var valid = true
-			if assigned(FTransition):
+			if assigned(_transition):
 				valid = false
-				unless FTransitionFirstFrameDrawn:
+				unless _transitionFirstFrameDrawn:
 					GRenderTargets.RenderOn(RENDERER_ALT, RenderFrame, 0, true, false)
-					FTransitionFirstFrameDrawn = true
-				unless FTransition.Draw():
-					FTransitionFirstFrameDrawn = false
-					FTransition = null
+					_transitionFirstFrameDrawn = true
+				unless _transition.Draw():
+					_transitionFirstFrameDrawn = false
+					_transition = null
 					valid = true
 			if valid:
-				if FCurrentMap.Blank:
+				if _currentMap.Blank:
 					GRenderTargets.RenderOn(RENDERER_MAIN, null, 0, true, false)
 				else: GRenderTargets.RenderOn(RENDERER_MAIN, RenderFrame, 0, true, false)
 				DrawRenderTarget(GRenderTargets[RENDERER_MAIN], false)
-			FCanvas.Flip()
+			_canvas.Flip()
 
 	private def RenderTitle():
 		if GMenuEngine.Value.State == TMenuState.None:
 			GMenuEngine.Value.OpenMenu('Title')
 		GMenuEngine.Value.Draw()
-		FCanvas.Flip()
-		FTimer.Process()
+		_canvas.Flip()
+		_timer.Process()
 
 	protected FDatabaseOwner as bool
 
-	[async]
+	[Async]
 	protected override def Cleanup() as Task:
 		assert FInitialized
 		FInitialized = false
-		FGameState = TGameState.Cleanup
+		_gameState = TGameState.Cleanup
 		if FDatabaseOwner:
-			await(FObjectManager.ScriptEngine.KillAll(null)) if FObjectManager is not null
+			await(_objectManager.ScriptEngine.KillAll(null)) if _objectManager is not null
 			GMenuEngine.Value.Dispose()
-		FShaderEngine.Dispose() if assigned(FShaderEngine)
-		FPartySprite.Dispose() if assigned(FPartySprite)
-		FCanvas = null
-		FImages.Dispose() if assigned(FImages)
-		FSignal = null
-		FImageEngine.Dispose() if assigned(FImageEngine)
+		_shaderEngine.Dispose() if assigned(_shaderEngine)
+		_partySprite.Dispose() if assigned(_partySprite)
+		_canvas = null
+		_images.Dispose() if assigned(_images)
+		_signal = null
+		_imageEngine.Dispose() if assigned(_imageEngine)
 		if FDatabaseOwner:
 			GEnvironment.value.CleanupImages()
-		FWeatherEngine.Dispose()
-		FCurrentMap.Dispose() if assigned(FCurrentMap)
-		FTimer.Dispose()
+		_weatherEngine.Dispose()
+		_currentMap.Dispose() if assigned(_currentMap)
+		_timer.Dispose()
 		if FDatabaseOwner:
 			GEnvironment.value.Dispose()
 			GEnvironment.value = null
 			GGameEngine.value = null
-			FDatabase = null
+			_database = null
 			GDatabase.value = null
 			dmDatabase.value = null
-			FObjectManager = null
+			_objectManager = null
 			GMapObjectManager.value = null
 			GScriptEngine.value = null
 			GFontEngine.Dispose()
@@ -442,7 +443,6 @@ class T2kMapEngine(TMapEngine):
 	public def constructor():
 		super()
 		self.Data = TMapEngineData('TURBU basic map engine', TVersion(0, 1, 0))
-		FRenderPauseLock = object()
 
 	public override def Initialize(window as IntPtr, database as string) as IntPtr:
 		layout as TGameLayout
@@ -461,78 +461,78 @@ class T2kMapEngine(TMapEngine):
 				GGameEngine.value = self
 				dmDatabase.value = TdmDatabase()
 				dmDatabase.value.Load(_reader)
-				FDatabase = TRpgDatabase(dmDatabase.value)
-				GDatabase.value = FDatabase
-				unless assigned(FDatabase):
-					raise ERpgPlugin('Incompatible project database')
-				FObjectManager = TMapObjectManager({self.ClearHeldMaps})
+				_database = TRpgDatabase(dmDatabase.value)
+				GDatabase.value = _database
+				unless assigned(_database):
+					raise RpgPluginException('Incompatible project database')
+				_objectManager = TMapObjectManager({self.ClearHeldMaps})
 				GScriptEngine.value.OnEnterCutscene = self.EnterCutscene
 				GScriptEngine.value.OnLeaveCutscene = self.LeaveCutscene
 				GScriptEngine.value.OnRenderUnpause = self.RenderUnpause
-				GEnvironment.value = T2kEnvironment(FDatabase)
+				GEnvironment.value = T2kEnvironment(_database)
 				dmDatabase.value.RegisterEnvironment(GEnvironment.value)
-				FDatabase.LoadGlobalEvents(dmDatabase.value.MapLoader)
-				FObjectManager.LoadGlobalScripts(FDatabase.GlobalEvents)
-				FObjectManager.OnUpdate = GEnvironment.value.UpdateEvents
+				_database.LoadGlobalEvents(dmDatabase.value.MapLoader)
+				_objectManager.LoadGlobalScripts(_database.GlobalEvents)
+				_objectManager.OnUpdate = GEnvironment.value.UpdateEvents
 			else:
-				FDatabase = GDatabase.value
-				FObjectManager = GMapObjectManager.value
-			layout = FDatabase.Layout
+				_database = GDatabase.value
+				_objectManager = GMapObjectManager.value
+			layout = _database.Layout
 			if window == IntPtr.Zero:
-				window = SDL.SDL_CreateWindow("TURBU engine - FDatabase.MapTree[0].Name",
+				window = SDL.SDL_CreateWindow("TURBU engine - _database.MapTree[0].Name",
 					SDL.SDL_WINDOWPOS_CENTERED_MASK, SDL.SDL_WINDOWPOS_CENTERED_MASK, layout.PhysWidth, layout.PhysHeight,
 					SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN)
 				if window == IntPtr.Zero:
-					raise ERpgPlugin("Unable to initialize SDL window: \r\n$(SDL.SDL_GetError())")
+					raise RpgPluginException("Unable to initialize SDL window: \r\n$(SDL.SDL_GetError())")
 			winID = SDL.SDL_GetWindowID(window)
-			FRenderer = GPU_GetWindowTarget(winID)
-			if FRenderer.Pointer == IntPtr.Zero:
+			_renderer = GPU_GetWindowTarget(winID)
+			if _renderer.Pointer == IntPtr.Zero:
 				GPU_SetInitWindow(winID)
-				FRenderer = GPU_Init(0, 0, 0)
-				if FRenderer == IntPtr.Zero:
-					raise ERpgPlugin("Unable to initialize SDL_GPU renderer")
-			FCanvas = TSdlCanvas.CreateFrom(window)
-			FCanvas.OnResize = self.CanvasResize
-			FStretchRatio.x = (layout.PhysWidth cast double) / (layout.Width cast double)
-			FStretchRatio.y = (layout.PhysHeight cast double) / (layout.Height cast double)
-			GPU_SetVirtualResolution(FRenderer.Pointer, layout.Width, layout.Height)
-			FCanvas.Resize()
-			FImages = TSdlImages(true, null)
-			FImages.ArchiveLoader = ALoader
-			FImages.SpriteClass = classOf(TRpgSdlImage)
-			FWeatherEngine = TWeatherSystem(null, FImages, FCanvas)
-			FSignal = EventWaitHandle(true, EventResetMode.ManualReset)
-			FShaderEngine = TdmShaders()
+				_renderer = GPU_Init(0, 0, 0)
+				if _renderer == IntPtr.Zero:
+					raise RpgPluginException("Unable to initialize SDL_GPU renderer")
+			_canvas = SdlCanvas.CreateFrom(window)
+			_canvas.OnResize = self.CanvasResize
+			_stretchRatio.x = (layout.PhysWidth cast double) / (layout.Width cast double)
+			_stretchRatio.y = (layout.PhysHeight cast double) / (layout.Height cast double)
+			GPU_SetVirtualResolution(_renderer.Pointer, layout.Width, layout.Height)
+			_canvas.Resize()
+			_images = SdlImages(true, null)
+			_images.ArchiveLoader = ALoader
+			_images.SpriteClass = classOf(TRpgSdlImage)
+			_weatherEngine = TWeatherSystem(null, _images, _canvas)
+			_signal = EventWaitHandle(true, EventResetMode.ManualReset)
+			_shaderEngine = TdmShaders()
 			if FDatabaseOwner:
-				GFontEngine.Initialize(FShaderEngine)
+				GFontEngine.Initialize(_shaderEngine)
 				GFontEngine.Current = TRpgFont('RMG2000.fon', 7)
-				GMenuEngine.Value = TMenuSpriteEngine(TSystemImages(FImages, layout.SysGraphic, layout.WallpaperStretch, layout.TranslucentMessages), FCanvas, FImages)
+				GMenuEngine.Value = TMenuSpriteEngine(TSystemImages(_images, layout.SysGraphic, layout.WallpaperStretch, layout.TranslucentMessages), _canvas, _images)
 				for trn in range(TTransitionTypes.BattleEndShow + 1):
 					TURBU.RM2K.RPGScript.SetTransition(trn, layout.Transition[trn] + 1)
 				for sfx in range(TSfxTypes.ItemUsed + 1):
-					SetSystemSoundData(sfx, FDatabase.Sfx[sfx])
+					SetSystemSoundData(sfx, _database.Sfx[sfx])
 				for bgm in range(TBgmTypes.BossBattle + 1):
-					SetSystemMusicData(bgm, FDatabase.Bgm[bgm])
-			FTimer = TAsphyreTimer(60, self.OnTimer) if FTimer is null
+					SetSystemMusicData(bgm, _database.Bgm[bgm])
+			_timer = AsphyreTimer(60, self.OnTimer) if _timer is null
 		failure:
 			Cleanup()
 		return window
 
 	private def ClearHeldMaps():
-		for map in FHeldMaps.Values:
-			(map cast IDisposable).Dispose()
-		FHeldMaps.Clear()
+		for map as IDisposable in _heldMaps.Values:
+			map.Dispose()
+		_heldMaps.Clear()
 
 	public override def LoadMap(map as IMapMetadata):
-		FCurrentMap = null
+		_currentMap = null
 		PrepareMap(map)
-		viewport as GPU_Rect = CreateViewport(FWaitingMap, FScrollPosition)
-		if assigned(FWaitingMapEngine):
-			FWaitingMapEngine.ReloadMapObjects()
+		viewport as GPU_Rect = CreateViewport(_waitingMap, _scrollPosition)
+		if assigned(_waitingMapEngine):
+			_waitingMapEngine.ReloadMapObjects()
 		else:
-			EnsureTileset(FWaitingMap.Tileset)
-			FWaitingMapEngine = T2kSpriteEngine(FWaitingMap, viewport, FShaderEngine, FCanvas, 
-				FDatabase.Tileset[FWaitingMap.Tileset], FImages)
+			EnsureTileset(_waitingMap.Tileset)
+			_waitingMapEngine = T2kSpriteEngine(_waitingMap, viewport, _shaderEngine, _canvas, 
+				_database.Tileset[_waitingMap.Tileset], _images)
 		unless DoneLoadingMap():
 			raise Exception('Error loading map')
 
@@ -544,95 +544,95 @@ class T2kMapEngine(TMapEngine):
 			raise Exception("Invalid map ID: $id")
 
 	public override def Play():
-		assert assigned(FCurrentMap)
-		InitializeParty() if FPartySprite is null
-		FTimer.Enabled = true
-		FPlaying = true
+		assert assigned(_currentMap)
+		InitializeParty() if _partySprite is null
+		_timer.Enabled = true
+		_playing = true
 
 	public override def Playing() as bool:
-		return FTimer.Enabled
+		return _timer.Enabled
 
 	public override def MapTree() as IMapTree:
-		return FDatabase.MapTree
+		return _database.MapTree
 
 	public override def NewGame():
-		assert FPlaying == false
-		FGameState = T2kMapEngine.TGameState.Playing
-		loc as TLocation = (FDatabase.MapTree cast TMapTree).Location[0]
-		metadata as TMapMetadata = FDatabase.MapTree[loc.map]
+		assert _playing == false
+		_gameState = T2kMapEngine.TGameState.Playing
+		loc as TLocation = (_database.MapTree cast TMapTree).Location[0]
+		metadata as TMapMetadata = _database.MapTree[loc.map]
 		self.LoadMap(metadata)
 		InitializeParty()
-		FPartySprite.LeaveTile()
-		FCurrentMap.CurrentParty = FPartySprite
-		FPartySprite.Location = sgPoint(loc.x, loc.y)
+		_partySprite.LeaveTile()
+		_currentMap.CurrentParty = _partySprite
+		_partySprite.Location = SgPoint(loc.x, loc.y)
 		PlayMapMusic(metadata, true)
 		self.Play()
 
 	public override def Start():
-		FTimer.OnProcess += self.OnProcess
+		_timer.OnProcess += self.OnProcess
 		TitleScreen()
-		FTimer.Enabled = true
+		_timer.Enabled = true
 
-	public def ChangeMaps(newmap as int, newLocation as TSgPoint):
-		assert newmap != FCurrentMap.MapID
-		currentMap as T2kSpriteEngine = FCurrentMap
-		FSwitchState = TSwitchState.Ready
-		self.FHeldMaps[currentMap.MapObj.ID] = currentMap.MapObj
+	public def ChangeMaps(newmap as int, newLocation as SgPoint):
+		assert newmap != _currentMap.MapID
+		currentMap as T2kSpriteEngine = _currentMap
+		_switchState = SwitchState.Ready
+		self._heldMaps[currentMap.MapObj.ID] = currentMap.MapObj
 		currentMap.ReleaseMap()
-		FObjectManager.ScriptEngine.KillAll({ currentMap = null })
-		assert FCurrentMap.Blank
+		_objectManager.ScriptEngine.KillAll({ currentMap = null })
+		assert _currentMap.Blank
 		metadata as TMapMetadata
-		oldEngine as T2kSpriteEngine = FCurrentMap
-		hero as TCharSprite = FCurrentMap.CurrentParty
+		oldEngine as T2kSpriteEngine = _currentMap
+		hero as TCharSprite = _currentMap.CurrentParty
 		if assigned(hero):
 			(hero cast THeroSprite).PackUp()
-		metadata = FDatabase.MapTree[newmap]
+		metadata = _database.MapTree[newmap]
 		GC.Collect()
 		self.LoadMap(metadata)
 		unless GEnvironment.value.PreserveSpriteOnTeleport:
 			GEnvironment.value.Party.ResetSprite()
-		FCurrentMap.CurrentParty = hero
-		FCurrentMap.CopyState(oldEngine)
+		_currentMap.CurrentParty = hero
+		_currentMap.CopyState(oldEngine)
 		if assigned(hero):
 			hero.Location = newLocation
-			(hero cast THeroSprite).settleDown(FCurrentMap)
-		FImageEngine.ParentEngine = FCurrentMap
+			(hero cast THeroSprite).settleDown(_currentMap)
+		_imageEngine.ParentEngine = _currentMap
 		oldEngine.Dispose()
-		FCurrentMap.CenterOn(newLocation.x, newLocation.y)
+		_currentMap.CenterOn(newLocation.x, newLocation.y)
 		PlayMapMusic(metadata, false)
-		FSwitchState = TSwitchState.NoSwitch
-		FTimer.Enabled = true
+		_switchState = SwitchState.NoSwitch
+		_timer.Enabled = true
 
 	public def LoadRpgImage(filename as string, mask as bool):
 		oName as string = filename
 		Abort unless ArchiveUtils.GraphicExists(filename, 'pictures')
-		cls as TSdlImageClass = FImages.SpriteClass
-		FImages.SpriteClass = classOf(TSdlImage)
+		cls as TSdlImageClass = _images.SpriteClass
+		_images.SpriteClass = classOf(TSdlImage)
 		try:
-			image as TSdlImage = FImages.EnsureImage('pictures/' + filename, oName)
+			image as TSdlImage = _images.EnsureImage('pictures/' + filename, oName)
 			GPU_SetBlending(image.Surface, (1 if mask else 0))
 		ensure:
-			FImages.SpriteClass = cls
+			_images.SpriteClass = cls
 
 	public virtual def TitleScreen():
-		FGameState = T2kMapEngine.TGameState.Title
+		_gameState = T2kMapEngine.TGameState.Title
 		StopPlaying()
 		PlaySystemMusic(TBgmTypes.Title)
 
 	public virtual def GameOver():
-		FGameState = T2kMapEngine.TGameState.GameOver
+		_gameState = T2kMapEngine.TGameState.GameOver
 		StopPlaying()
 		PlaySystemMusic(TBgmTypes.GameOver)
 		Abort
 
 	public def EnterCutscene():
 		GMapObjectManager.value.InCutscene = true
-		++FCutscene
+		++_cutscene
 
 	public def LeaveCutscene():
-		raise Exception('Mismatched call to T2kMapEngine.LeaveCutscene') if FCutscene <= 0
-		--FCutscene
-		GMapObjectManager.value.InCutscene = FCutscene != 0
+		raise 'Mismatched call to T2kMapEngine.LeaveCutscene' if _cutscene <= 0
+		--_cutscene
+		GMapObjectManager.value.InCutscene = _cutscene != 0
 
 	public def ReadKeyboardState() as TButtonCode:
 		result = TButtonCode.None
@@ -642,61 +642,61 @@ class T2kMapEngine(TMapEngine):
 		result |= TButtonCode.Down if KeyIsPressed(Keys.Down)
 		result |= TButtonCode.Enter if KeyIsPressed(Keys.Return)
 		result |= TButtonCode.Cancel if KeyIsPressed(Keys.Escape) or KeyIsPressed(Keys.Insert)
-		FEnterLock = false if result & (TButtonCode.Enter | TButtonCode.Cancel) == TButtonCode.None
+		_enterLock = false if result & (TButtonCode.Enter | TButtonCode.Cancel) == TButtonCode.None
 		return result
 
 	public def EnsureTileset(id as int) as bool:
-		result = FDatabase.Tileset.ContainsKey(id)
+		result = _database.Tileset.ContainsKey(id)
 		unless result:
 			try:
-				LoadTileset(FDatabase.Tileset[id])
+				LoadTileset(_database.Tileset[id])
 				result = true
 			except:
 				pass
 		return result
 
 	public def RenderPause():
-		lock FRenderPauseLock:
-			FRenderPause = TRpgTimestamp(50)
+		lock _renderPauseLock:
+			_renderPause = Timestamp(50)
 
 	public def RenderUnpause():
-		lock FRenderPauseLock:
-			FRenderPause = null
+		lock _renderPauseLock:
+			_renderPause = null
 
 	public def Load(savefile as string) as bool:
 		return false unless File.Exists(savefile)
 		
-		FTimer.Enabled = false
+		_timer.Enabled = false
 		GScriptEngine.value.KillAll(null)
 #		GEnvironment.value.Dispose()
 #		GEnvironment.value = null
 		GSpriteEngine.value = null
-#		GEnvironment.value = T2kEnvironment(FDatabase)
+#		GEnvironment.value = T2kEnvironment(_database)
 #		dmDatabase.value.RegisterEnvironment(GEnvironment.value)
-#		FObjectManager.OnUpdate = GEnvironment.value.UpdateEvents
-		FPlaying = false
-		var oldMap = FCurrentMap
-		FCurrentMap = null
+#		_objectManager.OnUpdate = GEnvironment.value.UpdateEvents
+		_playing = false
+		var oldMap = _currentMap
+		_currentMap = null
 		GMenuEngine.Value.Reset()
 		turbu.RM2K.savegames.Load(savefile, self.InitializeParty)
-		FCurrentMap.CurrentParty = (GEnvironment.value.Party.Sprite cast TCharSprite)
+		_currentMap.CurrentParty = (GEnvironment.value.Party.Sprite cast TCharSprite)
 		if oldMap is not null:
 			oldMap.Dispose()
-		if FImageEngine is null:
-			FImageEngine = TImageEngine(GSpriteEngine.value, FCanvas, FImages)
-		else: FImageEngine.ParentEngine = FCurrentMap
+		if _imageEngine is null:
+			_imageEngine = TImageEngine(GSpriteEngine.value, _canvas, _images)
+		else: _imageEngine.ParentEngine = _currentMap
 		GEnvironment.value.CreateTimers()
 		GC.Collect()
 		GMapObjectManager.value.InCutscene = false
-		FGameState = T2kMapEngine.TGameState.Playing
+		_gameState = T2kMapEngine.TGameState.Playing
 		Play()
 		return true
 
 	public Transition as ITransition:
-		get: return FTransition
+		get: return _transition
 		set:
-			FTransition = value
-			FTransitionFirstFrameDrawn = false
+			_transition = value
+			_transitionFirstFrameDrawn = false
 			RenderUnpause()
 
 	private static def ALoader(filename as string) as string:
@@ -709,7 +709,7 @@ static class GGameEngine:
 	public value as T2kMapEngine
 
 [DllImport("USER32.dll")]
-static internal def GetAsyncKeyState(vKey as System.Windows.Forms.Keys) as short:
+static internal def GetAsyncKeyState(vKey as Keys) as short:
 	pass
 
 internal def KeyIsPressed(value as Keys) as bool:

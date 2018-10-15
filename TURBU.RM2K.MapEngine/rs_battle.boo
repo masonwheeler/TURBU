@@ -51,7 +51,7 @@ def SetBattleBG(filename as string):
 	raise "Not implemented yet"
 
 private def GetTerrainBackground() as string:
-	loc as TSgPoint = GEnvironment.value.Party.Sprite.Location
+	loc as SgPoint = GEnvironment.value.Party.Sprite.Location
 	terrain as int = GSpriteEngine.value.GetTile(loc.x, loc.y, 0).Terrain
 	return GDatabase.value.Terrains[terrain].BattleBG
 
@@ -90,7 +90,7 @@ internal class T2kMonster(turbu.Heroes.TRpgBattleCharacter, turbu.RM2K.animation
 	def Flee(force as bool, ignoreIfSurrounded as bool):
 		raise "Not implemented yet"
 
-	def Position(sign as int) as TSgPoint:
+	def Position(sign as int) as SgPoint:
 		raise "Not implemented yet"
 
 	def Flash(r as int, g as int, b as int, power as int, time as int):

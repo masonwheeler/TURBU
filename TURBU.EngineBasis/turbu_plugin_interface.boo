@@ -52,6 +52,6 @@ interface ITurbuPlugin:
 
 	def ListPlugins() as TEngineData*
 
-class ERpgPlugin(Exception):
+class RpgPluginException(Exception):
 	def constructor(Message as string):
 		super(Message)

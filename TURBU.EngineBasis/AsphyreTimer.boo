@@ -7,7 +7,7 @@ import System
 import System.Windows.Forms
 
 [Disposable(Destroy, true)]
-class TAsphyreTimer(TObject):
+class AsphyreTimer(TObject):
 	let FixedHigh = 0x100000
 	let DeltaLimit = 3 * FixedHigh
 

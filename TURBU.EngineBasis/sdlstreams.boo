@@ -9,7 +9,7 @@ import TURBU.Meta
 def SDLStreamSetup(stream as Stream) as IntPtr:
 	result = SDL_AllocRW()
 	if result == IntPtr.Zero:
-		raise InvalidDataException('could not create SDLStream on nil')
+		raise InvalidDataException('could not create SDLStream on null')
 	rw as SDL_RWOps = Marshal.PtrToStructure(result, SDL_RWOps)
 	
 	rw.seek = do (rw as IntPtr, offset as Int64, whence as int) as Int64:

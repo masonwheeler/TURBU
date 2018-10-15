@@ -230,7 +230,7 @@ class TMenuPage(TObject):
 
 	protected def LoadFullImage(filename as string, imagename as string, opaque as bool):
 		cls as TSdlImageClass
-		images as TSdlImages
+		images as SdlImages
 		images = FOwner.Parent.Images
 		if not images.Contains(imagename):
 			cls = images.SpriteClass
@@ -360,7 +360,7 @@ class TMenuEngine(TObject, IMenuEngine):
 
 	private FState as TMenuShowState
 
-	private FOrigin as TSgPoint
+	private FOrigin as SgPoint
 
 	private FMenus = Dictionary[of string, TMenuPage]()
 

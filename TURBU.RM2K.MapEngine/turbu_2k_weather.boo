@@ -209,7 +209,7 @@ class TWeatherSystem(SpriteEngine):
 		else:
 			GPU_SetBlendMode(img.Surface, GPU_BlendPresetEnum.GPU_BLEND_NORMAL)
 
-	public def constructor(parent as SpriteEngine, images as TSdlImages, canvas as TSdlCanvas):
+	public def constructor(parent as SpriteEngine, images as SdlImages, canvas as SdlCanvas):
 		super(parent, canvas)
 		self.Z = 21
 		self.Images = images
@@ -292,5 +292,5 @@ let SNOWFALL = 1.1
 let RAIN_DECAYRATE = 0.05;
 let SNOW_DECAYRATE = 0.002
 let SANDRAIN_DECAYRATE = 0.06
-let FOGSIZE = TSgPoint(x: 64, y: 64)
+let FOGSIZE = SgPoint(x: 64, y: 64)
 let SPAWN_RATE = (0, 1, 2, 0, 1)

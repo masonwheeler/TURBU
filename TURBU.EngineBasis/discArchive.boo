@@ -4,25 +4,25 @@ import System.IO
 import System.Linq.Enumerable
 import archiveInterface
 
-class TDiscArchive(IArchive):
+class DiscArchive(IArchive):
 	
 	[Getter(Root)]
-	private FRoot as string
+	private _root as string
 	
 	static public def OpenFolder(pathName as string) as IArchive:
-		raise EArchiveError("Unable to open project folder '$pathName'") unless Directory.Exists(pathName)
-		return TDiscArchive(pathName)
+		raise ArchiveError("Unable to open project folder '$pathName'") unless Directory.Exists(pathName)
+		return DiscArchive(pathName)
 	
 	static public def NewFolder(pathName as string) as IArchive:
-		raise EArchiveError("Project folder '$pathName' already exists; unable to create") if Directory.Exists(pathName)
+		raise ArchiveError("Project folder '$pathName' already exists; unable to create") if Directory.Exists(pathName)
 		Directory.CreateDirectory(pathName)
-		return TDiscArchive(pathName)
+		return DiscArchive(pathName)
 
 	private def constructor(root as string):
-		FRoot = root
+		_root = root
 
 	private def AdjustFilename(name as string):
-		return (name if name.StartsWith(FRoot) else Path.Combine(FRoot, name))
+		return (name if name.StartsWith(_root) else Path.Combine(_root, name))
 	
 	public def FileExists(name as string) as bool:
 		key = AdjustFilename(name)
@@ -37,11 +37,11 @@ class TDiscArchive(IArchive):
 				result.Position = 0
 				return result
 			except e as System.Exception:
-				raise EArchiveError(e.Message)
+				raise ArchiveError(e.Message)
 
 	public def WriteFile(key as string, theFile as Stream):
 		filePos = theFile.Position
-		filename = Path.Combine(FRoot, key)
+		filename = Path.Combine(_root, key)
 		if Path.DirectorySeparatorChar in key:
 			folderName = Path.GetDirectoryName(filename)
 			Directory.CreateDirectory(folderName)
@@ -57,11 +57,9 @@ class TDiscArchive(IArchive):
 			filter = Path.GetFileName(folder)
 			folder = Path.GetDirectoryName(folder)
 		else: filter = '*.*'
-		folder = Path.Combine(FRoot, folder)
-		result = do():
-			for filename in Directory.GetFiles(folder, filter):
-				yield filename[folder.Length:]
-		return result()
+		folder = Path.Combine(_root, folder)
+		for filename in Directory.GetFiles(folder, filter):
+			yield filename[folder.Length:]
 
 	public def CountFiles(filter as string) as int:
 		return AllFiles(filter).ToArray().Length
@@ -71,4 +69,4 @@ class TDiscArchive(IArchive):
 		File.Delete(key)
 
 	public def CreateFolder(name as string):
-		Directory.CreateDirectory(Path.Combine(FRoot, name))
+		Directory.CreateDirectory(Path.Combine(_root, name))

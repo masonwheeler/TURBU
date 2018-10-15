@@ -83,7 +83,7 @@ class TSprite(TObject):
 			System.Diagnostics.Debugger.Break() unless value >= 0
 			FHeight = value
 
-	protected FOrigin as TSgPoint
+	protected FOrigin as SgPoint
 
 	[Property(Name)]
 	protected FName as string
@@ -552,10 +552,10 @@ class TAnimatedSprite(TParentSprite):
 class TAnimatedRectSprite(TParentSprite):
 
 	[Property(StartingPoint)]
-	private FStartingPoint as TSgPoint
+	private FStartingPoint as SgPoint
 
 	[Property(Displacement)]
-	private FDisplacement as TSgPoint
+	private FDisplacement as SgPoint
 
 	[Property(SeriesLength)]
 	private FSeriesLength as int
@@ -567,7 +567,7 @@ class TAnimatedRectSprite(TParentSprite):
 		FAnimPos = 0
 		super.SetDrawRect(value)
 
-	public def constructor(parent as TParentSprite, region as GPU_Rect, displacement as TSgPoint, length as int):
+	public def constructor(parent as TParentSprite, region as GPU_Rect, displacement as SgPoint, length as int):
 		super(parent)
 		self.DrawRect = region
 		FDisplacement = displacement
@@ -592,8 +592,8 @@ class TTiledAreaSprite(TAnimatedRectSprite):
 	private FStretch as bool
 
 	protected override def DoDraw():
-		drawpoint as TSgPoint
-		endpoint as TSgPoint
+		drawpoint as SgPoint
+		endpoint as SgPoint
 		alphaSet as bool
 		if self.Alpha != 0:
 			GPU_SetRGBA(self.Image.Surface, 255, 255, 255, self.Alpha)
@@ -615,7 +615,7 @@ class TTiledAreaSprite(TAnimatedRectSprite):
 					drawpoint.x += FWidth
 					until drawpoint.x + FWidth > endpoint.x
 				if drawpoint.x < endpoint.x:
-					e as TSgPoint = endpoint - drawpoint
+					e as SgPoint = endpoint - drawpoint
 					FImage.DrawRectTo(
 						GPU_MakeRect(drawpoint.x, drawpoint.y, e.x, e.y),
 						GPU_MakeRect(DrawRect.x, DrawRect.y, endpoint.x - drawpoint.x, DrawRect.h))
@@ -625,7 +625,7 @@ class TTiledAreaSprite(TAnimatedRectSprite):
 			self.Y = FFillArea.y
 		GPU_UnsetColor(self.Image.Surface) if alphaSet
 
-	public def constructor(parent as TParentSprite, region as GPU_Rect, displacement as TSgPoint, length as int):
+	public def constructor(parent as TParentSprite, region as GPU_Rect, displacement as SgPoint, length as int):
 		FFillArea = GPU_MakeRect(0, 0, region.w, region.h)
 		super(parent, region, displacement, length)
 		FRenderSpecial = true
@@ -673,10 +673,10 @@ class SpriteEngine(TParentSprite):
 	internal FDeadList = List[of TSprite]()
 
 	[Property(Images), DisposeParent]
-	private FImages as TSdlImages
+	private FImages as SdlImages
 
 	[Getter(Canvas)]
-	private FCanvas as TSdlCanvas
+	private FCanvas as SdlCanvas
 
 	protected FRenderer = SpriteRenderer()
 
@@ -695,7 +695,7 @@ class SpriteEngine(TParentSprite):
 	protected virtual def CreateViewport() as Viewport:
 		return Viewport(self.Canvas.Width, self.Canvas.Height)
 
-	public def constructor(parent as SpriteEngine, canvas as TSdlCanvas):
+	public def constructor(parent as SpriteEngine, canvas as SdlCanvas):
 		super(parent)
 		FCanvas = canvas
 		FEngine = self
@@ -740,21 +740,21 @@ class SpriteEngine(TParentSprite):
 class SpriteRenderer:
 	private FLastZ as int
 
-	private FLastMap as TMultimap[of TSdlImage, TSprite]
+	private FLastMap as Multimap[of TSdlImage, TSprite]
 
-	private FDrawMap = Dictionary[of int, TMultimap[of TSdlImage, TSprite]]()
+	private FDrawMap = Dictionary[of int, Multimap[of TSdlImage, TSprite]]()
 
 	public def constructor():
 		FLastZ = -1
 
 	public def Draw(sprite as TSprite):
-		map as TMultimap[of TSdlImage, TSprite]
+		map as Multimap[of TSdlImage, TSprite]
 		if sprite.Z == FLastZ:
 			map = FLastMap
 		else:
 			System.Diagnostics.Debugger.Break() if sprite.Z == 0 and not sprite.IsBackground()
 			if not FDrawMap.TryGetValue(sprite.Z, map):
-				map = TMultimap[of TSdlImage, TSprite]()
+				map = Multimap[of TSdlImage, TSprite]()
 				FDrawMap.Add(sprite.Z, map)
 			FLastZ = sprite.Z
 			FLastMap = map
@@ -764,8 +764,12 @@ class SpriteRenderer:
 		for value in FDrawMap.Values:
 			value.Clear()
 
+	private def RenderMap(map as Multimap[of TSdlImage, TSprite]):
+		for list in map.Values:
+			for sprite in list:
+				System.Diagnostics.Debugger.Break() if sprite.X < -50 and not sprite.IsBackground()
+				sprite.Render()
+
 	public def Render(target as GPU_Target_PTR):
 		for map in FDrawMap.OrderBy({e | e.Key}).Select({e | e.Value}):
-			for list in map.Values:
-				for sprite in list:
-					sprite.Render()
+			RenderMap(map)

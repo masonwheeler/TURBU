@@ -26,13 +26,13 @@ class TAnimatedSpriteClass(TParentSpriteClass):
 [Metaclass(TAnimatedRectSprite)]
 class TAnimatedRectSpriteClass(TParentSpriteClass):
 
-	virtual def Create(parent as TParentSprite, region as GPU_Rect, displacement as TSgPoint, length as int) as sdl.sprite.TAnimatedRectSprite:
+	virtual def Create(parent as TParentSprite, region as GPU_Rect, displacement as SgPoint, length as int) as sdl.sprite.TAnimatedRectSprite:
 		return sdl.sprite.TAnimatedRectSprite(parent, region, displacement, length)
 
 [Metaclass(TTiledAreaSprite)]
 class TTiledAreaSpriteClass(TAnimatedRectSpriteClass):
 
-	override def Create(parent as TParentSprite, region as GPU_Rect, displacement as TSgPoint, length as int) as sdl.sprite.TAnimatedRectSprite:
+	override def Create(parent as TParentSprite, region as GPU_Rect, displacement as SgPoint, length as int) as sdl.sprite.TAnimatedRectSprite:
 		return sdl.sprite.TTiledAreaSprite(parent, region, displacement, length)
 
 [Metaclass(TParticleSprite)]
@@ -44,6 +44,6 @@ class TParticleSpriteClass(TAnimatedSpriteClass):
 [Metaclass(SpriteEngine)]
 class SpriteEngineClass(TParentSpriteClass):
 
-	virtual def Create(AParent as SpriteEngine, ACanvas as TSdlCanvas) as sdl.sprite.SpriteEngine:
+	virtual def Create(AParent as SpriteEngine, ACanvas as SdlCanvas) as sdl.sprite.SpriteEngine:
 		return sdl.sprite.SpriteEngine(AParent, ACanvas)
 

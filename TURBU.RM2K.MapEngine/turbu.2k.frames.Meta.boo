@@ -12,7 +12,7 @@ class TSystemTileClass(TTiledAreaSpriteClass):
 [Metaclass(TSystemImages)]
 class TSystemImagesClass(TClass):
 
-	virtual def Create(images as TSdlImages, filename as string, stretch as bool, translucent as bool) as TURBU.RM2K.Menus.TSystemImages:
+	virtual def Create(images as SdlImages, filename as string, stretch as bool, translucent as bool) as TURBU.RM2K.Menus.TSystemImages:
 		return TURBU.RM2K.Menus.TSystemImages(images, filename, stretch, translucent)
 
 [Metaclass(TSysFrame)]

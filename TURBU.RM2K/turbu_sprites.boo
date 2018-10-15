@@ -10,7 +10,7 @@ struct TSpriteData:
 
 	moveMatrix as int
 
-def nextPosition(matrix as ((int)), ref current as TSgPoint) as byte:
+def nextPosition(matrix as ((int)), ref current as SgPoint) as byte:
 	if (current.x > pred(matrix.Length)) or (current.y > pred(matrix[current.x].Length)):
 		current = sgPoint(0, 0)
 	else:

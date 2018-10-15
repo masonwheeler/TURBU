@@ -17,7 +17,7 @@ class TRpgSdlImage(TSdlImage):
 		FOrigSurface = image
 		SDL_AcquireSurface(FOrigSurface)
 
-	public def constructor(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	public def constructor(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		super(filename, imagename, container, spriteSize)
 
 	private new def Destroy():

@@ -29,7 +29,7 @@ def multiplyRect(value as Rectangle, amount as int) as Rectangle:
 	result = Rectangle(value.Left * amount, value.Top * amount, value.Right * amount, value.Bottom * amount)
 	return result
 
-def multiplyRect(value as Rectangle, amount as TSgPoint) as Rectangle:
+def multiplyRect(value as Rectangle, amount as SgPoint) as Rectangle:
 	result = Rectangle(value.Left * amount.x, value.Top * amount.y, value.Right * amount.x, value.Bottom * amount.y)
 	return result
 
@@ -38,7 +38,7 @@ def multiplyRect(value as Rectangle, amount as single) as Rectangle:
 		round(value.Bottom * amount))
 	return result
 
-def divideRect(value as Rectangle, amount as TSgPoint) as Rectangle:
+def divideRect(value as Rectangle, amount as SgPoint) as Rectangle:
 	result = Rectangle(
 		round((value.Left cast double) / (amount.x cast double)),
 		round((value.Top cast double) / (amount.y cast double)),
@@ -46,11 +46,11 @@ def divideRect(value as Rectangle, amount as TSgPoint) as Rectangle:
 		round((value.Bottom cast double) / (amount.y cast double)))
 	return result
 
-def pointToGridLoc(point as TSgPoint, cellSize as TSgPoint, hScroll as int, vScroll as int, scale as double) as TSgPoint:
+def pointToGridLoc(point as SgPoint, cellSize as SgPoint, hScroll as int, vScroll as int, scale as double) as SgPoint:
 	return ((point / scale ) + sgPoint(hScroll, vScroll)) / cellSize
 
-def gridLocToPoint(point as TSgPoint, cellSize as TSgPoint, hScroll as int, vScroll as int, scale as double) as TSgPoint:
-	result as TSgPoint
+def gridLocToPoint(point as SgPoint, cellSize as SgPoint, hScroll as int, vScroll as int, scale as double) as SgPoint:
+	result as SgPoint
 	result.x = round(point.x * scale * cellSize.x) - hScroll
 	result.y = round(point.y * scale * cellSize.y) - vScroll
 	return result

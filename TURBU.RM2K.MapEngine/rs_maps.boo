@@ -69,7 +69,7 @@ def TeleportVehicle(which as TRpgVehicle, map as int, x as int, y as int):
 		which.Location = newpoint
 
 def TeleportMapObject(which as TRpgEvent, x as int, y as int):
-	newpoint as TSgPoint
+	newpoint as SgPoint
 	newpoint = sgPoint(x, y)
 	if GSpriteEngine.value.OnMap(newpoint):
 		which.Location = newpoint
@@ -85,7 +85,7 @@ def MemorizeLocation(map as int, x as int, y as int):
 		GEnvironment.value.Ints[y] = GEnvironment.value.Party.Sprite.Location.y
 
 def SwapMapObjects(first as TRpgEvent, second as TRpgEvent):
-	swapper as TSgPoint
+	swapper as SgPoint
 	first.Base.LeaveTile()
 	second.Base.LeaveTile()
 	swapper = first.Location
@@ -336,7 +336,7 @@ private def WaitForFadeEnd() as bool:
 private def WaitForPanEnd() as bool:
 	return not GSpriteEngine.value.Displacing
 
-private def LoadAnim(filename as string, cellSize as TSgPoint):
+private def LoadAnim(filename as string, cellSize as SgPoint):
 	var image = GSpriteEngine.value.Images.EnsureImage("Animations\\$filename.png", 'Anim ' + filename)
 	image.TextureSize = cellSize
 
@@ -344,8 +344,8 @@ private class TCharacterTarget(TObject, IAnimTarget):
 
 	private FTarget as TRpgCharacter
 
-	def Position(sign as int) as TSgPoint:
-		result as TSgPoint
+	def Position(sign as int) as SgPoint:
+		result as SgPoint
 		assert sign >= -1 and sign <= 1
 		result.x = FTarget.ScreenXP + (FTarget.Base.Tiles[0].Width / 2)
 		result.y = FTarget.ScreenYP + (FTarget.Base.Tiles[0].Height * sign)

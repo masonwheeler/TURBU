@@ -68,7 +68,7 @@ class TMapSprite(TObject):
 
 	private FLastJumpOp as int
 
-	private FJumpTarget as TSgPoint
+	private FJumpTarget as SgPoint
 
 	private FJumpTime as int
 
@@ -78,13 +78,13 @@ class TMapSprite(TObject):
 
 	private FFlashColor as TSgColor
 
-	private FFlashTimer as TRpgTimestamp
+	private FFlashTimer as Timestamp
 
 	private FFlashLength as int
 
 	protected FForceTurn as bool
 
-	protected static def PointInRect(thePoint as TSgPoint, theRect as SDL2.SDL.SDL_Rect) as bool:
+	protected static def PointInRect(thePoint as SgPoint, theRect as SDL2.SDL.SDL_Rect) as bool:
 		return IsBetween(thePoint.x, theRect.x, theRect.x + theRect.w) and \
 				IsBetween(thePoint.y, theRect.y, theRect.y + theRect.h)
 
@@ -99,7 +99,7 @@ class TMapSprite(TObject):
 		var heroLoc = (GSpriteEngine.value.CurrentParty.Location if assigned(GSpriteEngine.value.CurrentParty) else sgPoint(0, 1000)))
 		return towards(self.Location, heroLoc)
 
-	private def CanJump(target as TSgPoint) as bool:
+	private def CanJump(target as SgPoint) as bool:
 		FJumpTime = commons.round(MOVE_DELAY[FMoveRate] / 1.5)
 		if PointInRect(target, SDL.SDL_Rect(0, 0, FEngine.Width, FEngine.Height)) \
 				and (FSlipThrough or (FEngine cast T2kSpriteEngine).Passable(target.x, target.y)):
@@ -108,9 +108,9 @@ class TMapSprite(TObject):
 		else: result = false
 		return result
 
-	private def StartMoveTo(target as TSgPoint):
+	private def StartMoveTo(target as SgPoint):
 		FLocation = target
-		lTarget as TSgPoint = target
+		lTarget as SgPoint = target
 		GSpriteEngine.value.NormalizePoint(lTarget.x, lTarget.y)
 		SetTarget(lTarget * TILE_SIZE)
 		if lTarget != target:
@@ -122,18 +122,18 @@ class TMapSprite(TObject):
 			SetLocation(lTarget)
 		FTarget.x -= WIDTH_BIAS
 		assert not assigned(FMoveTime)
-		FMoveTime = TRpgTimestamp(MOVE_DELAY[FMoveRate - 1])
+		FMoveTime = Timestamp(MOVE_DELAY[FMoveRate - 1])
 		EnterTile()
 
 	private def SetMoveOrder(value as Path):
 		FMoveAssignment = value
 
-	private def BeginJump(target as TSgPoint):
+	private def BeginJump(target as SgPoint):
 		self.LeaveTile()
 		FJumpTarget = target
 		FJumping = true
 		FJumpAnimateOverride = true
-		midpoint as TSgPoint = ((FJumpTarget - FLocation) * TILE_SIZE) / 2.0
+		midpoint as SgPoint = ((FJumpTarget - FLocation) * TILE_SIZE) / 2.0
 		midpoint.y -= TILE_SIZE.y / 2
 		SetTarget((FLocation * TILE_SIZE) + midpoint)
 		FTarget.x -= WIDTH_BIAS
@@ -142,14 +142,14 @@ class TMapSprite(TObject):
 		FLocation = FJumpTarget
 		assert not assigned(FMoveTime)
 		GSpriteEngine.value.AddLocation(self.Location, self)
-		FMoveTime = TRpgTimestamp(FJumpTime)
+		FMoveTime = Timestamp(FJumpTime)
 
 	private def EndJump():
 		SetTarget(FLocation * TILE_SIZE)
 		FTarget.x -= WIDTH_BIAS
 		FJumping = false
 		assert not assigned(FMoveTime)
-		FMoveTime = TRpgTimestamp(FJumpTime)
+		FMoveTime = Timestamp(FJumpTime)
 
 	private def Get90Dir() as TDirections:
 		if _random.Next(2) == 1:
@@ -194,14 +194,14 @@ class TMapSprite(TObject):
 		if FMoveFreq < 8:
 			var frequency = 8 - FMoveFreq
 			frequency = 2 ** frequency
-			FPause = TRpgTimestamp(frequency * (BASE_MOVE_DELAY - 15) / 4)
+			FPause = Timestamp(frequency * (BASE_MOVE_DELAY - 15) / 4)
 		else: FPause = null
 
 	private def OpChangeFacing(dir as TDirections):
 		preserving FForceTurn:
 			FForceTurn = true
 			self.Facing = dir
-		FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate - 1] / 3)
+		FPause = Timestamp(MOVE_DELAY[FMoveRate - 1] / 3)
 
 	protected def TurnChangeFacing(dir as TDirections):
 		self.Facing = dir
@@ -213,9 +213,9 @@ class TMapSprite(TObject):
 	[Property(OnChangeSprite)]
 	protected FChangeSprite as Action[of string, bool, int]
 
-	protected FLocation as TSgPoint
+	protected FLocation as SgPoint
 
-	protected FTarget as TSgPoint
+	protected FTarget as SgPoint
 
 	protected FMoveDir as TDirections
 
@@ -240,9 +240,9 @@ class TMapSprite(TObject):
 
 	protected FVisible as bool
 
-	protected FPause as TRpgTimestamp
+	protected FPause as Timestamp
 
-	protected FMoveTime as TRpgTimestamp
+	protected FMoveTime as Timestamp
 
 	protected FCanSkip as bool
 
@@ -267,7 +267,7 @@ class TMapSprite(TObject):
 	protected def GetBaseTile() as TSprite:
 		return FTiles[0]
 
-	protected virtual def SetLocation(value as TSgPoint):
+	protected virtual def SetLocation(value as SgPoint):
 		FLocation = value
 		SetTarget(value * TILE_SIZE)
 		FTarget.x -= WIDTH_BIAS
@@ -275,7 +275,7 @@ class TMapSprite(TObject):
 	protected virtual def CanMoveForward() as bool:
 		return (FEngine cast T2kSpriteEngine).CanExit(FLocation.x, FLocation.y, FMoveDir, self)
 
-	protected def CanMoveDiagonal(one as TDirections, two as TDirections, ref destination as TSgPoint) as bool:
+	protected def CanMoveDiagonal(one as TDirections, two as TDirections, ref destination as SgPoint) as bool:
 		temp as TDirections
 		assert ord(one) % 2 == 0 and ord(two) % 2 == 1
 		temp = FFacing
@@ -373,7 +373,7 @@ class TMapSprite(TObject):
 
 	public def Pause():
 		assert FPause is null
-		FPause = TRpgTimestamp(300)
+		FPause = Timestamp(300)
 		return true
 
 	public def Jump(x as int, y as int) as bool:
@@ -469,7 +469,7 @@ class TMapSprite(TObject):
 			case 48: result = false
 			default : assert false
 		if FOrder.Opcode in range(12, 23):
-			FPause = TRpgTimestamp(MOVE_DELAY[FMoveRate] / 3)
+			FPause = Timestamp(MOVE_DELAY[FMoveRate] / 3)
 		FOrder.Opcode = OP_CLEAR unless unchanged
 		if (not FMoveOpen) and (FOrder.Opcode != 23) and (self.InFrontTile != null):
 			(self.InFrontTile).Bump(self)
@@ -537,7 +537,7 @@ class TMapSprite(TObject):
 	protected virtual def Bump(bumper as TMapSprite):
 		pass
 
-	protected virtual def SetTarget(value as TSgPoint):
+	protected virtual def SetTarget(value as SgPoint):
 		FTarget = value
 
 	protected AnimFix as bool:
@@ -567,7 +567,7 @@ class TMapSprite(TObject):
 		return result
 
 	public virtual def Move(whichDir as TDirections) as bool:
-		target as TSgPoint
+		target as SgPoint
 		result = false
 		return result if assigned(FMoveTime) or assigned(FPause)
 		if self.DirLocked:
@@ -591,7 +591,7 @@ class TMapSprite(TObject):
 		return result
 
 	public def MoveDiag(one as TDirections, two as TDirections) as bool:
-		destination as TSgPoint
+		destination as SgPoint
 		var result = false
 		return result if assigned(FMoveTime) and assigned(FPause)
 		if (not self.DirLocked) and Facing not in (one, two):
@@ -620,7 +620,7 @@ class TMapSprite(TObject):
 			MoveTowards(timeRemaining, lY, FTarget.y)
 			FTiles[0].Y = lY
 			FTiles[0].UpdateGridLoc()
-			if timeRemaining <= TRpgTimestamp.FrameLength:
+			if timeRemaining <= Timestamp.FrameLength:
 				FMoveTime = null
 				if FJumping:
 					EndJump()
@@ -635,7 +635,7 @@ class TMapSprite(TObject):
 	public def UpdatePage(Data as TRpgEventPage):
 		DoUpdatePage(Data)
 
-	public InFront as TSgPoint:
+	public InFront as SgPoint:
 		get:
 			var direction = (FMoveDir if self.DirLocked else FFacing)
 			caseOf direction:
@@ -647,7 +647,7 @@ class TMapSprite(TObject):
 
 	public InFrontTile as TMapTile:
 		get:
-			inFront as TSgPoint = self.InFront
+			inFront as SgPoint = self.InFront
 			return (FEngine cast T2kSpriteEngine).GetTile(inFront.x, inFront.y, 0)
 
 	public HasPage as bool:
@@ -662,7 +662,7 @@ class TMapSprite(TObject):
 		FFlashColor.Rgba[3] = b
 		FFlashColor.Rgba[4] = power
 		time = time * 100
-		FFlashTimer = TRpgTimestamp(time)
+		FFlashTimer = Timestamp(time)
 		FFlashLength = time
 
 	public virtual def MoveTick(moveBlocked as bool):
@@ -700,7 +700,7 @@ class TMapSprite(TObject):
 
 	public def CopyDrawState(base as TMapSprite):
 		if assigned(base.FFlashTimer):
-			FFlashTimer = TRpgTimestamp(base.FFlashTimer.TimeRemaining)
+			FFlashTimer = Timestamp(base.FFlashTimer.TimeRemaining)
 			FFlashColor = base.FFlashColor
 			FFlashLength = base.FFlashLength
 		FMoveQueue = base.FMoveQueue.Clone() if assigned(base.FMoveQueue)
@@ -731,7 +731,7 @@ class TMapSprite(TObject):
 				self.MoveFreq = FMoveChange.Frequency
 				FMoveChange = null
 
-	public Location as TSgPoint:
+	public Location as SgPoint:
 		get: return FLocation
 		set: SetLocation(value)
 
@@ -763,7 +763,7 @@ class TMapSprite(TObject):
 
 class TEventSprite(TMapSprite):
 
-	protected override def SetLocation(value as TSgPoint):
+	protected override def SetLocation(value as SgPoint):
 		super.SetLocation(value)
 		FTiles[0].X = Location.x * TILE_SIZE.x
 		FTiles[0].Y = Location.y * TILE_SIZE.y
@@ -790,7 +790,7 @@ class TCharSprite(TMapSprite):
 	[Getter(Frame)]
 	private FWhichFrame as short
 
-	private FAnimTimer as TRpgTimestamp
+	private FAnimTimer as Timestamp
 
 	private def LoadCharset(filename as string):
 		FEngine.Images.EnsureImage(("Sprites\\$filename.png"), filename, SPRITE_SIZE)
@@ -820,7 +820,7 @@ class TCharSprite(TMapSprite):
      			and not (assigned(MoveAssign) and (FTarget != FLocation * TILE_SIZE)):
 			FMoveFrame = 1
 		else: FMoveFrame = newFrame
-		FAnimTimer = TRpgTimestamp(moveDelay / TIME_FACTOR)
+		FAnimTimer = Timestamp(moveDelay / TIME_FACTOR)
 
 	protected FMoved as bool
 
@@ -847,7 +847,7 @@ class TCharSprite(TMapSprite):
 		FTiles[0].ImageIndex = frame + l.SpriteRow
 		FTiles[1].ImageIndex = frame
 
-	protected override def SetLocation(Data as TSgPoint):
+	protected override def SetLocation(Data as SgPoint):
 		super.SetLocation(Data)
 		FTiles[0].X = (Location.x * TILE_SIZE.x) - 4
 		FTiles[0].Y = Location.y * TILE_SIZE.y
@@ -903,7 +903,7 @@ class TCharSprite(TMapSprite):
 		FUnderConstruction = false
 		self.SetFlashEvents(FTiles[0])
 		self.SetFlashEvents(FTiles[1])
-		FAnimTimer = TRpgTimestamp(0)
+		FAnimTimer = Timestamp(0)
 
 	private new def Destroy():
 		if assigned(FMapObj):

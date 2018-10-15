@@ -70,7 +70,7 @@
     <Compile Include="JV\PluginManager.boo" />
     <Compile Include="project_folder.boo" />
     <Compile Include="sdl.sprite.Meta.boo" />
-    <Compile Include="sdlstreams.boo" />
+    <None Include="sdlstreams.boo" />
     <Compile Include="sdl_sprite.boo" />
     <Compile Include="sg_utils.boo" />
     <Compile Include="TURBU.BattleEngine.Meta.boo" />
@@ -113,7 +113,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TURBU.LINQ.boo" />
+    <Compile Include="TURBU.LINQ.boo" />
   </ItemGroup>
   <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
 </Project>

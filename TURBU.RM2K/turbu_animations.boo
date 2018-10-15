@@ -80,7 +80,7 @@ class TAnimCell(TRpgDatafile):
 	private FFrame as int
 
 	[Property(Position)]
-	private FPosition as TSgPoint
+	private FPosition as SgPoint
 
 	[Property(Zoom)]
 	private FZoom as int = 100
@@ -130,7 +130,7 @@ class TAnimTemplate(TRpgDatafile):
 	private FYTarget as TAnimYTarget
 
 	[Getter(CellSize)]
-	private FCellSize as TSgPoint
+	private FCellSize as SgPoint
 
 	public def constructor():
 		super()

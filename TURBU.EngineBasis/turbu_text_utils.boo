@@ -10,7 +10,6 @@ import SDL.ImageManager
 import dm.shaders
 import SDL2
 import SDL2.SDL2_GPU
-import commons
 
 [Disposable()]
 class TRpgFont(TObject):
@@ -21,7 +20,7 @@ class TRpgFont(TObject):
 	private FSize as uint
 
 	public def constructor(name as string, size as uint):
-		lName as string = TFontEngine.FontPath + name
+		var lName = System.IO.Path.Combine(TFontEngine.FontPath, name)
 		FFont = NFont(lName, size)
 		if FFont == IntPtr.Zero:
 			raise EFontError("Unable to load font \"$name\".")
@@ -40,7 +39,7 @@ class TFontEngine(TObject):
 
 	private FShaderEngine as TdmShaders
 
-	private FTarget as TSdlRenderTarget
+	private FTarget as SdlRenderTarget
 
 	[Property(Glyphs)]
 	private FGlyphs as TSdlImage
@@ -56,11 +55,10 @@ class TFontEngine(TObject):
 	private FTextBlock = GPU_LoadMultitextureBlock(2, ('texAlpha', 'texRGB'), ('RPG_TexCoord', 'RPG_TexCoord2'))
 
 	[Getter(FontPath)]
-	private static FFontPath as string
+	private static _fontPath as string
 
 	def constructor():
-		aPath = Environment.GetFolderPath(Environment.SpecialFolder.Fonts)
-		FFontPath = IncludeTrailingPathDelimiter(aPath)
+		_fontPath = Environment.GetFolderPath(Environment.SpecialFolder.Fonts)
 	
 	private def Destroy():
 		for font in FFonts:
@@ -72,7 +70,7 @@ class TFontEngine(TObject):
 		FPass1 = shader.ShaderProgram('textV', 'textShadow')
 		FPass2 = shader.ShaderProgram('textV', 'textF')
 		FShaderEngine = shader
-		FTarget = TSdlRenderTarget(sgPoint(16, 16))
+		FTarget = SdlRenderTarget(sgPoint(16, 16))
 		FFonts = List[of TRpgFont]()
 
 	private def RenderChar(text as char):
@@ -107,13 +105,13 @@ class TFontEngine(TObject):
 		FTarget.Parent.DrawRect(FGlyphs, sgPoint(0, 0), srcRect, 0)
 		FTarget.Parent.PopRenderTarget()
 
-	public def DrawText(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as TSgFloatPoint:
+	public def DrawText(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as SgFloatPoint:
 		var result = sgPointF(x, y)
 		for aChar in text:
 			result = DrawChar(target, aChar, result.x, result.y, colorIndex)
 		return result
 
-	public def DrawChar(target as GPU_Target_PTR, text as char, x as single, y as single, colorIndex as int) as TSgFloatPoint:
+	public def DrawChar(target as GPU_Target_PTR, text as char, x as single, y as single, colorIndex as int) as SgFloatPoint:
 		glCheckError()
 		RenderChar(text)
 		GPU_FlushBlitBuffer()
@@ -122,13 +120,13 @@ class TFontEngine(TObject):
 		GPU_DeactivateShaderProgram()
 		return sgPointF(x + TEXT_WIDTH, y)
 
-	public def DrawGlyph(target as GPU_Target_PTR, index as int, x as single, y as single, colorIndex as int) as TSgFloatPoint:
+	public def DrawGlyph(target as GPU_Target_PTR, index as int, x as single, y as single, colorIndex as int) as SgFloatPoint:
 		RenderGlyph(index)
 		DrawTargetPass1(target, x + 1, y + 1)
 		DrawTargetPass2(target, x, y, colorIndex)
 		return sgPointF(x + (TEXT_WIDTH * 2), y)
 
-	public def DrawTextRightAligned(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as TSgFloatPoint:
+	public def DrawTextRightAligned(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as SgFloatPoint:
 		result = sgPointF(x - (text.Length * TEXT_WIDTH), y)
 		DrawText(target, text, result.x, result.y, colorIndex)
 		return result

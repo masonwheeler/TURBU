@@ -85,10 +85,10 @@ class TRpgMonster(TRpgDatafile):
 	protected FOftenMiss as bool
 
 	[Property(Condition)]
-	protected FConditions as (TSgPoint)
+	protected FConditions as (SgPoint)
 
 	[Property(Resist)]
-	protected FResists as (TSgPoint)
+	protected FResists as (SgPoint)
 
 	[Property(Behavior)]
 	private FBehavior as (TMonsterBehavior)
@@ -105,12 +105,12 @@ class TRpgMonsterElement(TObject):
 	private FMonster as int
 
 	[Getter(Position)]
-	private FPosition as TSgPoint
+	private FPosition as SgPoint
 	
 	[Getter(Invisible)]
 	private FInvisible as bool
 
-	public def constructor(id as int, monster as int, position as TSgPoint, invisible as bool):
+	public def constructor(id as int, monster as int, position as SgPoint, invisible as bool):
 		FId = id
 		FMonster = monster
 		FPosition = position

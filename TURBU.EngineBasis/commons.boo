@@ -1,7 +1,6 @@
 namespace commons
 
 import System
-import System.IO
 import Microsoft.Win32
 import Boo.Adt
 import SG.defs
@@ -18,23 +17,6 @@ def SetRegistryValue(KeyName as string, valueName as string, value as string):
 	using rootKey = Registry.CurrentUser.OpenSubKey(KeyName, true):
 		return if rootKey is null
 		rootKey.SetValue(valueName, value)
-
-def getPersonalFolder() as string:
-	return Environment.GetFolderPath(Environment.SpecialFolder.Personal)
-
-def IncludeTrailingPathDelimiter(path as string) as string:
-	let BACKSLASH = Path.DirectorySeparatorChar
-	return path.TrimEnd(BACKSLASH) + BACKSLASH
-
-def getProjectFolder() as string:
-	return IncludeTrailingPathDelimiter(GetRegistryValue('\\Software\\TURBU', 'TURBU Projects Folder'))
-
-def getTempFolder() as string:
-	return Path.GetTempPath()
-
-def createProjectFolder():
-	SetRegistryValue('\\Software\\TURBU', 'TURBU Projects Folder', (IncludeTrailingPathDelimiter(getPersonalFolder()) + 'TURBU Projects'))
-	Directory.CreateDirectory(getProjectFolder())
 
 def IsBetween(number as int, low as int, high as int) as bool:
 	return ((number >= low) and (number <= high))

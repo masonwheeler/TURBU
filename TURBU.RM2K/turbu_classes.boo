@@ -271,13 +271,13 @@ public def CheckRead(obj as JObject, name as string, ref value as bool):
 		obj.Remove(name)
 
 [Extension]
-public def CheckRead(obj as JObject, name as string, ref value as SG.defs.TSgPoint):
+public def CheckRead(obj as JObject, name as string, ref value as SG.defs.SgPoint):
 	item as JToken
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		var arr = item cast JArray
 		assert arr.Count == 2
-		value = SG.defs.TSgPoint(arr[0] cast int, arr[1] cast int)
+		value = SG.defs.SgPoint(arr[0] cast int, arr[1] cast int)
 		obj.Remove(name)
 
 [Extension]
@@ -320,16 +320,16 @@ public def ReadArray(obj as JObject, name as string, ref value as (bool)) as boo
 	else: return false
 
 [Extension]
-public def ReadArray(obj as JObject, name as string, ref value as (SG.defs.TSgPoint)) as bool:
+public def ReadArray(obj as JObject, name as string, ref value as (SG.defs.SgPoint)) as bool:
 	item as JToken
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		var arr = item cast JArray
-		Array.Resize[of SG.defs.TSgPoint](value, arr.Count)
+		Array.Resize[of SG.defs.SgPoint](value, arr.Count)
 		for i in range(arr.Count):
 			var pt = arr[i] cast JArray
 			assert pt.Count == 2
-			value[i] = SG.defs.TSgPoint(pt[0] cast int, pt[1] cast int)
+			value[i] = SG.defs.SgPoint(pt[0] cast int, pt[1] cast int)
 		obj.Remove(name)
 		return true
 	else: return false

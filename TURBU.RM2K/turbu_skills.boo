@@ -172,7 +172,7 @@ class TNormalSkillTemplate(TSkillTemplate):
 		return anim.Effects.Select({e | e.Sound}).FirstOrDefault({s | (s != null) and not string.IsNullOrEmpty(s.Filename) })
 
 	[Property(Attributes)]
-	protected FAttributes as (TSgPoint)
+	protected FAttributes as (SgPoint)
 
 	public StrEffect as int:
 		get: return SkillPower[1]

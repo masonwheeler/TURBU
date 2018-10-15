@@ -12,7 +12,7 @@ class TImageEngine(SpriteEngine):
 	[DisposeParent]
 	private FParentEngine as SpriteEngine
 
-	public def constructor(parent as SpriteEngine, canvas as TSdlCanvas, images as TSdlImages):
+	public def constructor(parent as SpriteEngine, canvas as SdlCanvas, images as SdlImages):
 		super(null, canvas)
 		FParentEngine = parent
 		self.Images = images

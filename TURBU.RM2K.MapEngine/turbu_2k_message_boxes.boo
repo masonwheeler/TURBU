@@ -29,7 +29,7 @@ class TMessageBox(TGameMenuBox):
 
 	private FTextRate as single
 
-	private FNextCharTime as TRpgTimestamp
+	private FNextCharTime as Timestamp
 
 	private FImmediate as bool
 
@@ -53,7 +53,7 @@ class TMessageBox(TGameMenuBox):
 	private def SetTimer(value as single):
 		var remainder = (0 if FNextCharTime is null else FNextCharTime.TimeRemaining)
 		var duration = remainder + ((value * 1000) cast int)
-		FNextCharTime = TRpgTimestamp(duration)
+		FNextCharTime = Timestamp(duration)
 
 	private def SetTextRate(value as int):
 		FTextRate = value * 0.0125
@@ -126,7 +126,7 @@ class TMessageBox(TGameMenuBox):
 			else: return
 		if (input in (TButtonCode.Enter, TButtonCode.Cancel)) and self.DoneWriting:
 			EndMessage()
-			FButtonLock = TRpgTimestamp(180)
+			FButtonLock = Timestamp(180)
 
 	protected override def DoSetPosition(value as TMboxLocation):
 		SetY(FNextArrow, ((ord(value) + 1) * 80) - FNextArrow.Height)
@@ -194,7 +194,7 @@ class TInputBox(TCustomMessageBox):
 		let TEXTV = 8
 		let TEXTH = 8
 		dest as GPU_Rect = GetDrawCoords()
-		FTextTarget.Parent.Draw(FTextTarget, SG.defs.TSgPoint(dest.x + TEXTH, dest.y + TEXTV))
+		FTextTarget.Parent.Draw(FTextTarget, SG.defs.SgPoint(dest.x + TEXTH, dest.y + TEXTV))
 
 class TChoiceBox(TInputBox):
 	

@@ -66,9 +66,9 @@ enum TMenuState:
 class TSystemTile(TTiledAreaSprite):
 
 	[Property(location)]
-	private FLocation as TSgPoint
+	private FLocation as SgPoint
 
-	public def constructor(parent as TParentSprite, region as GPU_Rect, displacement as TSgPoint, length as int):
+	public def constructor(parent as TParentSprite, region as GPU_Rect, displacement as SgPoint, length as int):
 		super(parent, region, displacement, length)
 		FRenderSpecial = true
 
@@ -131,7 +131,7 @@ class TSystemImages(TObject):
 	private def GetHandle() as GPU_Image_PTR:
 		return FBetterArrow.Image.Surface
 
-	public def constructor(images as TSdlImages, filename as string, stretch as bool, translucent as bool):
+	public def constructor(images as SdlImages, filename as string, stretch as bool, translucent as bool):
 		super()
 		FFilename = filename
 		FStretch = stretch
@@ -322,7 +322,7 @@ class TMenuSpriteEngine(SpriteEngine):
 			result = GDatabase.value.InterpolateVocab(key, name)
 		return result.Replace('?$', value.ToString())
 
-	public def constructor(graphic as TSystemImages, Canvas as TSdlCanvas, images as TSdlImages):
+	public def constructor(graphic as TSystemImages, Canvas as SdlCanvas, images as SdlImages):
 		assert GMenuEngine.Value == null
 		GMenuEngine.Value = self
 		super(null, Canvas)
@@ -513,7 +513,7 @@ class TSysFrame(TSystemTile):
 			Width = w
 			Height = h
 
-	private FFrameSize as TSgPoint
+	private FFrameSize as SgPoint
 
 	private static final Frames = Dictionary[of FrameDesc, GPU_Image_PTR]()
 	
@@ -539,7 +539,7 @@ class TSysFrame(TSystemTile):
 			var target = GPU_LoadTarget(img)
 			FGraphic.DrawCursor(target, w, h)
 			GPU_FreeTarget(target)
-			result = TSdlImage(img, "Cursor($w,$h)", engine.Images, TextureSize: TSgPoint(w, h))
+			result = TSdlImage(img, "Cursor($w,$h)", engine.Images, TextureSize: SgPoint(w, h))
 			Cursors.Add(key, result)
 		return result
 
@@ -563,7 +563,7 @@ class TSysFrame(TSystemTile):
 		self.ImageName = Name
 		ClearFrames()
 
-	public def constructor(parent as TMenuSpriteEngine, displacement as TSgPoint, length as int, coords as GPU_Rect):
+	public def constructor(parent as TMenuSpriteEngine, displacement as SgPoint, length as int, coords as GPU_Rect):
 		super(parent, NULLRECT, commons.ORIGIN, 0)
 		self.Z = 1
 		if FGraphic is null:
@@ -591,7 +591,7 @@ class TSysFrame(TSystemTile):
 		pass
 
 class TMenuCursor(TSysFrame):
-	public def constructor(parent as TMenuSpriteEngine, displacement as TSgPoint, length as int, coords as GPU_Rect):
+	public def constructor(parent as TMenuSpriteEngine, displacement as SgPoint, length as int, coords as GPU_Rect):
 		super(parent, displacement, length, coords)
 
 	protected override def DoDraw():
@@ -645,13 +645,13 @@ abstract class TCustomMessageBox(TSysFrame):
 
 	protected FDontChangeCursor as bool
 
-	protected FButtonLock as TRpgTimestamp
+	protected FButtonLock as Timestamp
 
 	protected FLastLineColumns as byte
 
 	protected FPosition as TMboxLocation
 
-	protected FTextTarget as TSdlRenderTarget
+	protected FTextTarget as SdlRenderTarget
 
 	protected FTextPosX as single
 
@@ -704,7 +704,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			DoParseText(input, FParsedText)
 			InvalidateText()
 
-	protected def ClearTarget(target as TSdlRenderTarget):
+	protected def ClearTarget(target as SdlRenderTarget):
 		target.Parent.PushRenderTarget()
 		GPU_Clear(target.RenderTarget)
 		target.Parent.PopRenderTarget()
@@ -731,7 +731,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			DrawFrame()
 
 	protected def DrawChar(value as char):
-		newPos as TSgFloatPoint = GFontEngine.DrawChar(FTextTarget.RenderTarget, value, FTextPosX, FTextPosY, FTextColor)
+		newPos as SgFloatPoint = GFontEngine.DrawChar(FTextTarget.RenderTarget, value, FTextPosX, FTextPosY, FTextColor)
 		FTextPosX = newPos.x
 		FTextPosY = newPos.y
 
@@ -754,7 +754,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			index = (26 + ord(value)) - ord(char('a'))
 		else:
 			raise Exception('Invalid glyph Character.')
-		newPos as TSgFloatPoint = GFontEngine.DrawGlyph(FTextTarget.RenderTarget, index, FTextPosX, FTextPosY, FTextColor)
+		newPos as SgFloatPoint = GFontEngine.DrawGlyph(FTextTarget.RenderTarget, index, FTextPosX, FTextPosY, FTextColor)
 		FTextPosX = newPos.x
 		FTextPosY = newPos.y
 
@@ -882,7 +882,7 @@ abstract class TCustomMessageBox(TSysFrame):
 		super(parent, commons.ORIGIN, 1, coords)
 		FColumns = 1
 		FBoxVisible = true
-		FTextTarget = TSdlRenderTarget(sgPoint(self.Width - BORDER_THICKNESS, self.Height - BORDER_THICKNESS))
+		FTextTarget = SdlRenderTarget(sgPoint(self.Width - BORDER_THICKNESS, self.Height - BORDER_THICKNESS))
 		ClearTarget(FTextTarget)
 		FTextColor = 1
 
@@ -936,7 +936,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			default:
 				pass
 		if input in ARROW_KEYS and lPosition != FCursorPosition:
-			FButtonLock = TRpgTimestamp(180)
+			FButtonLock = Timestamp(180)
 			PlaceCursor(lPosition)
 			PlaySound(TSfxTypes.Cursor)
 
@@ -1034,7 +1034,7 @@ class TSystemTimer(TParentSprite):
 		AssignDrawRect(FTiles[4], sec / 10)
 		AssignDrawRect(FTiles[5], sec % 10)
 
-	private def UpdatePosition(location as TSgPoint):
+	private def UpdatePosition(location as SgPoint):
 		if FPrevState != GSpriteEngine.value.State:
 			FPrevState = GSpriteEngine.value.State
 			caseOf FPrevState:
@@ -1090,5 +1090,5 @@ static class GMenuEngine:
 	public Value as TMenuSpriteEngine
 
 let SEPARATOR = 8
-let ARROW_DISPLACEMENT = TSgPoint(x: 8, y: 0)
-let FRAME_DISPLACEMENT = TSgPoint(x: 32, y: 0)
+let ARROW_DISPLACEMENT = SgPoint(x: 8, y: 0)
+let FRAME_DISPLACEMENT = SgPoint(x: 32, y: 0)

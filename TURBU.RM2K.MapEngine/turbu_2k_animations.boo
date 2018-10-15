@@ -18,7 +18,7 @@ import TURBU.RM2K.RPGScript
 
 interface IAnimTarget:
 
-	def Position(sign as int) as TSgPoint
+	def Position(sign as int) as SgPoint
 
 	def Flash(r as int, g as int, b as int, power as int, time as int)
 
@@ -42,7 +42,7 @@ class TAnimSpriteCell(TSprite):
 		shaders.SetUniformValue(handle, 'satMult', (self.Sat / 128.0) cast single)
 		GPU_SetRGBA(self.Image.Surface, 255, 255, 255, Math.Min(self.Alpha * 2, 255))
 
-	private def Drawself(center as TSgFloatPoint, halfWidth as single, halfHeight as single, spriteRect as GPU_Rect):
+	private def Drawself(center as SgFloatPoint, halfWidth as single, halfHeight as single, spriteRect as GPU_Rect):
 		GPU_BlitScale(
 			self.Image.Surface,
 			spriteRect,
@@ -68,7 +68,7 @@ class TAnimSprite(TParentSprite):
 
 	private FBase as TAnimTemplate
 
-	private FTimer as TRpgTimestamp
+	private FTimer as Timestamp
 
 	private FTarget as IAnimTarget
 
@@ -89,7 +89,7 @@ class TAnimSprite(TParentSprite):
 		self.Z = 19
 		self.Pinned = true
 		FFrameCount = FBase.Frames.Last.Frame
-		FTimer = TRpgTimestamp(0)
+		FTimer = Timestamp(0)
 		FTarget = target
 		FFullScreen = fullscreen
 		FSignal = signal
@@ -109,7 +109,7 @@ class TAnimSprite(TParentSprite):
 		for currFrame in FBase.Frames.Where({ input | return input.Frame == frame }):
 			SetupFrame(currFrame)
 		PlayEffect(frame) if FLastEffect < FBase.Effects.Count
-		FTimer = TRpgTimestamp(32)
+		FTimer = Timestamp(32)
 
 	private def SetupFrame(currFrame as TAnimCell):
 		var newSprite = TAnimSpriteCell(self)
@@ -131,7 +131,7 @@ class TAnimSprite(TParentSprite):
 					sign = 1
 				default :
 					raise ESpriteError('Bad yTarget value')
-			position as TSgPoint = FTarget.Position(sign)
+			position as SgPoint = FTarget.Position(sign)
 			newSprite.X = currFrame.Position.x + position.x
 			newSprite.Y = currFrame.Position.y + position.y
 		newSprite.Z = 1

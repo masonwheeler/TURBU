@@ -121,7 +121,7 @@ class TGameMiniPartyPanel(TCustomPartyPanel):
 		FSkill = value
 
 	public override def DrawText():
-		origin as TSgPoint
+		origin as SgPoint
 		hero as TRpgHero
 		cond as TConditionTemplate
 		i = 1

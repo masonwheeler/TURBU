@@ -61,7 +61,7 @@ class TTileGroup(TRpgDatafile):
 	private FTileType as TTileType
 
 	[Getter(Dimensions)]
-	private FDimensions as TSgPoint
+	private FDimensions as SgPoint
 
 	public Filename as string:
 		get: return FName

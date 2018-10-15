@@ -8,7 +8,7 @@ import System
 def opposite_facing(whichDir as TDirections) as TDirections:
 	return (ord(whichDir) + 2) % 4
 
-def towards(location as TSgPoint, target as TSgPoint) as TDirections:
+def towards(location as SgPoint, target as SgPoint) as TDirections:
 	dX as int = location.x - target.x
 	dY as int = location.y - target.y
 	if Math.Abs(dX) > Math.Abs(dY):

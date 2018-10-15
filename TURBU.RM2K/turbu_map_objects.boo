@@ -329,7 +329,7 @@ class TRpgEventPage(TRpgDatafile):
 class TRpgMapObject(TRpgDatafile, IRpgMapObject):
 
 	[Property(Location)]
-	private FLocation as TSgPoint
+	private FLocation as SgPoint
 
 	[Property(Pages)]
 	private FPages = TRpgObjectList[of TRpgEventPage]()

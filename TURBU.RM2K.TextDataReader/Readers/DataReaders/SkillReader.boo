@@ -41,7 +41,7 @@ macro Skills.Skill(index as IntegerLiteralExpression, body as ExpressionStatemen
 	
 	macro Attributes(body as ExpressionStatement*):
 		macro Attribute(id as IntegerLiteralExpression, value as IntegerLiteralExpression):
-			return ExpressionStatement([|TSgPoint($id, $value)|])
+			return ExpressionStatement([|SgPoint($id, $value)|])
 		return MakeArrayValue('Attributes', body.Select({es | es.Expression}))
 	
 	return Lambdify('TNormalSkillTemplate', index, body, 'TSkillTemplate')

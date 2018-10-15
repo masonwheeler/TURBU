@@ -31,7 +31,7 @@ abstract class TTile(TParentSprite):
 			FBroadcastList = List[of Action]()
 
 	[Property(Location)]
-	protected FGridLoc as TSgPoint
+	protected FGridLoc as SgPoint
 
 	[Property(Terrain)]
 	private FTerrainID as int
@@ -42,10 +42,12 @@ abstract class TTile(TParentSprite):
 	[Property(ID)]
 	protected FTileID as ushort
 
-	private _basePosition as TSgFloatPoint
+	private _basePosition as SgFloatPoint
 
 	protected override def InVisibleRect() as bool:
 		var result = (FEngine cast T2kSpriteEngine).TileInViewport(self)
+		if not result:
+			result = false
 		return result
 
 	protected virtual def SetEngine(newEngine as SpriteEngine):
@@ -200,7 +202,7 @@ class TBackgroundSprite(TSprite):
 	[Property(ScrollData)]
 	private FScroll as TScrollData
 
-	private FSavedOrigin as TSgFloatPoint
+	private FSavedOrigin as SgFloatPoint
 
 	protected override def InVisibleRect() as bool:
 		return true

@@ -96,8 +96,10 @@ class TRpgEvent(TRpgCharacter):
 	[Getter(ID)]
 	private FID as int
 
-	[Getter(Base)]
 	private FBase as TMapSprite
+
+	public Base as TMapSprite:
+		new get: return FBase
 
 	private FIsChar as bool
 
@@ -112,7 +114,7 @@ class TRpgEvent(TRpgCharacter):
 
 	private FChangeSpriteIndex as int
 
-	private def SetLocation(value as TSgPoint):
+	private def SetLocation(value as SgPoint):
 		lock self:
 			FBase.LeaveTile()
 			FBase.Location = value
@@ -262,7 +264,7 @@ class TRpgEvent(TRpgCharacter):
 	public Facing as TDirections:
 		get: return GetTFacing()
 
-	public Location as TSgPoint:
+	public Location as SgPoint:
 		get: return sgPoint(self.X, self.Y)
 		set: SetLocation(value)
 
@@ -295,10 +297,10 @@ class TRpgVehicle(TRpgCharacter):
 	[Property(Carrying)]
 	private FCarrying as TRpgCharacter
 
-	private def GetLocation() as TSgPoint:
+	private def GetLocation() as SgPoint:
 		return sgPoint(self.X, self.Y)
 
-	private def SetLocation(value as TSgPoint):
+	private def SetLocation(value as SgPoint):
 		FX = value.x
 		FY = value.y
 		if assigned(FGameSprite):
@@ -430,7 +432,7 @@ class TRpgVehicle(TRpgCharacter):
 		get: return GetY()
 		set: SetY(value)
 
-	public Location as TSgPoint:
+	public Location as SgPoint:
 		get: return GetLocation()
 		set: SetLocation(value)
 

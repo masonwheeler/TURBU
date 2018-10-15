@@ -129,7 +129,7 @@ class TSaveMenuPage(TMenuPage):
 
 	private FTop as int
 
-	private FButtonLock as TRpgTimestamp
+	private FButtonLock as Timestamp
 
 	private def ReadSaveData(index as int) as TSaveData:
 		var filename = Path.Combine(GProjectFolder.value, "save$(index.ToString('D2')).tsg")
@@ -234,7 +234,7 @@ class TSaveMenuPage(TMenuPage):
 				super.Button(input)
 		if oldSlot != FTop + FCursorPosition:
 			PlaySystemSound(TSfxTypes.Cursor)
-			FButtonLock = TRpgTimestamp(180)
+			FButtonLock = Timestamp(180)
 
 	public override def Setup(value as int):
 		super.Setup(value)

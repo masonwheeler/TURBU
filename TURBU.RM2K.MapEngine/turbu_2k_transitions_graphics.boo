@@ -63,7 +63,7 @@ class TTransition(TObject, ITransition):
 
 class TMaskTransition(TTransition):
 
-	private def DrawMask(before as TSdlRenderTarget, after as TSdlRenderTarget, tran as TSdlRenderTarget):
+	private def DrawMask(before as SdlRenderTarget, after as SdlRenderTarget, tran as SdlRenderTarget):
 		shaders as TdmShaders = GSpriteEngine.value.ShaderEngine
 		shaderProgram as int = shaders.ShaderProgram('default', 'MaskF')
 		shaders.UseShaderProgram(shaderProgram)
@@ -80,7 +80,7 @@ class TMaskTransition(TTransition):
 
 	protected override def InternalDraw() as bool:
 		GSpriteEngine.value.Canvas.PushRenderTarget()
-		tranTarget as TSdlRenderTarget = GRenderTargets[RENDERER_TRAN]
+		tranTarget as SdlRenderTarget = GRenderTargets[RENDERER_TRAN]
 		tranTarget.SetRenderer()
 		result = DoDraw()
 		tranTarget.Parent.PopRenderTarget()
@@ -91,7 +91,7 @@ class TMaskTransition(TTransition):
 	public override def Setup(showing as bool, OnFinished as Action):
 		super.Setup(showing, OnFinished)
 		GSpriteEngine.value.Canvas.PushRenderTarget()
-		tranTarget as TSdlRenderTarget = GRenderTargets[RENDERER_TRAN]
+		tranTarget as SdlRenderTarget = GRenderTargets[RENDERER_TRAN]
 		tranTarget.SetRenderer()
 		tranTarget.Parent.Clear(SDL_BLACK)
 		tranTarget.Parent.PopRenderTarget()
@@ -100,7 +100,7 @@ class TFadeTransition(TMaskTransition):
 
 	protected override def DoDraw() as bool:
 		fadeColor as SDL.SDL_Color
-		workload as int = Math.Max(255 / Math.Max(FADETIME[0] / TRpgTimestamp.FrameLength, 1), 1)
+		workload as int = Math.Max(255 / Math.Max(FADETIME[0] / Timestamp.FrameLength, 1), 1)
 		FProgress += workload * 2
 		FProgress = Math.Min(FProgress, 255)
 		fadeColor.r = FProgress
@@ -149,16 +149,16 @@ class TBlockTransition(TMaskTransition):
 			swap(FBlockArray[i], FBlockArray[FBlockArray.Length - i])
 
 	protected override def DoDraw() as bool:
-		workload as int = Math.Max((FBlockArray.Length - 1) / (FADETIME[1] / TRpgTimestamp.FrameLength), 1)
+		workload as int = Math.Max((FBlockArray.Length - 1) / (FADETIME[1] / Timestamp.FrameLength), 1)
 		width as int = GSpriteEngine.value.Canvas.Width / BLOCKSIZE
 		for i in range(FProgress, Math.Min(FProgress + workload, FBlockArray.Length)):
-			corner as TSgPoint = sgPoint((FBlockArray[i] % width) * BLOCKSIZE, (FBlockArray[i] / width) * BLOCKSIZE)
+			corner as SgPoint = sgPoint((FBlockArray[i] % width) * BLOCKSIZE, (FBlockArray[i] / width) * BLOCKSIZE)
 			GSpriteEngine.value.Canvas.FillRect(GPU_MakeRect(corner.x, corner.y, BLOCKSIZE, BLOCKSIZE), SDL_WHITE)
 			++FProgress
 		return FProgress < FBlockArray.Length - 1
 
 	public def constructor(direction as TDirectionWipe):
-		Canvas as TSdlCanvas = GSpriteEngine.value.Canvas
+		Canvas as SdlCanvas = GSpriteEngine.value.Canvas
 		w as int = Canvas.Width / BLOCKSIZE
 		h as int = Canvas.Height / BLOCKSIZE
 		++w if Canvas.Width % BLOCKSIZE != 0
@@ -177,7 +177,7 @@ class TBlindsTransition(TMaskTransition):
 	private FInterval as int
 
 	protected override def DoDraw() as bool:
-		FTimer += TRpgTimestamp.FrameLength
+		FTimer += Timestamp.FrameLength
 		if FTimer >= FInterval:
 			width as int = GSpriteEngine.value.Canvas.Width
 			i as int = FProgress
@@ -200,7 +200,7 @@ class TBlindsTransition(TMaskTransition):
 	public def constructor():
 		super()
 		FInterval = FADETIME[0] / BLINDSIZE
-		FTimer = FInterval - TRpgTimestamp.FrameLength
+		FTimer = FInterval - Timestamp.FrameLength
 
 class TStripeTransition(TMaskTransition):
 
@@ -222,8 +222,8 @@ class TStripeTransition(TMaskTransition):
 			until i >= FStripeArray.Length or j < 0
 
 	protected override def DoDraw() as bool:
-		corner as TSgPoint
-		var workload = (FStripeArray.Length - 1) / (FADETIME[1] / TRpgTimestamp.FrameLength)
+		corner as SgPoint
+		var workload = (FStripeArray.Length - 1) / (FADETIME[1] / Timestamp.FrameLength)
 		for i in range(FProgress, Math.Min(FProgress + workload, FStripeArray.Length - 1) + 1):
 			if FVertical:
 				corner = sgPoint(FStripeArray[i] * STRIPESIZE, 0)
@@ -245,7 +245,7 @@ class TStripeTransition(TMaskTransition):
 
 class TRectIrisTransition(TMaskTransition):
 
-	private FCenter as TSgPoint
+	private FCenter as SgPoint
 
 	private FColor as SDL.SDL_Color
 
@@ -256,7 +256,7 @@ class TRectIrisTransition(TMaskTransition):
 	protected override def DoDraw() as bool:
 		mask as GPU_Rect
 		GSpriteEngine.value.Canvas.Clear(FEraseColor)
-		var workload = (GSpriteEngine.value.Canvas.Height / 2) / Math.Max(FADETIME[0] / TRpgTimestamp.FrameLength, 1)
+		var workload = (GSpriteEngine.value.Canvas.Height / 2) / Math.Max(FADETIME[0] / Timestamp.FrameLength, 1)
 		var ratio = (GSpriteEngine.value.Canvas.Width cast double) / (GSpriteEngine.value.Canvas.Height cast double)
 		var i = Math.Min(FProgress + workload, (GSpriteEngine.value.Canvas.Height / 2))
 		
@@ -293,7 +293,7 @@ class TBof2Transition(TMaskTransition):
 	protected override def DoDraw() as bool:
 		var width = GSpriteEngine.value.Canvas.Width
 		var endpoint = (width * 4) + GSpriteEngine.value.Canvas.Height
-		var workload = endpoint / (FADETIME[1] / TRpgTimestamp.FrameLength)
+		var workload = endpoint / (FADETIME[1] / Timestamp.FrameLength)
 		FProgress += workload
 		var j = FProgress / 4
 		var i = 0
@@ -319,7 +319,7 @@ class TScrollTransition(TTransition):
 		workload as int
 		var canvas = GSpriteEngine.value.Canvas
 		canvas.Clear(SDL_BLACK)
-		var timeslice = Math.Max((FADETIME[0] / TRpgTimestamp.FrameLength), 1)
+		var timeslice = Math.Max((FADETIME[0] / Timestamp.FrameLength), 1)
 		caseOf FDirection:
 			case TFacing.Up, TFacing.Down:
 				workload = (GSpriteEngine.value.Canvas.Height / timeslice)
@@ -361,7 +361,7 @@ class TDivideTransition(TTransition):
 	private FStyle as TDivideStyle
 
 	private def DivideVert(workload as int, boundary as int):
-		Canvas as TSdlCanvas
+		Canvas as SdlCanvas
 		Canvas = GSpriteEngine.value.Canvas
 		Canvas.DrawRectTo(GRenderTargets[RENDERER_MAIN],
 			GPU_MakeRect(0, -workload, Canvas.Width, Canvas.Height / 2),
@@ -371,7 +371,7 @@ class TDivideTransition(TTransition):
 			GPU_MakeRect(0, boundary, Canvas.Width, Canvas.Height))
 
 	private def DivideHoriz(workload as int, boundary as int):
-		Canvas as TSdlCanvas
+		Canvas as SdlCanvas
 		Canvas = GSpriteEngine.value.Canvas
 		Canvas.DrawRectTo(GRenderTargets[RENDERER_MAIN],
 			GPU_MakeRect(-workload, 0, Canvas.Width / 2, Canvas.Height),
@@ -381,7 +381,7 @@ class TDivideTransition(TTransition):
 			GPU_MakeRect(boundary, 0, Canvas.Width, Canvas.Height))
 
 	private def DivideQuarters(workloadH as int, boundaryH as int, workloadV as int, boundaryV as int):
-		Canvas as TSdlCanvas
+		Canvas as SdlCanvas
 		Canvas = GSpriteEngine.value.Canvas
 		Canvas.DrawRectTo(GRenderTargets[RENDERER_MAIN],
 			GPU_MakeRect(-workloadH, -workloadV, Canvas.Width / 2, Canvas.Height / 2),
@@ -404,7 +404,7 @@ class TDivideTransition(TTransition):
 		GRenderTargets[RENDERER_ALT].DrawFull()
 		ratio = (GSpriteEngine.value.Canvas.Width cast double) / (GSpriteEngine.value.Canvas.Height cast double)
 		boundaryH = GSpriteEngine.value.Canvas.Width / 2
-		workloadH = boundaryH / (FADETIME[0] / TRpgTimestamp.FrameLength)
+		workloadH = boundaryH / (FADETIME[0] / Timestamp.FrameLength)
 		boundaryV = round((boundaryH cast single) / ratio )
 		caseOf FStyle:
 			case TDivideStyle.Vert: DivideVert(FProgress, boundaryV)
@@ -422,7 +422,7 @@ class TCombineTransition(TTransition):
 	private FStyle as TDivideStyle
 
 	private def CombineVert(workload as int, boundary as int):
-		Canvas as TSdlCanvas = GSpriteEngine.value.Canvas
+		Canvas as SdlCanvas = GSpriteEngine.value.Canvas
 		Canvas.DrawRectTo(GRenderTargets[RENDERER_ALT],
 			GPU_MakeRect(0, -(boundary - workload), Canvas.Width, Canvas.Height / 2),
 			GPU_MakeRect(0, 0, Canvas.Width, boundary))
@@ -431,7 +431,7 @@ class TCombineTransition(TTransition):
 			GPU_MakeRect(0, boundary, Canvas.Width, Canvas.Height))
 
 	private def CombineHoriz(workload as int, boundary as int):
-		Canvas as TSdlCanvas = GSpriteEngine.value.Canvas
+		Canvas as SdlCanvas = GSpriteEngine.value.Canvas
 		Canvas.DrawRectTo(GRenderTargets[RENDERER_ALT],
 			GPU_MakeRect(-(boundary - workload), 0, Canvas.Width / 2, Canvas.Height),
 			GPU_MakeRect(0, 0, boundary, Canvas.Height))
@@ -440,7 +440,7 @@ class TCombineTransition(TTransition):
 			GPU_MakeRect(boundary, 0, Canvas.Width, Canvas.Height))
 
 	private def CombineQuarters(workloadH as int, boundaryH as int, workloadV as int, boundaryV as int):
-		Canvas as TSdlCanvas = GSpriteEngine.value.Canvas
+		Canvas as SdlCanvas = GSpriteEngine.value.Canvas
 		Canvas.DrawRectTo(GRenderTargets[RENDERER_ALT],
 			GPU_MakeRect(-(boundaryH - workloadH), -(boundaryV - workloadV), Canvas.Width / 2, Canvas.Height / 2),
 			GPU_MakeRect(0, 0, boundaryH, boundaryV))
@@ -462,7 +462,7 @@ class TCombineTransition(TTransition):
 		GRenderTargets[RENDERER_MAIN].DrawFull()
 		ratio = (GSpriteEngine.value.Canvas.Width cast single) / (GSpriteEngine.value.Canvas.Height cast single)
 		boundaryH = GSpriteEngine.value.Canvas.Width / 2
-		workload = boundaryH / (FADETIME[1] / TRpgTimestamp.FrameLength)
+		workload = boundaryH / (FADETIME[1] / Timestamp.FrameLength)
 		boundaryV = round(boundaryH / ratio cast double)
 		caseOf FStyle:
 			case TDivideStyle.Vert: CombineVert(FProgress, boundaryV)
@@ -483,7 +483,7 @@ class TZoomTransition(TTransition):
 
 	private FRatio as single
 
-	private FCenter as TSgPoint
+	private FCenter as SgPoint
 
 	private FCurrentX as single
 
@@ -494,7 +494,7 @@ class TZoomTransition(TTransition):
 	protected override def InternalDraw() as bool:
 		viewRect as GPU_Rect
 		canvas = GSpriteEngine.value.Canvas
-		workload as int = GSpriteEngine.value.Canvas.Width / Math.Max((FADETIME[1] / TRpgTimestamp.FrameLength), 1)
+		workload as int = GSpriteEngine.value.Canvas.Width / Math.Max((FADETIME[1] / Timestamp.FrameLength), 1)
 		if FZoomIn:
 			FProgress = Math.Max(FProgress - workload, FMinimum)
 		else:
@@ -555,7 +555,7 @@ class TMosaicTransition(TTransition):
 
 	protected override def InternalDraw() as bool:
 		canvas = GSpriteEngine.value.Canvas
-		var workload = (canvas.Width cast double) / Math.Max((FADETIME[2] cast double) / (TRpgTimestamp.FrameLength cast double), 1.0)
+		var workload = (canvas.Width cast double) / Math.Max((FADETIME[2] cast double) / (Timestamp.FrameLength cast double), 1.0)
 		FBlockSize = ( (FBlockSize - workload) if FShowing else (FBlockSize + workload) )
 		clamp(FBlockSize, 1, FMaxSize)
 		var shaders = GSpriteEngine.value.ShaderEngine
@@ -644,7 +644,7 @@ def bof2(vanishing as bool) as ITransition:
 def wave(vanishing as bool) as ITransition:
 	return TWaveTransition()
 
-let GRenderTargets = TSdlRenderTargets()
+let GRenderTargets = SdlRenderTargets()
 
 let RENDERER_MAIN = 0
 let RENDERER_ALT = 1

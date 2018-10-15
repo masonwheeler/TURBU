@@ -23,7 +23,7 @@ class TCharStatBox(TGameMenuBox):
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, owner as TMenuPage):
 		super(parent, coords, main, owner)
 
-	private FBoxOrigin as TSgPoint
+	private FBoxOrigin as SgPoint
 
 	[Property(Char)]
 	private FChar as TRpgHero
@@ -160,7 +160,7 @@ class TGameEquipmentMenu(TGameMenuBox):
 	private FPlacingCursor as bool
 
 	protected override def DrawText():
-		lOrigin as TSgPoint = ORIGIN
+		lOrigin as SgPoint = ORIGIN
 		FPassiveCursor.Draw() unless self.Focused
 		target = FTextTarget.RenderTarget
 		GFontEngine.DrawText(target, GDatabase.value.Vocab[V_EQ_WEAPON], lOrigin.x + 6, lOrigin.y + 2, 1)
@@ -240,7 +240,7 @@ class TGameEquipmentMenu(TGameMenuBox):
 		elif (input in (TButtonCode.Left, TButtonCode.Right)) and (GEnvironment.value.Party.Size > 1):
 			newChar = (PrevChar() if input == TButtonCode.Left else NextChar())
 			self.DoSetup(newChar.Template.ID)
-			FButtonLock = TRpgTimestamp(180)
+			FButtonLock = Timestamp(180)
 
 	public Char as TRpgHero:
 		get: return FChar

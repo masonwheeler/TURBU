@@ -165,7 +165,7 @@ class TTransactionMenu(TGameMenuBox):
 	private FExistingQuantity as byte
 
 	public override def DrawText():
-		align as TSgFloatPoint
+		align as SgFloatPoint
 		return if FBlank or not assigned(FItem)
 		target = FTextTarget.RenderTarget
 		GFontEngine.DrawText(target, FItem.Name, 8, 42, 0)
@@ -237,7 +237,7 @@ class TTransactionMenu(TGameMenuBox):
 		if FExistingQuantity != current:
 			PlaySound(TSfxTypes.Cursor)
 			InvalidateText()
-			FButtonLock = timing.TRpgTimestamp(180)
+			FButtonLock = timing.Timestamp(180)
 		if input in TButtonCode.Cancel | TButtonCode.Enter:
 			if FState == TTransactionState.Selling:
 				owner.State = TShopState.Selling
@@ -310,7 +310,7 @@ class TCompatSprite(TSprite):
 			index -= 4
 			frame += 48
 		frame += 3 * index
-		tSize as TSgPoint = FImage.TextureSize
+		tSize as SgPoint = FImage.TextureSize
 		FImage.TextureSize = FImage.TextureSize * sgPoint(1, 2)
 		try:
 			if FItem.UsableByHypothetical(FTemplate.Template.ID):

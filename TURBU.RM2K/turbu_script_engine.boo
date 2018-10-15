@@ -137,8 +137,8 @@ class TScriptEngine(TObject):
 		FRenderUnpause()
 		FEnterCutscene() if block
 		try:
-			time = Math.Max(time, TRpgTimestamp.FrameLength)
-			var ts = TRpgTimestamp(time)
+			time = Math.Max(time, Timestamp.FrameLength)
+			var ts = Timestamp(time)
 			waitFor {ts.TimeRemaining == 0}
 		ensure:
 			FLeaveCutscene() if block

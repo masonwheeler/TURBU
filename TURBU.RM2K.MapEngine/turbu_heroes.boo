@@ -636,7 +636,7 @@ class TRpgHero(TRpgBattleCharacter):
 		get: return GetHighCondition()
 
 	public Template as TClassTemplate:
-		get: return GetTemplate()
+		new get: return GetTemplate()
 
 	public SkillCommand as string:
 		get: return GetSkillCommand()

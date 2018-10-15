@@ -44,3 +44,4 @@ Temporary Items
 obj
 bin
 /packages/Newtonsoft.Json.7.0.1
+*.suo

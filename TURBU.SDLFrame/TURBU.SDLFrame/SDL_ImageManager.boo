@@ -12,11 +12,11 @@ import SG.defs
 import sdl.canvas
 import Pythia.Runtime
 
-enum TDrawMode:
-	dmFull
-	dmSprite
+enum ImageDrawMode:
+	Full
+	Sprite
 
-class ESdlImageException(Exception):
+class SdlImageException(Exception):
 	def constructor(msg as string):
 		super(msg)
 
@@ -24,10 +24,10 @@ callable TArchiveLoader(filename as string) as string
 
 [Metaclass(TSdlImage)]
 class TSdlImageClass(TClass):
-	virtual def Create(filename as string, imagename as string, container as TSdlImages):
+	virtual def Create(filename as string, imagename as string, container as SdlImages):
 		return TSdlImage(filename, imagename, container)
 
-	virtual def CreateSprite(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	virtual def CreateSprite(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		return TSdlImage(filename, imagename, container)
 
 [Disposable(Destroy, true)]
@@ -51,7 +51,7 @@ class TSdlImage(TObject):
 	[Property(Name)]
 	protected FName as string
 
-	protected FTextureSize as TSgPoint
+	protected FTextureSize as SgPoint
 
 	[Getter(TexPerRow)]
 	protected FTexturesPerRow as int
@@ -63,7 +63,7 @@ class TSdlImage(TObject):
 	protected FColorKey as SDL.SDL_Color
 	
 	[Getter(ImageSize)]
-	private FImageSize as TSgPoint
+	private FImageSize as SgPoint
 	
 	[Property(Alpha)]
 	private FAlpha as byte
@@ -75,7 +75,7 @@ class TSdlImage(TObject):
 		sur as SDL.SDL_Surface = Marshal.PtrToStructure(surface, SDL.SDL_Surface);
 		return sur
 
-	protected virtual def Setup(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint, lSurface as IntPtr):
+	protected virtual def Setup(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint, lSurface as IntPtr):
 		intFilename as string
 		FName = imagename
 		if (lSurface == IntPtr.Zero) and (FSurface.Pointer == IntPtr.Zero):
@@ -86,7 +86,7 @@ class TSdlImage(TObject):
 				else: lSurface = IMG_LoadTyped_RW(FRw, 0, filename)
 			else: lSurface = SDL.SDL_CreateRGBSurface(0, spriteSize.x, spriteSize.y, 32, 0, 0, 0, 0)
 		if lSurface == IntPtr.Zero:
-			raise ESdlImageException(SDL.SDL_GetError())
+			raise SdlImageException(SDL.SDL_GetError())
 		sur = GetSurface(lSurface)
 		format = sur.Format
 		if format.palette != IntPtr.Zero:
@@ -96,7 +96,7 @@ class TSdlImage(TObject):
 		if FSurface.Pointer == IntPtr.Zero:
 			FSurface = GPU_CopyImageFromSurface(lSurface)
 		img = FSurface.Value
-		FImageSize = TSgPoint(img.w, img.h)
+		FImageSize = SgPoint(img.w, img.h)
 		if (spriteSize.x == EMPTY.x) and (spriteSize.y == EMPTY.y):
 			self.TextureSize = sgPoint(sur.w, sur.h)
 		else: self.TextureSize = spriteSize
@@ -106,30 +106,30 @@ class TSdlImage(TObject):
 	protected virtual def ProcessImage(image as IntPtr):
 		pass
 
-	public def constructor(filename as string, imagename as string, container as TSdlImages):
+	public def constructor(filename as string, imagename as string, container as SdlImages):
 		super()
 		Setup(filename, imagename, container, EMPTY, IntPtr.Zero)
 
-	public def constructor(surface as IntPtr, imagename as string, container as TSdlImages):
+	public def constructor(surface as IntPtr, imagename as string, container as SdlImages):
 		super()
 		FSurface = GPU_CopyImageFromSurface(surface)
 		Setup('', imagename, container, EMPTY, surface)
 
-	public def constructor(surface as GPU_Image_PTR, imagename as string, container as TSdlImages):
+	public def constructor(surface as GPU_Image_PTR, imagename as string, container as SdlImages):
 		super()
 		FSurface = surface
 		FName = imagename
 		container.Add(self) if assigned(container)
 
-	public def constructor(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	public def constructor(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		super()
 		Setup(filename, imagename, container, spriteSize, IntPtr.Zero)
 
-	public def constructor(surface as IntPtr, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	public def constructor(surface as IntPtr, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		super()
 		Setup('', imagename, container, spriteSize, surface)
 
-	public def constructor(imagename as string, container as TSdlImages, spriteSize as TSgPoint, count as int):
+	public def constructor(imagename as string, container as SdlImages, spriteSize as SgPoint, count as int):
 		super()
 		spriteSize.y = spriteSize.y * count
 		Setup('', imagename, container, spriteSize, IntPtr.Zero)
@@ -142,13 +142,13 @@ class TSdlImage(TObject):
 	public virtual def Draw():
 		self.Draw(EMPTY, SDL.SDL_RendererFlip.SDL_FLIP_NONE)
 
-	public def Draw(dest as TSgPoint, flip as SDL.SDL_RendererFlip):
+	public def Draw(dest as SgPoint, flip as SDL.SDL_RendererFlip):
 		currentRenderTarget().Parent.Draw(self, dest, flip)
 
-	public def DrawRect(dest as TSgPoint, source as GPU_Rect, flip as SDL.SDL_RendererFlip):
+	public def DrawRect(dest as SgPoint, source as GPU_Rect, flip as SDL.SDL_RendererFlip):
 		currentRenderTarget().Parent.DrawRect(self, dest, source, flip)
 
-	public def DrawSprite(dest as TSgPoint, index as int, flip as SDL.SDL_RendererFlip):
+	public def DrawSprite(dest as SgPoint, index as int, flip as SDL.SDL_RendererFlip):
 		if index < Count:
 			currentRenderTarget().Parent.DrawRect(self, dest, self.SpriteRect[index], flip)
 
@@ -162,13 +162,13 @@ class TSdlImage(TObject):
 		return if index >= Count:
 		currentRenderTarget().Parent.DrawRectTo(self, dest, self.SpriteRect[index])
 
-	public TextureSize as TSgPoint:
+	public TextureSize as SgPoint:
 		get: return FTextureSize
 		set: 
 			var lSize = FImageSize
 			//I still think this check is a good idea, but RM2K disagrees and I have to stay compatible
 			#if (lSize.x % value.x > 0) or (lSize.y % value.y > 0):
-			#	raise ESdlImageException('Texture size is not evenly divisible into base image size.')
+			#	raise SdlImageException('Texture size is not evenly divisible into base image size.')
 			FTextureSize = value
 			FTexturesPerRow = lSize.x / value.x
 			FTextureRows = lSize.y / value.y
@@ -183,39 +183,39 @@ class TSdlImage(TObject):
 			result = GPU_MakeRect(x * FTextureSize.x, y * FTextureSize.y, FTextureSize.x, FTextureSize.y)
 			return result
 
-	static def CreateSprite(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	static def CreateSprite(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		return TSdlImage(filename, imagename, container, spriteSize)
 
-	static def CreateSprite(surface as IntPtr, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	static def CreateSprite(surface as IntPtr, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		return TSdlImage(surface, imagename, container, spriteSize)
 
-	static def CreateBlankSprite(imagename as string, container as TSdlImages, spriteSize as TSgPoint, count as int):
+	static def CreateBlankSprite(imagename as string, container as SdlImages, spriteSize as SgPoint, count as int):
 		return TSdlImage(imagename, container, spriteSize, count)
 
 class TSdlOpaqueImageClass(TSdlImageClass):
-	override def Create(filename as string, imagename as string, container as TSdlImages):
+	override def Create(filename as string, imagename as string, container as SdlImages):
 		return TSdlOpaqueImage(filename, imagename, container)
 
-	override def CreateSprite(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	override def CreateSprite(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		return TSdlOpaqueImage(filename, imagename, container)
 
 class TSdlOpaqueImage(TSdlImage):
 	static def constructor():
 		_metaclass = TSdlImageClass.Instance of TSdlOpaqueImageClass()
 	
-	public def constructor(filename as string, imagename as string, container as TSdlImages):
+	public def constructor(filename as string, imagename as string, container as SdlImages):
 		super(filename, imagename, container)
 
-	public def constructor(surface as IntPtr, imagename as string, container as TSdlImages):
+	public def constructor(surface as IntPtr, imagename as string, container as SdlImages):
 		super(surface, imagename, container)
 
-	public def constructor(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	public def constructor(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		super(filename, imagename, container, spriteSize)
 
-	public def constructor(surface as IntPtr, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	public def constructor(surface as IntPtr, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		super(surface, imagename, container, spriteSize)
 
-	public def constructor(imagename as string, container as TSdlImages, spriteSize as TSgPoint, count as int):
+	public def constructor(imagename as string, container as SdlImages, spriteSize as SgPoint, count as int):
 		super(imagename, container, spriteSize, count)
 		
 	protected override def ProcessImage(image as IntPtr):
@@ -223,7 +223,7 @@ class TSdlOpaqueImage(TSdlImage):
 		SDL.SDL_SetSurfaceBlendMode(image, SDL.SDL_BlendMode.SDL_BLENDMODE_NONE)
 
 [Disposable(Destroy, true)]
-class TSdlImages(object):
+class SdlImages(object):
 
 	private FData as (TSdlImage) = (,)
 
@@ -319,25 +319,25 @@ class TSdlImages(object):
 		elif assigned(FArchiveLoader):
 			filename = FArchiveLoader(filename)
 		else:
-			raise ESdlImageException('No archive loader available!')
+			raise SdlImageException('No archive loader available!')
 		if string.IsNullOrEmpty(filename):
-			raise ESdlImageException("Archive loader failed to extract $filename from the archive.")
+			raise SdlImageException("Archive loader failed to extract $filename from the archive.")
 		result = self.Add(TSdlImage(filename, imagename, null))
 		return result
 
-	public def AddSpriteFromArchive(filename as string, imagename as string, spriteSize as TSgPoint, imgClass as TSdlImageClass, loader as TArchiveLoader) as int:
+	public def AddSpriteFromArchive(filename as string, imagename as string, spriteSize as SgPoint, imgClass as TSdlImageClass, loader as TArchiveLoader) as int:
 		if assigned(loader):
 			filename = loader(filename)
 		elif assigned(FArchiveLoader):
 			filename = FArchiveLoader(filename)
 		else:
-			raise ESdlImageException('No archive loader available!')
+			raise SdlImageException('No archive loader available!')
 		if string.IsNullOrEmpty(filename):
-			raise ESdlImageException("Archive loader failed to extract $filename from the archive.")
+			raise SdlImageException("Archive loader failed to extract $filename from the archive.")
 		result = self.Add(imgClass.CreateSprite(filename, imagename, null, spriteSize))
 		return result
 
-	public def AddSpriteFromArchive(filename as string, imagename as string, spritesize as TSgPoint, loader as TArchiveLoader) as int:
+	public def AddSpriteFromArchive(filename as string, imagename as string, spritesize as SgPoint, loader as TArchiveLoader) as int:
 		result = AddSpriteFromArchive(filename, imagename, spritesize, FSpriteClass, loader)
 		return result
 
@@ -345,7 +345,7 @@ class TSdlImages(object):
 		result = EnsureImage(filename, imagename, EMPTY)
 		return result
 
-	public def EnsureImage(filename as string, imagename as string, spritesize as TSgPoint) as TSdlImage:
+	public def EnsureImage(filename as string, imagename as string, spritesize as SgPoint) as TSdlImage:
 		index as int
 		if self.Contains(imagename):
 			result = GetImage(imagename)
@@ -431,10 +431,10 @@ class TSdlImages(object):
 		get: return GetImage(Name)
 
 class TSdlBackgroundImageClass(TSdlImageClass):
-	override def CreateSprite(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	override def CreateSprite(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 			return TSdlBackgroundImage(filename, imagename, container, spriteSize)
 	
-	override def Create(filename as string, imagename as string, container as TSdlImages):
+	override def Create(filename as string, imagename as string, container as SdlImages):
 		return TSdlBackgroundImage(filename, imagename, container)
 
 class TSdlBackgroundImage(TSdlImage):
@@ -442,19 +442,19 @@ class TSdlBackgroundImage(TSdlImage):
 	static def constructor():
 		_metaclass = TSdlImageClass.Instance of TSdlOpaqueImageClass()
 	
-	public def constructor(filename as string, imagename as string, container as TSdlImages):
+	public def constructor(filename as string, imagename as string, container as SdlImages):
 		super(filename, imagename, container)
 
-	public def constructor(surface as IntPtr, imagename as string, container as TSdlImages):
+	public def constructor(surface as IntPtr, imagename as string, container as SdlImages):
 		super(surface, imagename, container)
 
-	public def constructor(filename as string, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	public def constructor(filename as string, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		super(filename, imagename, container, spriteSize)
 
-	public def constructor(surface as IntPtr, imagename as string, container as TSdlImages, spriteSize as TSgPoint):
+	public def constructor(surface as IntPtr, imagename as string, container as SdlImages, spriteSize as SgPoint):
 		super(surface, imagename, container, spriteSize)
 
-	public def constructor(imagename as string, container as TSdlImages, spriteSize as TSgPoint, count as int):
+	public def constructor(imagename as string, container as SdlImages, spriteSize as SgPoint, count as int):
 		super(imagename, container, spriteSize, count)
 		
 	protected override def ProcessImage(image as IntPtr):
@@ -464,4 +464,4 @@ class TSdlBackgroundImage(TSdlImage):
 		FColorKey.b = 0
 		FColorKey.a = 0
 
-let EMPTY = TSgPoint(x: 0, y: 0)
+let EMPTY = SgPoint(x: 0, y: 0)

@@ -6,7 +6,7 @@ import Boo.Adt
 import SDL2.SDL
 import System.Drawing
 
-struct TSgPoint:
+struct SgPoint:
 
 	x as int
 
@@ -17,107 +17,107 @@ struct TSgPoint:
 		self.y = aY
 
 	override def ToString():
-		return "TSgPoint: x: $x, y: $y"
+		return "SgPoint: x: $x, y: $y"
 
-	static def op_Equality(a as TSgPoint, b as TSgPoint) as bool:
+	static def op_Equality(a as SgPoint, b as SgPoint) as bool:
 		return (a.x == b.x) and (a.y == b.y)
 
-	static def op_Inequality(a as TSgPoint, b as TSgPoint) as bool:
+	static def op_Inequality(a as SgPoint, b as SgPoint) as bool:
 		return not (a == b)
 
-	static def op_Multiply(a as TSgPoint, b as int) as TSgPoint:
-		return TSgPoint(a.x * b, a.y * b)
+	static def op_Multiply(a as SgPoint, b as int) as SgPoint:
+		return SgPoint(a.x * b, a.y * b)
 
-	static def op_Multiply(a as TSgPoint, b as TSgPoint) as TSgPoint:
-		return TSgPoint(a.x * b.x, a.y * b.y)
+	static def op_Multiply(a as SgPoint, b as SgPoint) as SgPoint:
+		return SgPoint(a.x * b.x, a.y * b.y)
 
-	static def op_Multiply(a as TSgPoint, b as double) as TSgPoint:
-		return TSgPoint(Round(a.x * b), Round(a.y * b))
+	static def op_Multiply(a as SgPoint, b as double) as SgPoint:
+		return SgPoint(Round(a.x * b), Round(a.y * b))
 
-	static def op_Division(a as TSgPoint, b as int) as TSgPoint:
-		return TSgPoint(a.x / b, a.y / b)
+	static def op_Division(a as SgPoint, b as int) as SgPoint:
+		return SgPoint(a.x / b, a.y / b)
 
-	static def op_Division(a as TSgPoint, b as TSgPoint) as TSgPoint:
-		return TSgPoint(a.x / b.x, a.y / b.y)
+	static def op_Division(a as SgPoint, b as SgPoint) as SgPoint:
+		return SgPoint(a.x / b.x, a.y / b.y)
 
-	static def op_Division(a as TSgPoint, b as double) as TSgPoint:
-		return TSgPoint(Round((a.x cast double) / (b cast double)), Round((a.y cast double) / (b cast double)))
+	static def op_Division(a as SgPoint, b as double) as SgPoint:
+		return SgPoint(Round((a.x cast double) / (b cast double)), Round((a.y cast double) / (b cast double)))
 
-	static def op_Modulus(a as TSgPoint, b as TSgPoint) as TSgPoint:
-		return TSgPoint(a.x % b.x, a.y % b.y)
+	static def op_Modulus(a as SgPoint, b as SgPoint) as SgPoint:
+		return SgPoint(a.x % b.x, a.y % b.y)
 
-	static def op_Addition(a as TSgPoint, b as TSgPoint) as TSgPoint:
-		return TSgPoint(a.x + b.x, a.y + b.y)
+	static def op_Addition(a as SgPoint, b as SgPoint) as SgPoint:
+		return SgPoint(a.x + b.x, a.y + b.y)
 
-	static def op_Subtraction(a as TSgPoint, b as TSgPoint) as TSgPoint:
-		return TSgPoint(a.x - b.x, a.y - b.y)
+	static def op_Subtraction(a as SgPoint, b as SgPoint) as SgPoint:
+		return SgPoint(a.x - b.x, a.y - b.y)
 
-	static def op_Implicit(a as Point) as TSgPoint:
-		return TSgPoint(a.X, a.Y)
+	static def op_Implicit(a as Point) as SgPoint:
+		return SgPoint(a.X, a.Y)
 
-	static def op_Implicit(a as TSgPoint) as Point:
+	static def op_Implicit(a as SgPoint) as Point:
 		result as Point
 		result.X = a.x
 		result.Y = a.y
 		return result
 
-struct TSgFloatPoint:
+struct SgFloatPoint:
 
 	x as single
 
 	y as single
 
 	override def ToString():
-		return "TSgFloatPoint: x: $x, y: $y"
+		return "SgFloatPoint: x: $x, y: $y"
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Equality(a as TSgFloatPoint, b as TSgFloatPoint) as bool:
+	static def op_Equality(a as SgFloatPoint, b as SgFloatPoint) as bool:
 		result = ((a.x == b.x) and (a.y == b.y))
 		return result
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Inequality(a as TSgFloatPoint, b as TSgFloatPoint) as bool:
+	static def op_Inequality(a as SgFloatPoint, b as SgFloatPoint) as bool:
 		result = (not (a == b))
 		return result
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Multiply(a as TSgFloatPoint, b as double) as TSgFloatPoint:
-		result as TSgFloatPoint
+	static def op_Multiply(a as SgFloatPoint, b as double) as SgFloatPoint:
+		result as SgFloatPoint
 		result.x = (a.x * b)
 		result.y = (a.y * b)
 		return result
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Division(a as TSgFloatPoint, b as double) as TSgFloatPoint:
-		result as TSgFloatPoint
+	static def op_Division(a as SgFloatPoint, b as double) as SgFloatPoint:
+		result as SgFloatPoint
 		result.x = (a.x / (b cast double))
 		result.y = (a.y / (b cast double))
 		return result
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Addition(a as TSgFloatPoint, b as TSgFloatPoint) as TSgFloatPoint:
-		result as TSgFloatPoint
+	static def op_Addition(a as SgFloatPoint, b as SgFloatPoint) as SgFloatPoint:
+		result as SgFloatPoint
 		result.x = (a.x + b.x)
 		result.y = (a.y + b.y)
 		return result
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Subtraction(a as TSgFloatPoint, b as TSgFloatPoint) as TSgFloatPoint:
-		result as TSgFloatPoint
+	static def op_Subtraction(a as SgFloatPoint, b as SgFloatPoint) as SgFloatPoint:
+		result as SgFloatPoint
 		result.x = (a.x - b.x)
 		result.y = (a.y - b.y)
 		return result
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Implicit(a as Point) as TSgFloatPoint:
-		result as TSgFloatPoint
+	static def op_Implicit(a as Point) as SgFloatPoint:
+		result as SgFloatPoint
 		result.x = a.X
 		result.y = a.Y
 		return result
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-	static def op_Implicit(a as TSgPoint) as TSgFloatPoint:
-		result as TSgFloatPoint
+	static def op_Implicit(a as SgPoint) as SgFloatPoint:
+		result as SgFloatPoint
 		result.x = a.x
 		result.y = a.x
 		return result
@@ -181,19 +181,19 @@ struct TSgColor:
 			:label4
 			_A = value
 
-def sgPoint(x as int, y as int) as TSgPoint:
-	result as TSgPoint
+def sgPoint(x as int, y as int) as SgPoint:
+	result as SgPoint
 	result.x = x
 	result.y = y
 	return result
 
-def sgPointF(x as single, y as single) as TSgFloatPoint:
-	result as TSgFloatPoint
+def sgPointF(x as single, y as single) as SgFloatPoint:
+	result as SgFloatPoint
 	result.x = x
 	result.y = y
 	return result
 
-let ORIGIN = TSgPoint(x: 0, y: 0)
+let ORIGIN = SgPoint(x: 0, y: 0)
 let fxOneColor = 2147483638
 let SDL_BLACK = SDL_Color(a: 255)
 let SDL_WHITE = SDL_Color(r: 255, g: 255, b: 255, a: 255)

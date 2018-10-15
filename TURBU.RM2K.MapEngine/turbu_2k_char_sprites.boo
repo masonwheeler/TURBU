@@ -32,11 +32,11 @@ class TVehicleTile(TEventTile):
 	internal FOwner as TVehicleSprite
 
 	[Getter(Offset)]
-	protected FOffset as TSgPoint
+	protected FOffset as SgPoint
 
 	protected FOnCleanup as Action
 
-	protected def OffsetTowards(offset as TSgPoint, State as TVehicleState):
+	protected def OffsetTowards(offset as SgPoint, State as TVehicleState):
 		displacement as int
 		if FOffset.x != offset.x:
 			displacement = (offset.x - FOffset.x)
@@ -98,7 +98,7 @@ class TVehicleSprite(TCharSprite):
 		if FState == TVehicleState.Emptying:
 			self.Unload()
 
-	private UnloadLocation as TSgPoint:
+	private UnloadLocation as SgPoint:
 		get:
 			caseOf FUnloadMethod:
 				case TUnloadMethod.Here:
@@ -180,7 +180,7 @@ class TVehicleSprite(TCharSprite):
 		if assigned(hero):
 			hero.BoardVehicle()
 
-	protected override def SetTarget(value as TSgPoint):
+	protected override def SetTarget(value as SgPoint):
 		if FState == TVehicleState.Active:
 			FTarget = value + (FTiles[0] cast TVehicleTile).Offset
 		else:
@@ -253,7 +253,7 @@ class TVehicleSprite(TCharSprite):
 	public override def Action(Button as TButtonCode):
 		DoAction(Button) if FState == TVehicleState.Active
 
-	public override def SetLocation(data as TSgPoint):
+	public override def SetLocation(data as SgPoint):
 		super.SetLocation(data)
 		Place()
 		if assigned(FShadow):
@@ -376,11 +376,11 @@ class THeroSprite(TCharSprite):
 		if self.HasMoveChange():
 			return false
 		if assigned(FMoveTime):
-			if (MoveFreq == 8) and (FMoveTime.TimeRemaining <= TRpgTimestamp.FrameLength):
+			if (MoveFreq == 8) and (FMoveTime.TimeRemaining <= Timestamp.FrameLength):
 				QueueMove(whichDir)
 			return false
 		if assigned(FPause):
-			if FPause.TimeRemaining <= TRpgTimestamp.FrameLength:
+			if FPause.TimeRemaining <= Timestamp.FrameLength:
 				QueueMove(whichDir)
 			return false
 		if FMoveTick:
@@ -397,5 +397,5 @@ class THeroSprite(TCharSprite):
 	public def settleDown(engine as SpriteEngine):
 		FEngine = engine
 
-let AIRSHIP_OFFSET = TSgPoint(x: 0, y: -16)
+let AIRSHIP_OFFSET = SgPoint(x: 0, y: -16)
 let VEHICLE_ANIM_RATE = 10

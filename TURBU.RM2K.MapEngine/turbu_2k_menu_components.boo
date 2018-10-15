@@ -188,7 +188,7 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 
 	protected override def DoCursor(position as short):
 		coords as GPU_Rect
-		origin2 as TSgPoint
+		origin2 as SgPoint
 		dummy as ushort
 		cursor as TSysFrame
 		if self.FDontChangeCursor:

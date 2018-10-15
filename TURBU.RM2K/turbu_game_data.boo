@@ -25,13 +25,13 @@ class TGameLayout(TRpgDatafile):
 	private FPHeight as int
 
 	[Getter(SpriteSize)]
-	private FSpriteSize as TSgPoint
+	private FSpriteSize as SgPoint
 
 	[Getter(SpriteSheet)]
-	private FSpriteSheet as TSgPoint
+	private FSpriteSheet as SgPoint
 
 	[Getter(SpriteSheetFrames)]
-	private FSpriteSheetFrames as TSgPoint
+	private FSpriteSheetFrames as SgPoint
 
 	private FSpriteRow as int
 
@@ -50,10 +50,10 @@ class TGameLayout(TRpgDatafile):
 			return FSpriteSheetRow 
 
 	[Getter(PortraitSize)]
-	private FPortraitSize as TSgPoint
+	private FPortraitSize as SgPoint
 
 	[Getter(TileSize)]
-	private FTileSize as TSgPoint
+	private FTileSize as SgPoint
 
 	[Getter(TitleScreen)]
 	private FTitleScreen as string

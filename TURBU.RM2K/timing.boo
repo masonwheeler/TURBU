@@ -3,7 +3,7 @@ namespace timing
 import System
 from System.Diagnostics import Stopwatch
 
-class TRpgTimestamp:
+class Timestamp:
 
 	private static _timer = Stopwatch()
 
@@ -75,26 +75,26 @@ class TRpgTimestamp:
 		return TimeRemaining.ToString() + 'ms'
 
 def MoveTowards(timer as int, ref current as double, goal as double):
-	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	timefactor as int = Math.Max(timer / Timestamp.FrameLength, 1)
 	diff as double = (current - goal) / timefactor
 	current = current - diff
 	return diff
 
 def MoveTowards(timer as int, ref current as single, goal as single):
-	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	timefactor as int = Math.Max(timer / Timestamp.FrameLength, 1)
 	diff as single = (current - goal) / timefactor
 	current = current - diff
 	return diff
 
 def MoveTowards(timer as int, ref current as byte, goal as byte):
-	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	timefactor as int = Math.Max(timer / Timestamp.FrameLength, 1)
 	diff as short = commons.round((((current - goal) cast double) / timefactor))
 	assert Math.Abs(diff) < 256
 	current = current - diff
 	return diff
 
 def MoveTowards(timer as int, ref current as int, goal as int):
-	timefactor as int = Math.Max(timer / TRpgTimestamp.FrameLength, 1)
+	timefactor as int = Math.Max(timer / Timestamp.FrameLength, 1)
 	diff as short = commons.round((((current - goal) cast double) / timefactor))
 	current = current - diff
 	return diff

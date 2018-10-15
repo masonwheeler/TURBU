@@ -32,9 +32,9 @@ interface IBreakable:
 
 interface ITurbuController:
 
-	def MapResize(size as TSgPoint) as TSgPoint
+	def MapResize(size as SgPoint) as SgPoint
 
-	def ScrollMap(TopLeft as TSgPoint) as TSgPoint
+	def ScrollMap(TopLeft as SgPoint) as SgPoint
 
 enum TButtonPosition:
 	Layer
@@ -107,19 +107,19 @@ interface IDesignMapEngine(IMapEngine):
 
 	def GetCurrentLayer() as byte
 
-	def GetTileSize() as TSgPoint
+	def GetTileSize() as SgPoint
 
 	CurrentLayer as byte:
 		get
 		set
 
-	def MapPosition() as TSgPoint
+	def MapPosition() as SgPoint
 
 	def SetController(value as ITurbuController)
 
 	def ResizeWindow(rect as Rectangle)
 
-	def ScrollMap(newPosition as TSgPoint)
+	def ScrollMap(newPosition as SgPoint)
 
 	def SetPaletteList(value as (int))
 
@@ -127,7 +127,7 @@ interface IDesignMapEngine(IMapEngine):
 
 	def SetExactDrawMode(value as bool)
 
-	def Draw(position as TSgPoint, newDraw as bool)
+	def Draw(position as SgPoint, newDraw as bool)
 
 	def DoneDrawing()
 
@@ -137,7 +137,7 @@ interface IDesignMapEngine(IMapEngine):
 
 	def DoubleClick()
 
-	def RightClick(position as TSgPoint)
+	def RightClick(position as SgPoint)
 
 	def KeyDown(key as ushort, Shift as TShiftState)
 
@@ -314,13 +314,13 @@ class TMatrix[of T](TObject, IEnumerable[of T]):
 		for i in range(0, base.Width):
 			self[i + start, toRow] = base[i, fromRow]
 
-	public def constructor(size as TSgPoint):
+	public def constructor(size as SgPoint):
 		super()
 		FMatrix = array(T, size.x * size.y)
 		FWidth = size.x
 		FHeight = size.y
 
-	public def constructor(size as TSgPoint, base as TMatrix[of T], position as int):
+	public def constructor(size as SgPoint, base as TMatrix[of T], position as int):
 		self(size)
 		if (position < 1) or (position > 9):
 			raise Exception("Invalid position value: $position; valid values are 1..9")

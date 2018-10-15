@@ -94,14 +94,14 @@ class T2kSpriteEngine(SpriteEngine):
 
 	private FFadeTarget = array(single, 4)
 
-	private FFadeTime as TRpgTimestamp
+	private FFadeTime as Timestamp
 
 	[Getter(SystemGraphic)]
 	private FSystemGraphic as TSystemImages
 
 	private FFlashColor as SDL.SDL_Color
 
-	private FFlashTime as TRpgTimestamp
+	private FFlashTime as Timestamp
 
 	private FFlashDuration as int
 
@@ -118,7 +118,7 @@ class T2kSpriteEngine(SpriteEngine):
 	[Property(Returning)]
 	private FReturning as bool
 
-	private FDestination as TSgPoint
+	private FDestination as SgPoint
 
 	private FDispGoalX as single
 
@@ -130,7 +130,7 @@ class T2kSpriteEngine(SpriteEngine):
 	[Getter(DisplacementY)]
 	private FDisplacementY as single
 
-	private FDisplacementTime as TRpgTimestamp
+	private FDisplacementTime as Timestamp
 
 	private FScreenLocked as bool
 
@@ -138,7 +138,7 @@ class T2kSpriteEngine(SpriteEngine):
 
 	private FDispBaseY as single
 
-	private FCenter as TSgPoint
+	private FCenter as SgPoint
 
 	private FShakePower as byte
 
@@ -176,22 +176,22 @@ class T2kSpriteEngine(SpriteEngine):
 		self.Viewport.WorldY = pixelY
 		ResizeCanvas()
 
-	private static def NormalizeCoords(x as int, y as int, size as TSgPoint, ref equivX as int, ref equivY as int):
-		adjustedCoords as TSgPoint = sgPoint(x, y)
+	private static def NormalizeCoords(x as int, y as int, size as SgPoint, ref equivX as int, ref equivY as int):
+		adjustedCoords as SgPoint = sgPoint(x, y)
 		while (adjustedCoords.x < 0) or (adjustedCoords.y < 0):
 			adjustedCoords = adjustedCoords + size
 		adjustedCoords = adjustedCoords % size
 		equivX = adjustedCoords.x
 		equivY = adjustedCoords.y
 
-	private static def GetIndex(x as int, y as int, size as TSgPoint) as int:
+	private static def GetIndex(x as int, y as int, size as SgPoint) as int:
 		return (y * size.x) + x
 
 	private def LoadTileMatrix(value as (TTileRef), index as int, viewport as GPU_Rect):
 		equivX as int
 		equivY as int
 		matrix as TMatrix[of TMapTile] = FTiles[index]
-		size as TSgPoint = FMap.Size
+		size as SgPoint = FMap.Size
 		for y in range(viewport.y - 1, viewport.y + viewport.h + 1):
 			for x in range(viewport.x - 1, viewport.x + viewport.w + 1):
 				NormalizeCoords(x, y, size, equivX, equivY)
@@ -400,15 +400,15 @@ class T2kSpriteEngine(SpriteEngine):
 	protected override def CreateViewport() as Viewport:
 		return CompositeViewport(self.Canvas.Width, self.Canvas.Height, FMap.Size.x * TILE_SIZE.x, FMap.Size.y * TILE_SIZE.y)
 
-	public def constructor(map as TRpgMap, viewport as GPU_Rect, shaderEngine as TdmShaders, Canvas as TSdlCanvas, \
-			tileset as TTileSet, images as TSdlImages):
+	public def constructor(map as TRpgMap, viewport as GPU_Rect, shaderEngine as TdmShaders, Canvas as SdlCanvas, \
+			tileset as TTileSet, images as SdlImages):
 		FMap = map
 		super(null, Canvas)
 		FShaderEngine = shaderEngine
 		self.Images = images
 		FTiles = List[of TMatrix[of TMapTile]]()
 		FTileset = tileset
-		size as TSgPoint = FMap.Size
+		size as SgPoint = FMap.Size
 		_tileViewport = _viewport
 		FMapRect = GPU_MakeRect(0, 0, size.x, size.y)
 		FPanSpeed = BASESPEED
@@ -514,7 +514,7 @@ class T2kSpriteEngine(SpriteEngine):
 				FTiles[i][x, y] = FullCreateNewTile(x, y, i)
 		return FTiles[layer][x, y]
 
-	public def TileInFrontOf(ref location as TSgPoint, direction as TDirections) as TMapTile:
+	public def TileInFrontOf(ref location as SgPoint, direction as TDirections) as TMapTile:
 		caseOf direction:
 			case TDirections.Up:
 				location = sgPoint(location.x, location.y - 1)
@@ -587,7 +587,7 @@ class T2kSpriteEngine(SpriteEngine):
 			result = result or Passable(x, y, dir)
 		return result
 
-	public def Passable(location as TSgPoint, direction as TDirections, Character as TMapSprite) as bool:
+	public def Passable(location as SgPoint, direction as TDirections, Character as TMapSprite) as bool:
 		sprites as (TMapSprite) = self.SpritesAt(location, Character).ToArray()
 		if sprites.Length > 0:
 			var result = true
@@ -603,7 +603,7 @@ class T2kSpriteEngine(SpriteEngine):
 		else: result = Passable(location, direction)
 		return result
 
-	public def Passable(location as TSgPoint, direction as TDirections) as bool:
+	public def Passable(location as SgPoint, direction as TDirections) as bool:
 		return Passable(location.x, location.y, direction)
 
 	public def EdgeCheck(x as int, y as int, direction as TDirections) as bool:
@@ -643,7 +643,7 @@ class T2kSpriteEngine(SpriteEngine):
 				result = Passable(character.InFront, opposite, character)
 		return result
 
-	public def SpritesAt(location as TSgPoint, exceptFor as TMapSprite) as TMapSprite*:
+	public def SpritesAt(location as SgPoint, exceptFor as TMapSprite) as TMapSprite*:
 		result as TMapSprite*
 		if FSpriteLocations.ContainsKey(location):
 			result = FSpriteLocations[location]
@@ -651,10 +651,10 @@ class T2kSpriteEngine(SpriteEngine):
 			result = result.Where({s | s != exceptFor})
 		return ( result if result is not null else System.Linq.Enumerable.Empty[of TMapSprite]() )
 
-	public def AddLocation(position as TSgPoint, Character as TMapSprite):
+	public def AddLocation(position as SgPoint, Character as TMapSprite):
 		FSpriteLocations.Add(position, Character)
 
-	public def LeaveLocation(position as TSgPoint, Character as TMapSprite):
+	public def LeaveLocation(position as SgPoint, Character as TMapSprite):
 		if FSpriteLocations.KeyHasValue(position, Character):
 			FSpriteLocations.RemovePair(position, Character)
 
@@ -676,7 +676,7 @@ class T2kSpriteEngine(SpriteEngine):
 		self.Viewport.VisibleWidth = Canvas.Width
 		self.Viewport.VisibleHeight = Canvas.Height
 
-	public def OnMap(where as TSgPoint) as bool:
+	public def OnMap(where as SgPoint) as bool:
 		return (clamp(where.x, 0, Width) == where.x) and (clamp(where.y, 0, Height) == where.y)
 
 	public def CenterOn(x as int, y as int):
@@ -687,8 +687,8 @@ class T2kSpriteEngine(SpriteEngine):
 	public def CenterOnWorldCoords(x as single, y as single):
 		InternalCenterOn(Math.Round(x), Math.Round(y))
 
-	public def ScrollMap(newPosition as TSgPoint):
-		reducedPosition as TSgPoint = newPosition / TILE_SIZE
+	public def ScrollMap(newPosition as SgPoint):
+		reducedPosition as SgPoint = newPosition / TILE_SIZE
 		FViewport = GPU_MakeRect(reducedPosition.x, reducedPosition.y, FViewport.w, FViewport.h)
 		self.Viewport.WorldX = newPosition.x
 		self.Viewport.WorldY = newPosition.y
@@ -717,7 +717,7 @@ class T2kSpriteEngine(SpriteEngine):
 			return
 		FTileset = value
 		FTiles = List[of TMatrix[of TMapTile]]()
-		size as TSgPoint = FMap.Size
+		size as SgPoint = FMap.Size
 		for i in range(FMap.TileMap.Length):
 			FTiles.Add(TMatrix[of TMapTile](size))
 		oldViewport as GPU_Rect = FViewport
@@ -734,7 +734,7 @@ class T2kSpriteEngine(SpriteEngine):
 		FFadeTarget[1] = g / 255.0
 		FFadeTarget[2] = b / 255.0
 		FFadeTarget[3] = s / 255.0
-		FFadeTime = TRpgTimestamp(time * 100)
+		FFadeTime = Timestamp(time * 100)
 
 	public def Fade() as bool:
 		var result = false
@@ -758,7 +758,7 @@ class T2kSpriteEngine(SpriteEngine):
 		FFlashColor.b = b
 		FFlashColor.a = power
 		duration = duration * 100
-		FFlashTime = TRpgTimestamp(duration)
+		FFlashTime = Timestamp(duration)
 		FFlashDuration = duration
 
 	public def FadeOut(time as int):
@@ -807,7 +807,7 @@ class T2kSpriteEngine(SpriteEngine):
 			var yDistance = Math.Abs(FDispGoalY)
 			var distance = Math.Max(xDistance, yDistance)
 			var disptime = round(distance * MOVESPEED[speed])
-			FDisplacementTime = TRpgTimestamp(disptime)
+			FDisplacementTime = Timestamp(disptime)
 
 	public def ShakeScreen(power as int, Speed as int, duration as int):
 		FShakePower = power

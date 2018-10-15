@@ -5,13 +5,9 @@ import System
 import System.Collections.Generic
 import System.IO
 
-class EArchiveError(Exception):
+class ArchiveError(Exception):
 	def constructor (msg as string):
 		super(msg)
-
-struct TFilenameData:
-	Name as string
-	Duplicates as int
 
 interface IArchive:
 
@@ -32,12 +28,12 @@ interface IArchive:
 	Root as string:
 		get
 
-class TArchiveList(List[of IArchive]):
+class ArchiveList(List[of IArchive]):
 
-	public def clearFrom(value as uint):
+	public def ClearFrom(value as uint):
 		self.RemoveRange(value, self.Count - value)
 
-let GArchives = TArchiveList()
+let GArchives = ArchiveList()
 //let BASE_ARCHIVE = 0
 let MAP_ARCHIVE = 0
 let IMAGE_ARCHIVE = 1

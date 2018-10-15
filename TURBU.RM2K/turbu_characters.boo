@@ -117,10 +117,10 @@ class TClassTemplate(TRpgDatafile):
 	private FSkillset = array(TSkillGainInfo, 0)
 
 	[Getter(Resist)]
-	private FResists = array(TSgPoint, 0)
+	private FResists = array(SgPoint, 0)
 
 	[Getter(Condition)]
-	private FConditions = array(TSgPoint, 0)
+	private FConditions = array(SgPoint, 0)
 
 	[Getter(Equipment)]
 	private FEquip = array(int, 5)
@@ -141,7 +141,7 @@ class TClassTemplate(TRpgDatafile):
 	private FGuest as bool
 
 	[Getter(BattlePos)]
-	private FBattlePos as TSgPoint
+	private FBattlePos as SgPoint
 
 	[Property(OnJoin)]
 	private FOnJoin as Action of TRpgObject
@@ -190,11 +190,11 @@ class TClassTemplate(TRpgDatafile):
 		value.CheckEmpty() unless inherited
 
 	public def AddResist(value as Point):
-		Array.Resize[of TSgPoint](FResists, FResists.Length + 1)
+		Array.Resize[of SgPoint](FResists, FResists.Length + 1)
 		FResists[FResists.Length - 1] = value
 
 	public def AddCondition(value as Point):
-		Array.Resize[of TSgPoint](FConditions, FConditions.Length + 1)
+		Array.Resize[of SgPoint](FConditions, FConditions.Length + 1)
 		FConditions[FConditions.Length - 1] = value
 
 	public def GetCondition(value as int) as int:

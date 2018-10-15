@@ -1,11 +1,10 @@
 namespace TURBU.RM2K.RPGScript
 
 import System
+import System.IO
 import System.Threading.Tasks
 import turbu.script.engine
-import commons
 import archiveInterface
-//import rs_dws_Helpers
 import Disharmony
 import Pythia.Runtime
 import turbu.sounds
@@ -17,7 +16,8 @@ import Newtonsoft.Json.Linq
 
 def PlaySound(name as string, volume as int, tempo as int, balance as int):
 	if ArchiveUtils.SoundExists(name):
-		name = (IncludeTrailingPathDelimiter(GArchives[SFX_ARCHIVE].Root) + name)
+		
+		name = Path.Combine(GArchives[SFX_ARCHIVE].Root, name)
 		LoadDisharmony().PlaySoundEx(name, volume, tempo, balance)
 
 def StopMusic():
@@ -25,7 +25,7 @@ def StopMusic():
 
 def PlayMusic(name as string, time as int, volume as int, tempo as int, balance as int):
 	if ArchiveUtils.MusicExists(name) or (name == '(OFF)'):
-		LoadDisharmony().PlayMusic((IncludeTrailingPathDelimiter(GArchives[MUSIC_ARCHIVE].Root) + name))
+		LoadDisharmony().PlayMusic(Path.Combine(GArchives[MUSIC_ARCHIVE].Root, name))
 		LoadDisharmony().FadeInMusic(time)
 		LoadDisharmony().SetMusicVolume(volume)
 		LoadDisharmony().SetMusicSpeed(tempo)

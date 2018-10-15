@@ -58,7 +58,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	[Property(Tileset)]
 	private FTileset as int = 1
 
-	private FSize = TSgPoint(x: 30, y: 25)
+	private FSize = SgPoint(x: 30, y: 25)
 
 	private FDepth as byte
 
@@ -81,7 +81,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	private FVScroll as TMapScrollType
 
 	[Property(ScrollSpeed)]
-	private FScrollSpeed as TSgPoint
+	private FScrollSpeed as SgPoint
 
 	private FScriptFormat as TScriptFormat
 
@@ -98,7 +98,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 
 	private FScriptError as string
 
-	private def SetSize(value as TSgPoint):
+	private def SetSize(value as SgPoint):
 		FSize = value
 		for i in range(FTileMap.Length):
 			arr = FTileMap[i]
@@ -131,11 +131,11 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 			for i in range(grid[j].Length):
 				Array.Copy(grid[j][i], 0, self.FTileMap[j], ((i + bounds.Top) * FSize.x) + bounds.Left, lineLength)
 
-	private def CalcGridDelta(size as TSgPoint, position as byte) as Rectangle:
+	private def CalcGridDelta(size as SgPoint, position as byte) as Rectangle:
 		
-		def CalcPoints(first as int, second as int, position as int) as TSgPoint:
+		def CalcPoints(first as int, second as int, position as int) as SgPoint:
 			midpoint as int
-			result as TSgPoint
+			result as SgPoint
 			caseOf position:
 				case 0:
 					result.x = 0
@@ -223,7 +223,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	public def GetTile(x as int, y as int, layer as int) as TTileRef:
 		return FTileMap[layer][(y * FSize.x) + x]
 
-	public def AdjustSize(size as TSgPoint, position as byte):
+	public def AdjustSize(size as SgPoint, position as byte):
 		grid as (((TTileRef)))
 		assert position in range(1, 10)
 		return if size == FSize
@@ -245,10 +245,10 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		BlitFromGrid(grid, CalcBlitBounds(gridSize, position))
 		RemoveInvalidEvents()
 
-	public def CalcBlitBounds(size as TSgPoint, position as byte) as Rectangle:
+	public def CalcBlitBounds(size as SgPoint, position as byte) as Rectangle:
 		
-		def CalcBounds(first as int, second as int, mode as byte) as TSgPoint:
-			result as TSgPoint
+		def CalcBounds(first as int, second as int, mode as byte) as SgPoint:
+			result as SgPoint
 			midpoint as int
 			minsize as int = Math.Min(first, second)
 			caseOf mode:
@@ -283,7 +283,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	public def RemoveInvalidEvents():
 		pass
 
-	public Size as TSgPoint:
+	public Size as SgPoint:
 		get:
 			return FSize
 		set:

@@ -42,7 +42,7 @@ class TSdlFrame(Control):
 	private FRendererType as TRendererType
 
 	[Getter(Images)]
-	private FImageManager as TSdlImages
+	private FImageManager as SdlImages
 
 	[Property(OnTimer)]
 	private FOnTimer as EventHandler
@@ -144,10 +144,10 @@ class TSdlFrame(Control):
 	private def GetAspectRatio() as double:
 		return (self.Width cast double) / (self.Height cast double)
 
-	private def GetLogicalSize() as TSgPoint:
+	private def GetLogicalSize() as SgPoint:
 		return sgPoint(FLogicalWidth, FLogicalHeight)
 
-	private def SetLogicalSize(value as TSgPoint):
+	private def SetLogicalSize(value as SgPoint):
 		if (value.x == FLogicalWidth) and (value.y == FLogicalHeight):
 			return
 		FLogicalWidth = value.x
@@ -191,7 +191,7 @@ class TSdlFrame(Control):
 		FRendererType = TRendererType.rtOpenGL
 		self.SetStyle(ControlStyles.Opaque | ControlStyles.StandardClick | ControlStyles.StandardDoubleClick, true)
 		self.TabStop = true
-		FImageManager = TSdlImages(true, null)
+		FImageManager = SdlImages(true, null)
 		FLogicalWidth = 1
 		FLogicalHeight = 1
 		SDL.SDL_InitSubSystem(SDL.SDL_INIT_VIDEO) unless SDL.SDL_WasInit(SDL.SDL_INIT_VIDEO) == SDL.SDL_INIT_VIDEO
@@ -298,8 +298,8 @@ class TSdlFrame(Control):
 	public def IndexOfName(name as string) as int:
 		return FImageManager.IndexOf(name)
 
-	public def LogicalCoordinates(x as int, y as int) as TSgPoint:
-		result as TSgPoint
+	public def LogicalCoordinates(x as int, y as int) as SgPoint:
+		result as SgPoint
 		result.x = Truncate(((x * self.LogicalWidth cast double) / self.Width))
 		result.y = Truncate(((y * self.LogicalHeight cast double) / self.Height))
 		return result

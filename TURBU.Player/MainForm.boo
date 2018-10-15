@@ -82,7 +82,7 @@ partial class frmTURBUPlayer:
 			if required:
 				raise FileNotFoundException("Required folder '$folderName' does not exist")
 			else: Directory.CreateDirectory(pathName)
-		GArchives.Add(TDiscArchive.OpenFolder(pathName))
+		GArchives.Add(DiscArchive.OpenFolder(pathName))
 		assert GArchives.Count - 1 == index
 	
 	private def CurrentFolder() as string:
@@ -127,7 +127,8 @@ public def Main(argv as (string)) as void:
 	Application.SetCompatibleTextRenderingDefault(false)
 	player = frmTURBUPlayer(Args: argv)
 	try:
-		Application.Run(player)
+		var env = Environments.CachingEnvironment(Environments.ClosedEnvironment())
+		Environments.ActiveEnvironment.With(env, {Application.Run(player)} )
 	except e as Exception:
 		MessageBox.Show(e.Message)
 	ensure:

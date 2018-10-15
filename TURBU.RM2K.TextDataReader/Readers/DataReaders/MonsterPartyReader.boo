@@ -28,7 +28,7 @@ macro MonsterParties.MonsterParty(index as IntegerLiteralExpression, body as Exp
 macro MonsterParties.MonsterParty.Monsters(body as ExpressionStatement*):
 	macro MonsterElement(id as IntegerLiteralExpression, body as ExpressionStatement*):
 		var monster = SubMacroValue(body, 'Monster')
-		var pos = SubMacroNamed(body, 'Position', 'TSgPoint')
+		var pos = SubMacroNamed(body, 'Position', 'SgPoint')
 		var inv = SubMacroValue(body, 'Invisible')
 		return ExpressionStatement([|TRpgMonsterElement($id, $monster, $pos, $inv)|])
 	

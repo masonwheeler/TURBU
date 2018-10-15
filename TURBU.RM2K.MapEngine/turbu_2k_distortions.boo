@@ -8,7 +8,7 @@ import System
 import turbu.RM2K.images
 import turbu.RM2K.sprite.engine
 
-def drawWave(image as TSdlRenderTarget, source as GPU_Rect, amp as int, period as int, phase as int):
+def drawWave(image as SdlRenderTarget, source as GPU_Rect, amp as int, period as int, phase as int):
 	i as int
 	shift as int
 	width as ushort

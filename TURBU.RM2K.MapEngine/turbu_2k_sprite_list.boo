@@ -4,5 +4,5 @@ import turbu.multimaps
 import SG.defs
 import turbu.map.sprites
 
-class TSpriteLocations(TMultimap[of TSgPoint, TMapSprite]):
+class TSpriteLocations(Multimap[of SgPoint, TMapSprite]):
 	pass
