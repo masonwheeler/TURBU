@@ -127,6 +127,7 @@ class TMapSprite(TObject):
 
 	private def SetMoveOrder(value as Path):
 		FMoveAssignment = value
+		FMoveStep = null
 
 	private def BeginJump(target as SgPoint):
 		self.LeaveTile()
@@ -515,21 +516,21 @@ class TMapSprite(TObject):
 	private def MakeFleePath():
 		return MakeLoopingPath({m as TObject| return (m cast TMapSprite).AwayFromHero()})
 
-	protected def UpdateMove(Data as TRpgEventPage):
-		FMoveRate = Data.MoveSpeed
-		FMoveFreq = Data.MoveFrequency
+	protected def UpdateMove(data as TRpgEventPage):
+		FMoveRate = data.MoveSpeed
+		FMoveFreq = data.MoveFrequency
 		FCanSkip = true
-		caseOf Data.MoveType:
+		caseOf data.MoveType:
 			case TMoveType.Still, TMoveType.CycleUD, TMoveType.CycleLR: MoveQueue = null
 			case TMoveType.RandomMove: MoveQueue = MakeRandomPath()
 			case TMoveType.ChaseHero: MoveQueue = MakeChasePath()
 			case TMoveType.FleeHero: MoveQueue = MakeFleePath()
 			case TMoveType.ByRoute:
-				assert assigned(Data.Path)
-				MoveQueue = Data.Path.Clone()
-				FCanSkip = Data.MoveIgnore
+				assert assigned(data.Path)
+				MoveQueue = data.Path.Clone()
+				FCanSkip = data.MoveIgnore
 			default : assert false
-		FMoveTime = null if Data.AnimType in (TAnimType.Sentry, TAnimType.FixedDir)
+		FMoveTime = null if data.AnimType in (TAnimType.Sentry, TAnimType.FixedDir)
 
 	protected abstract def DoUpdatePage(Data as TRpgEventPage):
 		pass
@@ -681,6 +682,10 @@ class TMapSprite(TObject):
 					FMoveOpen = (self.Move(TDirections.Up) if FMoveReversed else self.Move(TDirections.Down))
 				case TMoveType.CycleLR:
 					FMoveOpen = (self.Move(TDirections.Right) if FMoveReversed else self.Move(TDirections.Left))
+				case TMoveType.ByRoute:
+					self.UpdateMove(FMapObj.CurrentPage)
+					MoveTick(moveBlocked)
+					return
 				default:
 					pass
 		if self.HasPage and (FMapObj.CurrentPage.MoveType in (TMoveType.CycleUD, TMoveType.CycleLR)) and not FMoveOpen:
@@ -939,8 +944,8 @@ class TCharSprite(TMapSprite):
 		FSpriteIndex = spriteIndex
 		UpdateTiles()
 
-	public virtual def Action(Button as TButtonCode):
-		raise ESpriteError('Non-player sprites can\'t receive an Action.')
+	public virtual def Action(button as TButtonCode):
+		raise ESpriteError("Non-player sprites can't receive an Action.")
 
 	public override def MoveTick(moveBlocked as bool):
 		super.MoveTick(moveBlocked)

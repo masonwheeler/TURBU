@@ -26,26 +26,33 @@ class Path:
 	[Getter(Skip)]
 	private FSkip as bool
 
+	private _data as Func[of Path, Func[of TObject, bool]*]
+
 	public def constructor():
 		super()
 
-	public def constructor(skip as bool, Data as Func[of Path, Func[of TObject, bool]*]):
+	public def constructor(skip as bool, data as Func[of Path, Func[of TObject, bool]*]):
 		super()
 		FSkip = skip
-		try:
-			FSteps = Data(self).GetEnumerator()
-		except e as Exception:
-			System.Diagnostics.Debugger.Break()
+		_data = data
+		GetSteps()
 
 	private def constructor(copy as Path):
 		FLoop = copy.Loop
 
 	public def Clone() as Path:
 		var result = Path(self)
-		result.FSteps = self.FSteps
+		result._data = _data
+		result.GetSteps()
 		result.FCursor = self.FCursor
 		result.FLooped = self.FLooped
 		return result
+
+	private def GetSteps():
+		try:
+			FSteps = _data(self).GetEnumerator()
+		except e as Exception:
+			System.Diagnostics.Debugger.Break()
 
 	public def Serialize(writer as JsonWriter):
 		writeJsonObject writer:

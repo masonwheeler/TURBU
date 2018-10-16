@@ -32,16 +32,16 @@ private def DoBuildSteps(loop as BoolLiteralExpression, path as ArrayLiteralExpr
 			case [|$expr * $quantity|]:
 				value = [|
 					for i in range($quantity):
-						yield {m | return (m cast turbu.map.sprites.TMapSprite).$expr()}
+						yield {m as Pythia.Runtime.TObject | return (m cast turbu.map.sprites.TMapSprite).$expr()}
 				|]
 				steps.Body.Add(value)
 			case MethodInvocationExpression():
 				mieStep = step cast MethodInvocationExpression
 				var mie = MethodInvocationExpression([|(m cast turbu.map.sprites.TMapSprite).$(mieStep.Target)|])
 				mie.Arguments.AddRange(mieStep.Arguments.Select({a | a.CleanClone()}))
-				steps.Body.Add([| yield {m | return $mie} |])
+				steps.Body.Add([| yield {m as Pythia.Runtime.TObject | return $mie} |])
 			case ReferenceExpression():
-				steps.Body.Add([| yield {m | return (m cast turbu.map.sprites.TMapSprite).$step()} |])
+				steps.Body.Add([| yield {m as Pythia.Runtime.TObject | return (m cast turbu.map.sprites.TMapSprite).$step()} |])
 	if steps.Body.IsEmpty:
 		steps.Body.Add([|return System.Linq.Enumerable.Empty[of System.Func[of Pythia.Runtime.TObject, bool]]()|])
 	elif loop.Value:
