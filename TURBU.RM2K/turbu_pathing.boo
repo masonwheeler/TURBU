@@ -15,9 +15,6 @@ class Path:
 
 	private FLoopLength as int
 
-	[Getter(Loop)]
-	private FLoop as bool
-
 	[Property(Looped)]
 	private FLooped as bool
 
@@ -28,22 +25,17 @@ class Path:
 
 	private _data as Func[of Path, Func[of TObject, bool]*]
 
-	public def constructor():
-		super()
-
 	public def constructor(skip as bool, data as Func[of Path, Func[of TObject, bool]*]):
 		super()
 		FSkip = skip
 		_data = data
 		GetSteps()
 
-	private def constructor(copy as Path):
-		FLoop = copy.Loop
+	public def constructor(copy as Path):
+		self(copy.Skip, copy._data)
 
 	public def Clone() as Path:
 		var result = Path(self)
-		result._data = _data
-		result.GetSteps()
 		result.FCursor = self.FCursor
 		result.FLooped = self.FLooped
 		return result

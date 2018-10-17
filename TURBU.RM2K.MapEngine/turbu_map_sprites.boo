@@ -96,7 +96,7 @@ class TMapSprite(TObject):
 		return self.MoveDiag(one, two) or CanSkip
 
 	protected def DirTowardsHero() as TDirections:
-		var heroLoc = (GSpriteEngine.value.CurrentParty.Location if assigned(GSpriteEngine.value.CurrentParty) else sgPoint(0, 1000)))
+		var heroLoc = (GSpriteEngine.value.CurrentParty.Location if GSpriteEngine.value.CurrentParty is not null else sgPoint(0, 1000)))
 		return towards(self.Location, heroLoc)
 
 	private def CanJump(target as SgPoint) as bool:
@@ -121,7 +121,7 @@ class TMapSprite(TObject):
 				case TDirections.Left: ++lTarget.x
 			SetLocation(lTarget)
 		FTarget.x -= WIDTH_BIAS
-		assert not assigned(FMoveTime)
+		assert FMoveTime is null
 		FMoveTime = Timestamp(MOVE_DELAY[FMoveRate - 1])
 		EnterTile()
 
@@ -141,7 +141,7 @@ class TMapSprite(TObject):
 		if (not self.DirLocked) and (FLocation != FJumpTarget):
 			self.Facing = towards(FLocation, FJumpTarget)
 		FLocation = FJumpTarget
-		assert not assigned(FMoveTime)
+		assert FMoveTime is null
 		GSpriteEngine.value.AddLocation(self.Location, self)
 		FMoveTime = Timestamp(FJumpTime)
 
@@ -149,7 +149,7 @@ class TMapSprite(TObject):
 		SetTarget(FLocation * TILE_SIZE)
 		FTarget.x -= WIDTH_BIAS
 		FJumping = false
-		assert not assigned(FMoveTime)
+		assert FMoveTime is null
 		FMoveTime = Timestamp(FJumpTime)
 
 	private def Get90Dir() as TDirections:
@@ -179,7 +179,7 @@ class TMapSprite(TObject):
 		return TryMovePreferredDirection(opposite_facing(DirTowardsHero()))
 
 	private def MustFlash() as bool:
-		return assigned(FFlashTimer) and (FFlashTimer.TimeRemaining > 0)
+		return FFlashTimer is not null and FFlashTimer.TimeRemaining > 0
 
 	private def GetFlashColor() as (single):
 		result = array(single, 4)
@@ -452,10 +452,10 @@ class TMapSprite(TObject):
 		return true
 
 	protected virtual def DoMove(which as Path) as bool:
-		unless assigned(FMoveStep):
+		if FMoveStep is null:
 			FMoveStep = which.NextCommand()
 		FMoveOpen = true
-		result = (FMoveStep(self) if assigned(FMoveStep) else false)
+		result = (FMoveStep(self) if FMoveStep is not null else false)
 		if result:
 			FMoveStep = null
 /*
@@ -526,8 +526,8 @@ class TMapSprite(TObject):
 			case TMoveType.ChaseHero: MoveQueue = MakeChasePath()
 			case TMoveType.FleeHero: MoveQueue = MakeFleePath()
 			case TMoveType.ByRoute:
-				assert assigned(data.Path)
-				MoveQueue = data.Path.Clone()
+				assert data.Path is not null
+				MoveQueue = Path(data.Path)
 				FCanSkip = data.MoveIgnore
 			default : assert false
 		FMoveTime = null if data.AnimType in (TAnimType.Sentry, TAnimType.FixedDir)
@@ -557,20 +557,20 @@ class TMapSprite(TObject):
 		UpdateMove(FMapObj.CurrentPage) if self.HasPage
 
 	private def Destroy():
-		FTiles[0].Dead() if assigned(FTiles[0])
-		FTiles[1].Dead() if assigned(FTiles[1])
+		FTiles[0].Dead() unless FTiles[0] is null
+		FTiles[1].Dead() unless FTiles[1] is null
 		(FEngine cast T2kSpriteEngine).LeaveLocation(FLocation, self)
 
 	override def ToString():
 		var result = self.ClassName
-		if assigned(FMapObj):
+		if FMapObj is not null:
 			return "$result $(FMapObj.ID): $(FMapObj.Name)"
 		return result
 
 	public virtual def Move(whichDir as TDirections) as bool:
 		target as SgPoint
 		result = false
-		return result if assigned(FMoveTime) or assigned(FPause)
+		return result if FMoveTime is not null or FPause is not null
 		if self.DirLocked:
 			FMoveDir = whichDir
 		else: Facing = whichDir
@@ -594,7 +594,7 @@ class TMapSprite(TObject):
 	public def MoveDiag(one as TDirections, two as TDirections) as bool:
 		destination as SgPoint
 		var result = false
-		return result if assigned(FMoveTime) and assigned(FPause)
+		return result if FMoveTime is not null or FPause is not null
 		if (not self.DirLocked) and Facing not in (one, two):
 			Facing = two
 		if self.CanMoveDiagonal(one, two, destination):
@@ -608,11 +608,11 @@ class TMapSprite(TObject):
 			GSpriteEngine.value.LeaveLocation(self.Location, self)
 
 	public virtual def Place():
-		if (FInitialized and not assigned(FMoveTime)) or \
-			(FInitialized and not (assigned(FMoveQueue) or assigned(FMoveAssignment)) and \
-				assigned(FMapObj) and (FMapObj.CurrentPage.MoveType == TMoveType.Still)):
+		if (FInitialized and FMoveTime is null) or \
+			(FInitialized and FMoveQueue is null and FMoveAssignment is null and \
+				FMapObj is not null and FMapObj.CurrentPage.MoveType == TMoveType.Still):
 			return
-		if assigned(FMoveTime):
+		if FMoveTime is not null:
 			timeRemaining as int = FMoveTime.TimeRemaining
 			lX as single = FTiles[0].X
 			MoveTowards(timeRemaining, lX, FTarget.x)
@@ -652,7 +652,7 @@ class TMapSprite(TObject):
 			return (FEngine cast T2kSpriteEngine).GetTile(inFront.x, inFront.y, 0)
 
 	public HasPage as bool:
-		get: return assigned(FMapObj) and assigned(FMapObj.CurrentPage)
+		get: return FMapObj?.CurrentPage is not null
 
 	public def Flash(r as byte, g as byte, b as byte, power as byte, time as uint):
 		if time == 0:
@@ -667,14 +667,14 @@ class TMapSprite(TObject):
 		FFlashLength = time
 
 	public virtual def MoveTick(moveBlocked as bool):
-		return if assigned(FMoveTime)
-		if assigned(FPause):
+		return if FMoveTime is not null
+		if FPause is not null:
 			return if FPause.TimeRemaining > 0
 			FPause = null
 		canMove as bool = not (moveBlocked or FMapObj?.Playing)
-		if assigned(FMoveAssignment):
+		if FMoveAssignment is not null:
 			FMoveAssignment = null unless DoMove(FMoveAssignment)
-		elif assigned(FMoveQueue) and canMove:
+		elif FMoveQueue is not null and canMove:
 			FMoveQueue = null unless DoMove(FMoveQueue)
 		elif canMove and self.HasPage:
 			caseOf FMapObj.CurrentPage.MoveType:
@@ -696,23 +696,23 @@ class TMapSprite(TObject):
 		pass
 
 	public def Stop():
-		if assigned(FMoveAssignment):
-			if assigned(FMoveTime):
+		if FMoveAssignment != null:
+			if FMoveTime != null:
 				FMoveTime = null
-			elif assigned(FPause):
+			elif FPause != null:
 				FPause = null
 			FMoveAssignment = null
 
 	public def CopyDrawState(base as TMapSprite):
-		if assigned(base.FFlashTimer):
+		if base.FFlashTimer != null:
 			FFlashTimer = Timestamp(base.FFlashTimer.TimeRemaining)
 			FFlashColor = base.FFlashColor
 			FFlashLength = base.FFlashLength
-		FMoveQueue = base.FMoveQueue.Clone() if assigned(base.FMoveQueue)
-		if assigned(base.FMoveAssignment):
+		FMoveQueue = base.FMoveQueue.Clone() unless base.FMoveQueue is null
+		if base.FMoveAssignment != null:
 			FMoveAssignment = base.FMoveAssignment.Clone()
 			FMoveFreq = base.FMoveFreq
-		if assigned(base.FMoveChange):
+		if base.FMoveChange != null:
 			FMoveChange = base.FMoveChange
 		FMoveReversed = base.FMoveReversed
 		FMoveOpen = base.FMoveOpen
@@ -722,7 +722,7 @@ class TMapSprite(TObject):
 		self.Location = base.Location
 
 	protected def HasMoveChange() as bool:
-		return assigned(FMoveChange)
+		return FMoveChange != null
 
 	public def MoveChange(path as Path, frequency as int, skip as bool):
 		lock self:
@@ -730,7 +730,7 @@ class TMapSprite(TObject):
 
 	public def CheckMoveChange():
 		lock self:
-			if assigned(FMoveChange):
+			if FMoveChange != null:
 				SetMoveOrder(FMoveChange.Path)
 				self.CanSkip = FMoveChange.Skip
 				self.MoveFreq = FMoveChange.Frequency
@@ -781,7 +781,7 @@ class TEventSprite(TMapSprite):
 		super(base, parent)
 		FTiles[0] = TEventTile(Event, parent)
 		FTiles[1] = null
-		self.Translucency = (3 if assigned(FMapObj.CurrentPage) and FMapObj.CurrentPage.Transparent else 0)
+		self.Translucency = (3 if FMapObj.CurrentPage != null and FMapObj.CurrentPage.Transparent else 0)
 		SetLocation(sgPoint(base.Location.x, base.Location.y))
 		self.SetFlashEvents(FTiles[0])
 
@@ -814,15 +814,15 @@ class TCharSprite(TMapSprite):
 		moveDelay = ANIM_DELAY[FMoveRate - 1]
 		if HasPage:
 			caseOf FMapObj.CurrentPage.AnimType:
-				case TAnimType.Sentry, TAnimType.FixedDir: FMoveFrame = (newFrame if assigned(FMoveTime) else 1)
+				case TAnimType.Sentry, TAnimType.FixedDir: FMoveFrame = (newFrame if FMoveTime != null else 1)
 				case TAnimType.Jogger, TAnimType.FixedJog: FMoveFrame = newFrame
 				case TAnimType.SpinRight:
 					self.Facing = (ord(self.Facing) + 1) % 4
 					moveDelay = moveDelay * 10
 				case TAnimType.Statue:
 					pass
-		elif not assigned(FMoveTime) and not assigned(MoveQueue) \
-     			and not (assigned(MoveAssign) and (FTarget != FLocation * TILE_SIZE)):
+		elif FMoveTime is null and MoveQueue is null \
+				and not (MoveAssign != null and (FTarget != FLocation * TILE_SIZE)):
 			FMoveFrame = 1
 		else: FMoveFrame = newFrame
 		FAnimTimer = Timestamp(moveDelay / TIME_FACTOR)
@@ -874,18 +874,18 @@ class TCharSprite(TMapSprite):
 				ClearPortrait() //This seems to be the rule RM2K follows
 				GMapObjectManager.value.RunPageScript(mapObj.CurrentPage)
 
-	protected override def DoUpdatePage(Data as TRpgEventPage):
-		FTiles[0].Update(Data)
-		FTiles[1].Update(Data)
-		if assigned(Data):
+	protected override def DoUpdatePage(data as TRpgEventPage):
+		FTiles[0].Update(data)
+		FTiles[1].Update(data)
+		if data != null:
 			FUnderConstruction = true
-			self.Facing = Data.Direction
-			FMoveFrame = Data.Frame
-			UpdateMove(Data)
+			self.Facing = data.Direction
+			FMoveFrame = data.Frame
+			UpdateMove(data)
 			FUnderConstruction = false
-			Update(Data.PageName, Translucency >= 3, Data.SpriteIndex)
+			Update(data.PageName, Translucency >= 3, data.SpriteIndex)
 			FTiles[1].Z = FTiles[0].Z + 1
-		self.Visible = assigned(Data)
+		self.Visible = data != null
 
 	public def constructor(base as TRpgMapObject, parent as SpriteEngine):
 		super(base, parent)
@@ -893,7 +893,7 @@ class TCharSprite(TMapSprite):
 		FWhichFrame = -1
 		FTiles[0] = TEventTile(base, parent)
 		FTiles[1] = TEventTile(base, parent)
-		if assigned(base?.CurrentPage):
+		if base?.CurrentPage != null:
 			Translucency = 3 if base.CurrentPage.Transparent
 			FActionMatrix = GDatabase.value.MoveMatrix[FMapObj.CurrentPage.ActionMatrix]
 			FSpriteIndex = base.CurrentPage.SpriteIndex
@@ -901,7 +901,7 @@ class TCharSprite(TMapSprite):
 			UpdatePage(base.CurrentPage)
 			FTiles[1].Z = FTiles[0].Z + 1
 		else: FActionMatrix = GDatabase.value.MoveMatrix[0]
-		if assigned(base):
+		if base != null:
 			SetLocation(sgPoint(base.Location.x, base.Location.y))
 			base.OnTurn += self.ActivateFaceHero
 			base.OnDoneTurn += self.TurnChangeFacing
@@ -911,7 +911,7 @@ class TCharSprite(TMapSprite):
 		FAnimTimer = Timestamp(0)
 
 	private new def Destroy():
-		if assigned(FMapObj):
+		if FMapObj != null:
 			FMapObj.OnTurn -= self.ActivateFaceHero
 			FMapObj.OnDoneTurn -= self.TurnChangeFacing
 
