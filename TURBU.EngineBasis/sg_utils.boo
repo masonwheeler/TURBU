@@ -47,7 +47,7 @@ def divideRect(value as Rectangle, amount as SgPoint) as Rectangle:
 	return result
 
 def pointToGridLoc(point as SgPoint, cellSize as SgPoint, hScroll as int, vScroll as int, scale as double) as SgPoint:
-	return ((point / scale ) + sgPoint(hScroll, vScroll)) / cellSize
+	return ((point / scale ) + SgPoint(hScroll, vScroll)) / cellSize
 
 def gridLocToPoint(point as SgPoint, cellSize as SgPoint, hScroll as int, vScroll as int, scale as double) as SgPoint:
 	result as SgPoint

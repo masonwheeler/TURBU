@@ -176,7 +176,7 @@ class TSprite(TObject):
 		return GPU_MakeRect(FOrigin.x, FOrigin.y, FWidth, FHeight)
 
 	protected virtual def SetDrawRect(value as GPU_Rect):
-		FOrigin = sgPoint(value.x, value.y)
+		FOrigin = SgPoint(value.x, value.y)
 		FWidth = value.w
 		FHeight = value.h
 		FImageType = TImageType.RectSet
@@ -190,7 +190,7 @@ class TSprite(TObject):
 		else:
 			followX = _viewport.WorldX
 			followY = _viewport.WorldY
-		var topleft = sgPoint(
+		var topleft = SgPoint(
 				Math.Truncate(FX + _viewport.OffsetX + FOffsetX - followX),
 				Math.Truncate(FY + _viewport.OffsetY + FOffsetY - followY))
 		flip as SDL.SDL_RendererFlip = SDL.SDL_RendererFlip.SDL_FLIP_NONE
@@ -243,6 +243,7 @@ class TSprite(TObject):
 			FParent = AParent
 			FParent.Add(self)
 			FEngine = (AParent cast SpriteEngine if AParent isa SpriteEngine else AParent.Engine)
+			_viewport = FEngine._viewport
 		FVisible = true
 
 /*
@@ -563,7 +564,7 @@ class TAnimatedRectSprite(TParentSprite):
 	private FAnimPos as int
 
 	protected override def SetDrawRect(value as GPU_Rect):
-		FStartingPoint = sgPoint(value.x, value.y)
+		FStartingPoint = SgPoint(value.x, value.y)
 		FAnimPos = 0
 		super.SetDrawRect(value)
 
@@ -572,7 +573,7 @@ class TAnimatedRectSprite(TParentSprite):
 		self.DrawRect = region
 		FDisplacement = displacement
 		FSeriesLength = length - 1
-		FStartingPoint = sgPoint(region.x, region.y)
+		FStartingPoint = SgPoint(region.x, region.y)
 
 	public override def Assign(value as TSprite):
 		ar = value as TAnimatedRectSprite
@@ -604,8 +605,8 @@ class TTiledAreaSprite(TAnimatedRectSprite):
 		elif (FStretch or (FFillArea.w < FWidth)) or (FFillArea.h < FHeight):
 			FImage.DrawRectTo(FFillArea, self.DrawRect)
 		else:
-			drawpoint = sgPoint(FFillArea.x, FFillArea.y)
-			endpoint = drawpoint + sgPoint(FFillArea.w, FFillArea.h)
+			drawpoint = SgPoint(FFillArea.x, FFillArea.y)
+			endpoint = drawpoint + SgPoint(FFillArea.w, FFillArea.h)
 			repeat:
 				drawpoint.x = FFillArea.x
 				repeat:

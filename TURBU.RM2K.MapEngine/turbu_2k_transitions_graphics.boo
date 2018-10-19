@@ -133,15 +133,16 @@ class TBlockTransition(TMaskTransition):
 		HALFRANGE = VERTICAL_RANGE / 2
 		width as int = GSpriteEngine.value.Canvas.Width / BLOCKSIZE
 		freeFloor as int = width * HALFRANGE
-		freeCeiling as int = pred(FBlockArray.Length) - freeFloor
+		var lastBlock = FBlockArray.Length - 1
+		freeCeiling as int = lastBlock - freeFloor
 		rangeFloor as int = width * VERTICAL_RANGE
-		rangeCeiling as int = pred(FBlockArray.Length) - rangeFloor
+		rangeCeiling as int = lastBlock - rangeFloor
 		for i in range(freeFloor + 1):
 			swap(FBlockArray[i], FBlockArray[GEnvironment.value.Random(0, rangeFloor)])
 		for i in range(freeFloor + 1, freeCeiling + 1):
 			swap(FBlockArray[i], FBlockArray[GEnvironment.value.Random(i - freeFloor, i + freeFloor)])
 		for i in range(freeCeiling + 1, FBlockArray.Length):
-			swap(FBlockArray[i], FBlockArray[GEnvironment.value.Random(rangeCeiling, pred(FBlockArray.Length))])
+			swap(FBlockArray[i], FBlockArray[GEnvironment.value.Random(rangeCeiling, lastBlock)])
 
 	private def ShuffleBlocksUpward():
 		ShuffleBlocksDownward()
@@ -152,7 +153,7 @@ class TBlockTransition(TMaskTransition):
 		workload as int = Math.Max((FBlockArray.Length - 1) / (FADETIME[1] / Timestamp.FrameLength), 1)
 		width as int = GSpriteEngine.value.Canvas.Width / BLOCKSIZE
 		for i in range(FProgress, Math.Min(FProgress + workload, FBlockArray.Length)):
-			corner as SgPoint = sgPoint((FBlockArray[i] % width) * BLOCKSIZE, (FBlockArray[i] / width) * BLOCKSIZE)
+			corner as SgPoint = SgPoint((FBlockArray[i] % width) * BLOCKSIZE, (FBlockArray[i] / width) * BLOCKSIZE)
 			GSpriteEngine.value.Canvas.FillRect(GPU_MakeRect(corner.x, corner.y, BLOCKSIZE, BLOCKSIZE), SDL_WHITE)
 			++FProgress
 		return FProgress < FBlockArray.Length - 1
@@ -226,12 +227,12 @@ class TStripeTransition(TMaskTransition):
 		var workload = (FStripeArray.Length - 1) / (FADETIME[1] / Timestamp.FrameLength)
 		for i in range(FProgress, Math.Min(FProgress + workload, FStripeArray.Length - 1) + 1):
 			if FVertical:
-				corner = sgPoint(FStripeArray[i] * STRIPESIZE, 0)
+				corner = SgPoint(FStripeArray[i] * STRIPESIZE, 0)
 				GSpriteEngine.value.Canvas.FillRect(
 					GPU_MakeRect(corner.x, corner.y, STRIPESIZE, GSpriteEngine.value.Canvas.Height),
 					SDL_WHITE)
 			else:
-				corner = sgPoint(0, (FStripeArray[i] * STRIPESIZE))
+				corner = SgPoint(0, (FStripeArray[i] * STRIPESIZE))
 				GSpriteEngine.value.Canvas.FillRect(
 					GPU_MakeRect(corner.x, corner.y, GSpriteEngine.value.Canvas.Width, STRIPESIZE),
 					SDL_WHITE)
@@ -279,7 +280,7 @@ class TRectIrisTransition(TMaskTransition):
 
 	public def constructor(inOut as bool):
 		super()
-		FCenter = sgPoint(GSpriteEngine.value.Canvas.Width / 2, GSpriteEngine.value.Canvas.Height / 2)
+		FCenter = SgPoint(GSpriteEngine.value.Canvas.Width / 2, GSpriteEngine.value.Canvas.Height / 2)
 		FInOut = inOut
 		if FInOut:
 			FEraseColor = SDL_BLACK
@@ -329,7 +330,7 @@ class TScrollTransition(TTransition):
 				raise Exception('Invalid direction')
 		var i = FProgress + workload
 		i *= -1 if FDirection in (TFacing.Up, TFacing.Left)
-		var dst = (sgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else sgPoint(i, 0))
+		var dst = (SgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else SgPoint(i, 0))
 		caseOf FDirection:
 			case TFacing.Up:
 				i += canvas.Height
@@ -339,7 +340,7 @@ class TScrollTransition(TTransition):
 				i -= canvas.Height
 			case TFacing.Right:
 				i -= canvas.Width
-		var dst2 = (sgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else sgPoint(i, 0))
+		var dst2 = (SgPoint(0, i) if FDirection in (TFacing.Up, TFacing.Down) else SgPoint(i, 0))
 		canvas.Draw(GRenderTargets[RENDERER_MAIN], dst)
 		canvas.Draw(GRenderTargets[RENDERER_ALT], dst2)
 		FProgress += workload
@@ -531,7 +532,7 @@ class TZoomTransition(TTransition):
 		FMinimum = round(((canvas.Width cast double) / (MAXZOOM cast double)))
 		FRatio = (canvas.Width cast double) / (canvas.Height cast double)
 		base = GSpriteEngine.value.CurrentParty.BaseTile
-		FCenter = sgPoint(Math.Truncate(base.X) + 8, Math.Truncate(base.Y) + 8)
+		FCenter = SgPoint(Math.Truncate(base.X) + 8, Math.Truncate(base.Y) + 8)
 		FCenter.x -= Math.Round(GSpriteEngine.value.Viewport.WorldX)
 		FCenter.y -= Math.Round(GSpriteEngine.value.Viewport.WorldY)
 		if zoomIn:

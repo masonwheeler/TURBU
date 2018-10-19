@@ -52,7 +52,7 @@ macro Items.ArmorItem.Attributes(body as ExpressionStatement*):
 	for pair in body:
 		match pair.Expression:
 			case [|$l = $r|]:
-				result.Items.Add([|sgPoint($l, $r)|])
+				result.Items.Add([|SgPoint($l, $r)|])
 	return ExpressionStatement([|Attributes($result)|])
 
 macro Items.WeaponItem(index as IntegerLiteralExpression, body as ExpressionStatement*):
@@ -66,7 +66,7 @@ macro Items.WeaponItem.Attributes(body as ExpressionStatement*):
 	for pair in body:
 		match pair.Expression:
 			case [|$l = $r|]:
-				result.Items.Add([|sgPoint($l, $r)|])
+				result.Items.Add([|SgPoint($l, $r)|])
 	return ExpressionStatement([|Attributes($result)|])
 
 macro Items.WeaponItem.Animations(body as ExpressionStatement*):

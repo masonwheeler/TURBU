@@ -63,7 +63,7 @@ class TShopModeBox(TGameMenuBox):
 		InvalidateText()
 
 	public override def DrawText():
-		let lOrigin = sgPoint(4, 2)
+		let lOrigin = SgPoint(4, 2)
 		GFontEngine.DrawText(FTextTarget.RenderTarget, FParsedText[0], lOrigin.x, lOrigin.y, 0)
 		for i in range(1, FParsedText.Count):
 			var j = i + 1
@@ -311,7 +311,7 @@ class TCompatSprite(TSprite):
 			frame += 48
 		frame += 3 * index
 		tSize as SgPoint = FImage.TextureSize
-		FImage.TextureSize = FImage.TextureSize * sgPoint(1, 2)
+		FImage.TextureSize = FImage.TextureSize * SgPoint(1, 2)
 		try:
 			if FItem.UsableByHypothetical(FTemplate.Template.ID):
 				caseOf FTickCount / 7:

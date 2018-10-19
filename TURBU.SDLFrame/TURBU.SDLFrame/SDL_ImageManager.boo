@@ -36,7 +36,6 @@ class TSdlImage(TObject):
 	private static nullUInt as uint = 0
 	
 	static def constructor():
-		_metaclass = TSdlImageClass.Instance of TSdlImageClass()
 		flags = IMG_InitFlags.IMG_INIT_PNG
 		assert IMG_Init(flags) == flags
 
@@ -98,7 +97,7 @@ class TSdlImage(TObject):
 		img = FSurface.Value
 		FImageSize = SgPoint(img.w, img.h)
 		if (spriteSize.x == EMPTY.x) and (spriteSize.y == EMPTY.y):
-			self.TextureSize = sgPoint(sur.w, sur.h)
+			self.TextureSize = SgPoint(sur.w, sur.h)
 		else: self.TextureSize = spriteSize
 		SDL.SDL_FreeSurface(lSurface)
 		container.Add(self) if assigned(container)
@@ -200,9 +199,6 @@ class TSdlOpaqueImageClass(TSdlImageClass):
 		return TSdlOpaqueImage(filename, imagename, container)
 
 class TSdlOpaqueImage(TSdlImage):
-	static def constructor():
-		_metaclass = TSdlImageClass.Instance of TSdlOpaqueImageClass()
-	
 	public def constructor(filename as string, imagename as string, container as SdlImages):
 		super(filename, imagename, container)
 
@@ -438,10 +434,6 @@ class TSdlBackgroundImageClass(TSdlImageClass):
 		return TSdlBackgroundImage(filename, imagename, container)
 
 class TSdlBackgroundImage(TSdlImage):
-
-	static def constructor():
-		_metaclass = TSdlImageClass.Instance of TSdlOpaqueImageClass()
-	
 	public def constructor(filename as string, imagename as string, container as SdlImages):
 		super(filename, imagename, container)
 

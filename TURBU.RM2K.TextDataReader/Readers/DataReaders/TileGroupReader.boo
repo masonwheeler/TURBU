@@ -33,7 +33,7 @@ macro TileGroups.TileGroup(name as StringLiteralExpression, body as ExpressionSt
 		return ExpressionStatement([| TileType($result) |])
 		
 	macro Dimensions(x as int, y as int):
-		return ExpressionStatement([| Dimensions(sgPoint($x, $y)) |])
+		return ExpressionStatement([| Dimensions(SgPoint($x, $y)) |])
 	
 	result = PropertyList('TTileGroup', [|0|], body)
 	result.NamedArguments.Add(ExpressionPair([|Name|], name))

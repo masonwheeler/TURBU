@@ -201,7 +201,7 @@ class TRpgEvent(TRpgCharacter):
 	public def Deserialize(obj as JObject):
 		value as JToken = obj['Location']
 		if assigned(value):
-			FBase.Location = sgPoint(value[0] cast int, value[1] cast int)
+			FBase.Location = SgPoint(value[0] cast int, value[1] cast int)
 			obj.Remove('Location')
 		FEvent.UpdateCurrentPage()
 		if assigned(FEvent.CurrentPage):
@@ -265,7 +265,7 @@ class TRpgEvent(TRpgCharacter):
 		get: return GetTFacing()
 
 	public Location as SgPoint:
-		get: return sgPoint(self.X, self.Y)
+		get: return SgPoint(self.X, self.Y)
 		set: SetLocation(value)
 
 [Disposable(Destroy)]
@@ -298,7 +298,7 @@ class TRpgVehicle(TRpgCharacter):
 	private FCarrying as TRpgCharacter
 
 	private def GetLocation() as SgPoint:
-		return sgPoint(self.X, self.Y)
+		return SgPoint(self.X, self.Y)
 
 	private def SetLocation(value as SgPoint):
 		FX = value.x
@@ -309,12 +309,12 @@ class TRpgVehicle(TRpgCharacter):
 	private def SetX(value as int):
 		FX = value
 		if assigned(FGameSprite):
-			FGameSprite.Location = sgPoint(FX, FGameSprite.Location.y)
+			FGameSprite.Location = SgPoint(FX, FGameSprite.Location.y)
 
 	private def SetY(value as int):
 		FY = value
 		if assigned(FGameSprite):
-			FGameSprite.Location = sgPoint(FGameSprite.Location.x, FY)
+			FGameSprite.Location = SgPoint(FGameSprite.Location.x, FY)
 
 	private def GetFacing() as int:
 		if assigned(FGameSprite):
@@ -349,7 +349,7 @@ class TRpgVehicle(TRpgCharacter):
 		assert FMap == GSpriteEngine.value.MapID
 		FGameSprite = TVehicleSprite(GSpriteEngine.value, self, { FGameSprite = null })
 		SetSprite(Template.MapSprite, FTranslucent, FSpriteIndex)
-		FGameSprite.Location = sgPoint(FX, FY)
+		FGameSprite.Location = SgPoint(FX, FY)
 		FGameSprite.Facing = TFacing.Left
 		(FGameSprite cast TVehicleSprite).Update(FSprite, false, FSpriteIndex)
 

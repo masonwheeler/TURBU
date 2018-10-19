@@ -37,6 +37,6 @@ def clamp(number as int, low as int, high as int) as int:
 static class GCurrentFolder:
 	public value as string
 
-let ORIGIN = sgPoint(0, 0)
+let ORIGIN = SgPoint(0, 0)
 let NULLRECT = SDL2.SDL2_GPU.GPU_MakeRect(0, 0, 0, 0)
 let MULTIPLIER_31 = 8.22580645161

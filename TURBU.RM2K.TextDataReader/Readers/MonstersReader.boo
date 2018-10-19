@@ -22,13 +22,13 @@ macro Monsters.Monster(index as IntegerLiteralExpression, body as ExpressionStat
 	macro Attributes(values as IntegerLiteralExpression*):
 		var list = System.Collections.Generic.List[of Expression]()
 		for i in range(values.Count):
-			list.Add([|sgPoint($(i + 1), $(values[i]))|])
+			list.Add([|SgPoint($(i + 1), $(values[i]))|])
 		return MakeArrayValue('Resist', list)
 	
 	macro Condition(values as IntegerLiteralExpression*):
 		var list = System.Collections.Generic.List[of Expression]()
 		for i in range(values.Count):
-			list.Add([|sgPoint($(i + 1), $(values[i]))|])
+			list.Add([|SgPoint($(i + 1), $(values[i]))|])
 		return MakeArrayValue('Condition', list)
 	
 	macro Stats(values as IntegerLiteralExpression*):

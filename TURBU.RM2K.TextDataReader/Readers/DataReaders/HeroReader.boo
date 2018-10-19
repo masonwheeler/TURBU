@@ -37,7 +37,7 @@ macro Heroes.Hero.Portrait(name as StringLiteralExpression, index as IntegerLite
 	Hero.Body.Add(ExpressionStatement([|PortraitIndex($index)|]))
 
 macro Heroes.Hero.BattlePosition(x as IntegerLiteralExpression, y as IntegerLiteralExpression):
-	yield ExpressionStatement([|BattlePos(sgPoint($x, $y))|])
+	yield ExpressionStatement([|BattlePos(SgPoint($x, $y))|])
 
 macro Heroes.Hero.Commands(values as IntegerLiteralExpression*):
 	vars = ArrayLiteralExpression()
@@ -57,13 +57,13 @@ macro Heroes.Hero.SkillSet(body as ExpressionStatement*):
 
 macro Heroes.Hero.Attributes(body as ExpressionStatement*):
 	macro Attribute(id as IntegerLiteralExpression, percentage as IntegerLiteralExpression):
-		return ExpressionStatement([|sgPoint($id, $percentage)|])
+		return ExpressionStatement([|SgPoint($id, $percentage)|])
 	
 	return MakeArrayValue('Resist', body.Select({e | e.Expression}))
 
 macro Heroes.Hero.CondResists(body as ExpressionStatement*):
 	macro Condition(id as IntegerLiteralExpression, percentage as IntegerLiteralExpression):
-		return ExpressionStatement([|sgPoint($id, $percentage)|])
+		return ExpressionStatement([|SgPoint($id, $percentage)|])
 	
 	return MakeArrayValue('Condition', body.Select({e | e.Expression}))
 

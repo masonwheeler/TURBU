@@ -30,7 +30,7 @@ class TWeatherSprite(TParticleSprite):
 			SetImageName(FImageName)
 		return if FImage == null
 		
-		var topleft = sgPoint(Math.Round(FX), Math.Round(FY))
+		var topleft = SgPoint(Math.Round(FX), Math.Round(FY))
 		color as SDL.SDL_Color = GPU_GetColor(FImage.Surface)
 		GPU_SetColor(FImage.Surface, SDL.SDL_Color(r: color.r, g: color.g, b: color.b, a: self.Alpha))
 		FImage.Draw(topleft, flip)

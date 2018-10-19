@@ -671,12 +671,12 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 	private def SetY(value as int):
 		if assigned(FSprite):
 			place = FSprite.Location
-			FSprite.Location = sgPoint(place.x, value)
+			FSprite.Location = SgPoint(place.x, value)
 
 	private def SetX(value as int):
 		if assigned(FSprite):
 			place = FSprite.Location
-			FSprite.Location = sgPoint(value, place.y)
+			FSprite.Location = SgPoint(value, place.y)
 
 	private Empty as bool:
 		get:

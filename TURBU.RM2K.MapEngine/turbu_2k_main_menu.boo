@@ -33,7 +33,7 @@ class TGamePartyPanel(TCustomPartyPanel):
 		var target = FTextTarget.RenderTarget
 		while GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
 			FPortrait[i - 1].Draw()
-			var origin2 = sgPoint(round(FPortrait[i - 1].X - Engine.Viewport.WorldX) + 54, round(FPortrait[i - 1].Y - Engine.Viewport.WorldY) + 2)
+			var origin2 = SgPoint(round(FPortrait[i - 1].X - Engine.Viewport.WorldX) + 54, round(FPortrait[i - 1].Y - Engine.Viewport.WorldY) + 2)
 			hero as TRpgHero = GEnvironment.value.Party[i]
 			GFontEngine.DrawText(target, hero.Name, origin2.x, origin2.y, 0)
 			GFontEngine.DrawText(target, hero.Title, origin2.x + 92, origin2.y, 0)

@@ -181,12 +181,6 @@ struct TSgColor:
 			:label4
 			_A = value
 
-def sgPoint(x as int, y as int) as SgPoint:
-	result as SgPoint
-	result.x = x
-	result.y = y
-	return result
-
 def sgPointF(x as single, y as single) as SgFloatPoint:
 	result as SgFloatPoint
 	result.x = x

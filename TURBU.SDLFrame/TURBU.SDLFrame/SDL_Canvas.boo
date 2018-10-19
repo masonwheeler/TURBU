@@ -68,7 +68,7 @@ class SdlRenderTarget(SdlRenderSurface):
 		_parent.SetRenderTarget(self)
 
 	public def DrawFull():
-		_parent.Draw(self, sgPoint(0, 0))
+		_parent.Draw(self, SgPoint(0, 0))
 
 	public override def ToString():
 		return "SdlRenderTarget: (${_size.x}, ${_size.y})"
@@ -253,7 +253,7 @@ class SdlCanvas(SdlRenderSurface, ISdlCanvas):
 		h as ushort
 		GPU_GetVirtualResolution(_renderTarget, w, h)
 		if (w != _size.x) or (h != _size.y):
-			_size = sgPoint(w, h)
+			_size = SgPoint(w, h)
 			if assigned(_onResize):
 				_onResize(self)
 

@@ -64,7 +64,7 @@ class TVehicleTile(TEventTile):
 			case TVehicleState.Empty, TVehicleState.Emptying, TVehicleState.Active:
 				pass
 			case TVehicleState.Launching:
-				OffsetTowards(sgPoint(0, -FOwner.Altitude), TVehicleState.Active)
+				OffsetTowards(SgPoint(0, -FOwner.Altitude), TVehicleState.Active)
 			case TVehicleState.Landing:
 				OffsetTowards(commons.ORIGIN, TVehicleState.Emptying)
 			default :
@@ -286,7 +286,7 @@ class THeroSprite(TCharSprite):
 		theVehicle.Template.Carrying = FParty
 		theVehicle.Carrying = self
 		self.LeaveTile()
-		FLocation = sgPoint(-1, -1)
+		FLocation = SgPoint(-1, -1)
 		self.Visible = false
 		theVehicle.Launch()
 
@@ -316,7 +316,7 @@ class THeroSprite(TCharSprite):
 		FTemplate = whichHero
 		if assigned(FTemplate) and (FTemplate.Sprite != ''):
 			Update(FTemplate.Sprite, FTemplate.Transparent, FTemplate.SpriteIndex)
-		SetLocation(sgPoint(1, 1))
+		SetLocation(SgPoint(1, 1))
 		FParty = party
 		FMoveFreq = 8
 		FCanSkip = true
@@ -375,11 +375,11 @@ class THeroSprite(TCharSprite):
 	public override def Move(whichDir as TDirections) as bool:
 		if self.HasMoveChange():
 			return false
-		if assigned(FMoveTime):
-			if (MoveFreq == 8) and (FMoveTime.TimeRemaining <= Timestamp.FrameLength):
+		if _moveTime is not null:
+			if (MoveFreq == 8) and (_moveTime.TimeRemaining <= Timestamp.FrameLength):
 				QueueMove(whichDir)
 			return false
-		if assigned(FPause):
+		if FPause is not null:
 			if FPause.TimeRemaining <= Timestamp.FrameLength:
 				QueueMove(whichDir)
 			return false

@@ -25,28 +25,28 @@ class TRpgPlugBase(TObject):
 class TRpgMetadata(TObject):
 
 	[Getter(Name)]
-	private FName as string
+	private final _name as string
 
 	[Getter(Version)]
-	private FVersion as TVersion
+	private final _version as TVersion
 
 	public def constructor(name as string, version as TVersion):
 		super()
-		FName = name
-		FVersion = version
+		_name = name
+		_version = version
 
 class TEngineData(TObject):
 
 	[Getter(Style)]
-	private FStyle as TEngineStyle
+	private final _style as TEngineStyle
 
 	[Getter(Engine)]
-	private FEngine as TPlugClass
+	private final _engine as TPlugClass
 
 	public def constructor(style as TEngineStyle, engine as TPlugClass):
 		super()
-		FStyle = style
-		FEngine = engine
+		_style = style
+		_engine = engine
 
 interface ITurbuPlugin:
 

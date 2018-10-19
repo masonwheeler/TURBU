@@ -59,7 +59,6 @@
     <Compile Include="finalization.boo" />
     <Compile Include="MetaclassAttribute.boo" />
     <Compile Include="ord.boo" />
-    <Compile Include="PredSucc.boo" />
     <Compile Include="TObject.boo" />
     <Compile Include="UpdateMacro.boo" />
   </ItemGroup>

@@ -1,7 +1,6 @@
 namespace TURBU.RM2K.RPGScript
 
 import System
-import System.Drawing
 import System.Threading
 import System.Threading.Tasks
 
@@ -44,7 +43,7 @@ def Teleport(mapID as int, x as int, y as int, facing as int) as Task:
 		while GSpriteEngine.value.State == TGameState.Fading:
 			await GScriptEngine.value.FramePause()
 		if mapID == GSpriteEngine.value.MapID:
-			var newpoint = sgPoint(x, y)
+			var newpoint = SgPoint(x, y)
 			if GSpriteEngine.value.OnMap(newpoint):
 				unless GEnvironment.value.PreserveSpriteOnTeleport:
 					GEnvironment.value.Party.ResetSprite()
@@ -52,25 +51,23 @@ def Teleport(mapID as int, x as int, y as int, facing as int) as Task:
 				GEnvironment.value.Party.Sprite.Location = newpoint
 				GSpriteEngine.value.CenterOn(x, y)
 		else:
-			GGameEngine.value.ChangeMaps(mapID, sgPoint(x, y))
+			GGameEngine.value.ChangeMaps(mapID, SgPoint(x, y))
 		await ShowScreen(TTransitions.Default)
 	ensure:
 		System.Threading.Monitor.Exit(LTeleportLock)
 		GScriptEngine.value.EndTeleport()
 
 def TeleportVehicle(which as TRpgVehicle, map as int, x as int, y as int):
-	newpoint as Point
 	if (which.Gamesprite == GEnvironment.value.Party.Sprite) and (map != GSpriteEngine.value.MapID):
 		return
-	newpoint = sgPoint(x, y)
+	var newpoint = SgPoint(x, y)
 	if GSpriteEngine.value.OnMap(newpoint):
 		which.Gamesprite.LeaveTile()
 		which.Map = map
 		which.Location = newpoint
 
 def TeleportMapObject(which as TRpgEvent, x as int, y as int):
-	newpoint as SgPoint
-	newpoint = sgPoint(x, y)
+	var newpoint = SgPoint(x, y)
 	if GSpriteEngine.value.OnMap(newpoint):
 		which.Location = newpoint
 

@@ -145,7 +145,7 @@ class TSdlFrame(Control):
 		return (self.Width cast double) / (self.Height cast double)
 
 	private def GetLogicalSize() as SgPoint:
-		return sgPoint(FLogicalWidth, FLogicalHeight)
+		return SgPoint(FLogicalWidth, FLogicalHeight)
 
 	private def SetLogicalSize(value as SgPoint):
 		if (value.x == FLogicalWidth) and (value.y == FLogicalHeight):

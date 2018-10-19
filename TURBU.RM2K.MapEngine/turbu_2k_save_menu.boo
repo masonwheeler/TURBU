@@ -200,7 +200,7 @@ class TSaveMenuPage(TMenuPage):
 					FocusMenu(null, FSlots[FCursorPosition], true)
 
 	public def constructor(parent as TMenuSpriteEngine, coords as GPU_Rect, main as TMenuEngine, layout as string):
-		let SIZE = sgPoint(320, 68)
+		let SIZE = SgPoint(320, 68)
 		boxCoords as GPU_Rect
 		super(parent, coords, main, layout)
 		boxCoords.w = SIZE.x

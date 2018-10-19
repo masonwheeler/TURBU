@@ -21,14 +21,14 @@ macro Animations(body as ExpressionStatement*):
 
 macro Animations.Animation(index as IntegerLiteralExpression, body as ExpressionStatement*):
 	macro CellSize(w as IntegerLiteralExpression, h as IntegerLiteralExpression):
-		return ExpressionStatement([|CellSize(sgPoint($w, $h))|])
+		return ExpressionStatement([|CellSize(SgPoint($w, $h))|])
 	
 	return Lambdify('TAnimTemplate', index, body)
 
 macro Animations.Animation.Frames(body as ExpressionStatement*):
 	macro Cell(frameID as IntegerLiteralExpression, cellID as IntegerLiteralExpression, body as ExpressionStatement*):
 		macro Position(x as IntegerLiteralExpression, y as IntegerLiteralExpression):
-			return ExpressionStatement([|Position(sgPoint($x, $y))|])
+			return ExpressionStatement([|Position(SgPoint($x, $y))|])
 		
 		macro Color(r as IntegerLiteralExpression, g as IntegerLiteralExpression, b as IntegerLiteralExpression, sat as IntegerLiteralExpression):
 			return ExpressionStatement([|Color(TSgColor($r, $g, $b, $sat))|])

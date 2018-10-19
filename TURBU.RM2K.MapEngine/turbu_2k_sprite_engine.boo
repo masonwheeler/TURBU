@@ -177,7 +177,7 @@ class T2kSpriteEngine(SpriteEngine):
 		ResizeCanvas()
 
 	private static def NormalizeCoords(x as int, y as int, size as SgPoint, ref equivX as int, ref equivY as int):
-		adjustedCoords as SgPoint = sgPoint(x, y)
+		adjustedCoords as SgPoint = SgPoint(x, y)
 		while (adjustedCoords.x < 0) or (adjustedCoords.y < 0):
 			adjustedCoords = adjustedCoords + size
 		adjustedCoords = adjustedCoords % size
@@ -376,7 +376,7 @@ class T2kSpriteEngine(SpriteEngine):
 		halfHeight as int = Math.Min(round(Canvas.Height / 2.0), (Height + 1) * 8)
 		FScreenLocked = value
 		if value:
-			FCenter = sgPoint(round(Viewport.WorldX - FDisplacementX) + halfWidth, round(Viewport.WorldY - FDisplacementY) + halfHeight)
+			FCenter = SgPoint(round(Viewport.WorldX - FDisplacementX) + halfWidth, round(Viewport.WorldY - FDisplacementY) + halfHeight)
 
 	private def DrawNormal():
 		if assigned(FCurrentParty) and not FScreenLocked:
@@ -517,13 +517,13 @@ class T2kSpriteEngine(SpriteEngine):
 	public def TileInFrontOf(ref location as SgPoint, direction as TDirections) as TMapTile:
 		caseOf direction:
 			case TDirections.Up:
-				location = sgPoint(location.x, location.y - 1)
+				location = SgPoint(location.x, location.y - 1)
 			case TDirections.Right:
-				location = sgPoint(location.x + 1, location.y)
+				location = SgPoint(location.x + 1, location.y)
 			case TDirections.Down:
-				location = sgPoint(location.x, location.y + 1)
+				location = SgPoint(location.x, location.y + 1)
 			case TDirections.Left:
-				location = sgPoint(location.x - 1, location.y)
+				location = SgPoint(location.x - 1, location.y)
 		if NormalizePoint(location.x, location.y):
 			result = self.Tiles[0, location.x, location.y]
 		else:
@@ -637,7 +637,7 @@ class T2kSpriteEngine(SpriteEngine):
 
 	public def CanExit(x as int, y as int, direction as TDirections, character as TMapSprite) as bool:
 		result = false
-		if Passable(sgPoint(x, y), direction, character):
+		if Passable(SgPoint(x, y), direction, character):
 			if EdgeCheck(x, y, direction):
 				opposite as TDirections = opposite_facing(direction)
 				result = Passable(character.InFront, opposite, character)

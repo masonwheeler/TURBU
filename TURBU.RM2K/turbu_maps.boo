@@ -228,7 +228,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 		assert position in range(1, 10)
 		return if size == FSize
 		--position
-		var gridSize = sgPoint(Math.Min(FSize.x, size.x), Math.Min(FSize.y, size.y))
+		var gridSize = SgPoint(Math.Min(FSize.x, size.x), Math.Min(FSize.y, size.y))
 		delta as Rectangle = CalcGridDelta(size, position)
 		Array.Resize[of ((TTileRef))](grid, self.FDepth)
 		for i in range(grid.Length):

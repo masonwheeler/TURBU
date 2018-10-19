@@ -327,7 +327,7 @@ class TMenuSpriteEngine(SpriteEngine):
 		GMenuEngine.Value = self
 		super(null, Canvas)
 		self.Images = images
-		GFontEngine.Glyphs = images.EnsureImage('SysTiles\\glyphs\\glyphs.png', 'System Glyphs', sgPoint(12, 12))
+		GFontEngine.Glyphs = images.EnsureImage('SysTiles\\glyphs\\glyphs.png', 'System Glyphs', SgPoint(12, 12))
 		FWallpapers = Dictionary[of string, TSystemImages]()
 		FBoxNotifications = Dictionary[of TObject, Action of string]()
 		FSystemGraphic = graphic
@@ -872,7 +872,7 @@ abstract class TCustomMessageBox(TSysFrame):
 					++counter
 			elif input[counter] == char('\\'):
 				list.Add(ParseToken(input, counter))
-			elif input[counter] == '$':
+			elif input[counter] == char('$'):
 				list.Add(ParseGlyph(input, counter))
 			else: list.Add(input[counter].ToString())
 			++counter
@@ -882,7 +882,7 @@ abstract class TCustomMessageBox(TSysFrame):
 		super(parent, commons.ORIGIN, 1, coords)
 		FColumns = 1
 		FBoxVisible = true
-		FTextTarget = SdlRenderTarget(sgPoint(self.Width - BORDER_THICKNESS, self.Height - BORDER_THICKNESS))
+		FTextTarget = SdlRenderTarget(SgPoint(self.Width - BORDER_THICKNESS, self.Height - BORDER_THICKNESS))
 		ClearTarget(FTextTarget)
 		FTextColor = 1
 
@@ -899,7 +899,7 @@ abstract class TCustomMessageBox(TSysFrame):
 			else:
 				return
 		var lPosition = FCursorPosition
-		var max = pred(FOptionEnabled.Length) - FLastLineColumns
+		var max = (FOptionEnabled.Length - 1) - FLastLineColumns
 		var absMax = max + FLastLineColumns
 		ratio as byte
 		caseOf input:
@@ -1029,10 +1029,10 @@ class TSystemTimer(TParentSprite):
 	private def UpdateTime():
 		min as int = FTime / 60
 		sec as int = FTime % 60
-		AssignDrawRect(FTiles[1], (min / 10 if min > 10 else 11))
-		AssignDrawRect(FTiles[2], min % 10)
-		AssignDrawRect(FTiles[4], sec / 10)
-		AssignDrawRect(FTiles[5], sec % 10)
+		AssignDrawRect(FTiles[0], (min / 10 if min > 10 else 11))
+		AssignDrawRect(FTiles[1], min % 10)
+		AssignDrawRect(FTiles[3], sec / 10)
+		AssignDrawRect(FTiles[4], sec % 10)
 
 	private def UpdatePosition(location as SgPoint):
 		if FPrevState != GSpriteEngine.value.State:
@@ -1045,17 +1045,19 @@ class TSystemTimer(TParentSprite):
 				default : raise EFatalError('Unable to set timer for current game State!')
 		++location.x
 		location.y += 10
-		for i in range(1, 6):
+		for i in range(5):
 			FTiles[i].X = location.x + (i * 9)
 			FTiles[i].Y = location.y
 
 	public def constructor(parent as SpriteEngine):
 		super(parent)
 		for i in range(FTiles.Length):
-			FTiles[i] = TSprite(self)
-			FTiles[i].ImageName = GMenuEngine.Value.SystemGraphic.Filename
-		AssignDrawRect(FTiles[1], 11)
-		AssignDrawRect(FTiles[3], 10)
+			var tile = TSprite(self)
+			tile.Z = 100
+			tile.ImageName = GMenuEngine.Value.SystemGraphic.Filename
+			FTiles[i] = tile
+		AssignDrawRect(FTiles[0], 11)
+		AssignDrawRect(FTiles[2], 10)
 		FTime = 0
 		Visible = false
 		FPrevTime = 0
@@ -1072,12 +1074,12 @@ class TSystemTimer(TParentSprite):
 		UpdateTime() if FTime != FPrevTime
 		FPrevTime = FTime
 		var vp = Engine.Viewport
-		if (vp.WorldX != X) or (vp.WorldY != Y) or ((Engine cast T2kSpriteEngine).State != FPrevState):
+		if (vp.WorldX != X) or (vp.WorldY != Y) or GSpriteEngine.value.State != FPrevState):
 			X = vp.WorldX
 			Y = vp.WorldY
-			UpdatePosition(sgPoint(Math.Round(X), Math.Round(Y)))
-		for i in range(1, 6):
-			FTiles[i].Draw()
+			UpdatePosition(SgPoint(Math.Round(X), Math.Round(Y)))
+		for tile in FTiles:
+			tile.Draw()
 
 
 def SetX(sprite as TTiledAreaSprite, x as int):

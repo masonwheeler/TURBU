@@ -28,17 +28,17 @@ macro SystemData.WindowSize(x as int, y as int):
 	SystemData.Body.Add([|PhysHeight($y)|])
 
 macro SystemData.SpriteSize(x as int, y as int):
-	return ExpressionStatement([|SpriteSize(sgPoint($x, $y))|])
+	return ExpressionStatement([|SpriteSize(SgPoint($x, $y))|])
 
 macro SystemData.SpriteSheetSize(spritesX as int, spritesY as int, framesX as int, framesY as int):
-	SystemData.Body.Add([|SpriteSheet(sgPoint($spritesX, $spritesY))|])
-	SystemData.Body.Add([|SpriteSheetFrames(sgPoint($framesX, $framesY))|])
+	SystemData.Body.Add([|SpriteSheet(SgPoint($spritesX, $spritesY))|])
+	SystemData.Body.Add([|SpriteSheetFrames(SgPoint($framesX, $framesY))|])
 
 macro SystemData.TileSize(x as int, y as int):
-	return ExpressionStatement([|TileSize(sgPoint($x, $y))|])
+	return ExpressionStatement([|TileSize(SgPoint($x, $y))|])
 
 macro SystemData.PortraitSize(x as int, y as int):
-	return ExpressionStatement([|PortraitSize(sgPoint($x, $y))|])
+	return ExpressionStatement([|PortraitSize(SgPoint($x, $y))|])
 
 macro SystemData.Transitions(values as ReferenceExpression*):
 	a = ArrayLiteralExpression()

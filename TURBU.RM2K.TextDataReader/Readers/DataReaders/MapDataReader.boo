@@ -19,12 +19,12 @@ macro MapData(id as IntegerLiteralExpression, body as ExpressionStatement*):
 	yield ExpressionStatement([|Data()|])
 
 macro MapData.Size(x as int, y as int):
-	return ExpressionStatement([|Size(sgPoint($x, $y))|])
+	return ExpressionStatement([|Size(SgPoint($x, $y))|])
 
 macro MapData.Panning(hPan as ReferenceExpression, hPanSpeed as int, vPan as ReferenceExpression, vPanSpeed as int):
 	MapData.Body.Add([|HScroll(TMapScrollType.$hPan)|])
 	MapData.Body.Add([|VScroll(TMapScrollType.$vPan)|])
-	MapData.Body.Add([|ScrollSpeed(sgPoint($hPanSpeed, $vPanSpeed))|])
+	MapData.Body.Add([|ScrollSpeed(SgPoint($hPanSpeed, $vPanSpeed))|])
 
 macro MapData.Background(usesBG as bool, bgName as string):
 	MapData.Body.Add([|HasBackground($usesBG)|])
@@ -45,7 +45,7 @@ macro MapData.Tiles(body as ExpressionStatement*):
 macro MapData.MapObjects(body as ExpressionStatement*):
 	macro MapObject(id as IntegerLiteralExpression, body as ExpressionStatement*):
 		macro Position(x as int, y as int):
-			return ExpressionStatement([|Location(sgPoint($x, $y))|])
+			return ExpressionStatement([|Location(SgPoint($x, $y))|])
 		
 		result = ExpressionStatement(PropertyList('TRpgMapObject', id, body))
 		return result

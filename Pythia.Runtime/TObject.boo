@@ -3,9 +3,6 @@
 import System.Linq.Enumerable
 
 class TObject:
-	[Property(Metaclass, ProtectedSetter: true)]
-	protected static _metaclass as TClass
-	
 	public ClassName as string:
 		get: return self.GetType().Name
 

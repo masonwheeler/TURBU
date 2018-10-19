@@ -33,7 +33,7 @@ macro MapTree.root(body as ExpressionStatement*):
 
 macro MapTree.map(index as IntegerLiteralExpression, body as ExpressionStatement*):
 	macro ScrollPosition(x as IntegerLiteralExpression, y as IntegerLiteralExpression):
-		return ExpressionStatement([|ScrollPosition(sgPoint($x, $y))|])
+		return ExpressionStatement([|ScrollPosition(SgPoint($x, $y))|])
 	
 	macro Battles(values as IntegerLiteralExpression*):
 		arr = ArrayLiteralExpression()

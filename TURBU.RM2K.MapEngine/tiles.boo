@@ -92,7 +92,7 @@ abstract class TTile(TParentSprite):
 		return result
 
 	public def UpdateGridLoc():
-		FGridLoc = sgPoint(round(self.X / TILE_SIZE.x), round(self.Y / TILE_SIZE.y ))
+		FGridLoc = SgPoint(round(self.X / TILE_SIZE.x), round(self.Y / TILE_SIZE.y ))
 
 	public static def Heartbeat():
 		FHeartbeat = (FHeartbeat + 1) % ANIM_LCM
@@ -150,7 +150,7 @@ class TEventTile(TTile):
 			var y = Math.Truncate(self.Y / TILE_SIZE.y)
 			var Z_TABLE = (3, 4, 8)
 			self.Z = Z_TABLE[newPage.ZOrder]
-			FGridLoc = sgPoint(x, y)
+			FGridLoc = SgPoint(x, y)
 			self.Visible = true
 		else:
 			self.Z = 10

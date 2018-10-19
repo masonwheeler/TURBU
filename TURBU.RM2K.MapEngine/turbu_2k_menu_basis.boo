@@ -26,7 +26,7 @@ enum TMenuShowState:
 
 abstract class TGameMenuBox(TCustomMessageBox):
 
-	let BORDER_SIZE = sgPoint(8, 8)
+	let BORDER_SIZE = SgPoint(8, 8)
 
 	[Property(OnButton)]
 	private FOnButton as Action[of TButtonCode, TGameMenuBox, TMenuPage]
@@ -85,7 +85,7 @@ abstract class TGameMenuBox(TCustomMessageBox):
 		pass
 
 	protected override def DoDraw():
-		let TEXT_TARGET = sgPoint(4, 8)
+		let TEXT_TARGET = SgPoint(4, 8)
 		super.DoDraw()
 		if FTextDrawn != TTextDrawState.Done:
 			FTextTarget.Parent.PushRenderTarget()
@@ -136,7 +136,7 @@ abstract class TGameMenuBox(TCustomMessageBox):
 		FOwner.FocusMenu(self, which, setupValue, false)
 
 	public override def MoveTo(coords as GPU_Rect):
-		FOrigin = sgPoint(coords.x, coords.y)
+		FOrigin = SgPoint(coords.x, coords.y)
 		sCoords = GPU_MakeRect(coords.x, coords.y, coords.w - coords.x, coords.h - coords.y)
 		super.MoveTo(sCoords)
 		FBounds = coords
@@ -472,7 +472,7 @@ class TMenuEngine(TObject, IMenuEngine):
 	public def Activate():
 		assert FState == TMenuShowState.Fading
 		FState = TMenuShowState.Main
-		FOrigin = sgPoint(Math.Round(FParent.Viewport.WorldX), Math.Round(FParent.Viewport.WorldY))
+		FOrigin = SgPoint(Math.Round(FParent.Viewport.WorldX), Math.Round(FParent.Viewport.WorldY))
 
 	public def Shutdown():
 		assert FState == TMenuShowState.Fading

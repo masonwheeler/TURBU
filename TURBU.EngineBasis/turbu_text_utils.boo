@@ -70,7 +70,7 @@ class TFontEngine(TObject):
 		FPass1 = shader.ShaderProgram('textV', 'textShadow')
 		FPass2 = shader.ShaderProgram('textV', 'textF')
 		FShaderEngine = shader
-		FTarget = SdlRenderTarget(sgPoint(16, 16))
+		FTarget = SdlRenderTarget(SgPoint(16, 16))
 		FFonts = List[of TRpgFont]()
 
 	private def RenderChar(text as char):
@@ -99,10 +99,11 @@ class TFontEngine(TObject):
 		let GLYPH_SIZE = 12
 		FTarget.Parent.PushRenderTarget()
 		FTarget.SetRenderer()
-		GPU_ClearRGBA(FTarget.RenderTarget, 0, 0, 0, 255)
+		GPU_Clear(FTarget.RenderTarget)
+		//GPU_ClearRGBA(FTarget.RenderTarget, 0, 0, 0, 255)
 		
 		srcRect = GPU_MakeRect((index % 13) * GLYPH_SIZE, (index / 13) * GLYPH_SIZE, GLYPH_SIZE, GLYPH_SIZE)
-		FTarget.Parent.DrawRect(FGlyphs, sgPoint(0, 0), srcRect, 0)
+		FTarget.Parent.DrawRect(FGlyphs, ORIGIN, srcRect, 0)
 		FTarget.Parent.PopRenderTarget()
 
 	public def DrawText(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as SgFloatPoint:
@@ -122,8 +123,10 @@ class TFontEngine(TObject):
 
 	public def DrawGlyph(target as GPU_Target_PTR, index as int, x as single, y as single, colorIndex as int) as SgFloatPoint:
 		RenderGlyph(index)
+		GPU_FlushBlitBuffer()
 		DrawTargetPass1(target, x + 1, y + 1)
 		DrawTargetPass2(target, x, y, colorIndex)
+		GPU_DeactivateShaderProgram()
 		return sgPointF(x + (TEXT_WIDTH * 2), y)
 
 	public def DrawTextRightAligned(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as SgFloatPoint:
