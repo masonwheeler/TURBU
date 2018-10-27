@@ -501,7 +501,7 @@ class TMapSprite(TObject):
 			case TDirections.Right: step = self.Right
 			default: raise "Unknown path direction: $dir"
 		return Path(true) do(p as Path) as Func[of TObject, bool]*:
-			yield {m | return step()}
+			yield {m as TObject | return step()}
 
 	protected def MakeLoopingPath(step as Func[of TObject, bool]):
 		def steps(p as Path):

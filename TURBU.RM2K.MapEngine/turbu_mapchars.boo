@@ -347,7 +347,7 @@ class TRpgVehicle(TRpgCharacter):
 
 	private def CreateSprite():
 		assert FMap == GSpriteEngine.value.MapID
-		FGameSprite = TVehicleSprite(GSpriteEngine.value, self, { FGameSprite = null })
+		FGameSprite = TVehicleSprite(GSpriteEngine.value, self, { FGameSprite = null; return })
 		SetSprite(Template.MapSprite, FTranslucent, FSpriteIndex)
 		FGameSprite.Location = SgPoint(FX, FY)
 		FGameSprite.Facing = TFacing.Left

@@ -578,7 +578,7 @@ class T2kMapEngine(TMapEngine):
 		_switchState = SwitchState.Ready
 		self._heldMaps[currentMap.MapObj.ID] = currentMap.MapObj
 		currentMap.ReleaseMap()
-		_objectManager.ScriptEngine.KillAll({ currentMap = null })
+		_objectManager.ScriptEngine.KillAll({ currentMap = null; return })
 		assert _currentMap.Blank
 		metadata as TMapMetadata
 		oldEngine as T2kSpriteEngine = _currentMap
