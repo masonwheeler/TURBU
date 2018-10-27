@@ -17,6 +17,8 @@ import TURBU.Meta
 class TScriptEngine(TObject):
 
 	private FCurrentProgram as Boo.Lang.Compiler.CompilerContext
+	private class ScriptExecution:
+		property Teleported as bool
 
 	private FScripts = List[of TRpgEventPage]()
 
@@ -55,6 +57,7 @@ class TScriptEngine(TObject):
 
 	public def BeginTeleport():
 		_teleporting = true
+		IsTeleportScript = true
 
 	public def EndTeleport():
 		_teleporting = false
@@ -62,6 +65,9 @@ class TScriptEngine(TObject):
 
 	internal def ResetTeleport():
 		_teleported = false
+
+	internal def PrepareNewScript():
+		_scriptExecution.Value = ScriptExecution() if _scriptExecution.Value is null
 
 	[async]
 	public def RunScript(script as Func of Task) as Task:
@@ -109,15 +115,19 @@ class TScriptEngine(TObject):
 			RunScript(page.Script)
 
 	private CurrentPage as TRpgEventPage:
-		get: return System.Runtime.Remoting.Messaging.CallContext.LogicalGetData('CurrentPage') cast TRpgEventPage
-		set: System.Runtime.Remoting.Messaging.CallContext.LogicalSetData('CurrentPage', value)
+		get: return _currentPage.Value
+		set: _currentPage.Value = value
+
+	private _currentPage = AsyncLocal[of TRpgEventPage]()
 
 	public CurrentObject as TRpgMapObject:
 		get: return CurrentPage?.Parent
 
-	public IsTeleportScript as bool:
-		get: return System.Runtime.Remoting.Messaging.CallContext.LogicalGetData('IsTeleportScript') cast bool
-		set: System.Runtime.Remoting.Messaging.CallContext.LogicalSetData('IsTeleportScript', value)
+	internal IsTeleportScript as bool:
+		get: return _scriptExecution.Value.Teleported
+		set: _scriptExecution.Value.Teleported = value
+
+	private _scriptExecution = AsyncLocal[of ScriptExecution]()
 
 	[async]
 	public def KillAll(cleanup as Action) as Task:
@@ -244,7 +254,7 @@ class TMapObjectManager(TObject):
 	public def RunPageScript(page as TRpgEventPage) as Task:
 		return if page.Parent.Playing
 		page.Parent.Playing = true
-		FScriptEngine.IsTeleportScript = false
+		FScriptEngine.PrepareNewScript()
 		await FScriptEngine.RunPageScript(page)
 		if FScriptEngine.IsTeleportScript:
 			self._doneTeleportScript()

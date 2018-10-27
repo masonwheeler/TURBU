@@ -464,7 +464,7 @@ class T2kMapEngine(TMapEngine):
 				GDatabase.value = _database
 				unless assigned(_database):
 					raise RpgPluginException('Incompatible project database')
-				_objectManager = TMapObjectManager({self.ClearHeldMaps})
+				_objectManager = TMapObjectManager(self.ClearHeldMaps)
 				GScriptEngine.value.OnEnterCutscene = self.EnterCutscene
 				GScriptEngine.value.OnLeaveCutscene = self.LeaveCutscene
 				GScriptEngine.value.OnRenderUnpause = self.RenderUnpause
