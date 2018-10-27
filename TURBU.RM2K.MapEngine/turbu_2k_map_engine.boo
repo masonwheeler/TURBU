@@ -314,9 +314,8 @@ class T2kMapEngine(TMapEngine):
 		var id = metadata.ID
 		caseOf metadata.BgmState:
 			case TInheritedDecision.Parent:
-				repeat:
+				until id == 0 or (_database.MapTree[id] cast TMapMetadata).BgmState != TInheritedDecision.Parent:
 					id = _database.MapTree[id].Parent
-					until id == 0 or (_database.MapTree[id] cast TMapMetadata).BgmState != TInheritedDecision.Parent
 				if id == 0:
 					StopMusic()
 				elif (_database.MapTree[id] cast TMapMetadata).BgmState == TInheritedDecision.Yes:

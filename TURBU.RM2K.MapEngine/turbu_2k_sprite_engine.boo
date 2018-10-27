@@ -237,16 +237,14 @@ class T2kSpriteEngine(SpriteEngine):
 	private def DrawBG():
 		FBgImage.Scroll()
 		FBgImage.X = Viewport.WorldX
-		repeat :
+		until FBgImage.X + FBgImage.OffsetX > Viewport.WorldX + Canvas.Width:
 			FBgImage.Y = Viewport.WorldY
-			repeat :
+			until FBgImage.Y + FBgImage.OffsetY > Viewport.WorldY + Canvas.Height:
 				FRenderer.Reset()
 				FBgImage.Draw()
 				FRenderer.Render(FEngine.Canvas.RenderTarget)
 				FBgImage.Y += FBgImage.PatternHeight
-				until FBgImage.Y + FBgImage.OffsetY > Viewport.WorldY + Canvas.Height
 			FBgImage.X += FBgImage.PatternWidth
-			until FBgImage.X + FBgImage.OffsetX > Viewport.WorldX + Canvas.Width
 
 	private def GetMapID() as int:
 		return MapObj.ID

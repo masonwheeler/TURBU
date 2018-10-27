@@ -25,7 +25,7 @@ class ConsecutiveImageOptimization(FastDepthFirstVisitor):
 	
 	override def OnBlock(node as Block):
 		return if node.ParentNode isa MacroStatement and (node.ParentNode as MacroStatement).Name == 'RenderPause'
-		repeat:
+		until not loop:
 			loop = false
 			for i as int, child as Statement in enumerate(node.Statements.ToArray()[:-1]):
 				if IsImage(child) and IsImage(node.Statements[i + 1]) or IsFadeIn(node.Statements[i + 1]):
@@ -39,7 +39,6 @@ class ConsecutiveImageOptimization(FastDepthFirstVisitor):
 					node.Statements.Insert(i, pause)
 					loop = true
 					break
-			until loop == false
 		super.OnBlock(node)
 	
 	override def OnExpressionStatement(node as ExpressionStatement):

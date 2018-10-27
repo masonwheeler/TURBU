@@ -182,10 +182,9 @@ class TBlindsTransition(TMaskTransition):
 		if FTimer >= FInterval:
 			width as int = GSpriteEngine.value.Canvas.Width
 			i as int = FProgress
-			repeat :
+			until i >= GSpriteEngine.value.Canvas.Height:
 				GSpriteEngine.value.Canvas.FillRect(GPU_MakeRect(0, i, width, 1), SDL_WHITE)
 				i += BLINDSIZE
-				until i >= GSpriteEngine.value.Canvas.Height
 			if FShowing:
 				--FProgress
 			else:
@@ -215,12 +214,11 @@ class TStripeTransition(TMaskTransition):
 		i as int = 0
 		j as int = FStripeArray.Length - 1
 		--j if (j % 2) == 0
-		repeat :
+		until i >= FStripeArray.Length or j < 0:
 			FStripeArray[i] = i
 			FStripeArray[i + 1] = j if j >= 0
 			i += 2
 			j -= 2
-			until i >= FStripeArray.Length or j < 0
 
 	protected override def DoDraw() as bool:
 		corner as SgPoint
@@ -298,7 +296,7 @@ class TBof2Transition(TMaskTransition):
 		FProgress += workload
 		var j = FProgress / 4
 		var i = 0
-		repeat :
+		until i > GSpriteEngine.value.Canvas.Height or (j <= 0):
 			if j <= width:
 				if (i % 2) == 0:
 					GSpriteEngine.value.Canvas.FillRect(GPU_MakeRect(0, i, j, 1), SDL_WHITE)
@@ -307,7 +305,6 @@ class TBof2Transition(TMaskTransition):
 			if ((i % 4) == 0) and (i > 0):
 				--j
 			++i
-			until i > GSpriteEngine.value.Canvas.Height or (j <= 0)
 		return FProgress <= endpoint
 
 class TScrollTransition(TTransition):

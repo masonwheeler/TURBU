@@ -125,11 +125,10 @@ class TScriptEngine(TObject):
 			pair.Value.SetCanceled()
 		_waiting.Clear()
 		var done = false
-		repeat :
+		until done:
 			await Task.Delay(10)
 			lock FThreadLock:
 				done = ((CurrentPage == null) and (FScripts.Count == 0)) or ((FScripts.Count == 1) and (FScripts[0] == CurrentPage))
-			until done
 		cleanup() if cleanup != null
 
 	[async]

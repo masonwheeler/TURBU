@@ -607,21 +607,19 @@ class TTiledAreaSprite(TAnimatedRectSprite):
 		else:
 			drawpoint = SgPoint(FFillArea.x, FFillArea.y)
 			endpoint = drawpoint + SgPoint(FFillArea.w, FFillArea.h)
-			repeat:
+			until drawpoint.y >= endpoint.y:
 				drawpoint.x = FFillArea.x
-				repeat:
+				until drawpoint.x + FWidth > endpoint.x:
 					self.X = drawpoint.x
 					self.Y = drawpoint.y
 					super.DoDraw()
 					drawpoint.x += FWidth
-					until drawpoint.x + FWidth > endpoint.x
 				if drawpoint.x < endpoint.x:
 					e as SgPoint = endpoint - drawpoint
 					FImage.DrawRectTo(
 						GPU_MakeRect(drawpoint.x, drawpoint.y, e.x, e.y),
 						GPU_MakeRect(DrawRect.x, DrawRect.y, endpoint.x - drawpoint.x, DrawRect.h))
 				drawpoint.y += FHeight
-				until drawpoint.y >= endpoint.y
 			self.X = FFillArea.x
 			self.Y = FFillArea.y
 		GPU_UnsetColor(self.Image.Surface) if alphaSet

@@ -178,10 +178,9 @@ class LCFBoolArray:
 
 internal def BERInt(input as Stream) as int:
 	result = 0
-	repeat:
+	until value < 128:
 		value = input.ReadByte()
 		result = (result << 7) + (value % 128)
-		until value < 128
 	return result
 
 internal def WriteBERInt(output as Stream, value as int):

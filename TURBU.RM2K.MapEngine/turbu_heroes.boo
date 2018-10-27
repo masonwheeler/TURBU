@@ -296,14 +296,12 @@ class TRpgHero(TRpgBattleCharacter):
 		FLevelUpdated = true
 		if gain:
 			assert FExpTotal >= FExpTable[FLevel + 1]
-			repeat:
+			until FExpTotal < FExpTable[FLevel + 1]:
 				GainLevel()
-				until FExpTotal < FExpTable[FLevel + 1]
 		else:
 			assert FExpTotal <= FExpTable[FLevel]
-			repeat:
+			until FExpTotal >= FExpTable[FLevel]:
 				LoseLevel()
-				until FExpTotal >= FExpTable[FLevel]
 
 	private def GetTemplate() as TClassTemplate:
 		return super.Template cast TClassTemplate
@@ -541,9 +539,9 @@ class TRpgHero(TRpgBattleCharacter):
 
 	[NoImport]
 	public override def Retarget() as TRpgBattleCharacter:
-		repeat :
+		result as TRpgBattleCharacter = null
+		until result is not null and result.HP > 0:
 			result = FParty[random.Next(FParty.Party.Length)]
-			until assigned(result) and (result.HP > 0)
 		return result
 
 	public def SetSprite(filename as string, translucent as bool, spriteIndex as int):
@@ -939,9 +937,8 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 			FHeroes = value
 		
 		def MoveNext() as bool:
-			repeat:
+			until FIndex >= FHeroes.Length or FHeroes[FIndex] is not null:
 				++FIndex
-				until FIndex >= FHeroes.Length or FHeroes[FIndex] is not null
 			return FIndex < FHeroes.Length
 		
 		def Reset():

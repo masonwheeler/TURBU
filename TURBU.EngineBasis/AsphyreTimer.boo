@@ -93,7 +93,7 @@ class AsphyreTimer(TObject):
 		unless FEnabled:
 			SleepEx(5, true)
 			return
-		repeat:
+		until NativeMethods.PeekMessage(msg, IntPtr.Zero, 0, 0, 0) or (FEnabled == false):
 			if LatencyFP < MinLatency:
 				WaitAmount = (MinLatency - LatencyFP) / FixedHigh
 				SleepEx(Math.Max(WaitAmount, 0), true)
@@ -111,7 +111,6 @@ class AsphyreTimer(TObject):
 				FixedDelta += DeltaFP
 				Processed = false
 			OnTimer()
-			until NativeMethods.PeekMessage(msg, IntPtr.Zero, 0, 0, 0) or (FEnabled == false)
 
 	public Delta as double:
 		get: return (DeltaFP cast double) / (FixedHigh cast double)
