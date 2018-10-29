@@ -1038,7 +1038,7 @@ class TSystemTimer(TParentSprite):
 		if FPrevState != GSpriteEngine.value.State:
 			FPrevState = GSpriteEngine.value.State
 			caseOf FPrevState:
-				case TGameState.Map, TGameState.Menu, TGameState.Battle:
+				case TGameState.Map, TGameState.Menu, TGameState.Battle, TGameState.Fading:
 					pass
 				case TGameState.Message:
 					location.y += 160 if GMenuEngine.Value.Position == TMboxLocation.Top

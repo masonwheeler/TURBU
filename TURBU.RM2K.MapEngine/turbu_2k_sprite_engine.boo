@@ -592,7 +592,7 @@ class T2kSpriteEngine(SpriteEngine):
 			for sprite in sprites:
 				if Character isa TCharSprite and sprite isa TCharSprite and Character.Location == sprite.Location:
 					result = true
-				elif assigned(sprite.Event?.CurrentPage):
+				elif assigned(sprite.Event?.CurrentPage) and not sprite.SlipThrough:
 					result = result and ((sprite.BaseTile.Z != Character.BaseTile.Z) \
 											or ((Character isa TCharSprite) and (sprite isa TEventSprite) \
 												and (sprite.Event.CurrentPage.ZOrder != 1)))

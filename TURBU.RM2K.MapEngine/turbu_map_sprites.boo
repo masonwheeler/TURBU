@@ -683,7 +683,8 @@ class TMapSprite(TObject):
 			FPause = null
 		canMove as bool = not (moveBlocked or FMapObj?.Playing)
 		if FMoveAssignment is not null:
-			FMoveAssignment = null unless DoMove(FMoveAssignment)
+			while FMoveAssignment is not null and FPause is null and _moveTime is null:
+				FMoveAssignment = null unless DoMove(FMoveAssignment)
 		elif FMoveQueue is not null and canMove:
 			FMoveQueue = null unless DoMove(FMoveQueue)
 		elif canMove and self.HasPage:
