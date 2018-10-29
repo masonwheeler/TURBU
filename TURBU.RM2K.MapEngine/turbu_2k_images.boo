@@ -335,10 +335,7 @@ class TRpgImage(TObject):
 		idx as int = GEnvironment.value.ImageIndex(self)
 		if idx == -1:
 			return
-		def cond() as bool:
-			var img = GEnvironment.value.Image[idx]
-			return (img.Timer == 0 if assigned(img) else true)
-		waitFor cond
+		waitFor {var img = GEnvironment.value.Image[idx]; return (img.Timer == 0 if assigned(img) else true)}
 
 	public Zoom as int:
 		get: return FSprite.Zoom

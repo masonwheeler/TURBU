@@ -126,7 +126,7 @@ class TRpgDataDict[of T(TRpgDatafile, constructor)](Dictionary[of int, TRpgDataf
 			*/
 
 	public def Download():
-		for value in self.FDataset.GetAll().Where({v | not self.ContainsKey(v.ID)}):
+		for value in self.FDataset.GetAll().Cast[of TRpgDatafile]().Where({v | not self.ContainsKey(v.ID)}):
 			self.Add(value)
 
 	public Count as int:

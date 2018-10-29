@@ -504,7 +504,7 @@ class TMapSprite(TObject):
 			yield {m as TObject | return step()}
 
 	protected def MakeLoopingPath(step as Func[of TObject, bool]):
-		def steps(p as Path):
+		return Path(false) do(p as Path) as Func[of TObject, bool]*:
 			while true:
 				yield step
 				p.Looped = true
