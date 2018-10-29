@@ -482,13 +482,14 @@ class T2kSpriteEngine(SpriteEngine):
 
 	public def Process():
 		self.Dead()
+		var blocked = GMenuEngine.Value.State == TMenuState.ExclusiveShared
 		lock FMapObjects:
 			for sprite in FMapObjects:
 				sprite.Place()
-				sprite.MoveTick(GMenuEngine.Value.State == TMenuState.ExclusiveShared)
+				sprite.MoveTick(blocked)
 		if assigned(FCurrentParty):
 			FCurrentParty.Place()
-			FCurrentParty.MoveTick(GMenuEngine.Value.State == TMenuState.ExclusiveShared)
+			FCurrentParty.MoveTick(blocked)
 		CheckDisplacement()
 
 	public def IsHeroIn(location as TMboxLocation) as bool:

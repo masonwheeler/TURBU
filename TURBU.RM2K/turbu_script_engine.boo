@@ -248,7 +248,7 @@ class TMapObjectManager(TObject):
 
 	[async]
 	public def RunPageScript(page as TRpgEventPage) as Task:
-		return if page.Parent.Playing
+		return if page.Parent.Playing or not page.HasScript
 		page.Parent.Playing = true
 		FScriptEngine.PrepareNewScript()
 		await FScriptEngine.RunPageScript(page)

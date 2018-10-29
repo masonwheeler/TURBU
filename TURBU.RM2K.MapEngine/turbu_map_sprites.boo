@@ -529,7 +529,7 @@ class TMapSprite(TObject):
 			case TMoveType.ByRoute:
 				assert data.Path is not null
 				MoveQueue = Path(data.Path)
-				FCanSkip = data.MoveIgnore
+				FCanSkip = data.Path.Skip
 			default : assert false
 		_moveTime = null if data.AnimType in (TAnimType.Sentry, TAnimType.FixedDir)
 
@@ -680,8 +680,10 @@ class TMapSprite(TObject):
 			FPause = null
 		canMove as bool = not (moveBlocked or FMapObj?.Playing)
 		if FMoveAssignment is not null:
-			while FMoveAssignment is not null and FPause is null and _moveTime is null:
+			var tries = 0
+			while FMoveAssignment is not null and FPause is null and _moveTime is null and tries < 4:
 				FMoveAssignment = null unless DoMove(FMoveAssignment)
+				++tries
 		elif FMoveQueue is not null and canMove:
 			FMoveQueue = null unless DoMove(FMoveQueue)
 		elif canMove and self.HasPage:
