@@ -16,13 +16,10 @@ import TURBU.Meta
 [Singleton]
 class TScriptEngine(TObject):
 
-	private FCurrentProgram as Boo.Lang.Compiler.CompilerContext
 	private class ScriptExecution:
 		property Teleported as bool
 
-	private FScripts = List[of TRpgEventPage]()
-
-	private FThreadLock as object
+	private _scripts = List[of TRpgEventPage]()
 
 	private _inputId as int
 
@@ -53,7 +50,6 @@ class TScriptEngine(TObject):
 
 	public def constructor():
 		GScriptEngine.value = self
-		FThreadLock = object()
 
 	public def BeginTeleport():
 		_teleporting = true
@@ -88,7 +84,7 @@ class TScriptEngine(TObject):
 
 	[async]
 	internal def RunPageScript(page as TRpgEventPage) as Task:
-		FScripts.Add(page)
+		_scripts.Add(page)
 		CurrentPage = page
 		page.Parent.FaceHero()
 		if page.Trigger != TStartCondition.Parallel:
@@ -98,7 +94,7 @@ class TScriptEngine(TObject):
 		except as EAbort:
 			pass
 		ensure:
-			FScripts.Remove(page)
+			_scripts.Remove(page)
 			page.Parent.Playing = false
 			page.Parent.Locked = true
 			page.Parent.ResumeFacing()
@@ -137,8 +133,8 @@ class TScriptEngine(TObject):
 		var done = false
 		until done:
 			await Task.Delay(10)
-			lock FThreadLock:
-				done = ((CurrentPage == null) and (FScripts.Count == 0)) or ((FScripts.Count == 1) and (FScripts[0] == CurrentPage))
+			lock _scripts:
+				done = ((CurrentPage == null) and (_scripts.Count == 0)) or ((_scripts.Count == 1) and (_scripts[0] == CurrentPage))
 		cleanup() if cleanup != null
 
 	[async]

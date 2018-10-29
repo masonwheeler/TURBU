@@ -111,14 +111,13 @@ class TWeatherSystem(SpriteEngine):
 		return result
 
 	private def CreateRain(r as byte, g as byte, b as byte) as IntPtr:
-		pixel as uint
 		result = SDL.SDL_CreateRGBSurface(0, 8, 20, 32, 0xFF0000, 0xFF00, 0xFF, 0xFF000000)
 		try:
 			if SDL.SDL_MUSTLOCK(result):
 				SDL.SDL_LockSurface(result)
 			sur = Marshal.PtrToStructure[of SDL.SDL_Surface](result)
 			SDL.SDL_FillRect(result, IntPtr.Zero, SDL.SDL_MapRGBA(sur.format, 0, 0, 0, 0))
-			pixel = SDL.SDL_MapRGBA(sur.format, r, g, b, 128)
+			var pixel = SDL.SDL_MapRGBA(sur.format, r, g, b, 128)
 			generator = def():
 				for y in range(1, 19):
 					yield PixelData(7 - (y / 3), y, pixel)
@@ -130,13 +129,12 @@ class TWeatherSystem(SpriteEngine):
 		return result
 
 	private def CreateSnow(r as byte, g as byte, b as byte) as IntPtr:
-		pixel as int
 		result = SDL.SDL_CreateRGBSurface(0, 2, 2, 32, 0, 0, 0, 0)
 		try:
 			if SDL.SDL_MUSTLOCK(result):
 				SDL.SDL_LockSurface(result)
 			sur = Marshal.PtrToStructure[of SDL.SDL_Surface](result)
-			pixel = SDL.SDL_MapRGBA(sur.format, r, g, b, 255)
+			var pixel = SDL.SDL_MapRGBA(sur.format, r, g, b, 255)
 			PutPixels(result, (PixelData(0, 0, pixel), PixelData(0, 1, pixel), PixelData(1, 0, pixel), PixelData(1, 1, pixel)))
 			if SDL.SDL_MUSTLOCK(result):
 				SDL.SDL_UnlockSurface(result)

@@ -106,7 +106,7 @@ abstract class TTile(TParentSprite):
 			return 6
 		else: return 1
 
-class TEventTile(TTile):
+class EventTile(TTile):
 
 	[Property(Event)]
 	private FEvent as TRpgMapObject
@@ -139,7 +139,7 @@ class TEventTile(TTile):
 			FEvent = baseEvent
 			Update(baseEvent.CurrentPage)
 
-	public def Assign(data as TEventTile):
+	public def Assign(data as EventTile):
 		super.Assign(data)
 
 	public def Update(newPage as TRpgEventPage):

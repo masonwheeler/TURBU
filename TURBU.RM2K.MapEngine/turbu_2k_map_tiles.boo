@@ -15,8 +15,8 @@ import turbu.RM2K.environment
 
 class TMapTile(TTile):
 	
-	public def constructor(AParent as SpriteEngine, tileset as string):
-		super(AParent, tileset)
+	public def constructor(parent as SpriteEngine, tileset as string):
+		super(parent, tileset)
 	
 	protected FNeighbors as TDirs8
 

@@ -222,7 +222,7 @@ class TMapSprite(TObject):
 
 	protected FMoveDir as TDirections
 
-	protected FTiles = array(TEventTile, 2)
+	protected FTiles = array(EventTile, 2)
 
 	[DisposeParent]
 	protected FEngine as SpriteEngine
@@ -281,9 +281,8 @@ class TMapSprite(TObject):
 		return (FEngine cast T2kSpriteEngine).CanExit(FLocation.x, FLocation.y, FMoveDir, self)
 
 	protected def CanMoveDiagonal(one as TDirections, two as TDirections, ref destination as SgPoint) as bool:
-		temp as TDirections
 		assert ord(one) % 2 == 0 and ord(two) % 2 == 1
-		temp = FFacing
+		var temp = FFacing
 		FFacing = one
 		result = FSlipThrough or (FEngine cast T2kSpriteEngine).CanExit(FLocation.x, FLocation.y, one, self)
 		unless result:
@@ -488,7 +487,7 @@ class TMapSprite(TObject):
 		FTransparencyFactor = clamp(value, 0, MAX_TRANSPARENCY)
 		FTiles[0].Alpha = (((MAX_TRANSPARENCY + 1) - FTransparencyFactor) * TRANSPARENCY_STEP) cast int
 
-	protected def SetFlashEvents(tile as TEventTile):
+	protected def SetFlashEvents(tile as EventTile):
 		tile.OnMustFlash = self.MustFlash
 		tile.OnFlashColor = self.GetFlashColor
 
@@ -508,8 +507,6 @@ class TMapSprite(TObject):
 			while true:
 				yield step
 				p.Looped = true
-		
-		return Path(false, steps)
 
 	private def MakeRandomPath():
 		return MakeLoopingPath({m as TObject| return (m cast TMapSprite).RandomStep()})
@@ -731,6 +728,7 @@ class TMapSprite(TObject):
 		FMoveOpen = base.FMoveOpen
 		FMoveDir = base.FMoveDir
 		FTransparencyFactor = base.FTransparencyFactor
+		FSlipThrough = base.FSlipThrough
 		self.Facing = base.Facing if base isa TCharSprite
 		self.Location = base.Location
 
@@ -786,13 +784,13 @@ class TEventSprite(TMapSprite):
 		FTiles[0].X = Location.x * TILE_SIZE.x
 		FTiles[0].Y = Location.y * TILE_SIZE.y
 
-	protected override def DoUpdatePage(Data as TRpgEventPage):
-		FTiles[0].Update(Data)
-		UpdateMove(Data)
+	protected override def DoUpdatePage(data as TRpgEventPage):
+		FTiles[0].Update(data)
+		UpdateMove(data)
 
 	public def constructor(base as TRpgMapObject, parent as SpriteEngine):
 		super(base, parent)
-		FTiles[0] = TEventTile(Event, parent)
+		FTiles[0] = EventTile(Event, parent)
 		FTiles[1] = null
 		self.Translucency = (3 if FMapObj.CurrentPage != null and FMapObj.CurrentPage.Transparent else 0)
 		SetLocation(SgPoint(base.Location.x, base.Location.y))
@@ -804,6 +802,12 @@ class TEventSprite(TMapSprite):
 
 [Disposable(Destroy, true)]
 class TCharSprite(TMapSprite):
+
+	private static final _spriteWidthOffset as int
+
+	static def constructor():
+		var l = GDatabase.value.Layout
+		_spriteWidthOffset = (l.SpriteSize.x - l.TileSize.x) / 2
 
 	[Getter(Frame)]
 	private FWhichFrame as short
@@ -851,8 +855,8 @@ class TCharSprite(TMapSprite):
 	[Property(SpriteIndes)]
 	private FSpriteIndex as int
 
-	protected override def SetFacing(Data as TDirections):
-		super.SetFacing(Data)
+	protected override def SetFacing(data as TDirections):
+		super.SetFacing(data)
 		FAction = ord(Facing)
 		UpdateTiles()
 
@@ -867,9 +871,9 @@ class TCharSprite(TMapSprite):
 
 	protected override def SetLocation(data as SgPoint):
 		super.SetLocation(data)
-		FTiles[0].X = (Location.x * TILE_SIZE.x) - 4
+		FTiles[0].X = (Location.x * TILE_SIZE.x) - _spriteWidthOffset
 		FTiles[0].Y = Location.y * TILE_SIZE.y
-		FTiles[1].X = (Location.x * TILE_SIZE.x) - 4
+		FTiles[1].X = (Location.x * TILE_SIZE.x) - _spriteWidthOffset
 		FTiles[1].Y = (Location.y - 1) * TILE_SIZE.y
 
 	protected override def SetTranslucency(value as byte):
@@ -904,8 +908,8 @@ class TCharSprite(TMapSprite):
 		super(base, parent)
 		FUnderConstruction = true
 		FWhichFrame = -1
-		FTiles[0] = TEventTile(base, parent)
-		FTiles[1] = TEventTile(base, parent)
+		FTiles[0] = EventTile(base, parent)
+		FTiles[1] = EventTile(base, parent)
 		if base?.CurrentPage != null:
 			Translucency = 3 if base.CurrentPage.Transparent
 			FActionMatrix = GDatabase.value.MoveMatrix[FMapObj.CurrentPage.ActionMatrix]

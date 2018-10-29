@@ -27,7 +27,7 @@ enum TVehicleState:
 	Landing
 	Emptying
 
-class TVehicleTile(TEventTile):
+class TVehicleTile(EventTile):
 
 	internal FOwner as TVehicleSprite
 
@@ -36,7 +36,7 @@ class TVehicleTile(TEventTile):
 
 	protected FOnCleanup as Action
 
-	protected def OffsetTowards(offset as SgPoint, State as TVehicleState):
+	protected def OffsetTowards(offset as SgPoint, state as TVehicleState):
 		displacement as int
 		if FOffset.x != offset.x:
 			displacement = (offset.x - FOffset.x)
@@ -48,9 +48,9 @@ class TVehicleTile(TEventTile):
 			displacement = (displacement / Math.Abs(displacement))
 			FOffset.y += displacement
 			self.Y = (self.Y + displacement)
-		FOwner.ReportState(State) if (FOffset.x == offset.x) and (FOffset.y == offset.y)
+		FOwner.ReportState(state) if (FOffset.x == offset.x) and (FOffset.y == offset.y)
 
-	public def constructor(base as TEventTile, parent as SpriteEngine, onCleanup as Action):
+	public def constructor(base as EventTile, parent as SpriteEngine, onCleanup as Action):
 		super(base.Event, parent cast T2kSpriteEngine)
 		self.Z = 3
 		self.Assign(base)
@@ -192,10 +192,10 @@ class TVehicleSprite(TCharSprite):
 		self.OnChangeSprite = whichVehicle.ChangeSprite
 		whichVehicle.Gamesprite = self
 		self.FTemplate = whichVehicle
-		newTile = TVehicleTile((FTiles[1] cast TEventTile), parent, { FTiles[1] = null })
+		newTile = TVehicleTile((FTiles[1] cast EventTile), parent, { FTiles[1] = null })
 		newTile.FOwner = self
 		FTiles[1] = newTile
-		newTile = TVehicleTile((FTiles[0] cast TEventTile), parent, { FTiles[0] = null })
+		newTile = TVehicleTile((FTiles[0] cast EventTile), parent, { FTiles[0] = null })
 		newTile.FOwner = self
 		FTiles[0] = newTile
 		Visible = (whichVehicle.Map == (FEngine cast T2kSpriteEngine).MapObj.ID)

@@ -43,7 +43,7 @@ class TOceanTileClass(TWaterTileClass):
 class TTileClass(TParentSpriteClass):
 	pass
 
-[Metaclass(TEventTile)]
+[Metaclass(EventTile)]
 class TEventTileClass(TTileClass):
 	pass
 
