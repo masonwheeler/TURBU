@@ -96,7 +96,7 @@ class TMapSprite(TObject):
 		return self.MoveDiag(one, two) or CanSkip
 
 	protected def DirTowardsHero() as TDirections:
-		var heroLoc = (GSpriteEngine.value.CurrentParty.Location if GSpriteEngine.value.CurrentParty is not null else SgPoint(0, 1000)))
+		var heroLoc = (GSpriteEngine.value.CurrentParty.Location if GSpriteEngine.value.CurrentParty is not null else SgPoint(0, 1000))
 		return towards(self.Location, heroLoc)
 
 	private def CanJump(target as SgPoint) as bool:

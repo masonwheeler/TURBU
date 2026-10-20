@@ -365,7 +365,7 @@ class TScriptConverter:
 				if values.Count == 7:
 					(result cast MethodInvocationExpression).Arguments.Add([|$(values[6] != 0)|])
 				else: (result cast MethodInvocationExpression).Arguments.Add([|false|])
-			else result = [|await(FlashScreenAndWait($(RGB32(values[0])), $(RGB32(values[1])), $(RGB32(values[2])), \
+			else: result = [|await(FlashScreenAndWait($(RGB32(values[0])), $(RGB32(values[1])), $(RGB32(values[2])), \
 													$(RGB32(values[3])), $(values[4])))|]
 	
 	simpleConverter ConvertTintScreen:
@@ -795,7 +795,7 @@ class TScriptConverter:
 			case 3:
 				if values[4] == 0:
 					result = [|ReturnScreen($(values[3]))|]
-				else result = [|await(ReturnScreenAndWait($(values[3])))|]
+				else: result = [|await(ReturnScreenAndWait($(values[3])))|]
 	
 	simpleConverter ConvertObjectID:
 		if values[0] == 0:

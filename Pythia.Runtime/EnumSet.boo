@@ -12,7 +12,7 @@ class EnumSetAttribute(AbstractAstAttribute):
 		mod = node.GetAncestor[of Module]()
 		
 		inOperator = [|
-			[Boo.Lang.Compiler.Extension]
+			[Extension]
 			static def op_Member(left as $(SimpleTypeReference(eNode.Name)), right as $(SimpleTypeReference(eNode.Name))) as bool:
 				return left & right == left
 		|]
@@ -20,7 +20,7 @@ class EnumSetAttribute(AbstractAstAttribute):
 		mod.Members.Add(inOperator)
 		
 		values = [|
-			[Boo.Lang.Compiler.Extension]
+			[Extension]
 			static def Values(base as $(SimpleTypeReference(eNode.Name))) as $(SimpleTypeReference(eNode.Name))*:
 				for value as $(SimpleTypeReference(eNode.Name)) in Enum.GetValues($(ReferenceExpression(eNode.Name))):
 					if value != 0 and value in base:

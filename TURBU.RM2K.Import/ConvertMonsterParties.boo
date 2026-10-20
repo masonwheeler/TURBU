@@ -54,7 +54,7 @@ static class TMonsterPartyConverter:
 			pc = [|
 				PageConditions:
 					$cond
-				|]
+			|]
 			result.Body.Add(pc)
 
 		ConvertBattleScripts(baseID, base, ScanScript, saveScript,

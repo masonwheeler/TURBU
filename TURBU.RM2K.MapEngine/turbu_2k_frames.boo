@@ -1074,7 +1074,7 @@ class TSystemTimer(TParentSprite):
 		UpdateTime() if FTime != FPrevTime
 		FPrevTime = FTime
 		var vp = Engine.Viewport
-		if (vp.WorldX != X) or (vp.WorldY != Y) or GSpriteEngine.value.State != FPrevState):
+		if (vp.WorldX != X) or (vp.WorldY != Y) or GSpriteEngine.value.State != FPrevState:
 			X = vp.WorldX
 			Y = vp.WorldY
 			UpdatePosition(SgPoint(Math.Round(X), Math.Round(Y)))

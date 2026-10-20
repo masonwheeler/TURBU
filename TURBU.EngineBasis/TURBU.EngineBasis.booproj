@@ -1,119 +1,64 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{2A439116-A1C1-49C7-96E2-4A8D71296307}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
     <OutputType>Library</OutputType>
     <RootNamespace>TURBU.EngineBasis</RootNamespace>
     <AssemblyName>TURBU.EngineBasis</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-    <NoWin32Manifest>False</NoWin32Manifest>
-    <NoStdLib>False</NoStdLib>
     <Ducky>False</Ducky>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <Strict>False</Strict>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
-    <Optimize>False</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <StartAction>Project</StartAction>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-    <Optimize>True</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
+
   <ItemGroup>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>$(BooBinPath)/Boo.Lang.Compiler.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Not part of this repository; the path below is where the old project looked for it. -->
     <Reference Include="Boo.Adt">
-      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
+      <HintPath>../../boo-extensions/build/Boo.Adt.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang.Useful">
-      <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
+      <HintPath>$(BooBinPath)/Boo.Lang.Useful.dll</HintPath>
+      <Private>false</Private>
     </Reference>
+    <!-- Not part of this repository; the path below is where the old project looked for it. -->
     <Reference Include="SDL2-CS">
-      <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
+      <HintPath>../../SDL2-CS/bin/Debug/SDL2-CS.dll</HintPath>
     </Reference>
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="archiveInterface.boo" />
-    <Compile Include="ArchiveUtils.boo" />
-    <Compile Include="AsphyreTimer.boo" />
-    <Compile Include="AssemblyInfo.boo" />
-    <Compile Include="commons.boo" />
-    <Compile Include="discArchive.boo" />
-    <Compile Include="DisharmonyImport.boo" />
-    <Compile Include="dm_shaders.boo" />
-    <Compile Include="Disharmony.boo" />
-    <Compile Include="dm_shaders.design.boo">
-      <DependentUpon>dm_shaders.boo</DependentUpon>
-    </Compile>
-    <Compile Include="HierarchyTree.boo" />
-    <Compile Include="JV\PluginManager.boo" />
-    <Compile Include="project_folder.boo" />
-    <Compile Include="sdl.sprite.Meta.boo" />
+    <ProjectReference Include="../Pythia.Runtime/Pythia.Runtime.booproj" />
+    <ProjectReference Include="../TURBU.Meta/TURBU.Meta.booproj" />
+    <ProjectReference Include="../TURBU.SDLFrame/TURBU.SDLFrame/TURBU.SDL.booproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="sdlstreams.boo" />
-    <Compile Include="sdl_sprite.boo" />
-    <Compile Include="sg_utils.boo" />
-    <Compile Include="TURBU.BattleEngine.Meta.boo" />
-    <Compile Include="TURBU.MapEngine.Meta.boo" />
-    <Compile Include="TURBU.ObjectInterface.boo" />
-    <Compile Include="TURBU.PluginInterface.Meta.boo" />
-    <Compile Include="turbu.sdl.image.Meta.boo" />
-    <Compile Include="turbu.text.utils.Meta.boo" />
-    <Compile Include="turbu_battle_engine.boo" />
-    <Compile Include="turbu_containers.boo" />
-    <Compile Include="turbu_database_interface.boo" />
-    <Compile Include="turbu_data_reader.boo" />
-    <Compile Include="turbu_engines.boo" />
-    <Compile Include="turbu_map_engine.boo" />
-    <Compile Include="turbu_map_interface.boo" />
-    <Compile Include="turbu_multimaps.boo" />
-    <Compile Include="turbu_operators.boo" />
-    <Compile Include="turbu_plugin_interface.boo" />
-    <Compile Include="turbu_script_interface.boo" />
-    <Compile Include="turbu_sdl_image.boo" />
-    <Compile Include="turbu_text_utils.boo" />
-    <Compile Include="turbu_versioning.boo" />
-    <Compile Include="viewports.boo" />
   </ItemGroup>
+
+  <Import Project="$(BooBinPath)/Boo.Microsoft.Build.targets" />
+
   <ItemGroup>
-    <Folder Include="JV" />
+    <Compile Remove="archiveInterface.Meta.boo" />
+    <Compile Remove="dm.shaders.Meta.boo" />
+    <Compile Remove="engine.manager.Meta.boo" />
+    <Compile Remove="engine_manager.boo" />
+    <Compile Remove="sdl.canvas.Meta.boo" />
+    <Compile Remove="SDL.ImageManager.Meta.boo" />
+    <Compile Remove="sdl_canvas.boo" />
+    <Compile Remove="sdl_frame.boo" />
+    <Compile Remove="SDL_ImageManager.boo" />
+    <Compile Remove="SDL_rwStream.boo" />
+    <Compile Remove="SG_defs.boo" />
+    <Compile Remove="StringListComp.boo" />
+    <Compile Remove="turbu.engines.Meta.boo" />
+    <Compile Remove="turbu.multimaps.Meta.boo" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Pythia.Runtime\Pythia.Runtime.booproj">
-      <Project>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</Project>
-      <Name>Pythia.Runtime</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.Meta\TURBU.Meta.booproj">
-      <Project>{D9D645BC-F085-40C9-8E7A-F64A029F9A42}</Project>
-      <Name>TURBU.Meta</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.SDLFrame\TURBU.SDLFrame\TURBU.SDL.booproj">
-      <Project>{F861C008-3A91-4947-80CE-C6C58683E581}</Project>
-      <Name>TURBU.SDL</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="TURBU.LINQ.boo" />
-  </ItemGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+
 </Project>

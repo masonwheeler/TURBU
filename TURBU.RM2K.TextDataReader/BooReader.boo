@@ -27,7 +27,7 @@ class TBooReader(TRpgPlugBase, IDataReader):
 	private _readers = {}
 	
 	private def Initialize():
-		_loader = InteractiveInterpreter(/*Boo.Lang.Parser.BooParsingStep(),*/ Ducky: false, RememberLastValue: true, ReplaceSingleEmptyMacro: false)
+		_loader = InteractiveInterpreter(/*Boo.Lang.Parser.BooParsingStep(),*/ Ducky: false, RememberLastValue: true/*, ReplaceSingleEmptyMacro: false*/)
 		_loader.References.Add(typeof(turbu.defs.Turbu_defsModule).Assembly)
 		_loader.References.Add(typeof(SG.defs.SG_DefsModule).Assembly)
 		_loader.References.Add(typeof(IDataReader).Assembly)

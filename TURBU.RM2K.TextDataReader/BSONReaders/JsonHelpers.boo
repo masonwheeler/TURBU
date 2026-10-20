@@ -85,7 +85,7 @@ private class BSONResourceData:
 			var id = _value['ID']
 			rWriter.AddResource((id.ToString() if id is not null else '0'), ms.ToArray())
 
-private class BSONResource(ICompilerResource)
+private class BSONResource(ICompilerResource):
 	[Getter(Name)]
 	private _name as string
 	

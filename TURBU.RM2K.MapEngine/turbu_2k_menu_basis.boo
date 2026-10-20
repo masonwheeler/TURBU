@@ -71,7 +71,7 @@ abstract class TGameMenuBox(TCustomMessageBox):
 			self.Return()
 
 	protected virtual def DoCursor(position as short):
-		super.PlaceCursor(position) if self.Focused:
+		super.PlaceCursor(position) if self.Focused
 
 	protected virtual def DoSetup(value as int):
 		if value != CURSOR_UNCHANGED:

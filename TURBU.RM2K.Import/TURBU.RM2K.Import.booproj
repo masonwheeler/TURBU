@@ -1,56 +1,45 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{BC1569F6-A2CE-474E-88F9-B1673FE1AC9D}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
     <OutputType>Library</OutputType>
     <RootNamespace>TURBU.RM2K.Import</RootNamespace>
     <AssemblyName>TURBU.RM2K.Import</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <NoWin32Manifest>False</NoWin32Manifest>
-    <NoStdLib>False</NoStdLib>
     <Ducky>False</Ducky>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <Strict>False</Strict>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <EnableDefaultBooItems>false</EnableDefaultBooItems>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
-    <Optimize>False</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <StartAction>Project</StartAction>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-    <Optimize>True</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="Boo.Adt">
-      <HintPath>..\TURBU.RM2K\bin\Debug\Boo.Adt.dll</HintPath>
+      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
     </Reference>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>$(BooBinPath)/Boo.Lang.Compiler.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Not part of this repository; the path below is where the old project looked for it. -->
     <Reference Include="Boo.Lang.PatternMatching">
-      <HintPath>..\TURBU.RM2K\bin\Debug\Boo.Lang.PatternMatching.dll</HintPath>
+      <HintPath>$(BooBinPath)/Boo.Lang.PatternMatching.dll</HintPath>
+      <Private>false</Private>
     </Reference>
+    <!-- Not part of this repository; the path below is where the old project looked for it. -->
     <Reference Include="SDL2-CS">
-      <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
+      <HintPath>../../SDL2-CS/bin/Debug/SDL2-CS.dll</HintPath>
     </Reference>
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Drawing" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Pythia.Runtime/Pythia.Runtime.booproj" />
+    <ProjectReference Include="../TURBU.Design.Optimizations/TURBU.Design.Optimizations.booproj" />
+    <ProjectReference Include="../TURBU.EngineBasis/TURBU.EngineBasis.booproj" />
+    <ProjectReference Include="../TURBU.Meta/TURBU.Meta.booproj" />
+    <ProjectReference Include="../TURBU.RM2K/TURBU.RM2K.booproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="ConvertAnimations.boo" />
@@ -77,56 +66,33 @@
     <Compile Include="ConvertVocab.boo" />
     <Compile Include="ConvertXYZImage.boo" />
     <Compile Include="IConversionReport.boo" />
-    <Compile Include="LCF\RMEventBlock.boo" />
-    <Compile Include="LCF\LCFCore.boo" />
-    <Compile Include="LCF\LCFObject.boo" />
-    <Compile Include="LCF\LDB.boo" />
-    <Compile Include="LCF\LMT.boo" />
-    <Compile Include="LCF\LMU.boo" />
-    <Compile Include="LCF\RM2K3AttackAnimation.boo" />
-    <Compile Include="LCF\RMAnimation.boo" />
-    <Compile Include="LCF\RMAttribute.boo" />
-    <Compile Include="LCF\RMBattleLayout.boo" />
-    <Compile Include="LCF\RMCharClass.boo" />
-    <Compile Include="LCF\RMCondition.boo" />
-    <Compile Include="LCF\RMHero.boo" />
-    <Compile Include="LCF\RMItem.boo" />
-    <Compile Include="LCF\RMMonster.boo" />
-    <Compile Include="LCF\RMMonsterParty.boo" />
-    <Compile Include="LCF\RMMusic.boo" />
-    <Compile Include="LCF\RMSkill.boo" />
-    <Compile Include="LCF\RMSystemRecord.boo" />
-    <Compile Include="LCF\RMTerrain.boo" />
-    <Compile Include="LCF\RMTileset.boo" />
+    <Compile Include="LCF/RMEventBlock.boo" />
+    <Compile Include="LCF/LCFCore.boo" />
+    <Compile Include="LCF/LCFObject.boo" />
+    <Compile Include="LCF/LDB.boo" />
+    <Compile Include="LCF/LMT.boo" />
+    <Compile Include="LCF/LMU.boo" />
+    <Compile Include="LCF/RM2K3AttackAnimation.boo" />
+    <Compile Include="LCF/RMAnimation.boo" />
+    <Compile Include="LCF/RMAttribute.boo" />
+    <Compile Include="LCF/RMBattleLayout.boo" />
+    <Compile Include="LCF/RMCharClass.boo" />
+    <Compile Include="LCF/RMCondition.boo" />
+    <Compile Include="LCF/RMHero.boo" />
+    <Compile Include="LCF/RMItem.boo" />
+    <Compile Include="LCF/RMMonster.boo" />
+    <Compile Include="LCF/RMMonsterParty.boo" />
+    <Compile Include="LCF/RMMusic.boo" />
+    <Compile Include="LCF/RMSkill.boo" />
+    <Compile Include="LCF/RMSystemRecord.boo" />
+    <Compile Include="LCF/RMTerrain.boo" />
+    <Compile Include="LCF/RMTileset.boo" />
     <Compile Include="MapResourceExtractor.boo" />
     <Compile Include="MapTreeResourceExtractor.boo" />
     <Compile Include="SimpleConverter.boo" />
     <Compile Include="Useful.boo" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Pythia.Runtime\Pythia.Runtime.booproj">
-      <Project>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</Project>
-      <Name>Pythia.Runtime</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.Design.Optimizations\TURBU.Design.Optimizations.booproj">
-      <Project>{838BF35A-21D1-4C4E-9746-5F2B6151D9BB}</Project>
-      <Name>TURBU.Design.Optimizations</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.EngineBasis\TURBU.EngineBasis.booproj">
-      <Project>{2A439116-A1C1-49C7-96E2-4A8D71296307}</Project>
-      <Name>TURBU.EngineBasis</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.Meta\TURBU.Meta.booproj">
-      <Project>{D9D645BC-F085-40C9-8E7A-F64A029F9A42}</Project>
-      <Name>TURBU.Meta</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.RM2K\TURBU.RM2K.booproj">
-      <Project>{38D2D905-9F6B-4845-B72C-A2C95B4ABCF7}</Project>
-      <Name>TURBU.RM2K</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="LCF" />
-  </ItemGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+
+  <Import Project="$(BooBinPath)/Boo.Microsoft.Build.targets" />
+
 </Project>

@@ -1,153 +1,115 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <ProjectGuid>{0B907BBD-7CAE-49CB-8221-FF96B4A25FBC}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>TURBU.RM2K.TextDataReader</RootNamespace>
     <AssemblyName>TURBU.RM2K.TextDataReader</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <NoWin32Manifest>False</NoWin32Manifest>
-    <NoStdLib>False</NoStdLib>
     <Ducky>False</Ducky>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <Strict>False</Strict>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnableDefaultBooItems>false</EnableDefaultBooItems>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <OutputPath>bin\Debug\</OutputPath>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
-    <Optimize>False</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <StartAction>Project</StartAction>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>bin\Release\</OutputPath>
-    <DebugSymbols>False</DebugSymbols>
-    <DebugType>None</DebugType>
-    <Optimize>True</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
+
   <ItemGroup>
+    <Reference Include="Boo.Lang.Compiler">
+      <HintPath>$(BooBinPath)/Boo.Lang.Compiler.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Not part of this repository; the path below is where the old project looked for it. -->
     <Reference Include="Boo.Adt">
-      <HintPath>..\..\boo-extensions\build\Boo.Adt.dll</HintPath>
+      <HintPath>../../boo-extensions/build/Boo.Adt.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang.Interpreter">
-      <HintPath>..\..\boo\build\Boo.Lang.Interpreter.dll</HintPath>
+      <HintPath>$(BooBinPath)/Boo.Lang.Interpreter.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Boo.Lang.Parser">
-      <HintPath>..\..\boo\build\Boo.Lang.Parser.dll</HintPath>
+      <HintPath>$(BooBinPath)/Boo.Lang.Parser.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Boo.Lang.PatternMatching">
-      <HintPath>..\..\boo\build\Boo.Lang.PatternMatching.dll</HintPath>
+      <HintPath>$(BooBinPath)/Boo.Lang.PatternMatching.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Boo.Lang.Useful">
-      <HintPath>..\..\boo\build\Boo.Lang.Useful.dll</HintPath>
+      <HintPath>$(BooBinPath)/Boo.Lang.Useful.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <!-- Not part of this repository; the path below is where the old project looked for it. -->
     <Reference Include="SDL2-CS">
-      <HintPath>..\..\SDL2-CS\bin\Debug\SDL2-CS.dll</HintPath>
+      <HintPath>../../SDL2-CS/bin/Debug/SDL2-CS.dll</HintPath>
     </Reference>
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Pythia.Runtime/Pythia.Runtime.booproj" />
+    <ProjectReference Include="../TURBU.EngineBasis/TURBU.EngineBasis.booproj" />
+    <ProjectReference Include="../TURBU.Meta/TURBU.Meta.booproj" />
+    <ProjectReference Include="../TURBU.RM2K.MapEngine/TURBU.RM2K.MapEngine.booproj" />
+    <ProjectReference Include="../TURBU.RM2K/TURBU.RM2K.booproj" />
+    <ProjectReference Include="../TURBU.SDLFrame/TURBU.SDLFrame/TURBU.SDL.booproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="AssemblyInfo.boo" />
     <Compile Include="BooReader.boo" />
     <Compile Include="BooReaderEnvironmentStep.boo" />
-    <Compile Include="BSONReaders\AnimReader.boo" />
-    <Compile Include="BSONReaders\BattleCharReader.boo" />
-    <Compile Include="BSONReaders\ClassesReader.boo" />
-    <Compile Include="BSONReaders\CommandReader.boo" />
-    <Compile Include="BSONReaders\ConditionReader.boo" />
-    <Compile Include="BSONReaders\GlobalEventReader.boo" />
-    <Compile Include="BSONReaders\GlobalVarsReader.boo" />
-    <Compile Include="BSONReaders\HeroReader.boo" />
-    <Compile Include="BSONReaders\ItemReader.boo" />
-    <Compile Include="BSONReaders\JsonHelpers.boo" />
-    <Compile Include="BSONReaders\MapDataReader.boo" />
-    <Compile Include="BSONReaders\MapTreeReader.boo" />
-    <Compile Include="BSONReaders\MonsterPartyReader.boo" />
-    <Compile Include="BSONReaders\SkillReader.boo" />
-    <Compile Include="BSONReaders\SoundReader.boo" />
-    <Compile Include="BSONReaders\SystemData.boo" />
-    <Compile Include="BSONReaders\TerrainReader.boo" />
-    <Compile Include="BSONReaders\TileGroupReader.boo" />
-    <Compile Include="BSONReaders\TilesetReader.boo" />
-    <Compile Include="BSONReaders\VehicleReader.boo" />
-    <Compile Include="BSONReaders\VocabReader.boo" />
-    <Compile Include="Compiler\CompilerEnvironmentStep.boo" />
-    <Compile Include="Compiler\PrepareDataFiles.boo" />
-    <Compile Include="Compiler\TURBUBuilderPipeline.boo" />
+    <Compile Include="BSONReaders/AnimReader.boo" />
+    <Compile Include="BSONReaders/BattleCharReader.boo" />
+    <Compile Include="BSONReaders/ClassesReader.boo" />
+    <Compile Include="BSONReaders/CommandReader.boo" />
+    <Compile Include="BSONReaders/ConditionReader.boo" />
+    <Compile Include="BSONReaders/GlobalEventReader.boo" />
+    <Compile Include="BSONReaders/GlobalVarsReader.boo" />
+    <Compile Include="BSONReaders/HeroReader.boo" />
+    <Compile Include="BSONReaders/ItemReader.boo" />
+    <Compile Include="BSONReaders/JsonHelpers.boo" />
+    <Compile Include="BSONReaders/MapDataReader.boo" />
+    <Compile Include="BSONReaders/MapTreeReader.boo" />
+    <Compile Include="BSONReaders/MonsterPartyReader.boo" />
+    <Compile Include="BSONReaders/SkillReader.boo" />
+    <Compile Include="BSONReaders/SoundReader.boo" />
+    <Compile Include="BSONReaders/SystemData.boo" />
+    <Compile Include="BSONReaders/TerrainReader.boo" />
+    <Compile Include="BSONReaders/TileGroupReader.boo" />
+    <Compile Include="BSONReaders/TilesetReader.boo" />
+    <Compile Include="BSONReaders/VehicleReader.boo" />
+    <Compile Include="BSONReaders/VocabReader.boo" />
+    <Compile Include="Compiler/CompilerEnvironmentStep.boo" />
+    <Compile Include="Compiler/PrepareDataFiles.boo" />
+    <Compile Include="Compiler/TURBUBuilderPipeline.boo" />
     <Compile Include="FixNegativeNumbers.boo" />
-    <Compile Include="Readers\AttributeReader.boo" />
-    <Compile Include="Readers\DataReaders\AnimReader.boo" />
-    <Compile Include="Readers\DataReaders\ClassesReader.boo" />
-    <Compile Include="Readers\DataReaders\CommandReader.boo" />
-    <Compile Include="Readers\DataReaders\ConditionReader.boo" />
-    <Compile Include="Readers\DataReaders\GlobalEventReader.boo" />
-    <Compile Include="Readers\DataReaders\GlobalVarsReader.boo" />
-    <Compile Include="Readers\DataReaders\HeroReader.boo" />
-    <Compile Include="Readers\DataReaders\ItemReader.boo" />
-    <Compile Include="Readers\DataReaders\MapDataReader.boo" />
-    <Compile Include="Readers\DataReaders\MapTreeReader.boo" />
-    <Compile Include="Readers\DataReaders\MonsterPartyReader.boo" />
-    <Compile Include="Readers\DataReaders\SkillReader.boo" />
-    <Compile Include="Readers\DataReaders\SoundReader.boo" />
-    <Compile Include="Readers\DataReaders\SystemDataReader.boo" />
-    <Compile Include="Readers\DataReaders\TerrainReader.boo" />
-    <Compile Include="Readers\DataReaders\TileGroupReader.boo" />
-    <Compile Include="Readers\DataReaders\TilesetReader.boo" />
-    <Compile Include="Readers\DataReaders\VehiclesReader.boo" />
-    <Compile Include="Readers\DataReaders\VocabReader.boo" />
-    <Compile Include="Readers\GlobalScriptReader.boo" />
-    <Compile Include="Readers\MapScriptReader.boo" />
-    <Compile Include="Readers\MonstersReader.boo" />
-    <Compile Include="Readers\ReaderUtils.boo" />
+    <Compile Include="Readers/AttributeReader.boo" />
+    <Compile Include="Readers/DataReaders/AnimReader.boo" />
+    <Compile Include="Readers/DataReaders/ClassesReader.boo" />
+    <Compile Include="Readers/DataReaders/CommandReader.boo" />
+    <Compile Include="Readers/DataReaders/ConditionReader.boo" />
+    <Compile Include="Readers/DataReaders/GlobalEventReader.boo" />
+    <Compile Include="Readers/DataReaders/GlobalVarsReader.boo" />
+    <Compile Include="Readers/DataReaders/HeroReader.boo" />
+    <Compile Include="Readers/DataReaders/ItemReader.boo" />
+    <Compile Include="Readers/DataReaders/MapDataReader.boo" />
+    <Compile Include="Readers/DataReaders/MapTreeReader.boo" />
+    <Compile Include="Readers/DataReaders/MonsterPartyReader.boo" />
+    <Compile Include="Readers/DataReaders/SkillReader.boo" />
+    <Compile Include="Readers/DataReaders/SoundReader.boo" />
+    <Compile Include="Readers/DataReaders/SystemDataReader.boo" />
+    <Compile Include="Readers/DataReaders/TerrainReader.boo" />
+    <Compile Include="Readers/DataReaders/TileGroupReader.boo" />
+    <Compile Include="Readers/DataReaders/TilesetReader.boo" />
+    <Compile Include="Readers/DataReaders/VehiclesReader.boo" />
+    <Compile Include="Readers/DataReaders/VocabReader.boo" />
+    <Compile Include="Readers/GlobalScriptReader.boo" />
+    <Compile Include="Readers/MapScriptReader.boo" />
+    <Compile Include="Readers/MonstersReader.boo" />
+    <Compile Include="Readers/ReaderUtils.boo" />
     <Compile Include="TextDataReader.boo" />
     <Compile Include="BooReader.Meta.Boo" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Pythia.Runtime\Pythia.Runtime.booproj">
-      <Project>{A9B8C964-EEA0-4D89-95E5-A5DEB822F151}</Project>
-      <Name>Pythia.Runtime</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.EngineBasis\TURBU.EngineBasis.booproj">
-      <Project>{2A439116-A1C1-49C7-96E2-4A8D71296307}</Project>
-      <Name>TURBU.EngineBasis</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.Meta\TURBU.Meta.booproj">
-      <Project>{D9D645BC-F085-40C9-8E7A-F64A029F9A42}</Project>
-      <Name>TURBU.Meta</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.RM2K.MapEngine\TURBU.RM2K.MapEngine.booproj">
-      <Project>{DC05E2F6-6214-4ED1-84BB-07EC636C386B}</Project>
-      <Name>TURBU.RM2K.MapEngine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.RM2K\TURBU.RM2K.booproj">
-      <Project>{38D2D905-9F6B-4845-B72C-A2C95B4ABCF7}</Project>
-      <Name>TURBU.RM2K</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TURBU.SDLFrame\TURBU.SDLFrame\TURBU.SDL.booproj">
-      <Project>{F861C008-3A91-4947-80CE-C6C58683E581}</Project>
-      <Name>TURBU.SDL</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Compiler" />
-    <Folder Include="BSONReaders" />
-    <Folder Include="Readers" />
-    <Folder Include="Readers\DataReaders" />
-  </ItemGroup>
-  <Import Project="$(BooBinPath)\Boo.Microsoft.Build.targets" />
+
+  <Import Project="$(BooBinPath)/Boo.Microsoft.Build.targets" />
+
 </Project>

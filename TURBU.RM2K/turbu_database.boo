@@ -40,7 +40,7 @@ class TRpgVocabDictionary(TRpgDatafile):
 			FVocab.Add(pair.Name, pair.Value)
 
 [TableName('Variables')]
-class TRpgVarsList(TRpgDatafile)
+class TRpgVarsList(TRpgDatafile):
 	[Getter(Values)]
 	FValues = Dictionary[of string, int]()
 	

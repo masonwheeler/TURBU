@@ -145,7 +145,7 @@ class AsphyreTimer(TObject):
 
 	private static class NativeMethods:
 		[StructLayout(LayoutKind.Sequential)]
-		public struct Message
+		public struct Message:
 			public hWnd as IntPtr
 			public Msg as uint
 			public wParam as IntPtr

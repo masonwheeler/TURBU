@@ -158,7 +158,7 @@ class TSdlImage(TObject):
 		currentRenderTarget().Parent.DrawRectTo(self, dest, source)
 
 	public def DrawSpriteTo(dest as GPU_Rect, index as int):
-		return if index >= Count:
+		return if index >= Count
 		currentRenderTarget().Parent.DrawRectTo(self, dest, self.SpriteRect[index])
 
 	public TextureSize as SgPoint:
