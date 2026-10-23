@@ -74,12 +74,12 @@ class TRpgImageSprite(TSprite):
 		self.Blue = Math.Min(commons.round((FColor.Rgba[3] * 2.55)), 255)
 		self.FSaturation = Math.Max(Math.Min(commons.round((FColor.Rgba[4] * 2.55)), 255), 0)
 
-	private def Update():
+	public def Tick():
 		dummy as single
 		TimeRemaining as int
 		oldcolor as uint
 		if assigned(FTransitionTimer):
-			TimeRemaining = FTransitionTimer.TimeRemaining
+			TimeRemaining = FTransitionTimer.RemainingTicks
 		else:
 			TimeRemaining = 0
 		if (FRefPoint.x != FRefTarget.x) or (FRefPoint.y != FRefTarget.y):
@@ -103,11 +103,14 @@ class TRpgImageSprite(TSprite):
 		if FRotation != FRotationTarget:
 			MoveTowards(TimeRemaining, FRotation, FRotationTarget)
 		if FRotation != 0:
-			self.Angle += FRotation / ROTATE_FACTOR
+			self.Angle += FRotation * ROTATE_FACTOR
 		else:
 			self.Angle = 0
 		if FWavePower != FWaveTarget:
 			MoveTowards(TimeRemaining, FWavePower, FWaveTarget)
+		if FWavePower != 0:
+			FTag += 8
+			FTag = 0 if FTag > 3141590
 
 	private def DrawQuad():
 		return if self.Image is null
@@ -185,9 +188,6 @@ class TRpgImageSprite(TSprite):
 
 	protected override def Render():
 		DrawQuad()
-		if FWavePower != 0:
-			++FTag
-			FTag = 0 if FTag > 3141590
 
 	protected override def InVisibleRect() as bool:
 		return true
@@ -245,7 +245,6 @@ class TRpgImageSprite(TSprite):
 				assert false
 
 	public override def Draw():
-		self.Update()
 		super.Draw()
 
 	public def MoveTo(x as int, y as int, zoom as int, opacity as int):
@@ -349,4 +348,5 @@ class TRpgImage(TObject):
 		get: return FSprite.Timer
 		set: FSprite.Timer = value
 
-let ROTATE_FACTOR = 30.0
+// degrees per tick for one unit of rotation power
+let ROTATE_FACTOR = 360.0 / 256.0

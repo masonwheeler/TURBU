@@ -12,10 +12,11 @@ class TRpgTimer(TObject):
 
 	private FTimerSprite as TSystemTimer
 
-	private FSecs as ushort
+	private FTicks as int
 
-	[Property(Time)]
-	private FTimeRemaining as int
+	public Time as int:
+		get: return FTicks / 60
+		set: FTicks = (Math.Min(Math.Max(value, 0) * 60 + 59, 359999) if value > 0 else 0)
 
 	[Getter(Active)]
 	private FActivated as bool
@@ -25,32 +26,30 @@ class TRpgTimer(TObject):
 	[Property(InBattle)]
 	private FInBattle as bool
 
-	private def Tick():
+	public def Tick():
 		return unless FActivated
-		secs = DateTime.Now.Second
-		secs = 60 if (secs == 0) and (FSecs == 59)
-		if (secs - FSecs > 0) and (FTimeRemaining > 0):
-			--FTimeRemaining
-			FSecs = secs % 60
+		if FTicks > 0:
+			--FTicks
+			FActivated = false if FTicks < 60
 
 	[NoImport]
 	public def constructor(sprite as TSystemTimer):
 		FTimerSprite = sprite
-		msec = DateTime.Now.Millisecond
-		++FSecs if msec >= 500
 		sprite.OnGetTime = self.GetTime
 
 	[NoImport]
 	public def Serialize(writer as JsonWriter):
 		writeJsonObject writer:
-			writer.CheckWrite('TimeRemaining', FTimeRemaining, 0)
+			writer.CheckWrite('TimeRemaining', self.Time, 0)
 			writer.CheckWrite('Activated', FActivated, false)
 			writer.CheckWrite('Visible', FVisible, false)
 			writer.CheckWrite('InBattle', FInBattle, false)
 
 	[NoImport]
 	public def Deserialize(obj as JObject):
-		obj.CheckRead('TimeRemaining', FTimeRemaining)
+		seconds as int = 0
+		obj.CheckRead('TimeRemaining', seconds)
+		self.Time = seconds
 		obj.CheckRead('Activated', FActivated)
 		obj.CheckRead('Visible', FVisible)
 		obj.CheckRead('InBattle', FInBattle)
@@ -71,12 +70,11 @@ class TRpgTimer(TObject):
 	public def Reset():
 		FActivated = false
 		FVisible = false
-		FTimeRemaining = 0
+		FTicks = 0
 
 	[NoImport]
 	public def GetTime() as int:
-		Tick()
-		return FTimeRemaining
+		return self.Time
 
 	public Visible as bool:
 		get: return FVisible

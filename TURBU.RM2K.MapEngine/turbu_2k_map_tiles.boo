@@ -65,13 +65,9 @@ class TAnimTile(TMapTile):
 	private static def OnHeartbeat():
 		if (FHeartbeat % ANIM_RATE2) == 0:
 			FDisplacement = ((FDisplacement + 1) % ANIM_LCM)
-			FStepFlag = true
-		else:
-			FStepFlag = false
 
 	public override def Draw():
-		if FStepFlag:
-			ImageIndex = FTileID + ((FDisplacement % 4) * 3)
+		ImageIndex = FTileID + ((FDisplacement % 4) * 3)
 		super.Draw()
 
 	public override def Place(xCoord as int, yCoord as int, layer as int, tileData as TTileRef, tileset as TTileSet) as TTileAttribute:

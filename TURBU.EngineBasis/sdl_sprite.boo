@@ -169,6 +169,28 @@ class TSprite(TObject):
 	protected internal virtual def SetViewport(value as IViewport):
 		_viewport = value
 
+	# Further places the sprite has to be drawn at, when a wraparound map is smaller than the screen.
+	# Filled in by CompositeViewport.SpriteInViewport.
+	protected _extraViews as List[of IViewport]
+
+	internal def ClearExtraViews():
+		_extraViews.Clear() if _extraViews is not null
+
+	internal def AddExtraView(view as IViewport):
+		_extraViews = List[of IViewport]() if _extraViews is null
+		_extraViews.Add(view)
+
+	internal CurrentViewport as IViewport:
+		get: return _viewport
+
+	internal def RenderIn(view as IViewport):
+		var saved = _viewport
+		_viewport = view
+		try:
+			Render()
+		ensure:
+			_viewport = saved
+
 	override def ToString():
 		return "$(self.GetType().Name): Image: $FImageName, Index: $FImageIndex"
 
@@ -233,6 +255,9 @@ class TSprite(TObject):
 				System.Diagnostics.Debugger.Break()
 
 	protected virtual def InVisibleRect() as bool:
+		var composite = (FEngine.Viewport if (not FPinned) and FEngine is not null else null) as CompositeViewport
+		if composite is not null and composite.Repeating:
+			return composite.SpriteInViewport(self)
 		return X > _viewport.WorldX - (Width * 2) and \
 		       Y > _viewport.WorldY - (Height * 2) and \
 		       X < _viewport.WorldX + _viewport.VisibleWidth and \
@@ -285,6 +310,12 @@ class TSprite(TObject):
 	public virtual def Draw():
 		if FVisible and (not FDead) and self.InVisibleRect():
 			DoDraw()
+			if _extraViews is not null and _extraViews.Count > 0:
+				var main = _viewport
+				for i in range(_extraViews.Count):
+					SetViewport(_extraViews[i])
+					DoDraw()
+				SetViewport(main)
 
 	public virtual def Dead():
 		if assigned(FEngine) and (not FDead):
@@ -736,38 +767,48 @@ class SpriteEngine(TParentSprite):
 		set: 
 			super.Height = value
 
+struct RenderEntry:
+	public Sprite as TSprite
+	public View as IViewport
+
+	def constructor(sprite as TSprite, view as IViewport):
+		Sprite = sprite
+		View = view
+
 class SpriteRenderer:
 	private FLastZ as int
 
-	private FLastMap as Multimap[of TSdlImage, TSprite]
+	private FLastMap as Multimap[of TSdlImage, RenderEntry]
 
-	private FDrawMap = Dictionary[of int, Multimap[of TSdlImage, TSprite]]()
+	private FDrawMap = Dictionary[of int, Multimap[of TSdlImage, RenderEntry]]()
 
 	public def constructor():
 		FLastZ = -1
 
 	public def Draw(sprite as TSprite):
-		map as Multimap[of TSdlImage, TSprite]
+		map as Multimap[of TSdlImage, RenderEntry]
 		if sprite.Z == FLastZ:
 			map = FLastMap
 		else:
 			System.Diagnostics.Debugger.Break() if sprite.Z == 0 and not sprite.IsBackground()
 			if not FDrawMap.TryGetValue(sprite.Z, map):
-				map = Multimap[of TSdlImage, TSprite]()
+				map = Multimap[of TSdlImage, RenderEntry]()
 				FDrawMap.Add(sprite.Z, map)
 			FLastZ = sprite.Z
 			FLastMap = map
-		map.Add(sprite.Image, sprite)
+		// the viewport is noted now, as the same sprite may be queued again for another part of the screen
+		map.Add(sprite.Image, RenderEntry(sprite, sprite.CurrentViewport))
 
 	public def Reset():
 		for value in FDrawMap.Values:
 			value.Clear()
 
-	private def RenderMap(map as Multimap[of TSdlImage, TSprite]):
+	private def RenderMap(map as Multimap[of TSdlImage, RenderEntry]):
 		for list in map.Values:
-			for sprite in list:
+			for entry in list:
+				var sprite = entry.Sprite
 				System.Diagnostics.Debugger.Break() if sprite.X < -50 and not sprite.IsBackground()
-				sprite.Render()
+				sprite.RenderIn(entry.View)
 
 	public def Render(target as GPU_Target_PTR):
 		for map in FDrawMap.OrderBy({e | e.Key}).Select({e | e.Value}):

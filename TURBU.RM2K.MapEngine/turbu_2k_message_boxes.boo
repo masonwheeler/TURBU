@@ -5,6 +5,7 @@ import turbu.defs
 import SDL.ImageManager
 import commons
 import timing
+import TURBU.Timing
 import Boo.Adt
 import Pythia.Runtime
 import System
@@ -27,36 +28,42 @@ class TMessageBox(TGameMenuBox):
 		FRightPortrait = value
 		FPortrait.X = (self.Width - 64 if value else 8)
 
-	private FTextRate as single
+	private FTextSpeed as int
 
-	private FNextCharTime as Timestamp
+	private FCharDelay as int
+
+	private FCharWait as int
+
+	private FLastCharTick as long
 
 	private FImmediate as bool
 
 	private def DrawNextChar():
-		if FTextCounter >= FParsedText.Count:
-			FNextCharTime = null
+		return if FTextCounter >= FParsedText.Count
+		if FCharWait > 0:
+			--FCharWait
 			return
-		return unless FNextCharTime is null or FNextCharTime.TimeRemaining == 0
 		if System.Threading.Monitor.TryEnter(self):
 			try:
+				charsLeft as int = (2 if FTextSpeed == 1 else 1)
 				while FTextCounter < FParsedText.Count:
 					var value = FParsedText[FTextCounter]
 					DrawChar(value)
 					++FTextCounter
 					unless FImmediate:
-						SetTimer(FTextRate)
-						break
+						--charsLeft
+						if charsLeft == 0:
+							SetWait(FCharDelay)
+							break
 			ensure:
 				System.Threading.Monitor.Exit(self)
 
-	private def SetTimer(value as single):
-		var remainder = (0 if FNextCharTime is null else FNextCharTime.TimeRemaining)
-		var duration = remainder + ((value * 1000) cast int)
-		FNextCharTime = Timestamp(duration)
+	private def SetWait(ticks as int):
+		FCharWait = Math.Max(FCharWait, ticks)
 
 	private def SetTextRate(value as int):
-		FTextRate = value * 0.0125
+		FTextSpeed = value
+		FCharDelay = (value / 2 if value > 1 else 0)
 
 	protected override def NewLine():
 		++FTextLine
@@ -73,8 +80,8 @@ class TMessageBox(TGameMenuBox):
 					case char('$'): InsertText(GEnvironment.value.Money.ToString())
 					case char('!'):
 						pass //TODO: implement this
-					case char('.'): SetTimer(0.25)
-					case char('|'): SetTimer(1)
+					case char('.'): SetWait(15)
+					case char('|'): SetWait(60)
 					case char('>'): FImmediate = true
 					case char('<'): FImmediate = false
 					case char('^'): EndMessage()
@@ -103,7 +110,10 @@ class TMessageBox(TGameMenuBox):
 	protected override def DrawText():
 		if FTextCounter == 0:
 			FPortrait.Draw()
-		DrawNextChar()
+		var passed = Math.Min(GameClock.Ticks - FLastCharTick, 8L)
+		FLastCharTick = GameClock.Ticks
+		for i in range(passed):
+			DrawNextChar()
 		if FTextCounter >= FParsedText.Count:
 			DrawingDone()
 		else: DrawingInProgress()
@@ -116,7 +126,8 @@ class TMessageBox(TGameMenuBox):
 		super.ResetText()
 		ClearText()
 		FImmediate = false
-		FNextCharTime = null
+		FCharWait = 0
+		FLastCharTick = GameClock.Ticks - 1
 		SetTextRate(1)
 
 	protected override def DoButton(input as TButtonCode):

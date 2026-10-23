@@ -4,6 +4,7 @@ import Pythia.Runtime
 import sdl.sprite
 import sdl.canvas
 import SDL.ImageManager
+import turbu.RM2K.images
 
 [Disposable(Destroy, true)]
 class TImageEngine(SpriteEngine):
@@ -16,6 +17,10 @@ class TImageEngine(SpriteEngine):
 		super(null, canvas)
 		FParentEngine = parent
 		self.Images = images
+
+	public def Tick():
+		for image in FSpriteList.OfType[of TRpgImageSprite]():
+			image.Tick()
 
 	public override def Draw():
 		Viewport.WorldX = FParentEngine.Viewport.WorldX

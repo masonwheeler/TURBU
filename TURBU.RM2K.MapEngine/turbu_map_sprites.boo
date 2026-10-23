@@ -3,6 +3,7 @@ namespace turbu.map.sprites
 import commons
 import charset.data
 import timing
+import TURBU.Timing
 import turbu.pathing
 import TURBU.MapObjects
 import turbu.defs
@@ -70,7 +71,17 @@ class TMapSprite(TObject):
 
 	private FJumpTarget as SgPoint
 
-	private FJumpTime as int
+	private _moveStart as long
+
+	private _moveTicks as int
+
+	private _moveFromX as single
+
+	private _moveFromY as single
+
+	private _interpDX as single
+
+	private _interpDY as single
 
 	private FTransparencyFactor as byte
 
@@ -100,7 +111,6 @@ class TMapSprite(TObject):
 		return towards(self.Location, heroLoc)
 
 	private def CanJump(target as SgPoint) as bool:
-		FJumpTime = commons.round(MOVE_DELAY[FMoveRate] / 1.5)
 		if PointInRect(target, SDL.SDL_Rect(0, 0, FEngine.Width, FEngine.Height)) \
 				and (FSlipThrough or (FEngine cast T2kSpriteEngine).Passable(target.x, target.y)):
 			result = true
@@ -109,22 +119,24 @@ class TMapSprite(TObject):
 		return result
 
 	private def StartMoveTo(target as SgPoint):
+		var start = FLocation
 		FLocation = target
 		lTarget as SgPoint = target
 		GSpriteEngine.value.NormalizePoint(lTarget.x, lTarget.y)
-		if lTarget != target:
-			var newTarget = lTarget
-			caseOf FMoveDir:
-				case TDirections.Up: --newTarget.y
-				case TDirections.Right: --newTarget.x
-				case TDirections.Down: ++newTarget.y
-				case TDirections.Left: ++newTarget.x
-			SetLocation(newTarget)
-			_wrapped = lTarget
+		// A step across the edge of a wraparound map: the sprite starts from the equivalent point
+		// one map width away, so that it walks one tile like any other step instead of crossing
+		// the whole map.
+		var dx = lTarget.x - start.x
+		var dy = lTarget.y - start.y
+		dx = -Math.Sign(dx) if Math.Abs(dx) > 1
+		dy = -Math.Sign(dy) if Math.Abs(dy) > 1
+		if (lTarget.x - start.x != dx) or (lTarget.y - start.y != dy):
+			SetLocation(SgPoint(lTarget.x - dx, lTarget.y - dy))
+			FLocation = lTarget
 		SetTarget(lTarget * TILE_SIZE)
 		FTarget.x -= WIDTH_BIAS
 		assert _moveTime is null
-		_moveTime = Timestamp(MOVE_DELAY[FMoveRate - 1])
+		BeginMoveTimer(WALK_TICKS[FMoveRate])
 		EnterTile()
 
 	private def SetMoveOrder(value as Path):
@@ -136,23 +148,35 @@ class TMapSprite(TObject):
 		FJumpTarget = target
 		FJumping = true
 		FJumpAnimateOverride = true
-		midpoint as SgPoint = ((FJumpTarget - FLocation) * TILE_SIZE) / 2.0
-		midpoint.y -= TILE_SIZE.y / 2
-		SetTarget((FLocation * TILE_SIZE) + midpoint)
+		SetTarget(FJumpTarget * TILE_SIZE)
 		FTarget.x -= WIDTH_BIAS
 		if (not self.DirLocked) and (FLocation != FJumpTarget):
 			self.Facing = towards(FLocation, FJumpTarget)
 		FLocation = FJumpTarget
 		assert _moveTime is null
 		GSpriteEngine.value.AddLocation(self.Location, self)
-		_moveTime = Timestamp(FJumpTime)
+		BeginMoveTimer(JUMP_TICKS[FMoveRate])
 
-	private def EndJump():
-		SetTarget(FLocation * TILE_SIZE)
-		FTarget.x -= WIDTH_BIAS
+	private def BeginMoveTimer(ticks as int):
+		_moveTicks = Math.Max(ticks, 1)
+		_moveStart = GameClock.Ticks
+		_moveFromX = FTiles[0].X
+		_moveFromY = FTiles[0].Y
+		_moveTime = Timestamp.FromTicks(_moveTicks)
+
+	private def CancelMove():
+		_moveTime = null
 		FJumping = false
-		assert _moveTime is null
-		_moveTime = Timestamp(FJumpTime)
+		SnapToTarget()
+
+	private def SnapToTarget():
+		for tile in FTiles:
+			if tile is not null:
+				tile.X = FTarget.x
+		FTiles[0].Y = FTarget.y
+		FTiles[1].Y = FTarget.y - TILE_SIZE.y if FTiles[1] is not null
+		FTiles[0].UpdateGridLoc()
+		FTiles[1].UpdateGridLoc() if FTiles[1] is not null
 
 	private def Get90Dir() as TDirections:
 		if _random.Next(2) == 1:
@@ -195,9 +219,7 @@ class TMapSprite(TObject):
 		if FMoveFreq not in range(1, 9):
 			raise Exception("Invalid move frequency: $FMoveFreq")
 		if FMoveFreq < 8:
-			var frequency = 8 - FMoveFreq
-			frequency = 2 ** frequency
-			FPause = Timestamp(frequency * (BASE_MOVE_DELAY - 15) / 4)
+			FPause = Timestamp.FromTicks(1 << (9 - FMoveFreq))
 		else: FPause = null
 
 	private def OpChangeFacing(dir as TDirections):
@@ -531,7 +553,7 @@ class TMapSprite(TObject):
 				MoveQueue = Path(data.Path)
 				FCanSkip = data.Path.Skip
 			default : assert false
-		_moveTime = null if data.AnimType in (TAnimType.Sentry, TAnimType.FixedDir)
+		CancelMove() if _moveTime is not null and data.AnimType in (TAnimType.Sentry, TAnimType.FixedDir)
 
 	protected abstract def DoUpdatePage(Data as TRpgEventPage):
 		pass
@@ -618,21 +640,12 @@ class TMapSprite(TObject):
 				FMapObj is not null and FMapObj.CurrentPage.MoveType == TMoveType.Still):
 			return
 		if _moveTime is not null:
-			timeRemaining as int = _moveTime.TimeRemaining
-			lX as single = FTiles[0].X
-			MoveTowards(timeRemaining, lX, FTarget.x)
-			FTiles[0].X = lX
-			lY = FTiles[0].Y
-			MoveTowards(timeRemaining, lY, FTarget.y)
-			FTiles[0].Y = lY
-			FTiles[0].UpdateGridLoc()
-			if timeRemaining <= Timestamp.FrameLength:
+			if _moveTime.IsDone:
 				_moveTime = null
-				if FJumping:
-					EndJump()
-				else:
-					SetMovePause()
-					FJumpAnimateOverride = false
+				FJumping = false
+				SnapToTarget()
+				SetMovePause()
+				FJumpAnimateOverride = false
 				CurrentTile().Bump(self) unless FSlipThrough
 				if _wrapped is not null:
 					ResetWrappedPosition()
@@ -642,6 +655,27 @@ class TMapSprite(TObject):
 
 	public def UpdatePage(Data as TRpgEventPage):
 		DoUpdatePage(Data)
+
+	public virtual def Interpolate(renderTime as double):
+		return if _moveTime is null or FTiles[0] is null
+		var p = Math.Min(Math.Max((renderTime - _moveStart) / _moveTicks, 0.0), 1.0)
+		_interpDX = ((_moveFromX + ((FTarget.x - _moveFromX) * p)) cast single) - FTiles[0].X
+		_interpDY = ((_moveFromY + ((FTarget.y - _moveFromY) * p)) cast single) - FTiles[0].Y
+		_interpDY -= JumpHeight(p) if FJumping
+		ApplyInterpolation(_interpDX, _interpDY)
+
+	public virtual def EndInterpolation():
+		return if _interpDX == 0 and _interpDY == 0
+		ApplyInterpolation(-_interpDX, -_interpDY)
+		_interpDX = 0
+		_interpDY = 0
+
+	private def ApplyInterpolation(dx as single, dy as single):
+		for tile in FTiles:
+			continue if tile is null
+			tile.X += dx
+			tile.Y += dy
+			tile.UpdateGridLoc()
 
 	public InFront as SgPoint:
 		get:
@@ -676,7 +710,7 @@ class TMapSprite(TObject):
 	public virtual def MoveTick(moveBlocked as bool):
 		return if _moveTime is not null
 		if FPause is not null:
-			return if FPause.TimeRemaining > 0
+			return if FPause.RemainingTicks > 0
 			FPause = null
 		canMove as bool = not (moveBlocked or FMapObj?.Playing)
 		if FMoveAssignment is not null:
@@ -685,7 +719,12 @@ class TMapSprite(TObject):
 				FMoveAssignment = null unless DoMove(FMoveAssignment)
 				++tries
 		elif FMoveQueue is not null and canMove:
-			FMoveQueue = null unless DoMove(FMoveQueue)
+			var queueTries = 0
+			var maxTries = (4 if self.HasPage and FMapObj.CurrentPage.MoveType == TMoveType.ByRoute else 1)
+			while FMoveQueue is not null and FPause is null and _moveTime is null and queueTries < maxTries:
+				FMoveQueue = null unless DoMove(FMoveQueue)
+				self.UpdateMove(FMapObj.CurrentPage) if FMoveQueue is null and FMoveStep is null and maxTries > 1
+				++queueTries
 		elif canMove and self.HasPage:
 			caseOf FMapObj.CurrentPage.MoveType:
 				case TMoveType.CycleUD:
@@ -708,7 +747,7 @@ class TMapSprite(TObject):
 	public def Stop():
 		if FMoveAssignment != null:
 			if _moveTime != null:
-				_moveTime = null
+				CancelMove()
 				if _wrapped is not null:
 					ResetWrappedPosition()
 			elif FPause != null:
@@ -811,40 +850,38 @@ class TCharSprite(TMapSprite):
 		var l = GDatabase.value.Layout
 		_spriteWidthOffset = (l.SpriteSize.x - l.TileSize.x) / 2
 
-	[Getter(Frame)]
-	private FWhichFrame as short
-
-	private FAnimTimer as Timestamp
+	# Ticks since the walking pattern last advanced
+	private FAnimCount as int
 
 	private def LoadCharset(filename as string):
 		FEngine.Images.EnsureImage(("Sprites\\$filename.png"), filename, SPRITE_SIZE)
 
 	private def UpdateFrame():
-		ANIM_DELAY = (208, 125, 104, 78, 57, 42)
-		TIME_FACTOR = 7
-		newFrame as int
-		moveDelay as int
-		return if FJumpAnimateOverride or self.AnimFix or FAnimTimer.TimeRemaining > 0
-		++FWhichFrame
-		if FWhichFrame >= FOOTSTEP_CONSTANT[FMoveRate - 1]:
-			FWhichFrame = 0
-			newFrame = (FMoveFrame + 1) % FActionMatrix[FAction].Length
-		else: newFrame = FMoveFrame
-		moveDelay = ANIM_DELAY[FMoveRate - 1]
-		if HasPage:
-			caseOf FMapObj.CurrentPage.AnimType:
-				case TAnimType.Sentry, TAnimType.FixedDir: FMoveFrame = (newFrame if _moveTime != null else 1)
-				case TAnimType.Jogger, TAnimType.FixedJog: FMoveFrame = newFrame
-				case TAnimType.SpinRight:
-					self.Facing = (ord(self.Facing) + 1) % 4
-					moveDelay = moveDelay * 10
-				case TAnimType.Statue:
-					pass
-		elif _moveTime is null and MoveQueue is null \
-				and not (MoveAssign != null and (FTarget != FLocation * TILE_SIZE)):
-			FMoveFrame = 1
-		else: FMoveFrame = newFrame
-		FAnimTimer = Timestamp(moveDelay / TIME_FACTOR)
+		var animType = (FMapObj.CurrentPage.AnimType if HasPage else TAnimType.Sentry)
+		var rate = Math.Min(Math.Max(FMoveRate, 1), 6)
+		standing as bool = _moveTime is null
+		jumping as bool = FJumpAnimateOverride
+		caseOf animType:
+			case TAnimType.Sentry, TAnimType.FixedDir:
+				unless jumping:
+					unless standing and (FMoveFrame % 2 == 1) and ANIM_STEP_STANDING[rate] - 1 <= FAnimCount:
+						++FAnimCount
+			case TAnimType.Jogger, TAnimType.FixedJog:
+				++FAnimCount unless jumping
+			case TAnimType.SpinRight:
+				++FAnimCount
+			default:
+				pass
+		if animType <= TAnimType.FixedJog:
+			if (not standing and ANIM_STEP_MOVING[rate] <= FAnimCount) or (standing and ANIM_STEP_STANDING[rate] <= FAnimCount):
+				FMoveFrame = (FMoveFrame + 1) % FActionMatrix[FAction].Length
+				FAnimCount = 0
+			if jumping or self.AnimFix:
+				FMoveFrame = 1
+				FAnimCount = 0
+		elif animType == TAnimType.SpinRight and ANIM_STEP_SPIN[rate] <= FAnimCount:
+			self.Facing = (ord(self.Facing) + 1) % 4
+			FAnimCount = 0
 
 	protected FMoved as bool
 
@@ -909,7 +946,6 @@ class TCharSprite(TMapSprite):
 	public def constructor(base as TRpgMapObject, parent as SpriteEngine):
 		super(base, parent)
 		FUnderConstruction = true
-		FWhichFrame = -1
 		FTiles[0] = EventTile(base, parent)
 		FTiles[1] = EventTile(base, parent)
 		if base?.CurrentPage != null:
@@ -927,7 +963,6 @@ class TCharSprite(TMapSprite):
 		FUnderConstruction = false
 		self.SetFlashEvents(FTiles[0])
 		self.SetFlashEvents(FTiles[1])
-		FAnimTimer = Timestamp(0)
 
 	private new def Destroy():
 		if FMapObj != null:
@@ -948,7 +983,7 @@ class TCharSprite(TMapSprite):
 		FLocation = Data.Location
 
 	public override def Place():
-		FMoved = (FMoveFrame > 0) and (FWhichFrame == (FMoveRate - 1))
+		FMoved = _moveTime is not null
 		super.Place()
 		UpdateFrame()
 		FTiles[1].Y = FTiles[0].Y - TILE_SIZE.y
@@ -978,7 +1013,15 @@ public def CurrentTile(tms as TMapSprite) as TMapTile:
 
 let BASE_MOVE_DELAY = 133
 let MOVE_DELAY = (1064, 532, 266, 133, 67, 33)
+let WALK_TICKS = (0, 64, 32, 16, 8, 4, 2)
+let JUMP_TICKS = (0, 32, 22, 16, 11, 8, 4)
+
+def JumpHeight(p as double) as single:
+	var d = Math.Abs(128 - (256 * (1 - p)))
+	return (16 - ((d * d) / 1024.0)) cast single
 let WIDTH_BIAS = 4
-let FOOTSTEP_CONSTANT = (11, 10, 8, 6, 5, 5) //yay for fudge factors!
+let ANIM_STEP_MOVING = (0, 12, 10, 8, 6, 5, 4)
+let ANIM_STEP_STANDING = (0, 16, 12, 10, 8, 7, 6)
+let ANIM_STEP_SPIN = (0, 24, 16, 12, 8, 6, 4)
 let MAX_TRANSPARENCY = 7
 let TRANSPARENCY_STEP = 255.0 / (MAX_TRANSPARENCY + 1)

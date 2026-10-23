@@ -254,6 +254,10 @@ class T2kEnvironment(TObject):
 	private def Destroy():
 		GEnvironment.value = null
 
+	internal def TickTimers():
+		FTimer.Tick() if FTimer is not null
+		FTimer2.Tick() if FTimer2 is not null
+
 	internal def CreateTimers():
 		if FTimer == null:
 			FTimer = TRpgTimer(TSystemTimer(GGameEngine.value.ImageEngine))

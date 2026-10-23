@@ -18,6 +18,7 @@ import sdl.sprite
 import SG.defs
 import tiles
 import timing
+import TURBU.Timing
 import turbu.constants
 import turbu.containers
 import turbu.defs
@@ -35,6 +36,7 @@ import turbu.tilesets
 let BASESPEED = 15.875
 let SHAKE_MAX = 23
 let MOVESPEED = (0, BASESPEED / 8.0, BASESPEED / 4.0, BASESPEED / 2.0, BASESPEED, BASESPEED * 2.0, BASESPEED * 4.0)
+let PAN_PIXELS_PER_TICK = (0.0, 0.25, 0.5, 1.0, 2.0, 4.0, 8.0)
 
 [Disposable(Destroy, true)]
 class T2kSpriteEngine(SpriteEngine):
@@ -147,6 +149,8 @@ class T2kSpriteEngine(SpriteEngine):
 	private FShakeCounter as byte
 
 	private FShakeTime as int
+
+	private FShakeX as int
 
 	private def SetViewport(viewport as GPU_Rect):
 		SetViewport(viewport, viewport.x * TILE_SIZE.x, viewport.y * TILE_SIZE.y)
@@ -311,11 +315,11 @@ class T2kSpriteEngine(SpriteEngine):
 		delta as single
 		panned as bool = false
 		if FDispGoalX != FDisplacementX:
-			delta = MoveTowards(FDisplacementTime.TimeRemaining, FDisplacementX, FDispGoalX)
+			delta = MoveTowards(FDisplacementTime.RemainingTicks, FDisplacementX, FDispGoalX)
 			clamp(FDisplacementX, -FDispBaseX, (Width * TILE_SIZE.x) - Canvas.Width)
 			panned = true
 		if FDispGoalY != FDisplacementY:
-			delta = MoveTowards(FDisplacementTime.TimeRemaining, FDisplacementY, FDispGoalY)
+			delta = MoveTowards(FDisplacementTime.RemainingTicks, FDisplacementY, FDispGoalY)
 			clamp(FDisplacementY, -FDispBaseY, (Height * TILE_SIZE.y) - Canvas.Height)
 			panned = true
 		FDisplacing = panned
@@ -337,13 +341,7 @@ class T2kSpriteEngine(SpriteEngine):
 
 	private def ApplyDisplacement():
 		let SHAKE_AMP = 1.8
-		if FShakeTime > 0:
-			FShakeCounter = (FShakeCounter + FShakeSpeed) % SHAKE_MAX
-			shakeBias as single = (FShakePower * LSineTable[FShakeCounter]) * SHAKE_AMP
-			i = Math.Max(round(FShakeTime / 32.0), 1)
-			FShakeTime -= FShakeTime / i
-		else:
-			shakeBias = 0
+		shakeBias as single = FShakeX
 		Viewport.WorldX = (Viewport.WorldX + FDisplacementX) - shakeBias
 		unless TWraparound.Horizontal in FMap.Wraparound:
 			Viewport.WorldX = clamp(Math.Round(Viewport.WorldX), 0, (Width * TILE_SIZE.x) - Canvas.Width)
@@ -396,7 +394,10 @@ class T2kSpriteEngine(SpriteEngine):
 		return MapObj.Size.x
 
 	protected override def CreateViewport() as Viewport:
-		return CompositeViewport(self.Canvas.Width, self.Canvas.Height, FMap.Size.x * TILE_SIZE.x, FMap.Size.y * TILE_SIZE.y)
+		var result = CompositeViewport(self.Canvas.Width, self.Canvas.Height, FMap.Size.x * TILE_SIZE.x, FMap.Size.y * TILE_SIZE.y)
+		result.WrapX = TWraparound.Horizontal in FMap.Wraparound
+		result.WrapY = TWraparound.Vertical in FMap.Wraparound
+		return result
 
 	public def constructor(map as TRpgMap, viewport as GPU_Rect, shaderEngine as TdmShaders, Canvas as SdlCanvas, \
 			tileset as TTileSet, images as SdlImages):
@@ -623,16 +624,33 @@ class T2kSpriteEngine(SpriteEngine):
 		if (filename != '') and (not self.Images.Contains(filename)):
 			self.Images.AddSpriteFromArchive("Sprites\\$filename.png", filename, SPRITE_SIZE, null)
 
+	private def InterpolateSprites():
+		var renderTime = GameClock.RenderTime
+		lock FMapObjects:
+			for sprite in FMapObjects:
+				sprite.Interpolate(renderTime)
+		FCurrentParty.Interpolate(renderTime) if assigned(FCurrentParty)
+
+	private def EndInterpolation():
+		lock FMapObjects:
+			for sprite in FMapObjects:
+				sprite.EndInterpolation()
+		FCurrentParty.EndInterpolation() if assigned(FCurrentParty)
+
 	public override def Draw():
-		caseOf self.State:
-			case TGameState.Map, TGameState.Message:
-				DrawNormal()
-			case TGameState.Fading:
-				if FErasing:
-					self.Canvas.Clear(SDL_BLACK, 255)
-				else: DrawNormal()
-			case TGameState.Menu, TGameState.Battle, TGameState.Minigame, TGameState.Sleeping:
-				raise 'Unsupported game State'
+		InterpolateSprites()
+		try:
+			caseOf self.State:
+				case TGameState.Map, TGameState.Message:
+					DrawNormal()
+				case TGameState.Fading:
+					if FErasing:
+						self.Canvas.Clear(SDL_BLACK, 255)
+					else: DrawNormal()
+				case TGameState.Menu, TGameState.Battle, TGameState.Minigame, TGameState.Sleeping:
+					raise 'Unsupported game State'
+		ensure:
+			EndInterpolation()
 
 	public def CanExit(x as int, y as int, direction as TDirections, character as TMapSprite) as bool:
 		result = false
@@ -735,16 +753,26 @@ class T2kSpriteEngine(SpriteEngine):
 		FFadeTarget[3] = s / 255.0
 		FFadeTime = Timestamp(time * 100)
 
-	public def Fade() as bool:
-		var result = false
+	public def TickEffects():
 		if assigned(FFadeTime):
-			time as uint = FFadeTime.TimeRemaining
+			time as int = FFadeTime.RemainingTicks
 			for i in range(FFadeTarget.Length):
 				MoveTowards(time, FFadeColor[i], FFadeTarget[i])
 			if time == 0:
 				FFadeTime = null
 				if FGameState == TGameState.Fading:
 					EndTransition()
+		if FShakeTime > 0:
+			--FShakeTime
+		if FShakeTime < 1:
+			FShakeX = 0
+		else:
+			target as int = Math.Truncate(Math.Sin(2 * Math.PI * ((((FShakeSpeed + 2) * FShakeTime * 4) & 0xFF) / 256.0)) * ((FShakePower * 2) + 1))
+			step as int = ((FShakePower * FShakeSpeed) / 4) + 1
+			FShakeX = Math.Max(FShakeX - step, Math.Min(FShakeX + step, target))
+
+	public def Fade() as bool:
+		var result = false
 		for i in range(4):
 			result = result or (FFadeColor[i] != 1)
 		if result:
@@ -758,7 +786,7 @@ class T2kSpriteEngine(SpriteEngine):
 		FFlashColor.a = power
 		duration = duration * 100
 		FFlashTime = Timestamp(duration)
-		FFlashDuration = duration
+		FFlashDuration = Math.Max(Timestamp.MsToTicks(duration), 1)
 
 	public def FadeOut(time as int):
 		FadeTo(0, 0, 0, 255, time)
@@ -785,7 +813,7 @@ class T2kSpriteEngine(SpriteEngine):
 		flashTime as int
 		alpha as byte
 		return if FFlashTime == null
-		flashTime = FFlashTime.TimeRemaining
+		flashTime = FFlashTime.RemainingTicks
 		if flashTime == 0:
 			FFlashTime = null
 			return
@@ -801,17 +829,17 @@ class T2kSpriteEngine(SpriteEngine):
 		FDisplacing = true
 
 	public def SetDispSpeed(speed as byte):
-		if speed in range(MOVESPEED.Length) and speed > 0:
+		if speed in range(1, PAN_PIXELS_PER_TICK.Length):
 			var xDistance = Math.Abs(FDispGoalX)
 			var yDistance = Math.Abs(FDispGoalY)
 			var distance = Math.Max(xDistance, yDistance)
-			var disptime = round(distance * MOVESPEED[speed])
-			FDisplacementTime = Timestamp(disptime)
+			FDisplacementTime = Timestamp.FromTicks(Math.Ceiling(distance / PAN_PIXELS_PER_TICK[speed]))
 
 	public def ShakeScreen(power as int, Speed as int, duration as int):
 		FShakePower = power
 		FShakeSpeed = Speed
-		FShakeTime = duration
+		FShakeTime = Timestamp.MsToTicks(duration)
+		FShakeX = 0 if FShakeTime == 0
 
 	public def MoveTo(x as int, y as int):
 		AdjustCoords(x, y)

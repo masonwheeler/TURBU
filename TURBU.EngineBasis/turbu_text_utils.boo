@@ -20,10 +20,15 @@ class TRpgFont(TObject):
 	private FSize as uint
 
 	public def constructor(name as string, size as uint):
-		var lName = System.IO.Path.Combine(TFontEngine.FontPath, name)
-		FFont = NFont(lName, size)
-		if FFont == IntPtr.Zero:
-			raise EFontError("Unable to load font \"$name\".")
+		var lName = TFontEngine.FindFont(name)
+		var font = NFont()
+		# NFont's own constructor does not say whether the load worked. A font that did not load is
+		# not safe to draw with: the drawing code reads from memory that was never filled in, and
+		# takes the whole process down.
+		unless font.load(lName, size):
+			font.Dispose()
+			raise EFontError("Unable to load font \"$name\". It was looked for in $(string.Join(' and in ', TFontEngine.FontFolders)).")
+		FFont = font
 		FSize = size
 
 [Disposable(Destroy, true)]
@@ -59,6 +64,19 @@ class TFontEngine(TObject):
 
 	def constructor():
 		_fontPath = Environment.GetFolderPath(Environment.SpecialFolder.Fonts)
+
+	# Where fonts are looked for: the system's, and then beside the program, so that a font the
+	# machine does not have can be supplied with the game instead of being installed.
+	static FontFolders as (string):
+		get:
+			return (_fontPath, AppContext.BaseDirectory)
+
+	static def FindFont(name as string) as string:
+	"""The full path of the font: the first folder that holds it, or the system folder's path if none does."""
+		for folder in FontFolders:
+			candidate = System.IO.Path.Combine(folder, name)
+			return candidate if System.IO.File.Exists(candidate)
+		return System.IO.Path.Combine(_fontPath, name)
 	
 	private def Destroy():
 		for font in FFonts:

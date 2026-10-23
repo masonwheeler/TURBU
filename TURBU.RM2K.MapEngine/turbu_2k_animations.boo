@@ -4,6 +4,7 @@ import System
 import System.Linq.Enumerable
 import commons
 import timing
+import TURBU.Timing
 import turbu.animations
 import dm.shaders
 import turbu.defs
@@ -68,7 +69,10 @@ class TAnimSprite(TParentSprite):
 
 	private FBase as TAnimTemplate
 
-	private FTimer as Timestamp
+	// ticks the current frame still has to stay (each frame lasts two ticks)
+	private FHold as int
+
+	private FLastTick as long
 
 	private FTarget as IAnimTarget
 
@@ -89,7 +93,7 @@ class TAnimSprite(TParentSprite):
 		self.Z = 19
 		self.Pinned = true
 		FFrameCount = FBase.Frames.Last.Frame
-		FTimer = Timestamp(0)
+		FLastTick = GameClock.Ticks
 		FTarget = target
 		FFullScreen = fullscreen
 		FSignal = signal
@@ -100,16 +104,18 @@ class TAnimSprite(TParentSprite):
 		for sprite in self.List.ToArray():
 			sprite.Dead()
 
+	# Logic, once per tick; Draw catches up on the ticks that have passed since the last draw.
 	private def Move():
-		tr as uint = FTimer.TimeRemaining
-		return if tr > 0
+		if FHold > 0:
+			--FHold
+			return
 		++FLastFrame
 		frame as ushort = FLastFrame
 		ClearSpriteList()
 		for currFrame in FBase.Frames.Where({ input | return input.Frame == frame }):
 			SetupFrame(currFrame)
 		PlayEffect(frame) if FLastEffect < FBase.Effects.Count
-		FTimer = Timestamp(32)
+		FHold = 1
 
 	private def SetupFrame(currFrame as TAnimCell):
 		var newSprite = TAnimSpriteCell(self)
@@ -170,9 +176,12 @@ class TAnimSprite(TParentSprite):
 		return false
 
 	public override def Draw():
-		self.Move()
+		var passed = Math.Min(GameClock.Ticks - FLastTick, 8L)
+		FLastTick = GameClock.Ticks
+		for i in range(passed):
+			self.Move()
 		super.Draw()
-		if FLastFrame == FFrameCount:
+		if FLastFrame >= FFrameCount and FHold == 0:
 			self.Dead()
 
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

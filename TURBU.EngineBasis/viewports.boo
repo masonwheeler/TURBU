@@ -1,6 +1,7 @@
 ﻿namespace sdl.sprite
 
 import System
+import System.Collections.Generic
 import SDL2.SDL2_GPU
 
 interface IViewport:
@@ -83,7 +84,55 @@ class CompositeViewport(Viewport):
 		_maxWidth = maxWidth
 		_maxHeight = maxHeight
 
+	property WrapX as bool
+
+	property WrapY as bool
+
+	private _copies = Dictionary[of int, Viewport]()
+
+	# True when a wrapping map is no larger than the screen in some direction: then a sprite can show up in
+	# multiple places at once, and it has to be drawn in each of them.
+	Repeating as bool:
+		get: return (WrapX and _maxWidth <= VisibleWidth) or (WrapY and _maxHeight <= VisibleHeight)
+
+	private def CopyView(kx as int, ky as int) as Viewport:
+		var key = ((kx + 512) * 1024) + (ky + 512)
+		view as Viewport
+		unless _copies.TryGetValue(key, view):
+			view = Viewport(VisibleWidth, VisibleHeight)
+			_copies.Add(key, view)
+		view.VisibleWidth = VisibleWidth
+		view.VisibleHeight = VisibleHeight
+		view.WorldX = WorldX - (kx * _maxWidth)
+		view.WorldY = WorldY - (ky * _maxHeight)
+		return view
+
+	private def SpriteInRepeatedViews(sprite as TSprite) as bool:
+		sprite.ClearExtraViews()
+		var minX = 0
+		var maxX = 0
+		var minY = 0
+		var maxY = 0
+		if WrapX:
+			minX = Math.Floor((WorldX - sprite.X - sprite.Width) / _maxWidth) + 1
+			maxX = Math.Ceiling((WorldX + VisibleWidth - sprite.X) / _maxWidth) - 1
+		if WrapY:
+			minY = Math.Floor((WorldY - sprite.Y - sprite.Height) / _maxHeight) + 1
+			maxY = Math.Ceiling((WorldY + VisibleHeight - sprite.Y) / _maxHeight) - 1
+		var found = false
+		for ky in range(minY, maxY + 1):
+			for kx in range(minX, maxX + 1):
+				var view = CopyView(kx, ky)
+				continue unless view.SpriteInViewport(sprite)
+				if found:
+					sprite.AddExtraView(view)
+				else:
+					sprite.SetViewport(view)
+					found = true
+		return found
+
 	override def SpriteInViewport(sprite as TSprite) as bool:
+		return SpriteInRepeatedViews(sprite) if Repeating
 		for view in SubViews:
 			if view.SpriteInViewport(sprite):
 				sprite.SetViewport(view)

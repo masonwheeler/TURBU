@@ -220,10 +220,6 @@ class T2kMapEngine(TMapEngine):
 		_partySprite.Dispose() if _partySprite is not null
 		_partySprite = THeroSprite(_currentMap, party[1], party)
 
-	private _frame as int
-
-	private _heartbeat as int
-
 	[Property(EnterLock)]
 	private _enterLock as bool
 
@@ -233,17 +229,12 @@ class T2kMapEngine(TMapEngine):
 
 	private def OnTimer():
 		return if _gameState == TGameState.Cleanup
-		++_frame
-		Timestamp.NewFrame()
+		_timer.Process()
 		lock _renderPauseLock:
 			caseOf _gameState:
 				case T2kMapEngine.TGameState.Title: RenderTitle()
 				case T2kMapEngine.TGameState.Playing: RenderPlaying()
 				case T2kMapEngine.TGameState.GameOver: RenderGameOver()
-		if _frame > _heartbeat:
-			_currentMap.AdvanceFrame() if assigned(_currentMap)
-			_frame = 0
-		_timer.Process()
 		_currentMap.Dead() if assigned(_currentMap)
 
 	private def StandardRender():
@@ -259,6 +250,7 @@ class T2kMapEngine(TMapEngine):
 		_imageEngine.Draw() if assigned(_imageEngine)
 
 	private def OnProcess():
+		_currentMap.AdvanceFrame() if assigned(_currentMap)
 		return if _switchState != SwitchState.NoSwitch
 		_buttonState = ReadKeyboardState()
 		for button in _buttonState.Values():
@@ -273,6 +265,9 @@ class T2kMapEngine(TMapEngine):
 				Quickload()
 				_saveLock = true
 		if _gameState == T2kMapEngine.TGameState.Playing:
+			GEnvironment.value.TickTimers() if assigned(GEnvironment.value)
+			_currentMap.TickEffects() if assigned(_currentMap)
+			_imageEngine.Tick() if assigned(_imageEngine)
 			GMapObjectManager.value.Tick()
 			_currentMap.Process() if _playing
 
@@ -361,7 +356,6 @@ class T2kMapEngine(TMapEngine):
 		GPU_SetBlending(image.Surface, 0)
 		image.Draw()
 		_canvas.Flip()
-		_timer.Process()
 
 	private def RenderPlaying():
 		if _renderPause?.TimeRemaining == 0:
@@ -390,7 +384,6 @@ class T2kMapEngine(TMapEngine):
 			GMenuEngine.Value.OpenMenu('Title')
 		GMenuEngine.Value.Draw()
 		_canvas.Flip()
-		_timer.Process()
 
 	protected FDatabaseOwner as bool
 

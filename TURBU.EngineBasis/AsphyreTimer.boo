@@ -3,6 +3,7 @@ namespace AsphyreTimer
 import Boo.Adt
 import Pythia.Runtime
 import TURBU.Meta
+import TURBU.Timing
 import System
 import System.Windows.Forms
 
@@ -89,11 +90,13 @@ class AsphyreTimer(TObject):
 		WaitAmount as int
 		SampleMax as int
 		msg as NativeMethods.Message
-		LatencyFP = RetrieveLatency()
 		unless FEnabled:
+			LatencyFP = RetrieveLatency()
 			SleepEx(5, true)
 			return
 		until NativeMethods.PeekMessage(msg, IntPtr.Zero, 0, 0, 0) or (FEnabled == false):
+			// the elapsed time must be re-measured on every pass, or each pass adds the same stale delta
+			LatencyFP = RetrieveLatency()
 			if LatencyFP < MinLatency:
 				WaitAmount = (MinLatency - LatencyFP) / FixedHigh
 				SleepEx(Math.Max(WaitAmount, 0), true)
@@ -121,10 +124,14 @@ class AsphyreTimer(TObject):
 	public def Process():
 		Processed = true
 		Amount as int = FixedDelta / FixedHigh
-		return if Amount < 1
+		if Amount < 1:
+			GameClock.Alpha = (FixedDelta cast double) / FixedHigh
+			return
 		for i in range(Amount):
 			OnProcess()
+			GameClock.Advance()
 		FixedDelta &= FixedHigh - 1
+		GameClock.Alpha = (FixedDelta cast double) / FixedHigh
 
 	public def Reset():
 		FixedDelta = 0

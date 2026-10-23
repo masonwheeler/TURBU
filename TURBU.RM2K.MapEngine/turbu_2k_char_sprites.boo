@@ -36,19 +36,36 @@ class TVehicleTile(EventTile):
 
 	protected FOnCleanup as Action
 
+	protected FOffsetCarry as single
+
 	protected def OffsetTowards(offset as SgPoint, state as TVehicleState):
-		displacement as int
-		if FOffset.x != offset.x:
-			displacement = (offset.x - FOffset.x)
-			displacement = (displacement / Math.Abs(displacement))
-			FOffset.x += displacement
-			self.X = (self.X + displacement)
-		if FOffset.y != offset.y:
-			displacement = (offset.y - FOffset.y)
-			displacement = (displacement / Math.Abs(displacement))
-			FOffset.y += displacement
-			self.Y = (self.Y + displacement)
+		FOffsetCarry += Math.Max(FOwner.Altitude, 1) / 32.0f
+		steps as int = Math.Floor(FOffsetCarry)
+		FOffsetCarry -= steps
+		for i in range(steps):
+			break if (FOffset.x == offset.x) and (FOffset.y == offset.y)
+			displacement as int
+			if FOffset.x != offset.x:
+				displacement = (offset.x - FOffset.x)
+				displacement = (displacement / Math.Abs(displacement))
+				FOffset.x += displacement
+				self.X = (self.X + displacement)
+			if FOffset.y != offset.y:
+				displacement = (offset.y - FOffset.y)
+				displacement = (displacement / Math.Abs(displacement))
+				FOffset.y += displacement
+				self.Y = (self.Y + displacement)
 		FOwner.ReportState(state) if (FOffset.x == offset.x) and (FOffset.y == offset.y)
+
+	# Logic, once per tick.
+	public def StepOffset():
+		caseOf FOwner.State:
+			case TVehicleState.Launching:
+				OffsetTowards(SgPoint(0, -FOwner.Altitude), TVehicleState.Active)
+			case TVehicleState.Landing:
+				OffsetTowards(commons.ORIGIN, TVehicleState.Emptying)
+			default:
+				FOffsetCarry = 0
 
 	public def constructor(base as EventTile, parent as SpriteEngine, onCleanup as Action):
 		super(base.Event, parent cast T2kSpriteEngine)
@@ -58,18 +75,6 @@ class TVehicleTile(EventTile):
 
 	def destructor():
 		FOnCleanup() if assigned(FOnCleanup)
-
-	public override def Draw():
-		caseOf FOwner.State:
-			case TVehicleState.Empty, TVehicleState.Emptying, TVehicleState.Active:
-				pass
-			case TVehicleState.Launching:
-				OffsetTowards(SgPoint(0, -FOwner.Altitude), TVehicleState.Active)
-			case TVehicleState.Landing:
-				OffsetTowards(commons.ORIGIN, TVehicleState.Emptying)
-			default :
-				assert false
-		super.Draw()
 
 enum TUnloadMethod:
 	Here
@@ -113,7 +118,7 @@ class TVehicleSprite(TCharSprite):
 
 	protected FAnimDir as bool
 
-	protected FAnimCounter as byte
+	protected FAnimCounter as int
 
 	protected FUnloadMethod as TUnloadMethod
 
@@ -231,24 +236,36 @@ class TVehicleSprite(TCharSprite):
 			FShadow.Y = FTiles[0].Y
 			FShadow.Z = 13
 
+	# The shadow stays on the ground under the vehicle: the vehicle's position without its altitude offset.
+	private def UpdateShadow():
+		return if FShadow is null
+		var offset = (FTiles[0] cast TVehicleTile).Offset
+		FShadow.X = (FTiles[0].X - offset.x) + 4
+		FShadow.Y = FTiles[0].Y - offset.y
+
+	public override def Interpolate(renderTime as double):
+		super.Interpolate(renderTime)
+		UpdateShadow()
+
+	public override def EndInterpolation():
+		super.EndInterpolation()
+		UpdateShadow()
+
 	public override def Place() as void:
 		kept as int
 		kept = FMoveFrame
 		super.Place()
 		FMoveFrame = kept
+		for tile in FTiles:
+			(tile cast TVehicleTile).StepOffset() if tile isa TVehicleTile
 		++FAnimCounter
-		if FAnimCounter == VEHICLE_ANIM_RATE:
+		if FAnimCounter >= (12 if _moveTime is not null else 16):
 			FAnimCounter = 0
 			if FAnimated:
-				turbu.sprites.nextPosition(FActionMatrix, FAction, FMoveFrame)
+				FMoveFrame = turbu.sprites.nextPosition(FActionMatrix, FAction, FMoveFrame)
 		if ((GEnvironment.value.Party.Base == self) and FMoved) and (not GSpriteEngine.value.ScreenLocked):
 			(FEngine cast T2kSpriteEngine).MoveTo(Math.Truncate((FTiles[0].X + GSpriteEngine.value.DisplacementX)), Math.Truncate((FTiles[0].Y + GSpriteEngine.value.DisplacementY)))
-		if FMoved and (FTemplate.Template.MovementStyle != TMovementStyle.Surface):
-			caseOf self.Facing:
-				case TDirections.Up: FShadow.Y = FShadow.Y - 4
-				case TDirections.Right: FShadow.X = FShadow.X + 4
-				case TDirections.Down: FShadow.Y = FShadow.Y + 4
-				case TDirections.Left: FShadow.X = FShadow.X - 4
+		UpdateShadow()
 
 	public override def Action(Button as TButtonCode):
 		DoAction(Button) if FState == TVehicleState.Active
@@ -376,11 +393,11 @@ class THeroSprite(TCharSprite):
 		if self.HasMoveChange():
 			return false
 		if _moveTime is not null:
-			if (MoveFreq == 8) and (_moveTime.TimeRemaining <= Timestamp.FrameLength):
+			if (MoveFreq == 8) and _moveTime.IsDone:
 				QueueMove(whichDir)
 			return false
 		if FPause is not null:
-			if FPause.TimeRemaining <= Timestamp.FrameLength:
+			if FPause.IsDone:
 				QueueMove(whichDir)
 			return false
 		if FMoveTick:
@@ -398,4 +415,3 @@ class THeroSprite(TCharSprite):
 		FEngine = engine
 
 let AIRSHIP_OFFSET = SgPoint(x: 0, y: -16)
-let VEHICLE_ANIM_RATE = 10
