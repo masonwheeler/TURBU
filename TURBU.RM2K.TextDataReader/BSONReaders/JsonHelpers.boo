@@ -72,6 +72,22 @@ def MakeListValue(name as string, body as JsonStatement*) as JsonStatement:
 def MakeArrayValue(name as string, body as Expression*) as JsonStatement:
 	return JsonStatement(JProperty(name, body.Select({e | ExpressionValue(e)})))
 
+//"LZ4J": marks a resource as LZ4-compressed JSON text.  Keep in sync with CompiledReader.boo.
+internal def JsonMagic() as int:
+	return 0x4A345A4C
+
+//layout: magic, uncompressed byte count, then one LZ4 block of UTF-8 JSON.
+internal def PackJson(value as JObject) as (byte):
+	var raw = System.Text.Encoding.UTF8.GetBytes(value.ToString(Newtonsoft.Json.Formatting.None))
+	var buffer = array(byte, K4os.Compression.LZ4.LZ4Codec.MaximumOutputSize(raw.Length))
+	var size = K4os.Compression.LZ4.LZ4Codec.Encode(raw, 0, raw.Length, buffer, 0, buffer.Length, K4os.Compression.LZ4.LZ4Level.L12_MAX)
+	using ms = System.IO.MemoryStream(), writer = System.IO.BinaryWriter(ms):
+		writer.Write(JsonMagic())
+		writer.Write(raw.Length)
+		writer.Write(buffer, 0, size)
+		writer.Flush()
+		return ms.ToArray()
+
 private class BSONResourceData:
 	
 	private _value as JObject
@@ -80,10 +96,8 @@ private class BSONResourceData:
 		_value = value
 	
 	def WriteResource(rWriter as System.Resources.IResourceWriter) as void:
-		using ms = System.IO.MemoryStream(), writer = Newtonsoft.Json.Bson.BsonWriter(ms):
-			_value.WriteTo(writer)
-			var id = _value['ID']
-			rWriter.AddResource((id.ToString() if id is not null else '0'), ms.ToArray())
+		var id = _value['ID']
+		rWriter.AddResource((id.ToString() if id is not null else '0'), PackJson(_value))
 
 private class BSONResource(ICompilerResource):
 	[Getter(Name)]

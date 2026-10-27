@@ -8,6 +8,14 @@ import Newtonsoft.Json
 import Newtonsoft.Json.Linq
 import turbu.classes
 
+struct PathStep:
+	public Count as int
+	public Action as Func[of TObject, bool]
+
+	public def constructor(count as int, action as Func[of TObject, bool]):
+		Count = count
+		Action = action
+
 class Path:
 
 	[Property(Cursor)]
@@ -25,14 +33,30 @@ class Path:
 
 	private _data as Func[of Path, Func[of TObject, bool]*]
 
+	private _steps as (PathStep)
+
+	private _loop as bool
+
 	public def constructor(skip as bool, data as Func[of Path, Func[of TObject, bool]*]):
 		super()
 		FSkip = skip
 		_data = data
 		GetSteps()
 
+	public def constructor(skip as bool, loop as bool, *steps as (PathStep)):
+		super()
+		FSkip = skip
+		_steps = steps
+		_loop = loop
+		GetSteps()
+
 	public def constructor(copy as Path):
-		self(copy.Skip, copy._data)
+		super()
+		FSkip = copy.Skip
+		_data = copy._data
+		_steps = copy._steps
+		_loop = copy._loop
+		GetSteps()
 
 	public def Clone() as Path:
 		var result = Path(self)
@@ -40,9 +64,18 @@ class Path:
 		result.FLooped = self.FLooped
 		return result
 
+	private def FixedSteps() as Func[of TObject, bool]*:
+		return if _steps.Length == 0
+		while true:
+			for i in range(_steps.Length):
+				for j in range(_steps[i].Count):
+					yield _steps[i].Action
+			break unless _loop
+			self.FLooped = true
+
 	private def GetSteps():
 		try:
-			FSteps = _data(self).GetEnumerator()
+			FSteps = (FixedSteps() if _steps is not null else _data(self)).GetEnumerator()
 		except e as Exception:
 			System.Diagnostics.Debugger.Break()
 

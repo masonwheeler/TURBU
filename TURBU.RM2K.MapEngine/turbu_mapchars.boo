@@ -62,6 +62,15 @@ class TRpgCharacter(TObject):
 				return
 			self.Base.MoveChange(lPath, clamp(frequency, 1, 8), skip)
 
+	public def Move(frequency as int, skip as bool, loop as bool, *steps as (PathStep)):
+		return unless assigned(self.Base)
+		lock self:
+			try:
+				var lPath = Path(skip, loop, *steps)
+			except as Boo.Lang.Runtime.AssertionFailedException:
+				return
+			self.Base.MoveChange(lPath, clamp(frequency, 1, 8), skip)
+
 	[NoImport]
 	public abstract def ChangeSprite(Name as string, translucent as bool, spriteIndex as int):
 		pass

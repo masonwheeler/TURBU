@@ -7,7 +7,7 @@ import System.Linq.Enumerable
 import System.Reflection
 import System.Resources
 import System.Threading.Tasks
-import Newtonsoft.Json.Bson
+import K4os.Compression.LZ4
 import Newtonsoft.Json.Linq
 import turbu.defs
 import turbu.versioning
@@ -88,7 +88,7 @@ private class TDllValueReader[of T(IRpgObject)](IDataTypeReader[of T]):
 			result as T
 			return result if _cache.TryGetValue(index, result)
 			
-			var o = GetBSON(_reader, index)
+			var o = GetJson(_reader, index)
 			result = (_factory(o) if _factory is not null else Activator.CreateInstance(typeof(T), o) cast T)
 			_cache.Add(index, result)
 			return result
@@ -141,7 +141,7 @@ private class TMapLoader(IMapLoader):
 		var name = "Map$(data.ID.ToString('D4'))"
 		var mapType = _asm.GetType(name)
 		var result = mapType() cast turbu.maps.TRpgMap
-		var json = GetBSON(_reader, map.ID)
+		var json = GetJson(_reader, map.ID)
 		result.LoadFromJSON(json)
 		return result
 
@@ -154,17 +154,26 @@ private class TMapLoader(IMapLoader):
 				while dict.MoveNext():
 					values.Add(int.Parse(dict.Key.ToString()))
 			for id in values.OrderBy({i | return i}):
-				var json = GetBSON(reader, id)
+				var json = GetJson(reader, id)
 				result.Add(TURBU.MapObjects.TRpgMapObject(json, _globalScripts))
 		return result
 
-internal def GetBSON(reader as ResourceReader, id as int) as JObject:
+//"LZ4J": marks a resource as LZ4-compressed JSON text.  Keep in sync with JsonHelpers.boo.
+private def JsonMagic() as int:
+	return 0x4A345A4C
+
+internal def GetJson(reader as ResourceReader, id as int) as JObject:
 	dummy as string
 	data as (byte)
 	reader.GetResourceData(id.ToString(), dummy, data)
-	using ms = MemoryStream(data):
-		using sizeReader = BinaryReader(ms, System.Text.Encoding.UTF8, true):
-			var size = sizeReader.ReadInt32()
-			assert data.Length == size + sizeof(size)
-		using bReader = BsonReader(ms):
-			return JToken.ReadFrom(bReader) cast JObject
+	using ms = MemoryStream(data), binary = BinaryReader(ms):
+		//the resource reader prefixes the byte count of the data
+		var size = binary.ReadInt32()
+		assert data.Length == size + sizeof(int)
+		if binary.ReadInt32() != JsonMagic():
+			raise "Resource '$id' is not LZ4-compressed JSON.  This game package was built by an older version and must be rebuilt."
+		var length = binary.ReadInt32()
+		var raw = array(byte, length)
+		var decoded = LZ4Codec.Decode(data, cast(int, ms.Position), data.Length - cast(int, ms.Position), raw, 0, length)
+		assert decoded == length
+		return JObject.Parse(System.Text.Encoding.UTF8.GetString(raw))

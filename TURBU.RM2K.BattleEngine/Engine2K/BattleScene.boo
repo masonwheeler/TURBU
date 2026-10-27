@@ -630,7 +630,7 @@ class TBattleScene(IBattleContext):
 			if unit.Present:
 				unit.RollGauge()
 				order.Add(unit)
-		var sorted = order.OrderByDescending({u | u.InitiativeInitiative}).ToList()
+		var sorted = order.OrderByDescending({u | u.Initiative}).ToList()
 		for unit in sorted:
 			continue unless unit.IsAlive
 			_page.Messages.ClearLines()

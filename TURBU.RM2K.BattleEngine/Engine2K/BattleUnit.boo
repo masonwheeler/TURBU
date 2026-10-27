@@ -943,7 +943,10 @@ class TMonsterUnit(TBattleUnit):
 	//---- tactics
 
 	private def PickLivingHero() as int:
-		living = List[of int](_field.Heroes.Where({h | h.IsAlive}))
+		living = List[of int]()
+		for i in range(_field.Heroes.Count):
+			if _field.Heroes[i].IsAlive:
+				living.Add(i)
 		return (living[TBattleMath.Roll(living.Count)] if living.Count > 0 else 0)
 
 	private def IsSkillBehavior(behavior as TMonsterBehavior) as bool:
