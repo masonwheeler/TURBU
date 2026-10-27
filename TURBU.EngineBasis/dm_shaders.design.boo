@@ -390,11 +390,10 @@ void main()
 varying vec4 v_color;
 varying vec2 texture_coordinate;
 uniform sampler2D baseTexture;
-uniform float blockSize;
+uniform vec2 blockSize; //the size of a block, as a fraction of the size of the picture
 
 void main()
 {
-	float blockStartX = (floor(texture_coordinate.x / blockSize) * blockSize) + (blockSize / 2);
-	float blockStartY = (floor(texture_coordinate.y / blockSize) * blockSize) + (blockSize / 2);
-	gl_FragColor = texture2D(baseTexture, vec2(blockStartX, blockStartY));
+	vec2 blockCenter = (floor(texture_coordinate / blockSize) * blockSize) + (blockSize / 2.0);
+	gl_FragColor = texture2D(baseTexture, blockCenter);
 }""")

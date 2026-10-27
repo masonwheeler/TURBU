@@ -12,6 +12,7 @@ import TURBU.BattleEngine
 import TURBU.RM2K.MapEngine
 import turbu.RM2K.environment
 import turbu.RM2K.sprite.engine
+import turbu.script.engine
 import TURBU.RM2K.RPGScript
 
 [async]
@@ -29,26 +30,46 @@ def BattleEx(which as int, background as string, formation as TBattleFormation, 
 				background = GDatabase.value.Terrains[terrain].BattleBG
 	mParty as TRpgMonsterParty = GDatabase.value.MonsterParties[which]
 	engine as IBattleEngine = GGameEngine.value.DefaultBattleEngine
+	battleResult as TBattleResultData
 	lock engine:
 		var conditions = TBattleConditions(background, formation, results)
-		FadeOutMusic(0)
+		MemorizePlayingMusic()
 		PlaySystemMusic(TBgmTypes.Battle)
 		await EraseScreenDefault(TTransitionTypes.BattleStartErase)
-		battleResult as TBattleResultData = engine.StartBattle(GEnvironment.value.Party, mParty, conditions)
+		GMapObjectManager.value.Paused = true
+		try:
+			battleResult = await(engine.StartBattle(GEnvironment.value.Party, mParty, conditions))
+		ensure:
+			GMapObjectManager.value.Paused = false
+		var outcome = 2
+		outcome = 0 if battleResult.result == TBattleResult.Victory
+		outcome = 1 if battleResult.result == TBattleResult.Escaped
+		GEnvironment.value.CountBattle(outcome)
 		await ShowScreenDefault(TTransitionTypes.BattleEndShow)
-		FadeOutMusic(0)
 		FadeInLastMusic(0)
 	assert battleResult.data == null
 	return battleResult.result
 
 def SetEncounterRate(low as int, high as int):
-	raise "Not implemented yet"
+	GGameEngine.value.Encounters.StepsOverride = high
+
+[async]
+def RunEncounter(which as int, firstStrike as bool, canEscape as bool) as Task:
+	var results = TBattleResult.Victory
+	results |= TBattleResult.Escaped if canEscape
+	var formation = (TBattleFormation.FirstStrike if firstStrike else TBattleFormation.Normal)
+	try:
+		await(BattleEx(which, '', formation, 0, 0, results))
+	except ex as System.Exception:
+		System.Diagnostics.Debug.WriteLine("Random encounter failed: $ex")
+	ensure:
+		GGameEngine.value.EncounterFinished()
 
 def EndBattle():
-	raise "Not implemented yet"
+	BattleState.Terminate()
 
 def SetBattleBG(filename as string):
-	raise "Not implemented yet"
+	BattleState.SetBackdrop(filename)
 
 private def GetTerrainBackground() as string:
 	loc as SgPoint = GEnvironment.value.Party.Sprite.Location
@@ -60,73 +81,7 @@ private def GetMapBackground(metadata as TMapMetadata) as string:
 
 private def GetCurrentBackground() as string:
 	metadata as TMapMetadata = GDatabase.value.MapTree[GSpriteEngine.value.MapID]
-	while (metadata.BattleBgState != TInheritedDecision.Parent) and (metadata.Parent == 0):
-		caseOf metadata.BattleBgState:
-			case TInheritedDecision.Parent:
-				metadata = GDatabase.value.MapTree[metadata.Parent]
-			case TInheritedDecision.No:
-				return GetTerrainBackground()
-			case TInheritedDecision.Yes:
-				return GetMapBackground(metadata)
-
-//Hack, just to get this to compile at this stage.  Will probably revamp later.
-internal class T2kMonster(turbu.Heroes.TRpgBattleCharacter, turbu.RM2K.animations.IAnimTarget):
-	def constructor(base as turbu.classes.TRpgDatafile):
-		super(base)
-
-	def Show():
-		raise "Not implemented yet"
-
-	def SafeLoseHP(value as int):
-		raise "Not implemented yet"
-
-	MaxHP as int:
-		get: raise "Not implemented yet"
-
-	Condition[i as int] as bool:
-		get: raise "Not implemented yet"
-		set: raise "Not implemented yet"
-
-	def Flee(force as bool, ignoreIfSurrounded as bool):
-		raise "Not implemented yet"
-
-	def Position(sign as int) as SgPoint:
-		raise "Not implemented yet"
-
-	def Flash(r as int, g as int, b as int, power as int, time as int):
-		raise "Not implemented yet"
-
-	public override def Retarget() as turbu.Heroes.TRpgBattleCharacter:
-		raise "Not implemented yet"
-
-	protected override def SetHP(value as int):
-		raise "Not implemented yet"
-
-	protected override def SetMP(value as int):
-		raise "Not implemented yet"
-
-
-static class BattleState:
-	def TurnsMatch(multiple as int, offset as int) as bool:
-		raise "Not implemented yet"
-
-	def MonstersPresent(minimum as int, maximum as int) as bool:
-		raise "Not implemented yet"
-
-	def HeroHPBetween(minimum as int, maximum as int) as bool:
-		raise "Not implemented yet"
-
-	def MonsterHPBetween(id as int, minimum as int, maximum as int) as bool:
-		raise "Not implemented yet"
-
-	def MonsterMPBetween(id as int, minimum as int, maximum as int) as bool:
-		raise "Not implemented yet"
-
-	def PartyLevelBetween(minimum as int, maximum as int) as bool:
-		raise "Not implemented yet"
-
-	def PartyExhaustionBetween(minimum as int, maximum as int) as bool:
-		raise "Not implemented yet"
-	
-	def GetMonster(i as int) as T2kMonster:
-		raise "Not implemented yet"
+	while metadata.BattleBgState == TInheritedDecision.Parent and metadata.Parent != 0:
+		metadata = GDatabase.value.MapTree[metadata.Parent]
+	return GetMapBackground(metadata) if metadata.BattleBgState == TInheritedDecision.Yes
+	return GetTerrainBackground()

@@ -13,6 +13,8 @@ interface IDataReader(ITurbuEngine):
 	
 	def GetMapLoader(environment as object) as IMapLoader
 	
+	def GetBattleScript(partyId as int, pageId as int) as Func[of System.Threading.Tasks.Task]
+	
 	Data as TRpgMetadata:
 		get
 

@@ -57,9 +57,9 @@ class RMProjectConverter(ITaskSource):
 			Directory.CreateDirectory(_scripts)
 			_database = Path.Combine(_outputPath, 'Database')
 			Directory.CreateDirectory(_database)
-			if _2k3:
-				_rtpLocation = GetRegistryValue('Software\\Enterbrain\\RPG2003', 'RuntimePackagePath')
-			else: _rtpLocation = GetRegistryValue('Software\\ASCII\\RPG2000', 'RuntimePackagePath')
+			_rtpLocation = GetRegistryValue(('Software\\Enterbrain\\RPG2003' if _2k3 else 'Software\\ASCII\\RPG2000'), 'RuntimePackagePath')
+			if string.IsNullOrEmpty(_rtpLocation):
+				_rtpLocation = GetRegistryValue(('Software\\Enterbrain\\RPG2003' if _2k3 else 'Software\\KADOKAWA\\RPG2000'), 'RuntimePackagePath')
 			if string.IsNullOrEmpty(_rtpLocation):
 				raise "Unable to locate the RTP for this project"
 		
@@ -117,9 +117,8 @@ class RMProjectConverter(ITaskSource):
 			Directory.CreateDirectory(glyphPath)
 			File.Copy(Path.Combine(exePath, 'resources', 'glyphs.png'), Path.Combine(glyphPath, 'glyphs.png'))
 		
-		task "Building TURBU package":
-			exePath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName)
-			RunBake(_outputPath, exePath, _lmt.Maps[0].Name)
+		task "Building TURBU package", PackageBuilder.ProgressUnits:
+			PackageBuilder.Build(_outputPath, _lmt.Maps[0].Name, _report)
 	
 	private static final RES_TYPES = HashSet[of string](('Music', 'Sound', 'Movie', 'Sprite', 'Portrait',
 		'Background', 'BattleBG', 'Picture', 'Frame', 'Monster', 'SysTile', 'Tileset', 'Anim', 'BattleSprite',
@@ -163,7 +162,7 @@ class RMProjectConverter(ITaskSource):
 			loc = LocateFileGeneral(value, 'ChipSet', IMG_TYPES)
 			if loc is null:
 				_report.MakeError("Unable to locate file ChipSet\\$value.", 2)
-			else: result.Body.Statements.AddRange(ConvertTileset(loc, outPath))
+			else: result.Body.Statements.AddRange(ConvertTileset(loc, outPath, _report))
 		return result
 	
 	private def LocateFileGeneral(filename as string, fromPath as string, extensions as HashSet[of string]) as string:

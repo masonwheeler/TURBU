@@ -14,7 +14,7 @@ macro GlobalScripts(body as TypeMemberStatement*):
 				get: 
 					result as System.Func[of System.Threading.Tasks.Task]
 					unless _lookup.TryGetValue(x, result):
-						result = do(): pass
+						result = {return System.Threading.Tasks.Task.CompletedTask}
 					return result
 			
 			def GetConditions(switch as int) as System.Func[of bool]:
@@ -35,7 +35,7 @@ macro GlobalScripts(body as TypeMemberStatement*):
 macro GlobalScripts.GlobalScript(id as int):
 	var name = "GS$(id.ToString('D4'))"
 	var result = [|
-		internal def $name():
+		internal def $name() as System.Threading.Tasks.Task:
 			$(GlobalScript.Body)
 	|]
 	result.Accept(ScriptProcessor())

@@ -57,6 +57,12 @@ macro MonsterParties.MonsterParty.Pages.Page.PageConditions(body as JsonStatemen
 	macro Timer2(value as int):
 		return JsonStatement(JProperty('Timer2', value))
 	
+	macro Exhaustion(min as int, max as int):
+		return JsonStatement(JProperty('Exhaustion', JArray(min, max)))
+	
+	macro CommandUsed(hero as int, command as int):
+		return JsonStatement(JProperty('CommandUsed', JArray(hero, command)))
+	
 	macro Turns(mult as int, constant as int):
 		return JsonStatement(JProperty('Turns', JArray(mult, constant)))
 	

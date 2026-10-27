@@ -4,6 +4,7 @@ import System
 import Microsoft.Win32
 import Boo.Adt
 import SG.defs
+from System.Runtime.CompilerServices import MethodImplAttribute, MethodImplOptions
 
 class EFatalError(Exception):
 	def constructor(msg as string):
@@ -11,7 +12,7 @@ class EFatalError(Exception):
 
 def GetRegistryValue(KeyName as string, valueName as string) as string:
 	using rootKey = Registry.CurrentUser.OpenSubKey(KeyName, false):
-		return ('' if rootKey is null else rootKey.GetValue(valueName).ToString())
+		return ('' if rootKey is null else rootKey.GetValue(valueName)?.ToString())
 
 def SetRegistryValue(KeyName as string, valueName as string, value as string):
 	using rootKey = Registry.CurrentUser.OpenSubKey(KeyName, true):
@@ -33,6 +34,18 @@ def clamp(ref value as single, low as single, high as single):
 
 def clamp(number as int, low as int, high as int) as int:
 	return Math.Min(Math.Max(number, low), high)
+
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+def Divide(num as int, den as int) as int:
+	if den == 0:
+		den = 1
+	return num / den
+
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+def Modulus(num as int, den as int) as int:
+	if den == 0:
+		den = 1
+	return num % den
 
 static class GCurrentFolder:
 	public value as string

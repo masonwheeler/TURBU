@@ -322,6 +322,11 @@ class TSprite(TObject):
 			FDead = true
 			FEngine.FDeadList.Add(self)
 
+	// Ensure that the sprite engine can find dead sprites and avoid calling methods
+	// on them that can raise ObjectDisposedException
+	public IsDead as bool:
+		get: return FDead
+
 	public def DrawTo(dest as GPU_Rect):
 		caseOf FImageType:
 			case TImageType.SingleImage:
@@ -741,7 +746,7 @@ class SpriteEngine(TParentSprite):
 		for list in FSpriteList.FSprites:
 			if assigned(list):
 				for item in list:
-					item.Draw()
+					item.Draw() unless item.IsDead
 		FRenderer.Render(FCanvas.RenderTarget)
 
 	public def Dead():

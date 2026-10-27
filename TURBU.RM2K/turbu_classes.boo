@@ -96,7 +96,7 @@ class TRpgDataList[of T(TRpgDatafile, constructor)](TRpgObjectList[of T]):
 		super.Clear()
 		self.Add(Activator.CreateInstance(T, null))
 
-class TRpgDataDict[of T(TRpgDatafile, constructor)](Dictionary[of int, TRpgDatafile]):
+class TRpgDataDict[of T(TRpgDatafile, constructor)](Dictionary[of int, T]):
 
 	protected FDataset as IDataTypeReader[of T]
 
@@ -163,9 +163,9 @@ class TRpgDataDict[of T(TRpgDatafile, constructor)](Dictionary[of int, TRpgDataf
 
 	public self[Key as int] as T:
 		new get:
-			result as TRpgDatafile
+			result as T
 			if TryGetValue(Key, result):
-				return result cast T
+				return result
 			result = FDataset.GetData(Key)
 			self.Add(result)
 			return result
@@ -236,6 +236,14 @@ public def CheckRead(obj as JObject, name as string, ref value as int):
 	obj.TryGetValue(name, item)
 	if assigned(item):
 		value = item cast int
+		obj.Remove(name)
+
+[Extension]
+public def CheckRead(obj as JObject, name as string, ref value as short):
+	item as JToken
+	obj.TryGetValue(name, item)
+	if assigned(item):
+		value = item cast short
 		obj.Remove(name)
 
 [Extension]

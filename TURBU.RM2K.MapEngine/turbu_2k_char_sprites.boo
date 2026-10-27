@@ -6,6 +6,7 @@ import sdl.sprite
 import SG.defs
 import timing
 import TURBU.RM2K
+import TURBU.RM2K.MapEngine
 import turbu.characters
 import turbu.terrain
 import Boo.Adt
@@ -323,6 +324,10 @@ class THeroSprite(TCharSprite):
 
 	protected override def GetCanSkip() as bool:
 		return true
+
+	# Steps the player takes count towards a random encounter; steps a script makes the party take do not.
+	protected override def StepFinished():
+		GGameEngine.value.PartyStepped() if MoveAssign == null and assigned(GGameEngine.value)
 
 	public def constructor(parent as SpriteEngine, whichHero as TRpgHero, party as TRpgParty):
 		super(null, parent)

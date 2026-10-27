@@ -175,42 +175,43 @@ class TNormalSkillTemplate(TSkillTemplate):
 	protected FAttributes as (SgPoint)
 
 	public StrEffect as int:
-		get: return SkillPower[1]
+		get: return SkillPower[0]
 
 	public MindEffect as int:
-		get: return SkillPower[2]
+		get: return SkillPower[1]
 
 	public Variance as int:
-		get: return SkillPower[3]
+		get: return SkillPower[2]
 
 	public Base as int:
-		get: return SkillPower[4]
+		get: return SkillPower[3]
 
 	public HP as bool:
-		get: return Stats[1]
+		get: return Stats[0]
 
 	public MP as bool:
-		get: return Stats[2]
+		get: return Stats[1]
 
 	public Attack as bool:
-		get: return Stats[3]
+		get: return Stats[2]
 
 	public Defense as bool:
-		get: return Stats[4]
+		get: return Stats[3]
 
 	public Mind as bool:
-		get: return Stats[5]
+		get: return Stats[4]
 
 	public Speed as bool:
-		get: return Stats[6]
+		get: return Stats[5]
 
 abstract class TSpecialSkillTemplate(TSkillTemplate):
 
 	def constructor(value as JObject):
 		super(value)
-		var sfx = value['Sfx'] cast JObject
+		var sfx = value['Sfx'] cast JArray
 		if assigned(sfx):
 			FSfx = TRpgSound(sfx)
+			value.Remove('Sfx')
 
 	[Property(Sfx)]
 	private FSfx as TRpgSound

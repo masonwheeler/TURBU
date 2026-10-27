@@ -6,7 +6,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>LCF_Parser</RootNamespace>
     <AssemblyName>LCF Parser</AssemblyName>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <Ducky>False</Ducky>
     <Strict>False</Strict>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
@@ -14,17 +14,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Used at run time too (the converter builds Boo ASTs), so it must be in the deps.json for the runtime to find it. -->
     <Reference Include="Boo.Lang.Compiler">
       <HintPath>$(BooBinPath)/Boo.Lang.Compiler.dll</HintPath>
-      <Private>false</Private>
     </Reference>
-    <!-- Not part of this repository; the path below is where the old project looked for it. -->
-    <Reference Include="Bake.Compiler.Extensions">
-      <HintPath>../../boo-build-system/bin/Bake.Compiler.Extensions.dll</HintPath>
+    <!-- The compile of the converted project runs in this process, and the macros and the pipeline it uses need these. -->
+    <Reference Include="Boo.Lang.Useful">
+      <HintPath>$(BooBinPath)/Boo.Lang.Useful.dll</HintPath>
     </Reference>
-    <!-- Not part of this repository; the path below is where the old project looked for it. -->
-    <Reference Include="Bake.Engine">
-      <HintPath>../../boo-build-system/src/bake.engine/obj/Debug/Bake.Engine.dll</HintPath>
+    <Reference Include="Boo.Lang.Extensions">
+      <HintPath>$(BooBinPath)/Boo.Lang.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.Interpreter">
+      <HintPath>$(BooBinPath)/Boo.Lang.Interpreter.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.PatternMatching">
+      <HintPath>$(BooBinPath)/Boo.Lang.PatternMatching.dll</HintPath>
     </Reference>
     <!-- Not part of this repository; the path below is where the old project looked for it. -->
     <Reference Include="Boo.Adt">
@@ -49,6 +54,8 @@
 
   <ItemGroup>
     <None Include="app.config" />
+    <!-- The native libraries SDL2-CS loads. This is a 64 bit process, so they are the 64 bit builds, in dlls/x64. -->
+    <None Include="../dlls/x64/*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Import Project="$(BooBinPath)/Boo.Microsoft.Build.targets" />

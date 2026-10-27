@@ -2,6 +2,7 @@ namespace turbu.terrain
 
 import System
 
+import Newtonsoft.Json.Linq
 import Pythia.Runtime
 import turbu.classes
 import turbu.defs
@@ -41,3 +42,16 @@ class TRpgTerrain(TRpgDatafile):
 
 	[Property(Frame)]
 	protected FFrame as string
+
+	public def constructor():
+		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Damage', FDamage)
+		value.CheckRead('EncounterMultiplier', FEncounterMultiplier)
+		value.CheckRead('BattleBG', FBattleBg)
+		value.ReadArray('VehiclePass', FVehiclePass)
+		value.CheckRead('AirshipLanding', FAirshipLanding)
+		value.CheckReadEnum('Concealment', FConcealment)
+		// the RM2K3 extras (damage sound, battle frames, special battle types) are not read yet

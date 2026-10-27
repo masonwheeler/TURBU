@@ -42,7 +42,6 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 									 MessageBoxDefaultButton.Button2) == DialogResult.Yes:
 					return
 			Directory.Delete(_outputPath, true)
-			Directory.CreateDirectory(_outputPath)
 		Directory.CreateDirectory(_outputPath)
 		RMProjectConverter(_projectFolder, _outputPath, self).GetTask()
 	
@@ -82,7 +81,8 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 			if _conversionReport.Count > 0 and not string.IsNullOrEmpty(filename):
 				filename = Path.Combine(_outputPath, filename)
 				File.WriteAllLines(filename, _conversionReport)
-				System.Diagnostics.Process.Start(filename)
+				var startInfo = System.Diagnostics.ProcessStartInfo(FileName: filename, UseShellExecute: true)
+				System.Diagnostics.Process.Start(startInfo)
 			lblStatus.Text = 'Complete'
 			btnDone.DialogResult = DialogResult.OK
 			btnDone.Text = '&OK'
@@ -120,7 +120,7 @@ partial class RMProjectConverterForm(TURBU.RM2K.Import.IConversionReport):
 		self.Invoke({lblHints.Text = (int.Parse(lblHints.Text) + 1).ToString()})
 		
 	def MakeNotice(text as string, group as int):
-		_conversionReport.Add("Hint (H$group): $text")
+		_conversionReport.Add("Warning (W$group): $text")
 		self.Invoke({lblWarnings.Text = (int.Parse(lblWarnings.Text) + 1).ToString()})
 	
 	private def BtnDoneClick(sender as object, e as System.EventArgs):

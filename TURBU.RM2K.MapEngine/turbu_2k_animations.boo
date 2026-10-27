@@ -13,7 +13,7 @@ import sdl.sprite
 import Pythia.Runtime
 import turbu.RM2K.sprite.engine
 import SDL2.SDL2_GPU
-import System.Threading
+import System.Threading.Tasks
 import TURBU.Meta
 import TURBU.RM2K.RPGScript
 
@@ -85,9 +85,9 @@ class TAnimSprite(TParentSprite):
 	private FFrameCount as int
 
 	[DisposeParent]
-	private FSignal as EventWaitHandle
+	private FSignal as TaskCompletionSource
 
-	public def constructor(parent as SpriteEngine, base as TAnimTemplate, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
+	public def constructor(parent as SpriteEngine, base as TAnimTemplate, target as IAnimTarget, fullscreen as bool, signal as TaskCompletionSource):
 		super(parent)
 		FBase = base
 		self.Z = 19
@@ -100,7 +100,7 @@ class TAnimSprite(TParentSprite):
 
 	private new def Destroy():
 		if assigned(FSignal):
-			FSignal.Set()
+			FSignal.SetResult()
 		for sprite in self.List.ToArray():
 			sprite.Dead()
 

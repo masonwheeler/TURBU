@@ -126,8 +126,8 @@ class TGameMiniPartyPanel(TCustomPartyPanel):
 		cond as TConditionTemplate
 		i = 1
 		while GEnvironment.value.Party[i] != GEnvironment.value.Heroes[0]:
-			FPortrait[i].Draw()
-			origin = SgPoint(Math.Round(FPortrait[i].X) + 54, Math.Round(FPortrait[i].Y) + 3)
+			FPortrait[i - 1].Draw()
+			origin = SgPoint(Math.Round(FPortrait[i - 1].X) + 54, Math.Round(FPortrait[i - 1].Y) + 3)
 			hero = GEnvironment.value.Party[i]
 			target = FTextTarget.RenderTarget
 			GFontEngine.DrawText(target, hero.Name, origin.x + 1, origin.y, 0)

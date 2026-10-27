@@ -3,8 +3,10 @@ namespace turbu.monsters
 import System
 import System.Collections.Generic
 import System.Linq.Enumerable
+import System.Threading.Tasks
 import Newtonsoft.Json.Linq
 import Pythia.Runtime
+import TURBU.Meta
 import SG.defs
 import turbu.classes
 import turbu.containers
@@ -24,6 +26,25 @@ class TMonsterBehavior(TRpgDatafile):
 
 	public def constructor(id as int):
 		FId = id
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Priority', FPriority)
+		value.CheckRead('SwitchOn', FSwitchOn)
+		value.CheckRead('SwitchOff', FSwitchOff)
+		value.CheckReadEnum('Action', FAction)
+		value.CheckRead('Skill', FSkill)
+		value.CheckRead('Transform', FTransform)
+		item as JToken
+		if value.TryGetValue('Requirement', item):
+			var requirement = item cast JObject
+			FRequirementName = requirement['Name'] cast string
+			var args = requirement['Args'] cast JArray
+			FRequirementArgs = array(int, args.Count)
+			for i in range(args.Count):
+				FRequirementArgs[i] = args[i] cast int
+			value.Remove('Requirement')
+		value.CheckEmpty()
 
 	[Property(Priority)]
 	private FPriority as int
@@ -46,6 +67,13 @@ class TMonsterBehavior(TRpgDatafile):
 	[Property(Requirement)]
 	private FRequirement as Func of bool
 
+	[Property(RequirementName)]
+	private FRequirementName as string
+
+	[Property(RequirementArgs)]
+	private FRequirementArgs as (int)
+
+[TableName('Monsters')]
 class TRpgMonster(TRpgDatafile):
 
 	[Property(Filename)]
@@ -96,6 +124,41 @@ class TRpgMonster(TRpgDatafile):
 	[Property(Tag)]
 	protected FTag as (int)
 
+	public def constructor():
+		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('Filename', FFilename)
+		value.CheckRead('Transparent', FTransparent)
+		value.CheckRead('Flying', FFlying)
+		value.CheckRead('ColorShift', FColorShift)
+		value.ReadArray('Stats', FStats)
+		value.CheckRead('Exp', FExp)
+		value.CheckRead('Money', FMoney)
+		value.CheckRead('Item', FItem)
+		value.CheckRead('ItemChance', FItemChance)
+		value.CheckRead('CanCrit', FCanCrit)
+		value.CheckRead('CritChance', FCritChance)
+		value.CheckRead('OftenMiss', FOftenMiss)
+		FResists = ReadIndexed(value, 'Resist')
+		FConditions = ReadIndexed(value, 'Condition')
+		var behaviors = value['Behavior'] as JArray
+		value.Remove('Behavior')
+		FBehavior = array(TMonsterBehavior, (behaviors.Count if behaviors is not null else 0))
+		for i in range(FBehavior.Length):
+			FBehavior[i] = TMonsterBehavior(behaviors[i] cast JObject)
+		value.ReadArray('Tag', FTag)
+		value.CheckEmpty()
+
+	private static def ReadIndexed(value as JObject, name as string) as (SgPoint):
+		levels as (int)
+		value.ReadArray(name, levels)
+		result = array(SgPoint, (levels.Length if levels is not null else 0))
+		for i in range(result.Length):
+			result[i] = SgPoint(i + 1, levels[i])
+		return result
+
 class TRpgMonsterElement(TObject):
 
 	[Getter(ID)]
@@ -124,6 +187,30 @@ class TRpgMonsterElement(TObject):
 		value.CheckRead('Invisible', FInvisible)
 		value.CheckEmpty()
 
+class TPageCondition(TObject):
+
+	[Getter(Kind)]
+	private FKind as string
+
+	[Getter(Args)]
+	private FArgs as (int)
+
+	public def constructor(kind as string, args as (int)):
+		FKind = kind
+		FArgs = args
+
+	public def constructor(prop as JProperty):
+		FKind = prop.Name
+		var value = prop.Value
+		caseOf value.Type:
+			case JTokenType.Array:
+				FArgs = value.Select({t | t cast int}).ToArray()
+			case JTokenType.Object:
+				//a variable that must be at least a given value: L is the variable, R the value
+				FArgs = (value['L'] cast int, value['R'] cast int)
+			default:
+				FArgs = (value cast int,)
+
 class TBattleEventPage(TObject):
 
 	[Getter(ID)]
@@ -135,6 +222,13 @@ class TBattleEventPage(TObject):
 	[Property(Conditions)]
 	protected FConditions as Func of bool
 
+	[Property(Script)]
+	protected FScript as Func of Task
+
+	//all of these must hold for the page to run; none means that it runs at the start of the battle
+	[Getter(Requirements)]
+	protected FRequirements = array(TPageCondition, 0)
+
 	public def constructor(id as int):
 		super()
 		FId = id
@@ -143,7 +237,10 @@ class TBattleEventPage(TObject):
 		super()
 		value.CheckRead('ID', FId)
 		value.CheckRead('Name', FName)
-		value.Remove('PageConditions') //implement this later
+		var conditions = value['PageConditions'] as JObject
+		if conditions is not null:
+			FRequirements = conditions.Properties().Select({p | TPageCondition(p)}).ToArray()
+			value.Remove('PageConditions')
 		value.CheckEmpty()
 
 [TableName('MonsterParties')]

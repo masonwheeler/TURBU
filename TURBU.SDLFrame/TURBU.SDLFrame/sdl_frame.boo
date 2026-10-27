@@ -63,6 +63,7 @@ class TSdlFrame(Control):
 	private def CreateWindow():
 		flags as SDL.SDL_WindowFlags
 		if FWindow == IntPtr.Zero:
+			SDL.SDL_SetHint('SDL_VIDEO_FOREIGN_WINDOW_OPENGL', '1')
 			SDL.SDL_SetHint('SDL_FOREIGN_WINDOW_OPENGL_SUPPORT', 'true')
 			FWindow = SDL.SDL_CreateWindowFrom(self.Handle)
 			if FWindow == IntPtr.Zero:
@@ -102,7 +103,7 @@ class TSdlFrame(Control):
 				FOnAvailable(self, EventArgs.Empty) if assigned(FOnAvailable)
 			else:
 				eo = GPU_PopErrorCode()
-				raise "GPU_InitRenderer failed: $(eo.function), $(eo.details)"
+				raise "GPU_InitRenderer failed: $(eo.function.Value), $(eo.details.Value)"
 		ensure:
 			glCheckError()
 

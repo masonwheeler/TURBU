@@ -84,6 +84,10 @@ abstract class TGameMenuBox(TCustomMessageBox):
 	protected virtual def PostDrawText():
 		pass
 
+	//to potentially draw a cursor under the text
+	protected virtual def PreDrawText():
+		pass
+
 	protected override def DoDraw():
 		let TEXT_TARGET = SgPoint(4, 8)
 		super.DoDraw()
@@ -96,6 +100,7 @@ abstract class TGameMenuBox(TCustomMessageBox):
 			FTextTarget.Parent.PopRenderTarget()
 			if FTextDrawn == TTextDrawState.None:
 				FTextDrawn = TTextDrawState.Done
+		PreDrawText()
 		if self.Focused and not FBlank:
 			FMenuEngine.Cursor.Draw()
 		FTextTarget.Parent.Draw(FTextTarget, FOrigin + TEXT_TARGET)
@@ -427,6 +432,13 @@ class TMenuEngine(TObject, IMenuEngine):
 	private def Destroy():
 		for page in FMenus.Values:
 			page.Dispose()
+
+	public def EnsurePage(name as string, cls as TMenuPageClass, layout as string) as TMenuPage:
+		page as TMenuPage
+		unless FMenus.TryGetValue(name, page):
+			page = cls.Create(FParent, GPU_MakeRect(0, 0, FParent.Canvas.Width, FParent.Canvas.Height), self, layout)
+			FMenus.Add(name, page)
+		return page
 
 	public def FocusMenu(sender as TMenuPage, which as TMenuPage):
 		assert sender != which

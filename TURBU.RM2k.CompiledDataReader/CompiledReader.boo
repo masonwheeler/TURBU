@@ -27,6 +27,19 @@ class TDllReader(TRpgPlugBase, IDataReader):
 	
 	private _readers = {}
 	
+	public def GetBattleScript(partyId as int, pageId as int) as Func[of Task]:
+		var scripts = _asm.GetType('BattleScripts')
+		return null if scripts is null
+		var method = scripts.GetMethod("BattleScript$(partyId.ToString('D4'))Page$(pageId.ToString('D3'))")
+		return null if method is null
+		return do():
+			try:
+				var result = method.Invoke(null, null)
+				return (result as Task if result isa Task else Task.CompletedTask)
+			except e as TargetInvocationException:
+				System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException).Throw()
+				return Task.CompletedTask
+
 	public def GetMapLoader(environment as object) as IMapLoader:
 		return _mapLoader if _mapLoader is not null and _mapLoader.Environment == environment
 		_mapLoader = TMapLoader(environment, _asm)

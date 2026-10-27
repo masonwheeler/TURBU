@@ -1,5 +1,7 @@
 namespace turbu.RM2K.image.engine
 
+import System
+import System.Linq.Enumerable
 import Pythia.Runtime
 import sdl.sprite
 import sdl.canvas
@@ -19,8 +21,13 @@ class TImageEngine(SpriteEngine):
 		self.Images = images
 
 	public def Tick():
-		for image in FSpriteList.OfType[of TRpgImageSprite]():
-			image.Tick()
+		for image in FSpriteList.OfType[of TRpgImageSprite]().ToArray():
+			continue if image.IsDead
+			try:
+				System.Diagnostics.Debug.WriteLine("Tick: $(image.ImageName)")
+				image.Tick()
+			except as ObjectDisposedException:
+				pass // erased by a script between the check and the call
 
 	public override def Draw():
 		Viewport.WorldX = FParentEngine.Viewport.WorldX

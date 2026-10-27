@@ -204,7 +204,16 @@ class TConditionTemplate(TRpgResistable):
 		value.ReadArray('Tag', FTag)
 		value.CheckEmpty()
 
+[TableName('Attributes')]
 class TAttributeTemplate(TRpgResistable):
 
 	[Property(RequiredForSkills)]
 	private FRequiredForSkills as bool
+
+	public def constructor():
+		super()
+
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckRead('RequiredForSkills', FRequiredForSkills)
+		value.CheckEmpty()

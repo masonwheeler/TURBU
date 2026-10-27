@@ -71,7 +71,7 @@ static class TMonsterPartyConverter:
 		if RMBattlePageConditions.Switch2 in cond:
 			result.Add([|Switch2 $(value.Switch2)|])
 		if RMBattlePageConditions.Variable1 in cond:
-			be = BinaryExpression(BinaryOperatorType.GreaterThan, Expression.Lift(value.Variable), \
+			be = BinaryExpression(BinaryOperatorType.GreaterThanOrEqual, Expression.Lift(value.Variable), \
 				Expression.Lift(value.VarValue))
 			result.Add([|Variable $be|])
 		if RMBattlePageConditions.Turns in cond:

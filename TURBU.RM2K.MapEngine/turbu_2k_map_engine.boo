@@ -27,7 +27,7 @@ from TURBU.RM2K import dmDatabase, GDatabase, TdmDatabase, TRpgDatabase
 from TURBU.RM2K.GameData import TGameLayout
 from TURBU.RM2K.Menus import GMenuEngine, TMenuSpriteEngine, TMenuState, TSystemImages
 from TURBU.RM2K.RPGScript import FadeOutMusic, OpenMenu, PlayMusicData, PlaySystemSound, PlaySystemMusic, \
-								 SetSystemSoundData, SetSystemMusicData, StopMusic
+								 RunEncounter, SetSystemSoundData, SetSystemMusicData, StopMusic
 from TURBU.PluginInterface import RpgPluginException
 from TURBU.TextUtils import GFontEngine, TRpgFont
 from TURBU.TransitionInterface import ITransition
@@ -83,6 +83,30 @@ class T2kMapEngine(TMapEngine):
 	private _renderPauseLock = object()
 
 	private _heldMaps = Dictionary[of int, TRpgMap]()
+
+	private _encounters = TEncounterTracker()
+
+	private _encounterRunning as bool
+
+	public Encounters as TEncounterTracker:
+		get: return _encounters
+
+	# the party has completed a movement step that the player took (ie. not scripted)
+	public def PartyStepped():
+		_encounters.Step() if _playing and _cutscene == 0
+
+	internal def EncounterFinished():
+		_encounterRunning = false
+
+	# A random encounter that is due starts once nothing else has hold of the party: no message or menu, no
+	# cutscene, and no battle already going.
+	private def StartEncounter():
+		return unless _encounters.Pending
+		return if _encounterRunning or _cutscene > 0 or GMenuEngine.Value.State != TMenuState.None
+		var which = _encounters.TakePending()
+		return if which == 0
+		_encounterRunning = true
+		RunEncounter(which, _encounters.RollFirstStrike(), _encounters.CanEscape())
 
 	private def UpdatePartySprite(value as TCharSprite):
 		if assigned(value):
@@ -240,7 +264,8 @@ class T2kMapEngine(TMapEngine):
 	private def StandardRender():
 		return if _switchState == SwitchState.Switching
 		caseOf GMenuEngine.Value.State:
-			case TMenuState.None, TMenuState.Shared, TMenuState.ExclusiveShared: _currentMap.Draw()
+			case TMenuState.None, TMenuState.Shared, TMenuState.ExclusiveShared:
+				_currentMap.Draw() unless GMenuEngine.Value.BattleActive
 			case TMenuState.Full:
 				pass
 		_switchState = SwitchState.Switching if _switchState == SwitchState.Ready
@@ -269,6 +294,7 @@ class T2kMapEngine(TMapEngine):
 			_currentMap.TickEffects() if assigned(_currentMap)
 			_imageEngine.Tick() if assigned(_imageEngine)
 			GMapObjectManager.value.Tick()
+			StartEncounter() if _playing
 			_currentMap.Process() if _playing
 
 	private def PressButton(button as TButtonCode):
@@ -366,7 +392,7 @@ class T2kMapEngine(TMapEngine):
 			if assigned(_transition):
 				valid = false
 				unless _transitionFirstFrameDrawn:
-					GRenderTargets.RenderOn(RENDERER_ALT, RenderFrame, 0, true, false)
+					GRenderTargets.RenderOn(RENDERER_ALT, (null if _currentMap.Erasing else RenderFrame), 0, true, false)
 					_transitionFirstFrameDrawn = true
 				unless _transition.Draw():
 					_transitionFirstFrameDrawn = false
@@ -567,6 +593,8 @@ class T2kMapEngine(TMapEngine):
 
 	public def ChangeMaps(newmap as int, newLocation as SgPoint):
 		assert newmap != _currentMap.MapID
+		GEnvironment.value.EraseAllImages()
+		_encounters.Reset()
 		currentMap as T2kSpriteEngine = _currentMap
 		_switchState = SwitchState.Ready
 		self._heldMaps[currentMap.MapObj.ID] = currentMap.MapObj

@@ -9,6 +9,7 @@ import SDL2.SDL
 import SDL2.SDL_image
 import SDL2.SDL_Pnglite
 import TURBU.Meta
+import TURBU.RM2K.Import
 import TURBU.RM2K.Import.LCF
 
 static class TTilesetConverter:
@@ -121,14 +122,22 @@ let TILESET_MAP = (
 	SDL_Rect(384, 128, 96, 128)
 )
 
-public def ConvertTileset(filename as string, outPath as string) as MacroStatement*:
+public def ConvertTileset(filename as string, outPath as string, report as IConversionReport) as MacroStatement*:
 	lFilename = System.IO.Path.GetFileNameWithoutExtension(filename)
-	surface = IMG_Load(filename)
+	isPng = System.IO.Path.GetExtension(filename).ToLowerInvariant() == '.png'
+	surface = (SDL_LoadPNG(filename) if isPng else IMG_Load(filename))
 	try:
-		return null if surface == IntPtr.Zero
+		if surface == IntPtr.Zero:
+			report.MakeError("Error loading tileset image $(filename): $(SDL_GetError())", 2)
+			return null
 		aSurface as SDL_Surface = Marshal.PtrToStructure(surface, SDL_Surface)
 		aFormat = aSurface.Format
-		return unless aSurface.w == 480 and aSurface.h == 256 and aFormat.BitsPerPixel == 8
+		unless aSurface.w == 480 and aSurface.h == 256:
+			report.MakeError("Tileset image $(filename) is $(aSurface.w) by $(aSurface.h), not 480 by 256.", 2)
+			return
+		unless aFormat.BitsPerPixel == 8:
+			report.MakeError("Tileset image $(filename) does not have a palette, so its transparency cannot be kept.", 2)
+			return
 		for i in range(TILESET_MAP.Length):
 			currentRect = TILESET_MAP[i]
 			subSurface = SDL_CreateRGBSurface(0, currentRect.w, currentRect.h, 8, 0, 0, 0, 0)

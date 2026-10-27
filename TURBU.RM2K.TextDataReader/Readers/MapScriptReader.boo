@@ -50,7 +50,7 @@ macro BattleScripts(body as TypeMemberStatement*):
 macro BattleScripts.BattleScript(id as int, page as int):
 	var name = "BattleScript$(id.ToString('D4'))Page$(page.ToString('D3'))"
 	var result = [|
-		public def $name():
+		public static def $name():
 			$(BattleScript.Body)
 	|]
 	var scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
@@ -64,7 +64,7 @@ macro BattleScripts.BattleScript(id as int, page as int):
 macro BattleScripts.BattleGlobal(id as int):
 	var name = "BattleGlobal$(id.ToString('D4'))"
 	var result = [|
-		public def $name():
+		public static def $name():
 			$(BattleGlobal.Body)
 	|]
 	result.Accept(ScriptProcessor())

@@ -28,6 +28,11 @@ class TBattleCommand(TRpgDatafile):
 	public def constructor():
 		super()
 
+	public def constructor(value as JObject):
+		super(value)
+		value.CheckReadEnum('Style', FStyle)
+		value.CheckRead('Value', FVal)
+
 	[Property(Style)]
 	private FStyle as TCommandStyle
 

@@ -163,6 +163,11 @@ class EventTile(TTile):
 			else: name = FEvent.CurrentPage.PageName
 			engine.EnsureImage(name)
 		else: name = ''
+		//the passability of the tile the event is drawn as, which can stand in for the map's own (see Passable)
+		self.Attributes = TTileAttribute.None
+		if assigned(FEvent) and assigned(FEvent.CurrentPage) and FEvent.CurrentPage.Tilegroup != -1:
+			var attributes = engine.Tileset.Records[FEvent.CurrentPage.Tilegroup].Attributes
+			self.Attributes = attributes[FEvent.CurrentPage.SpriteIndex] if FEvent.CurrentPage.SpriteIndex < attributes.Count
 		self.ImageName = name
 
 	public override def Render():

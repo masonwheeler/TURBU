@@ -74,13 +74,14 @@ class TDatabaseConverter:
 			commandIndex =  do(skillName as string):
 				result as int = -1
 				base = Expression.Lift(skillName)
-				def filter(s as Statement, i as int) as bool:
-					m = s cast MacroStatement
-					if m.Arguments[0].Matches(base) and m.Arguments[1].Matches([|SkillGroup|]):
-						result = i
+				def filter(s as Statement) as bool:
+					var m = s cast MacroStatement
+					var b = m.Body.Statements
+					if b.Count > 1 and (b[0] cast MacroStatement).Arguments[0].Matches(base) and b[1].Matches([|Style SkillGroup|]):
+						result = (m.Arguments[0] cast IntegerLiteralExpression).Value
 						return true
 					else: return false
-				command.Body.Statements.Where(filter)
+				for _ in command.Body.Statements.Where(filter): pass
 				return result
 			ConvertHeroClasses(classes, commandIndex)
 			File.WriteAllText(Path.Combine(self._database, 'Classes.tdb'), classes.ToCodeString())
@@ -219,7 +220,7 @@ class TDatabaseConverter:
 	private def ConvertHeroClasses(value as MacroStatement, skillIndex as Func[of string, int]):
 		for hero in _ldb.Heroes.Where({h | (h.ClassNum > 0) and (not IsEmpty(h))}):
 			counter = value.Body.Statements.Count
-			value.Body.Add(TClassConverter.Convert(hero, _ldb, counter, _2k3, skillIndex))
+			value.Body.Add(TClassConverter.Convert(hero, _ldb, counter, _2k3, skillIndex, null))
 			_heroClassTable.Add(hero.ID, counter)
 	
 	private def ConvertHeroes(value as MacroStatement, skillIndex as Func[of string, int]):
@@ -227,7 +228,7 @@ class TDatabaseConverter:
 		for hero in _ldb.Heroes:
 			counter = value.Body.Statements.Count
 			table = (_heroClassTable if hero.ClassNum == 0 else _classTable)
-			value.Body.Add(THeroConverter.Convert(hero, _ldb, counter, _2k3, skillIndex, table))
+			value.Body.Add(THeroConverter.Convert(hero, _ldb, counter, _2k3, skillIndex, table, _report))
 	
 	private def GatherResources(db as LCF.LDB):
 		res = Block()

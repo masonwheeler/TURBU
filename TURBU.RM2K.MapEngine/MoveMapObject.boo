@@ -18,6 +18,12 @@ def CreatePath(loop as BoolLiteralExpression, skip as BoolLiteralExpression, pat
 	var result = [|turbu.pathing.Path($skip, $steps)|]
 	return result
 
+private def SpriteCall(name as Expression, arguments as ExpressionCollection) as MethodInvocationExpression:
+	var target = MemberReferenceExpression([|m cast turbu.map.sprites.TMapSprite|], (name cast ReferenceExpression).Name)
+	var result = MethodInvocationExpression(target)
+	result.Arguments.AddRange(arguments.Select({a | a.CleanClone()})) if arguments is not null
+	return result
+
 private def DoBuildSteps(loop as BoolLiteralExpression, path as ArrayLiteralExpression) as BlockExpression:
 	var steps = BlockExpression()
 	steps.Parameters.Add(ParameterDeclaration.Lift([|p as turbu.pathing.Path|]))
@@ -30,18 +36,19 @@ private def DoBuildSteps(loop as BoolLiteralExpression, path as ArrayLiteralExpr
 	for step in path.Items:
 		match step:
 			case [|$expr * $quantity|]:
+				call = SpriteCall(expr, null)
 				value = [|
 					for i in range($quantity):
-						yield {m as Pythia.Runtime.TObject | return (m cast turbu.map.sprites.TMapSprite).$expr()}
+						yield {m as Pythia.Runtime.TObject | return $call}
 				|]
 				steps.Body.Add(value)
 			case MethodInvocationExpression():
 				mieStep = step cast MethodInvocationExpression
-				var mie = MethodInvocationExpression([|(m cast turbu.map.sprites.TMapSprite).$(mieStep.Target)|])
-				mie.Arguments.AddRange(mieStep.Arguments.Select({a | a.CleanClone()}))
+				mie = SpriteCall(mieStep.Target, mieStep.Arguments)
 				steps.Body.Add([| yield {m as Pythia.Runtime.TObject | return $mie} |])
 			case ReferenceExpression():
-				steps.Body.Add([| yield {m as Pythia.Runtime.TObject | return (m cast turbu.map.sprites.TMapSprite).$step()} |])
+				call = SpriteCall(step, null)
+				steps.Body.Add([| yield {m as Pythia.Runtime.TObject | return $call} |])
 	if steps.Body.IsEmpty:
 		steps.Body.Add([|return System.Linq.Enumerable.Empty[of System.Func[of Pythia.Runtime.TObject, bool]]()|])
 	elif loop.Value:

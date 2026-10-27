@@ -51,6 +51,7 @@ class TMessageBox(TGameMenuBox):
 					DrawChar(value)
 					++FTextCounter
 					unless FImmediate:
+						break if FCharWait > 0 and value.Length > 1
 						--charsLeft
 						if charsLeft == 0:
 							SetWait(FCharDelay)

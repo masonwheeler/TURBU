@@ -129,13 +129,9 @@ class TItemTemplate(TRpgDatafile):
 		value.CheckRead('Cost', FCost)
 		value.ReadArray('Tag', FTag)
 
-	public ItemType as TItemType:
-		get:
-			att as ItemTypeAttribute = self.GetType().GetCustomAttributes(ItemTypeAttribute, true).SingleOrDefault()
-			raise Exception("No ItemTypeAttr found on $(self.ClassName).") unless assigned(att)
-			return att.ItemType
+	public virtual ItemType as TItemType:
+		get: return TItemType.Junk
 
-[ItemType(TItemType.Junk)]
 class TJunkTemplate(TItemTemplate):
 	public def constructor():
 		super()
@@ -236,7 +232,6 @@ abstract class TEquipmentTemplate(TUsableItemTemplate):
 		value.CheckReadEnum('Slot', FSlot)
 		value.ReadArray('Attributes', FAttributes)
 
-[ItemType(TItemType.Weapon)]
 class TWeaponTemplate(TEquipmentTemplate):
 
 	[Property(TwoHanded)]
@@ -291,7 +286,9 @@ class TWeaponTemplate(TEquipmentTemplate):
 		value.CheckRead('Target', FTarget)
 		value.CheckEmpty()
 
-[ItemType(TItemType.Armor)]
+	public override ItemType as TItemType:
+		get: return TItemType.Weapon
+
 class TArmorTemplate(TEquipmentTemplate):
 	public def constructor():
 		super()
@@ -300,7 +297,9 @@ class TArmorTemplate(TEquipmentTemplate):
 		super(value)
 		value.CheckEmpty()
 
-[ItemType(TItemType.Medicine)]
+	public override ItemType as TItemType:
+		get: return TItemType.Armor
+
 class TMedicineTemplate(TUsableItemTemplate):
 
 	[Property(AreaEffect)]
@@ -344,7 +343,9 @@ class TMedicineTemplate(TUsableItemTemplate):
 		get: return FStat[1]
 		set: FStat[1] = value
 
-[ItemType(TItemType.Book)]
+	public override ItemType as TItemType:
+		get: return TItemType.Medicine
+
 class TSkillBookTemplate(TUsableItemTemplate):
 
 	[Property(Skill)]
@@ -358,7 +359,9 @@ class TSkillBookTemplate(TUsableItemTemplate):
 		value.CheckRead('Skill', FSkill)
 		value.CheckEmpty()
 
-[ItemType(TItemType.Skill)]
+	public override ItemType as TItemType:
+		get: return TItemType.Book
+
 class TSkillItemTemplate(TSkillBookTemplate):
 
 	[Property(CustomSkillMessage)]
@@ -372,7 +375,9 @@ class TSkillItemTemplate(TSkillBookTemplate):
 		value.CheckRead('CustomSkillMessage', FCustomSkillMessage)
 		value.CheckEmpty()
 
-[ItemType(TItemType.Upgrade)]
+	public override ItemType as TItemType:
+		get: return TItemType.Skill
+
 class TStatItemTemplate(TUsableItemTemplate):
 	public def constructor():
 		super()
@@ -381,7 +386,9 @@ class TStatItemTemplate(TUsableItemTemplate):
 		super(value)
 		value.CheckEmpty()
 
-[ItemType(TItemType.Variable)]
+	public override ItemType as TItemType:
+		get: return TItemType.Upgrade
+
 class TVariableItemTemplate(TUsableItemTemplate):
 
 	[Property(Which)]
@@ -407,7 +414,9 @@ class TVariableItemTemplate(TUsableItemTemplate):
 		value.CheckReadEnum('Operation', FOperation)
 		value.CheckEmpty()
 
-[ItemType(TItemType.Script)]
+	public override ItemType as TItemType:
+		get: return TItemType.Variable
+
 class TScriptItemTemplate(TUsableItemTemplate):
 
 	[Property(Event)]
@@ -420,3 +429,6 @@ class TScriptItemTemplate(TUsableItemTemplate):
 		super(value)
 		value.CheckRead('Event', FEvent)
 		value.CheckEmpty()
+
+	public override ItemType as TItemType:
+		get: return TItemType.Script

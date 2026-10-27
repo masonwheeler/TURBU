@@ -31,16 +31,17 @@ static class TClassConverter:
 		skillSet.Body.Statements.AddRange(base.SkillSection.Select({s | ConvertSkillRecord(s)}))
 		attributes = MacroStatement('Attributes')
 		for i in range(base.DTypeModifiers.Length):
-			resistVal = -((base.DTypeModifiers cast (byte))[i] - 100)
-			attributes.Body.Add([|Attribute $i, $resistVal|]) unless resistVal == db.Attributes[i].RateC
+			rank = (base.DTypeModifiers cast (byte))[i] //the rank, 0 (A) to 4 (E)
+			attributes.Body.Add([|Attribute $(i + 1), $rank|]) unless rank == 2 //rank C by default
 		conditions = MacroStatement('CondResists')
 		for i in range(base.ConditionModifiers.Length):
-			resistVal = -((base.ConditionModifiers cast (byte))[i] - 100)
-			conditions.Body.Add([|Condition $i, $resistVal|]) unless resistVal == 0
+			rank = (base.ConditionModifiers cast (byte))[i]
+			conditions.Body.Add([|Condition $(i + 1), $rank|]) unless rank == 2
 		result.Body.Statements.AddRange((statBlock, skillSet, attributes, conditions))
 		return result
 	
-	def Convert(base as RMHero, db as LDB, counter as int, is2k3 as bool, skillIndex as Func[of string, int]) as MacroStatement:
+	def Convert(base as RMHero, db as LDB, counter as int, is2k3 as bool, skillIndex as Func[of string, int], \
+			report as IConversionReport) as MacroStatement:
 		result = [|
 			CharClass $(base.ID):
 				Name $(("$(base.Name) Class" if base.Class == 'None' or string.IsNullOrEmpty(base.Class) else base.Class))
@@ -70,21 +71,37 @@ static class TClassConverter:
 		skillSet.Body.Statements.AddRange(base.SkillSection.Select({s | ConvertSkillRecord(s)}))
 		attributes = MacroStatement('Attributes')
 		for i in range(base.DTypeModifiers.Length):
-			resistVal = -((base.DTypeModifiers cast (byte))[i] - 100)
-			attributes.Body.Add([|Attribute $i, $resistVal|]) unless resistVal == db.Attributes[i].RateC
+			rank = (base.DTypeModifiers cast (byte))[i] //the rank, 0 (A) to 4 (E)
+			attributes.Body.Add([|Attribute $(i + 1), $rank|]) unless rank == 2 //rank C by default
 		conditions = MacroStatement('CondResists')
 		for i in range(base.ConditionModifiers.Length):
-			resistVal = -((base.ConditionModifiers cast (byte))[i] - 100)
-			conditions.Body.Add([|Condition $i, $resistVal|]) unless resistVal == 0
+			rank = (base.ConditionModifiers cast (byte))[i]
+			conditions.Body.Add([|Condition $(i + 1), $rank|]) unless rank == 2
 		eq = MacroStatement('Equipment')
-		eq.Arguments.AddRange((base.InitialEq cast (int)).Select({e | Expression.Lift(e)}))
+		eq.Arguments.AddRange(ValidateStartingEquipment(base, db, report).Select({e | Expression.Lift(e)}))
 		result.Body.Statements.AddRange((statBlock, skillSet, attributes, conditions, eq))
+		return result
+
+	//a hero's starting equipment can name items that no longer exist or no longer fit the slot (the author
+	//changed the item and never cleaned up the hero); those entries become 0
+	private def ValidateStartingEquipment(base as RMHero, db as LDB, report as IConversionReport) as (int):
+		result = (base.InitialEq cast (int)).ToArray()
+		return result if db is null
+		for slot in range(result.Length):
+			id = result[slot]
+			continue if id == 0
+			item = db.Items.FirstOrDefault({i | i.ID == id})
+			//item types: 1 weapon, 2 shield, 3 armor, 4 helmet, 5 accessory
+			valid = (item is not null) and (item.ItemType == slot + 1 or (slot == 1 and base.DualWield and item.ItemType == 1))
+			continue if valid
+			report.MakeNotice("Hero $(base.ID) ($(base.Name)) starts with item $id in equipment slot $(slot + 1), which is not valid for that slot; nothing will be equipped there", 4) if report is not null
+			result[slot] = 0
 		return result
 
 static class THeroConverter:
 	def Convert(base as RMHero, db as LDB, counter as int, is2k3 as bool, skillIndex as Func[of string, int], \
-			table as Dictionary[of int, int]) as MacroStatement:
-		result = TClassConverter.Convert(base, db, counter, is2k3, skillIndex)
+			table as Dictionary[of int, int], report as IConversionReport) as MacroStatement:
+		result = TClassConverter.Convert(base, db, counter, is2k3, skillIndex, report)
 		result.Name = 'Hero'
 		result.Body.Statements.Cast[of MacroStatement]().Single({m | m.Name == 'Name'}).Arguments[0] = \
 			Expression.Lift(base.Name)
@@ -99,7 +116,7 @@ static class THeroConverter:
 		return result
 
 def ConvertSkillRecord(r as HeroSkillRecord) as MacroStatement:
-	return [|SkillRecord Bool, $(r.Skill), ($(r.Level), 0, 0, 0)|]
+	return [|SkillRecord Level, $(r.Skill), ($(r.Level), 0, 0, 0)|]
 
 def ConvertStatBlock(stats as (int), index as int, is2k3 as bool) as MacroStatement:
 	blocksize = (99 if is2k3 else 50)

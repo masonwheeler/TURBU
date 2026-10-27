@@ -291,6 +291,8 @@ class TMenuSpriteEngine(SpriteEngine):
 
 	private FEnding as bool
 
+	private FBattleDrawer as Action
+
 	[async]
 	private def WaitForCurrentBox() as Task:
 		waitFor { return FCurrentBox == null or FCurrentBox.Signal.WaitOne(0) }
@@ -304,7 +306,7 @@ class TMenuSpriteEngine(SpriteEngine):
 		EndMessage()
 	
 	protected def EndMessage():
-		FMenuState = TMenuState.None
+		FMenuState = (TMenuState.Full if assigned(FBattleDrawer) else TMenuState.None)
 		if assigned(FCurrentBox) and (not FEnding):
 			FEnding = true
 			try:
@@ -387,6 +389,7 @@ class TMenuSpriteEngine(SpriteEngine):
 			case TMenuState.None:
 				pass
 			case TMenuState.Shared, TMenuState.ExclusiveShared:
+				FBattleDrawer() if assigned(FBattleDrawer)
 				super.Draw()
 			case TMenuState.Full:
 				FMenuEngine.Draw()
@@ -470,6 +473,17 @@ class TMenuSpriteEngine(SpriteEngine):
 
 	public def Reset():
 		FMenuEngine.CloseMenu()
+
+	//Set by a battle engine for as long as its battle lasts: it draws the battle behind the messages that event
+	//scripts show, and the map stays out of sight.
+	public def SetBattleDrawer(value as Action):
+		FBattleDrawer = value
+
+	public BattleActive as bool:
+		get: return assigned(FBattleDrawer)
+
+	public def EnsurePage(name as string, cls as TMenuPageClass, layout as string) as TMenuPage:
+		return (FMenuEngine cast TMenuEngine).EnsurePage(name, cls, layout)
 
 	public def OpenMenu(name as string):
 		FMenuEngine.OpenMenu(name, FMenuInt)
@@ -594,9 +608,16 @@ class TMenuCursor(TSysFrame):
 	public def constructor(parent as TMenuSpriteEngine, displacement as SgPoint, length as int, coords as GPU_Rect):
 		super(parent, displacement, length, coords)
 
+	let BLINK_MILLISECONDS = 250
+
+	[Property(Blink)]
+	private _blink = true
+
 	protected override def DoDraw():
+		second = _blink and ((Environment.TickCount / BLINK_MILLISECONDS) % 2) == 1
+		FOrigin = SgPoint(0, (self.Height if second else 0))
 		super.DoDraw()
-	
+
 	public override def MoveTo(coords as GPU_Rect):
 		super(coords)
 		self.Image = GetCursor(coords.w cast int, coords.h cast int, self.Engine)

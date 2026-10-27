@@ -116,8 +116,15 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 	
 	private FSysVocab as TRpgVocabDictionary
 	
+	private FReader as TURBU.DataReader.IDataReader
+	
+	private FMonsters as TRpgDataDict[of TRpgMonster]
+
+	private FAttributes as TRpgDataDict[of TAttributeTemplate]
+	
 	def constructor(dm as TdmDatabase):
 		var reader = dm.Reader
+		FReader = reader
 		FItems = TRpgDataDict[of TItemTemplate](reader)
 		FAnims = TRpgDataDict[of TAnimTemplate](reader)
 		FConditions = TRpgDataDict[of TConditionTemplate](reader)
@@ -171,6 +178,22 @@ class TRpgDatabase(TRpgDatafile, IRpgDatabase):
 
 	public Vocab[key as string] as string:
 		get: return FSysVocab.Vocab[key]
+	
+	public Monsters as TRpgDataDict[of TRpgMonster]:
+		get:
+			FMonsters = TRpgDataDict[of TRpgMonster](FReader) if FMonsters is null
+			return FMonsters
+
+	public Attributes as TRpgDataDict[of TAttributeTemplate]:
+		get:
+			FAttributes = TRpgDataDict[of TAttributeTemplate](FReader) if FAttributes is null
+			return FAttributes
+
+	public def GetBattleScript(partyId as int, pageId as int) as System.Func[of System.Threading.Tasks.Task]:
+		return FReader.GetBattleScript(partyId, pageId)
+
+	public def HasVocab(key as string) as bool:
+		return FSysVocab.Vocab.ContainsKey(key)
 	
 	public MapTree as IMapTree:
 		get: return FMapTree

@@ -1,19 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <OutputType>Library</OutputType>
-    <RootNamespace>TURBU.RM2K.BattleEngine</RootNamespace>
-    <AssemblyName>TURBU.RM2K.BattleEngine</AssemblyName>
-    <Ducky>False</Ducky>
-    <Strict>False</Strict>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+	<TargetFramework>net10.0-windows</TargetFramework>
+	<OutputType>Library</OutputType>
+	<RootNamespace>TURBU.RM2K.BattleEngine</RootNamespace>
+	<AssemblyName>TURBU.RM2K.BattleEngine</AssemblyName>
+	<Ducky>False</Ducky>
+	<Strict>False</Strict>
+	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+	<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Pythia.Runtime/Pythia.Runtime.booproj" />
-    <ProjectReference Include="../TURBU.EngineBasis/TURBU.EngineBasis.booproj" />
+	<Reference Include="Boo.Lang.Compiler">
+	  <HintPath>$(BooBinPath)/Boo.Lang.Compiler.dll</HintPath>
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="Boo.Adt">
+	  <HintPath>../../boo-extensions/build/Boo.Adt.dll</HintPath>
+	</Reference>
+	<Reference Include="Boo.Lang.PatternMatching">
+	  <HintPath>$(BooBinPath)/Boo.Lang.PatternMatching.dll</HintPath>
+	  <Private>false</Private>
+	</Reference>
+	<Reference Include="SDL2-CS">
+	  <HintPath>../../SDL2-CS/bin/Debug/SDL2-CS.dll</HintPath>
+	</Reference>
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="../Pythia.Runtime/Pythia.Runtime.booproj" />
+	<ProjectReference Include="../TURBU.EngineBasis/TURBU.EngineBasis.booproj" />
+	<ProjectReference Include="../TURBU.Meta/TURBU.Meta.booproj" />
+	<ProjectReference Include="../TURBU.RM2K/TURBU.RM2K.booproj" />
+	<ProjectReference Include="../TURBU.RM2K.MapEngine/TURBU.RM2K.MapEngine.booproj" />
+	<ProjectReference Include="../TURBU.SDLFrame/TURBU.SDLFrame/TURBU.SDL.booproj" />
   </ItemGroup>
 
   <Import Project="$(BooBinPath)/Boo.Microsoft.Build.targets" />

@@ -8,6 +8,7 @@ import TURBU.RM2K
 import commons
 import turbu.items
 import turbu.skills
+import turbu.resists
 import turbu.pathing
 import Boo.Adt
 import Pythia.Runtime
@@ -111,8 +112,11 @@ class TRpgBattleCharacter(TRpgObject):
 		HP -= power
 		return power
 
-	public def CanAct() as bool:
-		assert false, 'Battle engine is not supported yet'
+	public virtual def CanAct() as bool:
+		for i in range(1, FCondition.Length):
+			if FCondition[i] and GDatabase.value.Conditions[i].AttackLimit == TAttackLimitation.Paralyze:
+				return false
+		return true
 
 	[NoImport]
 	public abstract def Retarget() as TRpgBattleCharacter:
@@ -237,16 +241,16 @@ class TRpgHero(TRpgBattleCharacter):
 
 	private def LevelAdjustDown(before as int):
 		base = Template cast THeroTemplate
-		for skill in base.Skillset[1:]:
-			if (skill.Style == TSkillFuncStyle.Level) and ((skill.Nums[1] > FLevel) and (skill.Nums[1] <= before)):
-				FSkill[skill.ID] = false
+		for skill in base.Skillset:
+			if (skill.Style == TSkillFuncStyle.Level) and ((skill.Nums[0] > FLevel) and (skill.Nums[0] <= before)):
+				SetSkill(skill.Skill, false)
 		LevelStatAdjust()
 
 	private def LevelAdjustUp(before as int):
 		base = Template cast THeroTemplate
-		for skill in base.Skillset[1:]:
-			if (skill.Style == TSkillFuncStyle.Level) and ((skill.Nums[1] <= FLevel) and (skill.Nums[1] > before)):
-				FSkill[skill.ID] = true
+		for skill in base.Skillset:
+			if (skill.Style == TSkillFuncStyle.Level) and ((skill.Nums[0] <= FLevel) and (skill.Nums[0] > before)):
+				SetSkill(skill.Skill, true)
 		LevelStatAdjust()
 
 	private def LevelStatAdjust():
@@ -307,7 +311,7 @@ class TRpgHero(TRpgBattleCharacter):
 		return super.Template cast TClassTemplate
 
 	private def GetSkillCommand() as string:
-		return GDatabase.value.Command[self.Template.Command[2]].Name
+		return GDatabase.value.Command[self.Template.Command[1]].Name
 
 	protected override def GetMHp() as int:
 		result = FMaxHitPoints + FHpModifier
@@ -374,7 +378,7 @@ class TRpgHero(TRpgBattleCharacter):
 		Level = template.MinLevel
 		FExpTotal = FExpTable[FLevel]
 		for slot in range(FEquipment.Length):
-			self.Equip(template.Eq[slot]) unless template.Eq[slot] == 0
+			self.EquipSlot(template.Eq[slot], slot cast TSlot) unless template.Eq[slot] <= 0
 		i = GDatabase.value.Conditions.Count
 		Array.Resize[of int](FConditionModifier, i)
 		Array.Resize[of bool](FCondition, i)
@@ -496,7 +500,7 @@ class TRpgHero(TRpgBattleCharacter):
 		else:
 			Unequip(slot)
 			FEquipment[slot] = theItem
-		GEnvironment.value.Party.Inventory.Remove(id, 1)
+		FParty.Inventory.Remove(id, 1)
 		eq = theItem cast TEquipment
 		FStat[0, TStatComponents.EqMod] += eq.Attack
 		FStat[1, TStatComponents.EqMod] += eq.Defense
@@ -571,8 +575,8 @@ class TRpgHero(TRpgBattleCharacter):
 		if item != 0:
 			result += (theItem cast TUsableItemTemplate).Stats[whichStat + 1]
 			if assigned(theItem) and (theItem.ItemType == TItemType.Weapon) and \
-					(theItem cast TWeaponTemplate).TwoHanded and (FEquipment[2 - ord(slot)] != null):
-				result -= (FEquipment[2 - ord(slot)].Template cast TUsableItemTemplate).Stats[whichStat + 1]
+					(theItem cast TWeaponTemplate).TwoHanded and (FEquipment[1 - ord(slot)] != null):
+				result -= (FEquipment[1 - ord(slot)].Template cast TUsableItemTemplate).Stats[whichStat + 1]
 		return result
 
 	public def ChangeHP(quantity as int, deathPossible as bool):
@@ -854,7 +858,7 @@ class TRpgParty(TRpgCharacter, IEnumerable of TRpgHero):
 		result = 0
 		for i in range(1, MAXPARTYSIZE + 1):
 			if self[i] != GEnvironment.value.Heroes[0]:
-				result += FParty[i].TakeDamage(power, pDefense, mDefense, Variance)
+				result += self[i].TakeDamage(power, pDefense, mDefense, Variance)
 		return result
 
 	public OpenSlot as int:

@@ -231,7 +231,7 @@ def ReturnScreenAndWait(speed as int) as Task:
 
 def SetWeather(effect as TWeatherEffects, severity as int):
 	GGameEngine.value.WeatherEngine.WeatherType = effect
-	GGameEngine.value.WeatherEngine.Intensity = clamp(severity, 0, MAX_WEATHER)
+	GGameEngine.value.WeatherEngine.Intensity = clamp(severity, 1, MAX_WEATHER)
 
 def IncreaseWeather():
 	if GGameEngine.value.WeatherEngine.Intensity < MAX_WEATHER:
@@ -260,20 +260,24 @@ def ShowBattleAnim(which as int, target as TRpgCharacter, fullscreen as bool):
 
 [async]
 def ShowBattleAnimAndWait(which as int, target as TRpgCharacter, fullscreen as bool) as Task:
-	var signal = EventWaitHandle(false, EventResetMode.ManualReset)
+	var signal = TaskCompletionSource()
 	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, CreateTarget(target), fullscreen, signal)
-	waitFor { signal.WaitOne(0) }
+	await signal.Task
 
 def ShowBattleAnimB(which as int, target as IAnimTarget, fullscreen as bool):
-	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, null)
+	ShowBattleAnimT(BattleEngineFor(), which, target, fullscreen, null)
 
 [async]
 def ShowBattleAnimBAndWait(which as int, target as IAnimTarget, fullscreen as bool) as Task:
-	var signal = EventWaitHandle(false, EventResetMode.ManualReset)
-	ShowBattleAnimT(GGameEngine.value.ImageEngine, which, target, fullscreen, signal)
-	waitFor { signal.WaitOne(0) }
+	var signal = TaskCompletionSource()
+	ShowBattleAnimT(BattleEngineFor(), which, target, fullscreen, signal)
+	await signal.Task
 
-def ShowBattleAnimT(engine as SpriteEngine, which as int, target as IAnimTarget, fullscreen as bool, signal as EventWaitHandle):
+def BattleEngineFor() as SpriteEngine:
+	effects = BattleState.Effects
+	return (effects if effects is not null else GGameEngine.value.ImageEngine)
+
+def ShowBattleAnimT(engine as SpriteEngine, which as int, target as IAnimTarget, fullscreen as bool, signal as TaskCompletionSource):
 	template as TAnimTemplate = GDatabase.value.Anim[which]
 	return if template == null
 	try:

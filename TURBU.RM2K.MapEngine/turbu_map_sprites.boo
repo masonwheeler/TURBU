@@ -634,6 +634,9 @@ class TMapSprite(TObject):
 		self.FLocation = _wrapped
 		_wrapped = null
 
+	protected virtual def StepFinished():
+		pass
+
 	public virtual def Place():
 		if (FInitialized and _moveTime is null) or \
 			(FInitialized and FMoveQueue is null and FMoveAssignment is null and \
@@ -649,6 +652,7 @@ class TMapSprite(TObject):
 				CurrentTile().Bump(self) unless FSlipThrough
 				if _wrapped is not null:
 					ResetWrappedPosition()
+				StepFinished()
 		unless FInitialized:
 			EnterTile()
 			FInitialized = true

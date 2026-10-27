@@ -58,6 +58,7 @@
     <Compile Include="BooReader.boo" />
     <Compile Include="BooReaderEnvironmentStep.boo" />
     <Compile Include="BSONReaders/AnimReader.boo" />
+    <Compile Include="BSONReaders/AttributeReader.boo" />
     <Compile Include="BSONReaders/BattleCharReader.boo" />
     <Compile Include="BSONReaders/ClassesReader.boo" />
     <Compile Include="BSONReaders/CommandReader.boo" />
@@ -70,6 +71,7 @@
     <Compile Include="BSONReaders/MapDataReader.boo" />
     <Compile Include="BSONReaders/MapTreeReader.boo" />
     <Compile Include="BSONReaders/MonsterPartyReader.boo" />
+    <Compile Include="BSONReaders/MonstersReader.boo" />
     <Compile Include="BSONReaders/SkillReader.boo" />
     <Compile Include="BSONReaders/SoundReader.boo" />
     <Compile Include="BSONReaders/SystemData.boo" />
@@ -82,7 +84,6 @@
     <Compile Include="Compiler/PrepareDataFiles.boo" />
     <Compile Include="Compiler/TURBUBuilderPipeline.boo" />
     <Compile Include="FixNegativeNumbers.boo" />
-    <Compile Include="Readers/AttributeReader.boo" />
     <Compile Include="Readers/DataReaders/AnimReader.boo" />
     <Compile Include="Readers/DataReaders/ClassesReader.boo" />
     <Compile Include="Readers/DataReaders/CommandReader.boo" />
@@ -104,7 +105,6 @@
     <Compile Include="Readers/DataReaders/VocabReader.boo" />
     <Compile Include="Readers/GlobalScriptReader.boo" />
     <Compile Include="Readers/MapScriptReader.boo" />
-    <Compile Include="Readers/MonstersReader.boo" />
     <Compile Include="Readers/ReaderUtils.boo" />
     <Compile Include="TextDataReader.boo" />
     <Compile Include="BooReader.Meta.Boo" />

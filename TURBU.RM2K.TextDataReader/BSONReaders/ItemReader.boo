@@ -12,6 +12,9 @@ macro Items:
 	macro Classes(values as IntegerLiteralExpression*):
 		return MakeArrayValue('UsableByClass', values)
 	
+	macro Condition(values as IntegerLiteralExpression*):
+		return MakeArrayValue('Condition', values)
+	
 	macro Attributes(values as int*):
 		result = JArray()
 		for value in values:

@@ -179,12 +179,11 @@ abstract class TCustomPartyPanel(TGameMenuBox):
 			++i
 		InvalidateText()
 		FCount = i - 1
-		if i < 4:
-			for i in range(i, 4):
-				if assigned(FPortrait[i]):
-					FPortrait[i].Dead()
-					FPortrait[i] = null
-				FOptionEnabled[i - 1] = false if i < FOptionEnabled.Length
+		for slot in range(i - 1, FPortrait.Length):
+			if assigned(FPortrait[slot]):
+				FPortrait[slot].Dead()
+				FPortrait[slot] = null
+			FOptionEnabled[slot] = false if slot < FOptionEnabled.Length
 
 	protected override def DoCursor(position as short):
 		coords as GPU_Rect

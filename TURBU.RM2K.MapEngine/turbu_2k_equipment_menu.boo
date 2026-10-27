@@ -102,6 +102,9 @@ class TEqInventoryMenu(TCustomScrollBox):
 		FDisplayCapacity = 12
 
 	public def Show(slot as TSlot):
+		Show(slot, slot)
+
+	public def Show(slot as TSlot, target as TSlot):
 		ClearText()
 		for item in GEnvironment.value.Party.Inventory \
 				.OfType[of TEquipment]() \
@@ -111,7 +114,7 @@ class TEqInventoryMenu(TCustomScrollBox):
 		Array.Resize[of bool](FOptionEnabled, FParsedText.Count)
 		for i in range(FOptionEnabled.Length):
 			FOptionEnabled[i] = true
-		FCurrentSlot = slot
+		FCurrentSlot = target
 		InvalidateText()
 
 	public override def DoCursor(position as short):
@@ -143,7 +146,7 @@ class TEqInventoryMenu(TCustomScrollBox):
 			if self.Objects[FCursorPosition] == null:
 				FChar.Unequip(FCurrentSlot)
 			else:
-				FChar.Equip((self.Objects[FCursorPosition] cast TEquipment).Template.ID)
+				FChar.EquipSlot((self.Objects[FCursorPosition] cast TEquipment).Template.ID, FCurrentSlot)
 			self.Show(FCurrentSlot)
 			stat = FOwner.Menu('Stat') cast TCharStatBox
 			stat.PotentialItem = null
@@ -208,7 +211,7 @@ class TGameEquipmentMenu(TGameMenuBox):
 			FOwner.Menu('Desc').Text = (GDatabase.value.Items[FChar.Equipment[position]].Desc if FChar.Equipment[position] != 0 else '')
 			inv = (FOwner.Menu('Inventory') cast TEqInventoryMenu)
 			if (position == 1) and (FChar.DualWield == TWeaponStyle.Dual):
-				inv.Show(TSlot.Weapon)
+				inv.Show(TSlot.Weapon, TSlot.Shield)
 			else:
 				inv.Show(position)
 			(FOwner.Menu('Stat') cast TCharStatBox).CurrentSlot = position

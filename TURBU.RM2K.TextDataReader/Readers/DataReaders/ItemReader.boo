@@ -13,6 +13,9 @@ macro Items(body as ExpressionStatement*):
 	macro Classes(values as IntegerLiteralExpression*):
 		return MakeArrayValue('UsableByClass', values)
 	
+	macro Condition(values as IntegerLiteralExpression*):
+		return MakeArrayValue('Condition', values)
+	
 	result = [|
 		def Data() as System.Collections.Generic.KeyValuePair[of int, System.Func[of TItemTemplate]]*:
 			pass

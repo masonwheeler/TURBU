@@ -53,7 +53,7 @@ static class TMonsterConverter:
 		result.Body.Add([|SwitchOn $(base.SwitchOnID)|]) if base.SwitchOn
 		result.Body.Add([|SwitchOff $(base.SwitchOffID)|]) if base.SwitchOff
 		caseOf base.Action:
-			case 0: result.Body.Add([|Action $(ReferenceExpression(Enum.GetName(turbu.monsters.TMonsterBehaviorAction, base.Action)))|])
+			case 0: result.Body.Add([|Action $(ReferenceExpression(Enum.GetName(turbu.monsters.TMonsterBehaviorAction, base.Basic)))|])
 			case 1: result.Body.Add([|Skill $(base.Skill)|])
 			case 2: result.Body.Add([|Transform $(base.Transform)|])
 			default: raise "Unexpected monster behavior action value: $(base.Action)"

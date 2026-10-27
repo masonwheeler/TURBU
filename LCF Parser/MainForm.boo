@@ -30,6 +30,16 @@ partial class MainForm:
 	
 [STAThread]
 public def Main(argv as (string)) as void:
+	if argv.Length == 2:
+		var project = argv[0]
+		var dest = argv[1]
+		var report = CliConverter()
+		if Directory.Exists(dest):
+			Directory.Delete(dest, true)
+		Directory.CreateDirectory(dest)
+		RMProjectConverter(project, dest, report).GetTask().Wait()
+		return
+
 	Application.EnableVisualStyles()
 	Application.SetCompatibleTextRenderingDefault(false)
 	Application.Run(MainForm())

@@ -559,7 +559,8 @@ class TMosaicTransition(TTransition):
 		var shaders = GSpriteEngine.value.ShaderEngine
 		var mosaicProg = shaders.ShaderProgram('default', 'mosaic')
 		shaders.UseShaderProgram(mosaicProg)
-		shaders.SetUniformValue(mosaicProg, 'blockSize', FBlockSize)
+		blockFraction = (FBlockSize / canvas.Width, FBlockSize / canvas.Height)
+		shaders.SetUniformValue(mosaicProg, 'blockSize', blockFraction)
 		GRenderTargets[FTarget].DrawFull()
 		GPU_DeactivateShaderProgram()
 		result = ( FBlockSize > 1 if FShowing else FBlockSize < FMaxSize )

@@ -110,6 +110,7 @@ class T2kSpriteEngine(SpriteEngine):
 	[Property(OnDrawWeather)]
 	private FOnDrawWeather as Action
 
+	[Getter(Erasing)]
 	private FErasing as bool
 
 	private FPanSpeed as single
@@ -566,6 +567,10 @@ class T2kSpriteEngine(SpriteEngine):
 				FSpriteLocations.RemovePair(old.Location, old)
 			FMapObjects[index] = aNew
 
+	private static def DirectionAttribute(direction as TDirections) as TTileAttribute:
+		TRANSLATE = (TTileAttribute.Up, TTileAttribute.Right, TTileAttribute.Down, TTileAttribute.Left)
+		return TRANSLATE[direction]
+
 	public def Passable(x as int, y as int, direction as TDirections) as bool:
 		TRANSLATE = (TTileAttribute.Up, TTileAttribute.Right, TTileAttribute.Down, TTileAttribute.Left)
 		tile as TTile
@@ -589,6 +594,14 @@ class T2kSpriteEngine(SpriteEngine):
 
 	public def Passable(location as SgPoint, direction as TDirections, Character as TMapSprite) as bool:
 		sprites as (TMapSprite) = self.SpritesAt(location, Character).ToArray()
+		for sprite in sprites:
+			continue unless sprite isa TEventSprite and not sprite.SlipThrough
+			page = sprite.Event?.CurrentPage
+			continue unless assigned(page) and page.ZOrder == 0 and page.IsTile
+			tile = sprite.BaseTile as TTile
+			continue if tile is null or TTileAttribute.Ceiling in tile.Attributes
+			return DirectionAttribute(direction) in tile.Attributes
+		return false unless Passable(location, direction)
 		if sprites.Length > 0:
 			var result = true
 			for sprite in sprites:
@@ -600,7 +613,7 @@ class T2kSpriteEngine(SpriteEngine):
 												and (sprite.Event.CurrentPage.ZOrder != 1)))
 				elif sprite.Event == null:
 					result = result and (sprite.BaseTile.Z != Character.BaseTile.Z)
-		else: result = Passable(location, direction)
+		else: result = true
 		return result
 
 	public def Passable(location as SgPoint, direction as TDirections) as bool:

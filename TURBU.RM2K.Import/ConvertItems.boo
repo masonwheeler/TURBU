@@ -50,6 +50,14 @@ static class TItemConverter:
 		else: classes.Arguments.AddRange(usable.Select({i | Expression.Lift(i)}))
 		result.Body.Add(classes)
 	
+	//the conditions that a weapon inflicts, or that a piece of armor guards against
+	private def AddEquipmentConditions(base as RMItem, result as MacroStatement):
+		conds = (base.Conditions cast (bool)).Select({a, i | (i + 1 if a else 0)}).Where({i | i > 0}).ToArray()
+		return if conds.Length == 0
+		condition = MacroStatement('Condition')
+		condition.Arguments.AddRange(conds.Select({i | Expression.Lift(i)}))
+		result.Body.Add(condition)
+
 	private def ConvertJunkItem(base as RMItem) as MacroStatement:
 		return ConvertItem('JunkItem', base, null)
 	
@@ -77,6 +85,7 @@ static class TItemConverter:
 			attributes = MacroStatement('Attributes')
 			attributes.Arguments.AddRange(attrs)
 			result.Body.Add(attributes)
+		AddEquipmentConditions(base, result)
 		if base.AnimData.Count > 0:
 			anims = MacroStatement('Animations')
 			for animData in base.AnimData:
@@ -101,6 +110,7 @@ static class TItemConverter:
 			attributes = MacroStatement('Attributes')
 			attributes.Arguments.AddRange(attrs)
 			result.Body.Add(attributes)
+		AddEquipmentConditions(base, result)
 		return result
 	
 	private def ConvertMedicineItem(base as RMItem, db as LDB) as MacroStatement:

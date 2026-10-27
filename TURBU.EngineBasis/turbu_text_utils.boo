@@ -124,10 +124,41 @@ class TFontEngine(TObject):
 		FTarget.Parent.DrawRect(FGlyphs, ORIGIN, srcRect, 0)
 		FTarget.Parent.PopRenderTarget()
 
+	public static def GlyphIndex(letter as char) as int:
+		return ord(letter) - ord(char('A')) if letter >= char('A') and letter <= char('Z')
+		return 26 + ord(letter) - ord(char('a')) if letter >= char('a') and letter <= char('z')
+		return -1
+
+	//$ and a letter is a glyph, and $$ is a dollar sign; a $ before anything else is just a $
 	public def DrawText(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as SgFloatPoint:
 		var result = sgPointF(x, y)
-		for aChar in text:
-			result = DrawChar(target, aChar, result.x, result.y, colorIndex)
+		i = 0
+		while i < text.Length:
+			if text[i] == char('$') and i + 1 < text.Length:
+				glyph = GlyphIndex(text[i + 1])
+				if glyph >= 0 and assigned(FGlyphs):
+					result = DrawGlyph(target, glyph, result.x, result.y, colorIndex)
+					i += 2
+					continue
+				elif text[i + 1] == char('$'):
+					++i
+			result = DrawChar(target, text[i], result.x, result.y, colorIndex)
+			++i
+		return result
+
+	public def TextWidth(text as string) as int:
+		result = 0
+		i = 0
+		while i < text.Length:
+			if text[i] == char('$') and i + 1 < text.Length:
+				if GlyphIndex(text[i + 1]) >= 0 and assigned(FGlyphs):
+					result += TEXT_WIDTH * 2
+					i += 2
+					continue
+				elif text[i + 1] == char('$'):
+					++i
+			result += TEXT_WIDTH
+			++i
 		return result
 
 	public def DrawChar(target as GPU_Target_PTR, text as char, x as single, y as single, colorIndex as int) as SgFloatPoint:
@@ -148,14 +179,14 @@ class TFontEngine(TObject):
 		return sgPointF(x + (TEXT_WIDTH * 2), y)
 
 	public def DrawTextRightAligned(target as GPU_Target_PTR, text as string, x as single, y as single, colorIndex as int) as SgFloatPoint:
-		result = sgPointF(x - (text.Length * TEXT_WIDTH), y)
+		result = sgPointF(x - TextWidth(text), y)
 		DrawText(target, text, result.x, result.y, colorIndex)
 		return result
 
 	public def DrawTextCentered(target as GPU_Target_PTR, text as string, x as single, y as single, width as int, colorIndex as int):
 		textWidth as int
 		midpoint as single
-		textWidth = text.Length * TEXT_WIDTH
+		textWidth = TextWidth(text)
 		midpoint = x + (width cast double / 2.0)
 		DrawText(target, text, midpoint - (textWidth / 2), y, colorIndex)
 

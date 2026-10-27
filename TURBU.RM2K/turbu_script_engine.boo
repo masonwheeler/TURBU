@@ -18,6 +18,7 @@ class TScriptEngine(TObject):
 
 	private class ScriptExecution:
 		property Teleported as bool
+		property KeysChecked as bool
 
 	private _scripts = List[of TRpgEventPage]()
 
@@ -62,6 +63,12 @@ class TScriptEngine(TObject):
 	internal def ResetTeleport():
 		_teleported = false
 
+	public def FirstKeyCheck() as bool:
+		var execution = _scriptExecution.Value
+		return false if execution is null or execution.KeysChecked
+		execution.KeysChecked = true
+		return true
+
 	internal def PrepareNewScript():
 		_scriptExecution.Value = ScriptExecution() if _scriptExecution.Value is null
 
@@ -104,11 +111,12 @@ class TScriptEngine(TObject):
 	internal def LoadGlobals(list as TRpgMapObject*):
 		FAllGlobalScripts = list.ToDictionary({o | o.ID}, {o | o.Pages[0]})
 
-	public def CallGlobalScript(id as int):
+	public def CallGlobalScript(id as int) as Task:
 		page as TRpgEventPage
 		if FAllGlobalScripts.TryGetValue(id, page):
 			CurrentPage = page
-			RunScript(page.Script)
+			return RunScript(page.Script)
+		return Task.CompletedTask
 
 	private CurrentPage as TRpgEventPage:
 		get: return _currentPage.Value
@@ -202,6 +210,9 @@ class TMapObjectManager(TObject):
 	[Property(InCutscene)]
 	private FInCutscene as bool
 
+	[Property(Paused)]
+	private FPaused as bool
+
 	private _doneTeleportScript as Action
 
 	public def constructor([Required] onTeleportDone as Action):
@@ -223,6 +234,9 @@ class TMapObjectManager(TObject):
 	public def Tick():
 		FPlaylist.Clear()
 		FKillSet.Clear()
+		if FPaused:
+			FScriptEngine.Tick(FKillSet)
+			return
 		for obj in FMapObjects:
 			var isParallel = (obj.Playing and obj.CurrentPage.Trigger == TStartCondition.Parallel)
 			if (not obj.Locked) and (isParallel or not obj.Playing):

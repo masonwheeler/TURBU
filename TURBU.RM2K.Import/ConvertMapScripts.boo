@@ -137,7 +137,7 @@ class TScriptConverter:
 		10820: {c, e, p | p.Add([|MemorizeLocation($(e.Data[0]), $(e.Data[1]), $(e.Data[2]))|])},
 		10830: {c, e, p | p.Add([| await(Teleport(Ints[$(e.Data[0])], Ints[$(e.Data[1])], Ints[$(e.Data[2])])) |])},
 		11030: ConvertTintScreen,
-		11070: {c, e, p | p.Add([|SetWeather(TWeatherEffects.$(ReferenceExpression(Enum.GetName(TWeatherEffects, e.Data[0]))), $(e.Data[1]))|])},
+		11070: {c, e, p | p.Add([|SetWeather(TWeatherEffects.$(ReferenceExpression(Enum.GetName(TWeatherEffects, e.Data[0]))), $(e.Data[1] + 1))|])},
 		11340: {c, e, p | p.Add([|await(WaitUntilMoved())|])}, 11350: {c, e, p | p.Add([|StopMoveScripts()|])},
 		11510: {c, e, p | p.Add([|PlayMusic($(e.Name), $(e.Data[0]), $(e.Data[1]), $(e.Data[2]), $(e.Data[3]))|])},
 		11520: {c, e, p | p.Add([|FadeOutMusic($(e.Data[0]))|])}, 11560: ConvertPlayMovie, 11610: ConvertInput,
@@ -174,7 +174,7 @@ class TScriptConverter:
 		11050: ConvertShakeScreen, 13110: ConvertMonsterHP, 13120: ConvertMonsterMP, 13310: ConvertBattleIf,
 		13130: {c, e, p | p.Add([|Monster[$(e.Data[0] + 1)].Condition[$(e.Data[2])] = $(e.Data[1] == 0)|])},
 		13150: {c, e, p | p.Add([|Monster[$(e.Data[0] + 1)].Show()|])}, 23310: ConvertIfElse, 23311: ConvertEndIf,
-		1005: {c, e, p | p.Add([|CallGlobalScript($(e.Data[0]))|])}, 10740: ConvertInputHeroName,
+		1005: {c, e, p | p.Add([|await(CallGlobalScript($(e.Data[0])))|])}, 10740: ConvertInputHeroName,
 		11010: {c, e, p | p.Add([| await(EraseScreen(TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[0] + 1))))) |])},
 		11020: {c, e, p | p.Add([| await(ShowScreen(TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[0] + 1))))) |])},
 		10690: {c, e, p | p.Add([|SetTransition(TTransitionTypes.$(ReferenceExpression(Enum.GetName(TTransitionTypes, e.Data[0]))), TTransitions.$(ReferenceExpression(Enum.GetName(TTransitions, e.Data[1] + 1))))|])},
@@ -187,12 +187,12 @@ class TScriptConverter:
 	
 	simpleConverter ConvertCallEvent:
 		caseOf values[0]:
-			case 0: result = [|CallGlobalScript($(values[1]))|]
+			case 0: result = [|await(CallGlobalScript($(values[1])))|]
 			case 1: 
 				if values[1] in (0, 10005):
-					result = [|CallScript(ThisObject.ID, $(values[2]))|]
-				else: result = [|CallScript($(values[1]), $(values[2]))|]
-			case 2: result = [|CallScript(Ints[$(values[1])], Ints[$(values[2])])|]
+					result = [|await(CallScript(ThisObject.ID, $(values[2])))|]
+				else: result = [|await(CallScript($(values[1]), $(values[2])))|]
+			case 2: result = [|await(CallScript(Ints[$(values[1])], Ints[$(values[2])]))|]
 			case 3:
 				bgs = "BattleGlobal$(values[1].ToString('D4'))"
 				result = [|$(ReferenceExpression(bgs))()|]
@@ -210,10 +210,10 @@ class TScriptConverter:
 		left as Expression
 		caseOf ec.Data[0]:
 			case 0, 1: return ConvertIf(converter, ec, parent)
-			case 2: left = [|Heroes[$(ec.Data[1])].CanAct|]
-			case 3: left = [|Monster[$(ec.Data[1])].CanAct|]
-			case 4: left = [|Monster[$(ec.Data[1])].Targetted|]
-			case 5: left = [|Heroes[$(ec.Data[1]).UsesCommand($(ec.Data[2]))]|]
+			case 2: left = [|Heroes[$(ec.Data[1])].CanAct()|]
+			case 3: left = [|Monster[$(ec.Data[1] + 1)].CanAct()|]
+			case 4: left = [|Monster[$(ec.Data[1] + 1)].Targetted|]
+			case 5: left = [|BattleState.HeroCommandUsed($(ec.Data[1]), $(ec.Data[2]))|]
 			default: raise ERpgScriptError("Unknown data[0] value $(ec.Data[0])")
 		result = [|
 			if $left:
@@ -434,17 +434,15 @@ class TScriptConverter:
 	
 	simpleConverter ConvertEquipment:
 		SetupPartySubscript(values[0], values[1], parent) do (subscript as Expression) as Expression:
-			expr as Expression
-			if values[2] != 0:
-				expr = ([|TSlot.Weapon|], [|TSlot.Shield|], [|TSlot.Armor|], [|TSlot.Helmet|], [|TSlot.Relic|], \
-						  [|TSlot.All|])[values[3]]
-			else: expr = GetIntScript(values[3], values[4])
-			return ([|$subscript.Equip($expr)|] if values[2] == 0 else [|$subscript.Unequip(expr)|])
+			return [|$subscript.Equip($(GetIntScript(values[3], values[4])))|] if values[2] == 0
+			return [|$subscript.UnequipAll()|] if values[3] == 5
+			slot = ([|TSlot.Weapon|], [|TSlot.Shield|], [|TSlot.Armor|], [|TSlot.Helmet|], [|TSlot.Relic|])[values[3]]
+			return [|$subscript.Unequip($slot)|]
 	
 	simpleConverter ConvertSkills:
 		SetupPartySubscript(values[0], values[1], parent) do (subscript as Expression) as Expression:
 			expr = GetIntScript(values[3], values[4])
-			return [|$subscript.Skill[$expr] = $(values[2] != 0)|]
+			return [|$subscript.Skill[$expr] = $(values[2] == 0)|]
 	
 	simpleConverter ConvertStats:
 		SetupPartySubscript(values[0], values[1], parent) do (subscript as Expression) as Expression:
@@ -493,7 +491,7 @@ class TScriptConverter:
 				elif ec.Data[6] in range(6, 10):
 					prop = [|Stat[$(ec.Data[6] - 5)]|]
 				elif ec.Data[6] in range(10, 15):
-					prop = [|Equipment[$(ec.Data[6] - 9)]|]
+					prop = [|Equipment[$(ec.Data[6] - 10)]|]
 				else: raise ERpgScriptError("Unknown variable data 6 value: $(ec.Data[6])!")
 				right = [|Heroes[$(ec.Data[5])].$prop|]
 			case 6:
@@ -512,9 +510,14 @@ class TScriptConverter:
 					default: raise ERpgScriptError("Unknown variable data 6 value: $(ec.Data[6])!")
 			default: raise ERpgScriptError("Unknown variable data 4 value: $(ec.Data[4])!")
 		if ec.Data[3] > 0:
-			op = (BinaryOperatorType.Addition, BinaryOperatorType.Subtraction, BinaryOperatorType.Multiply, 
-					BinaryOperatorType.Division, BinaryOperatorType.Modulus)[ec.Data[3] - 1]
-			right = BinaryExpression(op, [|Ints[$(CreateSubscript(ec.Data[0], ec.Data[1]))]|], right)
+			current = [|Ints[$(CreateSubscript(ec.Data[0], ec.Data[1]))]|]
+			caseOf ec.Data[3]:
+				case 1: right = BinaryExpression(BinaryOperatorType.Addition, current, right)
+				case 2: right = BinaryExpression(BinaryOperatorType.Subtraction, current, right)
+				case 3: right = BinaryExpression(BinaryOperatorType.Multiply, current, right)
+				//ensure that division by 0 does not throw, as with RPG Maker
+				case 4: right = [|commons.Divide($current, $right)|]
+				case 5: right = [|commons.Modulus($current, $right)|]
 		result = [|Ints[$left] = $right|]
 		if ec.Data[0] == 1:
 			CreateForLoop(parent, result, ec.Data[1], ec.Data[2])

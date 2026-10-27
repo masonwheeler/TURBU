@@ -50,6 +50,10 @@ class CompilerEnvironmentStep(ProcessMethodBodiesWithDuckTyping):
 	
 	private _envType as ExternalType
 	
+	// Progress callback called when a module has been processed
+	[Property(ModuleProcessed)]
+	private _moduleProcessed as Action[of Module]
+	
 	private _moduleClass as IType
 	
 	private _environmentField as IField
@@ -95,6 +99,7 @@ class CompilerEnvironmentStep(ProcessMethodBodiesWithDuckTyping):
 				node.Members.Remove(mc)
 				node.Members.Insert(0, mc)
 		super.OnModule(node)
+		_moduleProcessed(node) if _moduleProcessed is not null
 	
 	override def Initialize(context as CompilerContext):
 		super.Initialize(context)

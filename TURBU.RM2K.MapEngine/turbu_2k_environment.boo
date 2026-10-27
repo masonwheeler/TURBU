@@ -265,6 +265,8 @@ class T2kEnvironment(TObject):
 
 	[async]
 	public def KeyScan(mask as TButtonCode, wait as bool) as Task of int:
+		if wait and GScriptEngine.value.FirstKeyCheck() and GGameEngine.value.ReadKeyboardState() != TButtonCode.None:
+			FKeyLock = true
 		while wait and FKeyLock:
 			await GScriptEngine.value.FramePause()
 		scan as TButtonCode = GGameEngine.value.ReadKeyboardState()
@@ -308,7 +310,7 @@ class T2kEnvironment(TObject):
 		return GMenuEngine.Value.MenuInt != 0
 
 	public def Random(low as int, high as int) as int:
-		return (Random(high, low) if low > high else FRand.Next(low, high))
+		return (Random(high, low) if low > high else FRand.Next(low, high + 1))
 
 	public def EnableSave(value as bool):
 		FSaveEnabled = value
@@ -333,14 +335,21 @@ class T2kEnvironment(TObject):
 	public def HeroPresent(id as int) as bool:
 		return FParty.IndexOf(self.Heroes[id]) > 0
 
-	public def CallScript(objectID as int, pageID as int):
-		GScriptEngine.value.RunObjectScript(self.MapObject[objectID].MapObj, pageID)
+	public def CallScript(objectID as int, pageID as int) as Task:
+		return GScriptEngine.value.RunObjectScript(self.MapObject[objectID].MapObj, pageID)
 
-	public def CallGlobalScript(scriptID as int):
-		GScriptEngine.value.CallGlobalScript(scriptID)
+	public def CallGlobalScript(scriptID as int) as Task:
+		return GScriptEngine.value.CallGlobalScript(scriptID)
 
 	public def ImageIndex(img as TRpgImage) as int:
 		return Array.IndexOf(FImages, img)
+
+	public def EraseAllImages():
+		return if FImages.Length == 0
+		var placeholder = FImages[0]
+		for image in FImages.Clone() cast (TRpgImage):
+			if assigned(image) and image != placeholder:
+				image.Dispose()
 
 	internal def RemoveImage(image as TRpgImage):
 		for i in range(FImages.Length):
@@ -388,6 +397,10 @@ class T2kEnvironment(TObject):
 			writer.CheckWrite('SaveCount', FSaveCount, 0)
 			writer.CheckWrite('PreserveSpriteOnTeleport', FPreserveSpriteOnTeleport, false)
 			writer.CheckWrite('SaveEnabled', FSaveEnabled, false)
+			writer.CheckWrite('BattleCount', FBattleCount, 0)
+			writer.CheckWrite('Victories', FVictories, 0)
+			writer.CheckWrite('Losses', FLosses, 0)
+			writer.CheckWrite('Flees', FFlees, 0)
 			if Timer.Time > 0:
 				writer.WritePropertyName('Timer')
 				Timer.Serialize(writer)
@@ -408,6 +421,10 @@ class T2kEnvironment(TObject):
 		obj.CheckRead('SaveCount', FSaveCount)
 		obj.CheckRead('PreserveSpriteOnTeleport', FPreserveSpriteOnTeleport)
 		obj.CheckRead('SaveEnabled', FSaveEnabled)
+		obj.CheckRead('BattleCount', FBattleCount)
+		obj.CheckRead('Victories', FVictories)
+		obj.CheckRead('Losses', FLosses)
+		obj.CheckRead('Flees', FFlees)
 		value = obj['Timer']
 		if assigned(value):
 			FTimer.Deserialize(value cast JObject)
@@ -468,6 +485,7 @@ class T2kEnvironment(TObject):
 			else:
 				FImages[i].Dispose() if assigned(FImages[i])
 			FImages[i] = value
+			value.Base.Z = 20 + i if assigned(value) and assigned(value.Base)
 
 	public ImageCount as int:
 		get: return FImages.Length - 1
@@ -485,17 +503,34 @@ class T2kEnvironment(TObject):
 	public PartySize as int:
 		get: return FParty.Count({h | h != FHeroes[0]})
 
+	private FBattleCount as int
+
+	private FVictories as int
+
+	private FLosses as int
+
+	private FFlees as int
+
 	public BattleCount as int:
-		get: return 0
+		get: return FBattleCount
 
 	public Victories as int:
-		get: return 0
+		get: return FVictories
 
 	public Losses as int:
-		get: return 0
+		get: return FLosses
 
 	public Flees as int:
-		get: return 0
+		get: return FFlees
+
+	//called when a battle ends: 0 won, 1 escaped, 2 lost, anything else it was stopped by a script
+	internal def CountBattle(outcome as int):
+		++FBattleCount
+		caseOf outcome:
+			case 0: ++FVictories
+			case 1: ++FFlees
+			case 2: ++FLosses
+			default: pass
 
 	public LevelGainNotify as bool:
 		set: FParty.LevelNotify = value

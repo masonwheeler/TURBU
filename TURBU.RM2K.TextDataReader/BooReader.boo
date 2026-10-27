@@ -39,6 +39,10 @@ import turbu.defs
 import SG.defs""")
 		_loader.Pipeline.InsertBefore(Boo.Lang.Compiler.Steps.MacroAndAttributeExpansion, FixNegativeNumbers())
 	
+	//battle scripts are only available from compiled data
+	public def GetBattleScript(partyId as int, pageId as int) as Func[of Task]:
+		return null
+
 	public def GetMapLoader(environment as object) as IMapLoader:
 		return _mapLoader if _mapLoader is not null and _mapLoader.Environment == environment
 		_mapLoader = TMapLoader(environment, Directory.GetParent(_path).FullName)

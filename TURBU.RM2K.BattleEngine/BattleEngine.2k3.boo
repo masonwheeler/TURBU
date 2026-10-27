@@ -1,6 +1,7 @@
 ﻿namespace TURBU.RM2K.BattleEngine
 
 import System
+import System.Threading.Tasks
 import Pythia.Runtime
 import turbu.versioning
 import TURBU.BattleEngine
@@ -16,8 +17,8 @@ class T2k3BattleEngine(TBattleEngine):
 	public override def Initialize(window as IntPtr):
 		FInitialized = true
 	
-	public override def StartBattle(party as TObject, foes as TObject, conditions as TObject) as TBattleResultData:
-		return TBattleResultData(result: TBattleResult.Victory)
+	public override def StartBattle(party as TObject, foes as TObject, conditions as TObject) as Task of TBattleResultData:
+		return Task.FromResult(TBattleResultData(result: TBattleResult.Victory))
 	
 	protected override def Cleanup():
 		pass

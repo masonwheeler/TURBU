@@ -8,6 +8,7 @@ import Boo.Adt
 import SDL2
 import SDL2.SDL2_GPU
 import SDL2.SDL_image
+import SDL2.SDL_Pnglite
 import SG.defs
 import sdl.canvas
 import Pythia.Runtime
@@ -81,7 +82,9 @@ class TSdlImage(TObject):
 			if filename != '':
 				if FRw == IntPtr.Zero:
 					intFilename = filename
-					lSurface = IMG_Load(intFilename)
+					if Path.GetExtension(intFilename).ToLowerInvariant() == '.png':
+						lSurface = SDL_LoadPNG(intFilename)
+					else: lSurface = IMG_Load(intFilename)
 				else: lSurface = IMG_LoadTyped_RW(FRw, 0, filename)
 			else: lSurface = SDL.SDL_CreateRGBSurface(0, spriteSize.x, spriteSize.y, 32, 0, 0, 0, 0)
 		if lSurface == IntPtr.Zero:

@@ -33,7 +33,7 @@ struct TBattleResultData:
 
 interface IBattleEngine(ITurbuEngine):
 
-	def StartBattle(party as TObject, foes as TObject, conditions as TObject) as TBattleResultData
+	def StartBattle(party as TObject, foes as TObject, conditions as TObject) as Task of TBattleResultData
 
 	def Initialize(window as IntPtr)
 
@@ -77,7 +77,7 @@ abstract class TBattleEngine(TRpgPlugBase, IBattleEngine):
 	public abstract def Initialize(window as IntPtr):
 		pass
 
-	public abstract def StartBattle(party as TObject, foes as TObject, conditions as TObject) as TBattleResultData:
+	public abstract def StartBattle(party as TObject, foes as TObject, conditions as TObject) as Task of TBattleResultData:
 		pass
 
 	public Data as TBattleEngineData:

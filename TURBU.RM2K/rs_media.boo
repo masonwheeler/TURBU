@@ -25,8 +25,10 @@ def StopMusic():
 
 def PlayMusic(name as string, time as int, volume as int, tempo as int, balance as int):
 	if ArchiveUtils.MusicExists(name) or (name == '(OFF)'):
-		LoadDisharmony().PlayMusic(Path.Combine(GArchives[MUSIC_ARCHIVE].Root, name))
-		LoadDisharmony().FadeInMusic(time)
+		sameSong = (name == L.LastMusic) and LoadDisharmony().GetMusicPlaying()
+		unless sameSong:
+			LoadDisharmony().PlayMusic(Path.Combine(GArchives[MUSIC_ARCHIVE].Root, name))
+			LoadDisharmony().FadeInMusic(time)
 		LoadDisharmony().SetMusicVolume(volume)
 		LoadDisharmony().SetMusicSpeed(tempo)
 		LoadDisharmony().SetMusicPanpot(cast(uint, balance * 0.64))
@@ -56,6 +58,9 @@ def PlaySystemMusicOnce(music as TBgmTypes) as Task:
 
 def FadeOutMusic(time as int):
 	LoadDisharmony().FadeOutMusic(time)
+	MemorizeMusic(L.FadedBGM)
+
+def MemorizePlayingMusic():
 	MemorizeMusic(L.FadedBGM)
 
 def FadeInLastMusic(time as int):

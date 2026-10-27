@@ -1,8 +1,12 @@
-﻿namespace TURBU.RM2K.BattleEngine
+namespace TURBU.RM2K.BattleEngine
 
 import System
+import System.Threading.Tasks
 import Pythia.Runtime
 import turbu.versioning
+import turbu.battles
+import turbu.monsters
+import turbu.Heroes
 import TURBU.BattleEngine
 
 class T2kBattleEngine(TBattleEngine):
@@ -16,8 +20,11 @@ class T2kBattleEngine(TBattleEngine):
 	public override def Initialize(window as IntPtr):
 		FInitialized = true
 	
-	public override def StartBattle(party as TObject, foes as TObject, conditions as TObject) as TBattleResultData:
-		return TBattleResultData(result: TBattleResult.Victory)
+	[async]
+	public override def StartBattle(party as TObject, foes as TObject, conditions as TObject) as Task of TBattleResultData:
+		var scene = TBattleScene(party cast TRpgParty, foes cast TRpgMonsterParty, conditions cast TBattleConditions)
+		result = await(scene.Run())
+		return TBattleResultData(result: result)
 	
 	protected override def Cleanup():
 		pass
