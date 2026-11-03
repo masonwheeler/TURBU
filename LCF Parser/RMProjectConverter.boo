@@ -27,6 +27,9 @@ class RMProjectConverter(ITaskSource):
 	private _scripts as string
 	private _database as string
 	private _everything = Block()
+	private _mapResources = List[of MapResourceList]()
+	private _mapGlobalCalls = HashSet[of int]()
+	private _localFiles = Dictionary[of string, string]()
 
 	[Getter(TokenSource)]
 	private _tokenSource = CancellationTokenSource()
@@ -77,11 +80,21 @@ class RMProjectConverter(ITaskSource):
 				_report.NewStep(Path.GetFileName(filename))
 				using fs = FileStream(filename, FileMode.Open):
 					lmu = LMU(fs)
-					TMapConverter.ConvertMap(lmu, _lmt, IDFromFilename(filename), _report, ScanScriptForResources) do(mapName as string, map as Node, script as Node):
+					mapId = IDFromFilename(filename)
+					_mapGlobalCalls.Clear()
+					firstResource = _everything.Statements.Count
+					TMapConverter.ConvertMap(lmu, _lmt, mapId, _report, ScanScriptForResources) do(mapName as string, map as Node, script as Node):
 						mapName = string(mapName.Where({x | not invalidChars.Contains(x)}).ToArray())
-						File.WriteAllText(Path.Combine(maps, "$mapName.tmf"), map.ToCodeString())
+						mapFile = Path.Combine(maps, "$mapName.tmf")
+						File.WriteAllText(mapFile, map.ToCodeString())
 						File.WriteAllText(Path.Combine(_scripts, "$mapName.boo"), script.ToScriptString())
 						_everything.Add(MapResources(map cast MacroStatement))
+						entry = MapResourceList(mapFile, HashSet[of int](_mapGlobalCalls))
+						for i in range(firstResource, _everything.Statements.Count):
+							entry.Resources.Add(_everything.Statements[i] cast MacroStatement)
+						music = TMapTreeConverter.MapMusic(_lmt, mapId)
+						entry.Resources.Add([|Music $music|]) unless string.IsNullOrEmpty(music)
+						_mapResources.Add(entry)
 		
 		task "Converting Database", TDatabaseConverter.STEPS:
 			TDatabaseConverter.Convert(_ldb, _database, _scripts, _everything, _report, _2k3, {self._token.ThrowIfCancellationRequested(); return false},
@@ -112,6 +125,7 @@ class RMProjectConverter(ITaskSource):
 			SaveImageResources((_ldb.SysData.BattleSysGraphic,), 'System2', 'System2') if _2k3
 			tileGroups = SaveTilesets(grouping['Tileset'])
 			File.WriteAllText(Path.Combine(self._database, 'TileGroups.tdb'), tileGroups.ToCodeString())
+			WriteMapResources()
 			exePath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName)
 			glyphPath = Path.Combine(_outputPath, 'Images', 'SysTiles', 'Glyphs')
 			Directory.CreateDirectory(glyphPath)
@@ -142,6 +156,7 @@ class RMProjectConverter(ITaskSource):
 					case '.png': File.Copy(loc, dest)
 					case '.bmp': CopyBMP(loc, dest)
 					case '.xyz': CopyXYZ(loc, dest)
+				_localFiles["$fromPath|$(value.ToUpperInvariant())"] = "Images/$toPath/$(Path.GetFileName(dest))"
 	
 	private def SaveResources(values as string*, fromPath as string, toPath as string, extensions as HashSet[of string]):
 		for value in values:
@@ -153,6 +168,7 @@ class RMProjectConverter(ITaskSource):
 				outPath = Path.Combine(_outputPath, toPath)
 				Directory.CreateDirectory(outPath)
 				File.Copy(loc, Path.Combine(outPath, Path.GetFileName(loc)))
+				_localFiles["$fromPath|$(value.ToUpperInvariant())"] = "$toPath/$(Path.GetFileName(loc))"
 	
 	private def SaveTilesets(values as string*) as MacroStatement:
 		outPath = Path.Combine(_outputPath, 'Images', 'Tilesets')
@@ -194,39 +210,90 @@ class RMProjectConverter(ITaskSource):
 		values.Add(grp)
 		File.WriteAllText(Path.Combine(_outputPath, "boot.boo"), values.ToCodeString())
 	
+	private static final EVENT_CALL = 12330
+	
 	private static final OPCODES = HashSet[of int]((10130, 10630, 10640, 10650, 10660, 10670, 10680, 10710, 11110,
-																11330, 11510, 11550, 11560, 11720))
+																11330, 11510, 11550, 11560, 11720, EVENT_CALL))
+	
+	//the folder that each kind of resource that a map names comes from
+	private static final RESOURCE_FOLDERS = Dictionary[of string, string](){'Music': 'Music', 'Sound': 'Sound',
+		'Movie': 'Movie', 'Sprite': 'CharSet', 'Portrait': 'FaceSet', 'Background': 'Panorama', 'BattleBG': 'Backdrop',
+		'Picture': 'Picture', 'SysTile': 'System'}
 	
 	private def ScanScriptForResources(script as EventCommand*):
-		for opcode in script.Where({o | OPCODES.Contains(o.Opcode)}):
-			ConvertOpcode(opcode)
+		CollectResources(script, _everything, _mapGlobalCalls)
 	
-	private def ConvertOpcode(opcode as EventCommand):
+	//adds the resources that a script names to target, and the global events that it calls to calls
+	private def CollectResources(script as EventCommand*, target as Block, calls as HashSet[of int]):
+		for opcode in script.Where({o | OPCODES.Contains(o.Opcode)}):
+			ConvertOpcode(opcode, target, calls)
+	
+	private def ConvertOpcode(opcode as EventCommand, target as Block, calls as HashSet[of int]):
+		if opcode.Opcode == EVENT_CALL:
+			calls.Add(opcode.Data[1]) if opcode.Data[0] == 0
+			return
 		caseOf opcode.Opcode:
-			case 10130, 10640: _everything.Add([|Portrait $(opcode.Name)|])
-			case 10630, 10650: _everything.Add([|Sprite $(opcode.Name)|])
-			case 10660, 11510: _everything.Add([|Music $(opcode.Name)|])
-			case 10670, 11550: _everything.Add([|Sound $(opcode.Name)|])
-			case 10680: _everything.Add([|SysTile $(opcode.Name)|])
-			case 10710: _everything.Add([|BattleBG $(opcode.Name)|])
-			case 11110: _everything.Add([|Picture $(opcode.Name)|])
-			case 11330: ScanMove(opcode)
-			case 11560: _everything.Add([|Movie $(opcode.Name)|])
-			case 11720: _everything.Add([|Background $(opcode.Name)|])
+			case 10130, 10640: target.Add([|Portrait $(opcode.Name)|])
+			case 10630, 10650: target.Add([|Sprite $(opcode.Name)|])
+			case 10660, 11510: target.Add([|Music $(opcode.Name)|])
+			case 10670, 11550: target.Add([|Sound $(opcode.Name)|])
+			case 10680: target.Add([|SysTile $(opcode.Name)|])
+			case 10710: target.Add([|BattleBG $(opcode.Name)|])
+			case 11110: target.Add([|Picture $(opcode.Name)|])
+			case 11330: ScanMove(opcode, target)
+			case 11560: target.Add([|Movie $(opcode.Name)|])
+			case 11720: target.Add([|Background $(opcode.Name)|])
 			default: assert false
 	
-	private def ScanMove(opcode as EventCommand):
+	private def ScanMove(opcode as EventCommand, target as Block):
 		moveString = opcode.Data.Skip(4).Select({value | return value cast byte}).ToArray()
 		ms = System.IO.MemoryStream(moveString)
 		while ms.Position < ms.Length:
-			ScanMoveOpcode(MoveOpcode(ms))
+			ScanMoveOpcode(MoveOpcode(ms), target)
 	
-	private def ScanMoveOpcode(value as MoveOpcode):
+	private def ScanMoveOpcode(value as MoveOpcode, target as Block):
 		return unless value.Code == 0x22 or value.Code == 0x23
 		if value.Code == 0x22:
-			_everything.Add([|Sprite $(value.Name)|])
+			target.Add([|Sprite $(value.Name)|])
 		else:
-			_everything.Add([|Sound $(value.Name)|])
+			target.Add([|Sound $(value.Name)|])
+	
+	//the resources of a global event, and of the global events that it calls
+	private def AddGlobalEventResources(id as int, seen as HashSet[of int], resources as List[of MacroStatement]):
+		return unless seen.Add(id)
+		ev = _ldb.GlobalEvents.FirstOrDefault({g | g.ID == id})
+		return if ev is null
+		found = Block()
+		calls = HashSet[of int]()
+		CollectResources(ev.Script, found, calls)
+		resources.AddRange(found.Statements.Cast[of MacroStatement]())
+		for call in calls:
+			AddGlobalEventResources(call, seen, resources)
+	
+	private def WriteMapResources():
+		for map in _mapResources:
+			resources = List[of MacroStatement](map.Resources)
+			seenEvents = HashSet[of int]()
+			for id in map.GlobalCalls:
+				AddGlobalEventResources(id, seenEvents, resources)
+			files = List[of string]()
+			seenFiles = HashSet[of string](StringComparer.OrdinalIgnoreCase)
+			for res in resources:
+				name = (res.Arguments[0] cast StringLiteralExpression).Value
+				folder as string
+				continue unless RESOURCE_FOLDERS.TryGetValue(res.Name, folder) and not string.IsNullOrEmpty(name)
+				localFile as string
+				continue unless _localFiles.TryGetValue("$folder|$(name.ToUpperInvariant())", localFile)
+				files.Add(localFile) if seenFiles.Add(localFile)
+			continue if files.Count == 0
+			block = MacroStatement('RequiredResources')
+			for file in files:
+				block.Body.Add(Expression.Lift(file))
+			text = System.Text.StringBuilder()
+			for line in block.ToCodeString().Split(char('\n')):
+				trimmed = line.TrimEnd(char('\r'))
+				text.Append('\t').Append(trimmed).Append('\r\n') unless trimmed.Length == 0
+			File.AppendAllText(map.FileName, text.ToString())
 	
 	private static def MapResources(map as MacroStatement) as Block:
 		mre = MapResourceExtractor()
@@ -289,6 +356,15 @@ macro converter:
 	result.Body.Add(tryBlock)
 	result.Body.Add([|_report.MakeReport('Conversion Log.txt')|])
 	yield result
+
+internal class MapResourceList:
+	public FileName as string
+	public GlobalCalls as HashSet[of int]
+	public Resources = List[of MacroStatement]()
+	
+	def constructor(fileName as string, globalCalls as HashSet[of int]):
+		FileName = fileName
+		GlobalCalls = globalCalls
 
 internal class MacroComparer(IEqualityComparer[of MacroStatement]):
 	def Equals(x as MacroStatement, y as MacroStatement) as bool:

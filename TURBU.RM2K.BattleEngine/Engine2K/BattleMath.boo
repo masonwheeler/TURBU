@@ -1,9 +1,6 @@
 namespace TURBU.RM2K.BattleEngine
 
 import System
-import Pythia.Runtime
-import Boo.Adt
-import TURBU.Meta
 import commons
 
 static class TBattleMath:

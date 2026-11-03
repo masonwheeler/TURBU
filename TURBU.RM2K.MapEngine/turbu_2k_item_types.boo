@@ -96,10 +96,11 @@ class TRecoveryItem(TAppliedItem):
 		result = false
 		return result unless super.UsableBy(hero)
 		var med = self.Template cast TMedicineTemplate
+		var target = GEnvironment.value.Heroes[hero]
 		if med.HPPercent > 0 or med.HPHeal > 0:
-			result = result or GEnvironment.value.Party[hero].HP < GEnvironment.value.Party[hero].MaxHp
+			result = result or target.HP < target.MaxHp
 		if med.MPPercent > 0 or med.MPHeal > 0:
-			result = result or GEnvironment.value.Party[hero].MP < GEnvironment.value.Party[hero].MaxMp
+			result = result or target.MP < target.MaxMp
 		if GEnvironment.value.Heroes[hero].Dead:
 			result = result and (CTN_DEAD in med.Conditions)
 		elif med.DeadOnly:

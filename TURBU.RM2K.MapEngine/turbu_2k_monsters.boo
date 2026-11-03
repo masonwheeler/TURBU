@@ -1,13 +1,10 @@
 namespace TURBU.RM2K.RPGScript
 
 import System
-import System.Linq.Enumerable
-import Pythia.Runtime
 import TURBU.Meta
 import commons
 import SG.defs
 import sdl.sprite
-import turbu.classes
 import turbu.defs
 import turbu.monsters
 import turbu.Heroes

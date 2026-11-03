@@ -4,6 +4,8 @@ import System
 import System.Linq.Enumerable
 import System.Threading.Tasks
 
+import Nito.AsyncEx
+
 import Boo.Lang.Compiler.Ast
 import turbu.defs
 import turbu.script.engine
@@ -26,7 +28,7 @@ macro ShowMessage(body as ExpressionStatement*):
 [async]
 def ShowMessage(msg as string) as Task:
 	oldValue as TMboxLocation
-	lock L.MessageLock:
+	using await(L.MessageLock.LockAsync()):
 		if assigned(L.ShowMessageHandler):
 			L.ShowMessageHandler(msg)
 		else:
@@ -176,4 +178,4 @@ internal static class L:
 	public ShowMessageHandler as Action of string
 	public MboxCautious as bool
 	public MboxModal as bool
-	public MessageLock = object()
+	public MessageLock = AsyncLock()

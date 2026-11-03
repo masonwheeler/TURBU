@@ -50,7 +50,7 @@ macro BattleScripts(body as TypeMemberStatement*):
 macro BattleScripts.BattleScript(id as int, page as int):
 	var name = "BattleScript$(id.ToString('D4'))Page$(page.ToString('D3'))"
 	var result = [|
-		public static def $name():
+		public static def $name() as System.Threading.Tasks.Task:
 			$(BattleScript.Body)
 	|]
 	var scriptList = BattleScripts['scriptList'] cast Dictionary[of int, string]
@@ -64,7 +64,7 @@ macro BattleScripts.BattleScript(id as int, page as int):
 macro BattleScripts.BattleGlobal(id as int):
 	var name = "BattleGlobal$(id.ToString('D4'))"
 	var result = [|
-		public static def $name():
+		public static def $name() as System.Threading.Tasks.Task:
 			$(BattleGlobal.Body)
 	|]
 	result.Accept(ScriptProcessor())
@@ -93,7 +93,7 @@ class ScriptProcessor(DepthFirstTransformer):
 		super.OnMethod(node)
 		if _seenAwait:
 			node.Attributes.Add(Boo.Lang.Compiler.Ast.Attribute('async'))
-		else: node.Body.Add([|return System.Threading.Tasks.Task.FromResult(true)|])
+		else: node.Body.Add([|return System.Threading.Tasks.Task.CompletedTask|])
 
 
 	override def OnMethodInvocationExpression(node as MethodInvocationExpression):

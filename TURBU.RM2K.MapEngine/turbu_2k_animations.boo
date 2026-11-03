@@ -3,7 +3,6 @@ namespace turbu.RM2K.animations
 import System
 import System.Linq.Enumerable
 import commons
-import timing
 import TURBU.Timing
 import turbu.animations
 import dm.shaders
@@ -41,26 +40,26 @@ class TAnimSpriteCell(TSprite):
 		gla = (of single: self.Red / 128.0, self.Green / 128.0, self.Blue / 128.0, 1.0)
 		shaders.SetUniformValue(handle, 'rgbValues', gla)
 		shaders.SetUniformValue(handle, 'satMult', (self.Sat / 128.0) cast single)
-		GPU_SetRGBA(self.Image.Surface, 255, 255, 255, Math.Min(self.Alpha * 2, 255))
+		GPU_SetRGBA(self.Image.Surface, 255, 255, 255, self.Alpha)
 
-	private def Drawself(center as SgFloatPoint, halfWidth as single, halfHeight as single, spriteRect as GPU_Rect):
+	private def Drawself(spriteRect as GPU_Rect):
 		GPU_BlitScale(
 			self.Image.Surface,
 			spriteRect,
 			sdl.canvas.currentRenderTarget().RenderTarget,
-			center.x - (halfWidth * self.ScaleX),
-			center.y - (halfHeight * self.ScaleY),
+			self.X,
+			self.Y,
 			self.ScaleX,
 			self.ScaleY)
+
+	protected override def InVisibleRect() as bool:
+		return true
 
 	protected override def DoDraw():
 		var color = GPU_GetColor(self.Image.Surface)
 		PrepareShader(GSpriteEngine.value.ShaderEngine)
-		halfWidth as single = self.PatternWidth / 2.0
-		halfHeight as single = self.PatternHeight / 2.0
-		var center = sgPointF(self.X + halfWidth, self.Y + halfHeight)
 		spriteRect as GPU_Rect = self.Image.SpriteRect[self.ImageIndex]
-		Drawself(center, halfWidth, halfHeight, spriteRect)
+		Drawself(spriteRect)
 		GPU_DeactivateShaderProgram()
 		GPU_SetColor(self.Image.Surface, color)
 
@@ -146,7 +145,7 @@ class TAnimSprite(TParentSprite):
 		newSprite.Red = commons.round(currFrame.Color.Rgba[1] * 1.275) //half of 2.55
 		newSprite.Green = commons.round(currFrame.Color.Rgba[2] * 1.275)
 		newSprite.Blue = commons.round(currFrame.Color.Rgba[3] * 1.275)
-		newSprite.Alpha = 255
+		newSprite.Alpha = (255 * (100 - clamp(currFrame.Transparency, 0, 100))) / 100 //0 is opaque, 100 invisible
 		newSprite.Sat = commons.round(currFrame.Color.Rgba[4] * 1.275)
 
 	private def PlayEffect(frame as ushort):

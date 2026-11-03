@@ -66,6 +66,10 @@ macro MapData.Background(usesBG as bool, bgName as string):
 	yield JsonStatement(JProperty('HasBackground', usesBG))
 	yield JsonStatement(JProperty('BgName', bgName))
 
+macro MapData.RequiredResources(body as ExpressionStatement*):
+	var names = body.Select({es | (es.Expression cast StringLiteralExpression).Value}).Cast[of object]().ToArray()
+	return JsonStatement(JProperty('RequiredResources', JArray(*names)))
+
 macro MapData.Tiles(body as JsonStatement*):
 	macro Layer(body as ExpressionStatement*):
 		var layer = body.SelectMany({es | (es.Expression cast ArrayLiteralExpression).Items}) \

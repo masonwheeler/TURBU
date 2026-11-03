@@ -191,7 +191,7 @@ class TGameEquipmentMenu(TGameMenuBox):
 		InvalidateText()
 		ourHero = GEnvironment.value.Heroes[FSetupValue]
 		self.Char = ourHero
-		for i in range(TSlot.Relic):
+		for i in range(TSlot.Relic + 1):
 			FParsedText[i] = (GDatabase.value.Items[ourHero.Equipment[i]].Name if ourHero.Equipment[i] != 0 else '')
 		self.DoCursor(FCursorPosition)
 
@@ -229,8 +229,8 @@ class TGameEquipmentMenu(TGameMenuBox):
 			index = (GEnvironment.value.Party.Size if charIndex == 1 else charIndex - 1)
 			return GEnvironment.value.Party[index]
 		
-		newChar as TRpgHero
 		super.DoButton(input)
+		return if FButtonLock != null
 		if input == TButtonCode.Enter:
 			var bounds = GMenuEngine.Value.Cursor.Bounds
 			bounds = GPU_MakeRect(
@@ -241,9 +241,9 @@ class TGameEquipmentMenu(TGameMenuBox):
 			FPassiveCursor.Layout(bounds)
 			self.FocusMenu('Inventory', 0)
 		elif (input in (TButtonCode.Left, TButtonCode.Right)) and (GEnvironment.value.Party.Size > 1):
-			newChar = (PrevChar() if input == TButtonCode.Left else NextChar())
+			newChar as TRpgHero = (PrevChar() if input == TButtonCode.Left else NextChar())
 			self.DoSetup(newChar.Template.ID)
-			FButtonLock = Timestamp(180)
+			FButtonLock = Timestamp(250)
 
 	public Char as TRpgHero:
 		get: return FChar

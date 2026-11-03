@@ -205,6 +205,7 @@ def PanScreen(direction as TFacing, distance as int, speed as int):
 			y += distance
 		case TFacing.Left:
 			x -= distance
+	PanScreenTo(x, y, speed)
 
 [async]
 def PanScreenAndWait(direction as TFacing, distance as int, speed as int) as Task:

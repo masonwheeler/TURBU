@@ -13,6 +13,9 @@ interface IRpgMap(IRpgObject):
 
 	def GetMapObjects() as IRpgMapObject*
 
+	RequiredResources as (string):
+		get
+
 	Tileset as int:
 		get
 		set

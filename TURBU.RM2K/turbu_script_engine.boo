@@ -24,6 +24,8 @@ class TScriptEngine(TObject):
 
 	private _inputId as int
 
+	private _teleportScripts as int
+
 	private _waiting = List[of KeyValuePair[of Func of bool, TaskCompletionSource of bool]]()
 
 	private _altWaiting = List[of KeyValuePair[of Func of bool, TaskCompletionSource of bool]]()
@@ -53,6 +55,7 @@ class TScriptEngine(TObject):
 		GScriptEngine.value = self
 
 	public def BeginTeleport():
+		++_teleportScripts unless IsTeleportScript
 		_teleporting = true
 		IsTeleportScript = true
 
@@ -62,6 +65,12 @@ class TScriptEngine(TObject):
 
 	internal def ResetTeleport():
 		_teleported = false
+
+	internal TeleportScriptRunning as bool:
+		get: return _teleportScripts > 0
+
+	internal def EndTeleportScript():
+		--_teleportScripts
 
 	public def FirstKeyCheck() as bool:
 		var execution = _scriptExecution.Value
@@ -258,6 +267,7 @@ class TMapObjectManager(TObject):
 		else:
 			unless FScriptEngine.Teleporting:
 				for page in FPlaylist:
+					continue if page.Trigger == TStartCondition.Automatic and FScriptEngine.TeleportScriptRunning
 					RunPageScript(page)
 
 	[async]
@@ -265,9 +275,12 @@ class TMapObjectManager(TObject):
 		return if page.Parent.Playing or not page.HasScript
 		page.Parent.Playing = true
 		FScriptEngine.PrepareNewScript()
-		await FScriptEngine.RunPageScript(page)
-		if FScriptEngine.IsTeleportScript:
-			self._doneTeleportScript()
+		try:
+			await FScriptEngine.RunPageScript(page)
+			if FScriptEngine.IsTeleportScript:
+				self._doneTeleportScript()
+		ensure:
+			FScriptEngine.EndTeleportScript() if FScriptEngine.IsTeleportScript
 
 static class GScriptEngine:
 	public value as TScriptEngine

@@ -7,7 +7,6 @@ import TURBU.Meta
 import commons
 import System.Collections.Generic
 import System.Linq.Enumerable
-import SG.defs
 import turbu.defs
 import turbu.characters
 import turbu.items
@@ -18,7 +17,6 @@ import turbu.constants
 import turbu.Heroes
 import TURBU.RM2K
 import TURBU.RM2K.RPGScript
-import turbu.RM2K.environment
 
 class TBattleField:
 

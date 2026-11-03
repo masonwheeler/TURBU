@@ -60,6 +60,18 @@ static class TMapTreeConverter:
 			map.Body.Add(areas)
 		areas.Body.Add(result)
 	
+	public def MapMusic(mapTree as LMT, id as int) as string:
+		current as MapTreeData
+		// to avoid infinite loops, just in case
+		visited = 0
+		while mapTree.Maps.TryGetValue(id, current) and visited < mapTree.Maps.Count:
+			if current.BgmState == TInheritedDecision.Yes:
+				return (current.BgmData.Filename if current.BgmData is not null else null)
+			return null if current.BgmState == TInheritedDecision.No
+			id = current.Parent
+			++visited
+		return null
+	
 	private def ConvertRoot(current as MapTreeData, id as int) as MacroStatement:
 		assert id == 0
 		return [|

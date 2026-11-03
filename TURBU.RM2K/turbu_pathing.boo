@@ -60,6 +60,8 @@ class Path:
 
 	public def Clone() as Path:
 		var result = Path(self)
+		for i in range(self.FCursor):
+			break unless result.FSteps.MoveNext()
 		result.FCursor = self.FCursor
 		result.FLooped = self.FLooped
 		return result

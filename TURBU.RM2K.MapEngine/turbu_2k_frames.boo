@@ -343,6 +343,9 @@ class TMenuSpriteEngine(SpriteEngine):
 		FBoxes[TMessageBoxTypes.Choice] = TChoiceBox(self, size)
 		FBoxes[TMessageBoxTypes.Prompt] = TPromptBox(self, size)
 		FBoxes[TMessageBoxTypes.Input] = TValueInputBox(self, size)
+		for box in FBoxes:
+			box.Z = 2
+		FCursor.Z = 3
 		TCustomMessageBox.OnPlaySound = PlaySystemSound
 		FMenuEngine = menuEngine
 
@@ -402,11 +405,14 @@ class TMenuSpriteEngine(SpriteEngine):
 		box.Text = msg
 		box.Visible = true
 		FCurrentBox = box
+		var cursorWasVisible = FCursor.Visible
+		FCursor.Visible = false
 		try:
 			FMenuState = (TMenuState.ExclusiveShared if modal else TMenuState.Shared)
 			await WaitForCurrentBox()
 		ensure:
 			EndMessage()
+			FCursor.Visible = cursorWasVisible
 
 	[async]
 	public def Inn(style as int, cost as int) as Task:
@@ -473,6 +479,7 @@ class TMenuSpriteEngine(SpriteEngine):
 
 	public def Reset():
 		FMenuEngine.CloseMenu()
+		EndMessage()
 
 	//Set by a battle engine for as long as its battle lasts: it draws the battle behind the messages that event
 	//scripts show, and the map stays out of sight.

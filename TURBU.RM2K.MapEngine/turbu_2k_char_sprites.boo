@@ -4,7 +4,6 @@ import turbu.defs
 import turbu.pathing
 import sdl.sprite
 import SG.defs
-import timing
 import TURBU.RM2K
 import TURBU.RM2K.MapEngine
 import turbu.characters

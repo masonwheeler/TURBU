@@ -241,7 +241,7 @@ class TScriptConverter:
 		caseOf values[2]:
 			case 0: value = Expression.Lift(values[3])
 			case 1: value = [|Ints[$(values[3])]|]
-			case 2: value = [|Monster[$(values[0])].MaxHP * $(values[3] / 100.0)|]
+			case 2: value = [|Monster[$(values[0] + 1)].MaxHP * $(values[3] / 100.0)|]
 			default: raise ERpgScriptError("Unknown monster HP value 2: $(values[2])")
 		if values[1] == 1 and values[4] == 1:
 			result = [|$(monster.Target).SafeLoseHP($value)|]
@@ -505,8 +505,8 @@ class TScriptConverter:
 				caseOf ec.Data[6]:
 					case 0, 1, 2, 3: 
 						prop = ReferenceExpression(('HP', 'MP', 'MaxHP', 'MaxMP')[ec.Data[6]])
-						right = [|Monster[$(ec.Data[5])].$prop|]
-					case 4, 5, 6, 7: right = [|Monster[$(ec.Data[5])].Stat[$(ec.Data[6] - 4)]|]
+						right = [|Monster[$(ec.Data[5] + 1)].$prop|]
+					case 4, 5, 6, 7: right = [|Monster[$(ec.Data[5] + 1)].Stat[$(ec.Data[6] - 4)]|]
 					default: raise ERpgScriptError("Unknown variable data 6 value: $(ec.Data[6])!")
 			default: raise ERpgScriptError("Unknown variable data 4 value: $(ec.Data[4])!")
 		if ec.Data[3] > 0:

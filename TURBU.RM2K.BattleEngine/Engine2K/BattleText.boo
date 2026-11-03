@@ -1,14 +1,10 @@
 namespace TURBU.RM2K.BattleEngine
 
 import System
-import Pythia.Runtime
 import Boo.Adt
-import TURBU.Meta
-import commons
 import System.Collections.Generic
 import System.Text
 import TURBU.RM2K
-import turbu.constants
 
 static class TBattleText:
 

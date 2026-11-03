@@ -74,6 +74,9 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 	[Property(BgName)]
 	private FBgName as string
 
+	[Property(RequiredResources)]
+	private FRequiredResources as (string) = Array.Empty[of string]()
+
 	[Property(HScroll)]
 	private FHScroll as TMapScrollType
 
@@ -188,6 +191,7 @@ class TRpgMap(TRpgDatafile, IRpgMap):
 				FMapObjects.Add(TRpgMapObject(value, self.MapObjectValidPage))
 		obj.CheckRead('HasBackground', FHasBG)
 		obj.CheckRead('BgName', FBgName)
+		obj.ReadArray('RequiredResources', FRequiredResources)
 		obj.CheckReadEnum('HScroll', FHScroll)
 		obj.CheckReadEnum('VScroll', FVScroll)
 		obj.CheckRead('ScrollSpeed', FScrollSpeed)

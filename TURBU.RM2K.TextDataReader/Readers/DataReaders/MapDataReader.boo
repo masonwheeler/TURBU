@@ -30,6 +30,11 @@ macro MapData.Background(usesBG as bool, bgName as string):
 	MapData.Body.Add([|HasBackground($usesBG)|])
 	MapData.Body.Add([|BgName($bgName)|])
 
+macro MapData.RequiredResources(body as ExpressionStatement*):
+	arr = ArrayLiteralExpression()
+	arr.Items.AddRange(body.Select({es | es.Expression}))
+	return ExpressionStatement([|RequiredResources($arr)|])
+
 macro MapData.Tiles(body as ExpressionStatement*):
 	macro Layer(body as ExpressionStatement*):
 		layer = ArrayLiteralExpression()

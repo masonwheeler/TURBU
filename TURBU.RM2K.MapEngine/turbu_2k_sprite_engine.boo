@@ -839,6 +839,8 @@ class T2kSpriteEngine(SpriteEngine):
 		AdjustCoordsForDisplacement(x, y)
 		FDispGoalX = (FDispGoalX + x) - Viewport.WorldX
 		FDispGoalY = (FDispGoalY + y) - Viewport.WorldY
+		clamp(FDispGoalX, -FDispBaseX, (Width * TILE_SIZE.x) - Canvas.Width)
+		clamp(FDispGoalY, -FDispBaseY, (Height * TILE_SIZE.y) - Canvas.Height)
 		FDisplacing = true
 
 	public def SetDispSpeed(speed as byte):

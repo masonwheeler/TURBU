@@ -2,15 +2,12 @@ namespace TURBU.RM2K.BattleEngine
 
 import System
 import TURBU.Meta
-import commons
-import Pythia.Runtime
 import Boo.Adt
 import TURBU.Timing
 import SDL2.SDL2_GPU
 import SDL.ImageManager
 import SG.defs
 import turbu.monsters
-import TURBU.RM2K
 import TURBU.RM2K.Menus
 import TURBU.RM2K.RPGScript
 

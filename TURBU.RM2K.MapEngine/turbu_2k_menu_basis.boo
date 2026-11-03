@@ -66,6 +66,7 @@ abstract class TGameMenuBox(TCustomMessageBox):
 
 	protected virtual def DoButton(input as TButtonCode):
 		super.Button(input)
+		return if FButtonLock != null
 		if input == TButtonCode.Cancel:
 			PlaySystemSound(TSfxTypes.Cancel)
 			self.Return()
@@ -392,7 +393,16 @@ class TMenuEngine(TObject, IMenuEngine):
 		PlaceCursor(0)
 
 	def CloseMenu():
-		FCurrentPage.CurrentMenu.EngineEndMessage()
+		while FStack.Count > 0:
+			var page = FStack.Pop()
+			page.Visible = false
+			page.EngineCleanup()
+		if assigned(FCurrentPage):
+			FCurrentPage.Visible = false
+			FCurrentPage.EngineCleanup()
+		FCursor.Visible = false
+		self.FVisible = false
+		FState = TMenuShowState.Off
 
 	def OpenMenu(Name as string, cursorValue as int):
 		unless FMenus.TryGetValue(Name, FCurrentPage):

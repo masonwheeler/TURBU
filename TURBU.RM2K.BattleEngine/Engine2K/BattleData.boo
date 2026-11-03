@@ -1,16 +1,12 @@
 namespace TURBU.RM2K.BattleEngine
 
 import System
-import Pythia.Runtime
-import Boo.Adt
 import TURBU.Meta
 import commons
 import System.Linq.Enumerable
 import SG.defs
 import turbu.defs
-import turbu.characters
 import turbu.items
-import turbu.monsters
 import turbu.resists
 import turbu.skills
 import TURBU.RM2K

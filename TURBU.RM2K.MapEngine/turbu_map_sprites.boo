@@ -13,7 +13,6 @@ import turbu.constants
 import TURBU.RM2K
 import turbu.script.engine
 import Boo.Adt
-import Boo.Lang.Compiler
 import Pythia.Runtime
 import tiles
 import System

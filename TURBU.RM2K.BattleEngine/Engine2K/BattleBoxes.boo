@@ -6,17 +6,13 @@ import Boo.Adt
 import TURBU.Meta
 import commons
 import System.Collections.Generic
-import SG.defs
 import SDL2
 import SDL2.SDL2_GPU
-import SDL.ImageManager
 import sdl.sprite
 import turbu.defs
 import turbu.constants
 import TURBU.TextUtils
-import TURBU.RM2K
 import TURBU.RM2K.Menus
-import TURBU.RM2K.RPGScript
 import timing
 
 let ROW_HEIGHT_STATUS = 16

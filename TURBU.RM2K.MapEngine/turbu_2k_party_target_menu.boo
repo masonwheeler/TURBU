@@ -90,6 +90,8 @@ class TGameMiniPartyPanel(TCustomPartyPanel):
 		else:
 			assert FItem isa TSkillItem
 			PlaySoundData((FItem cast TSkillItem).Skill.FirstSound)
+		InvalidateText()
+		(FOwner.Menu('Quantity') cast TQuantityBox).EngineInvalidateText()
 
 	private def UseSkill():
 		caster as TRpgHero
@@ -116,6 +118,8 @@ class TGameMiniPartyPanel(TCustomPartyPanel):
 		else:
 			PlaySoundData(FSkill.FirstSound)
 			caster.MP -= FSkill.Template.Cost
+		InvalidateText()
+		(FOwner.Menu('Quantity') cast TQuantityBox).EngineInvalidateText()
 
 	private def SetSkill(value as TRpgSkill):
 		FSkill = value
